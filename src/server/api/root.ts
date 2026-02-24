@@ -1,0 +1,26 @@
+import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
+import { postRouter } from "~/server/api/routers/post";
+
+import { companyRouter } from "~/server/api/routers/company";
+import { studentRouter } from "~/server/api/routers/student";
+import { examRouter } from "~/server/api/routers/exam";
+import { aiRouter } from "~/server/api/routers/ai";
+import { adminRouter } from "~/server/api/routers/admin";
+
+/**
+ * Primary tRPC router
+ */
+export const appRouter = createTRPCRouter({
+  post: postRouter,        // keep existing example router
+  company: companyRouter,
+  student: studentRouter,
+  exam: examRouter,
+  ai: aiRouter,
+  admin: adminRouter,
+});
+
+// Export type definition of API
+export type AppRouter = typeof appRouter;
+
+// Server-side caller
+export const createCaller = createCallerFactory(appRouter);
