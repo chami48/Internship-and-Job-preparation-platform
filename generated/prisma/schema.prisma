@@ -1,3 +1,4 @@
+//smart-screening\prisma\schema.prisma
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
@@ -72,4 +73,56 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+// =========================
+// Module 3 - Question Bank
+// =========================
+
+enum JobRole {
+  SOFTWARE_ENGINEER
+  UX_ENGINEER
+  PROJECT_MANAGER
+}
+
+enum QuestionType {
+  MCQ
+  SCENARIO
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+model Question {
+  id          String       @id @default(cuid())
+  role        JobRole
+  topic       String
+  type        QuestionType
+  difficulty  Difficulty
+  prompt      String
+  explanation String?
+  createdAt   DateTime     @default(now())
+
+  // MCQ only
+  options    Option[]
+  correctKey String?
+
+  // Scenario only
+  rubric String?
+
+  @@index([role, difficulty, topic])
+}
+
+model Option {
+  id         String @id @default(cuid())
+  questionId String
+  key        String
+  text       String
+
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([questionId, key])
 }

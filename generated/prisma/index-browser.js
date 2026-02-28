@@ -163,6 +163,26 @@ exports.Prisma.VerificationTokenScalarFieldEnum = {
   expires: 'expires'
 };
 
+exports.Prisma.QuestionScalarFieldEnum = {
+  id: 'id',
+  role: 'role',
+  topic: 'topic',
+  type: 'type',
+  difficulty: 'difficulty',
+  prompt: 'prompt',
+  explanation: 'explanation',
+  createdAt: 'createdAt',
+  correctKey: 'correctKey',
+  rubric: 'rubric'
+};
+
+exports.Prisma.OptionScalarFieldEnum = {
+  id: 'id',
+  questionId: 'questionId',
+  key: 'key',
+  text: 'text'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -172,14 +192,31 @@ exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
+exports.JobRole = exports.$Enums.JobRole = {
+  SOFTWARE_ENGINEER: 'SOFTWARE_ENGINEER',
+  UX_ENGINEER: 'UX_ENGINEER',
+  PROJECT_MANAGER: 'PROJECT_MANAGER'
+};
 
+exports.QuestionType = exports.$Enums.QuestionType = {
+  MCQ: 'MCQ',
+  SCENARIO: 'SCENARIO'
+};
+
+exports.Difficulty = exports.$Enums.Difficulty = {
+  EASY: 'EASY',
+  MEDIUM: 'MEDIUM',
+  HARD: 'HARD'
+};
 
 exports.Prisma.ModelName = {
   Post: 'Post',
   Account: 'Account',
   Session: 'Session',
   User: 'User',
-  VerificationToken: 'VerificationToken'
+  VerificationToken: 'VerificationToken',
+  Question: 'Question',
+  Option: 'Option'
 };
 
 /**
