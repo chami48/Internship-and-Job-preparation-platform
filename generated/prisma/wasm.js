@@ -135,6 +135,22 @@ exports.Prisma.VerificationTokenScalarFieldEnum = {
   expires: 'expires'
 };
 
+exports.Prisma.JobScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  company: 'company',
+  location: 'location',
+  type: 'type',
+  level: 'level',
+  tags: 'tags',
+  salary: 'salary',
+  description: 'description',
+  responsibilities: 'responsibilities',
+  requirements: 'requirements',
+  benefits: 'benefits',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.QuestionScalarFieldEnum = {
   id: 'id',
   role: 'role',
@@ -155,6 +171,52 @@ exports.Prisma.OptionScalarFieldEnum = {
   text: 'text'
 };
 
+exports.Prisma.ApplicationScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  jobId: 'jobId',
+  status: 'status',
+  fullName: 'fullName',
+  email: 'email',
+  mobile: 'mobile',
+  linkedin: 'linkedin',
+  github: 'github',
+  portfolio: 'portfolio',
+  university: 'university',
+  degree: 'degree',
+  specialization: 'specialization',
+  cgpa: 'cgpa',
+  awards: 'awards',
+  programmingLanguages: 'programmingLanguages',
+  frameworks: 'frameworks',
+  softwareProficiency: 'softwareProficiency',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.ExamSessionScalarFieldEnum = {
+  id: 'id',
+  applicationId: 'applicationId',
+  startedAt: 'startedAt',
+  finishedAt: 'finishedAt',
+  score: 'score',
+  violations: 'violations',
+  refreshCount: 'refreshCount',
+  isLocked: 'isLocked',
+  timeLimitMinutes: 'timeLimitMinutes',
+  currentQuestionIndex: 'currentQuestionIndex',
+  questionOrder: 'questionOrder',
+  optionOrder: 'optionOrder'
+};
+
+exports.Prisma.ExamAnswerScalarFieldEnum = {
+  id: 'id',
+  sessionId: 'sessionId',
+  questionId: 'questionId',
+  studentAnswer: 'studentAnswer',
+  aiScore: 'aiScore',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -164,6 +226,17 @@ exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
+exports.JobType = exports.$Enums.JobType = {
+  INTERNSHIP: 'INTERNSHIP',
+  FULL_TIME: 'FULL_TIME'
+};
+
+exports.JobLevel = exports.$Enums.JobLevel = {
+  JUNIOR: 'JUNIOR',
+  MID: 'MID',
+  SENIOR: 'SENIOR'
+};
+
 exports.JobRole = exports.$Enums.JobRole = {
   SOFTWARE_ENGINEER: 'SOFTWARE_ENGINEER',
   UX_ENGINEER: 'UX_ENGINEER',
@@ -181,14 +254,25 @@ exports.Difficulty = exports.$Enums.Difficulty = {
   HARD: 'HARD'
 };
 
+exports.ApplicationStatus = exports.$Enums.ApplicationStatus = {
+  DRAFT: 'DRAFT',
+  SUBMITTED: 'SUBMITTED',
+  PASSED: 'PASSED',
+  FAILED: 'FAILED'
+};
+
 exports.Prisma.ModelName = {
   Post: 'Post',
   Account: 'Account',
   Session: 'Session',
   User: 'User',
   VerificationToken: 'VerificationToken',
+  Job: 'Job',
   Question: 'Question',
-  Option: 'Option'
+  Option: 'Option',
+  Application: 'Application',
+  ExamSession: 'ExamSession',
+  ExamAnswer: 'ExamAnswer'
 };
 /**
  * Create the Client
@@ -238,13 +322,13 @@ const config = {
       }
     }
   },
-  "inlineSchema": "//smart-screening\\prisma\\schema.prisma\n// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../generated/prisma\"\n}\n\ndatasource db {\n  provider = \"sqlite\"\n  // NOTE: When using mysql or sqlserver, uncomment the @db.Text annotations in model Account below\n  // Further reading:\n  // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema\n  // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel Post {\n  id        Int      @id @default(autoincrement())\n  name      String\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  createdBy   User   @relation(fields: [createdById], references: [id])\n  createdById String\n\n  @@index([name])\n}\n\n// Necessary for Next auth\nmodel Account {\n  id                       String  @id @default(cuid())\n  userId                   String\n  type                     String\n  provider                 String\n  providerAccountId        String\n  refresh_token            String? // @db.Text\n  access_token             String? // @db.Text\n  expires_at               Int?\n  token_type               String?\n  scope                    String?\n  id_token                 String? // @db.Text\n  session_state            String?\n  user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)\n  refresh_token_expires_in Int?\n\n  @@unique([provider, providerAccountId])\n}\n\nmodel Session {\n  id           String   @id @default(cuid())\n  sessionToken String   @unique\n  userId       String\n  expires      DateTime\n  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)\n}\n\nmodel User {\n  id            String    @id @default(cuid())\n  name          String?\n  email         String?   @unique\n  emailVerified DateTime?\n  image         String?\n  accounts      Account[]\n  sessions      Session[]\n  posts         Post[]\n}\n\nmodel VerificationToken {\n  identifier String\n  token      String   @unique\n  expires    DateTime\n\n  @@unique([identifier, token])\n}\n\n// =========================\n// Module 3 - Question Bank\n// =========================\n\nenum JobRole {\n  SOFTWARE_ENGINEER\n  UX_ENGINEER\n  PROJECT_MANAGER\n}\n\nenum QuestionType {\n  MCQ\n  SCENARIO\n}\n\nenum Difficulty {\n  EASY\n  MEDIUM\n  HARD\n}\n\nmodel Question {\n  id          String       @id @default(cuid())\n  role        JobRole\n  topic       String\n  type        QuestionType\n  difficulty  Difficulty\n  prompt      String\n  explanation String?\n  createdAt   DateTime     @default(now())\n\n  // MCQ only\n  options    Option[]\n  correctKey String?\n\n  // Scenario only\n  rubric String?\n\n  @@index([role, difficulty, topic])\n}\n\nmodel Option {\n  id         String @id @default(cuid())\n  questionId String\n  key        String\n  text       String\n\n  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)\n\n  @@unique([questionId, key])\n}\n",
-  "inlineSchemaHash": "d6b847c501fc27070e29b973b6f84e4cdc88408bab3e6dc939e44c8f05589398",
+  "inlineSchema": "//smart-screening\\prisma\\schema.prisma\n// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../generated/prisma\"\n}\n\ndatasource db {\n  provider = \"sqlite\"\n  // NOTE: When using mysql or sqlserver, uncomment the @db.Text annotations in model Account below\n  // Further reading:\n  // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema\n  // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel Post {\n  id        Int      @id @default(autoincrement())\n  name      String\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  createdBy   User   @relation(fields: [createdById], references: [id])\n  createdById String\n\n  @@index([name])\n}\n\n// Necessary for Next auth\nmodel Account {\n  id                       String  @id @default(cuid())\n  userId                   String\n  type                     String\n  provider                 String\n  providerAccountId        String\n  refresh_token            String? // @db.Text\n  access_token             String? // @db.Text\n  expires_at               Int?\n  token_type               String?\n  scope                    String?\n  id_token                 String? // @db.Text\n  session_state            String?\n  user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)\n  refresh_token_expires_in Int?\n\n  @@unique([provider, providerAccountId])\n}\n\nmodel Session {\n  id           String   @id @default(cuid())\n  sessionToken String   @unique\n  userId       String\n  expires      DateTime\n  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)\n}\n\nmodel User {\n  id            String    @id @default(cuid())\n  name          String?\n  email         String?   @unique\n  emailVerified DateTime?\n  image         String?\n  accounts      Account[]\n  sessions      Session[]\n  posts         Post[]\n\n  applications Application[]\n}\n\nmodel VerificationToken {\n  identifier String\n  token      String   @unique\n  expires    DateTime\n\n  @@unique([identifier, token])\n}\n\n//Module 2\nenum JobType {\n  INTERNSHIP\n  FULL_TIME\n}\n\nenum JobLevel {\n  JUNIOR\n  MID\n  SENIOR\n}\n\nmodel Job {\n  id               String   @id @default(cuid())\n  title            String\n  company          String\n  location         String\n  type             JobType\n  level            JobLevel\n  tags             String // store as comma-separated for now (simple)\n  salary           String?\n  description      String\n  responsibilities String\n  requirements     String\n  benefits         String?\n  createdAt        DateTime @default(now())\n\n  applications Application[]\n}\n\n// =========================\n// Module 3 - Question Bank\n// =========================\n\nenum JobRole {\n  SOFTWARE_ENGINEER\n  UX_ENGINEER\n  PROJECT_MANAGER\n}\n\nenum QuestionType {\n  MCQ\n  SCENARIO\n}\n\nenum Difficulty {\n  EASY\n  MEDIUM\n  HARD\n}\n\nmodel Question {\n  id          String       @id @default(cuid())\n  role        JobRole\n  topic       String\n  type        QuestionType\n  difficulty  Difficulty\n  prompt      String\n  explanation String?\n  createdAt   DateTime     @default(now())\n\n  // MCQ only\n  options    Option[]\n  correctKey String?\n\n  // Scenario only\n  rubric String?\n\n  examAnswers ExamAnswer[]\n\n  @@index([role, difficulty, topic])\n}\n\nmodel Option {\n  id         String @id @default(cuid())\n  questionId String\n  key        String\n  text       String\n\n  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)\n\n  @@unique([questionId, key])\n}\n\n// ============================\n// Module 3 - Application & Exam\n// ============================\n\nenum ApplicationStatus {\n  DRAFT\n  SUBMITTED\n  PASSED\n  FAILED\n}\n\nmodel Application {\n  id     String            @id @default(cuid())\n  userId String\n  jobId  String\n  status ApplicationStatus @default(DRAFT)\n\n  fullName  String\n  email     String\n  mobile    String\n  linkedin  String?\n  github    String?\n  portfolio String?\n\n  university     String\n  degree         String\n  specialization String?\n  cgpa           String?\n  awards         String?\n\n  programmingLanguages String\n  frameworks           String?\n  softwareProficiency  String?\n\n  createdAt DateTime @default(now())\n\n  examSession ExamSession?\n\n  user User @relation(fields: [userId], references: [id])\n  job  Job  @relation(fields: [jobId], references: [id])\n}\n\nmodel ExamSession {\n  id            String @id @default(cuid())\n  applicationId String @unique\n\n  startedAt  DateTime  @default(now())\n  finishedAt DateTime?\n\n  score        Float?\n  violations   Int     @default(0)\n  refreshCount Int     @default(0)\n  isLocked     Boolean @default(false)\n\n  timeLimitMinutes Int @default(30)\n\n  currentQuestionIndex Int @default(0)\n\n  // JSON stored as string\n  questionOrder String\n  optionOrder   String?\n\n  answers ExamAnswer[]\n\n  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)\n}\n\nmodel ExamAnswer {\n  id            String   @id @default(cuid())\n  sessionId     String\n  questionId    String\n  studentAnswer String\n  aiScore       Float?\n  createdAt     DateTime @default(now())\n\n  session  ExamSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)\n  question Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)\n\n  @@unique([sessionId, questionId]) // Prevent answering same question twice\n}\n",
+  "inlineSchemaHash": "d2c1f868afaf58ac0fd6e195cc3955daf2b7572b834308bfe83e8bcfeeb7aa97",
   "copyEngine": true
 }
 config.dirname = '/'
 
-config.runtimeDataModel = JSON.parse("{\"models\":{\"Post\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdBy\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"PostToUser\"},{\"name\":\"createdById\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"Account\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"type\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"provider\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"providerAccountId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"refresh_token\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"access_token\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"expires_at\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"token_type\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"scope\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"id_token\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"session_state\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"AccountToUser\"},{\"name\":\"refresh_token_expires_in\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"Session\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sessionToken\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"expires\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"SessionToUser\"}],\"dbName\":null},\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"emailVerified\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"image\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"accounts\",\"kind\":\"object\",\"type\":\"Account\",\"relationName\":\"AccountToUser\"},{\"name\":\"sessions\",\"kind\":\"object\",\"type\":\"Session\",\"relationName\":\"SessionToUser\"},{\"name\":\"posts\",\"kind\":\"object\",\"type\":\"Post\",\"relationName\":\"PostToUser\"}],\"dbName\":null},\"VerificationToken\":{\"fields\":[{\"name\":\"identifier\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"token\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"expires\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"Question\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"role\",\"kind\":\"enum\",\"type\":\"JobRole\"},{\"name\":\"topic\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"type\",\"kind\":\"enum\",\"type\":\"QuestionType\"},{\"name\":\"difficulty\",\"kind\":\"enum\",\"type\":\"Difficulty\"},{\"name\":\"prompt\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"explanation\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"options\",\"kind\":\"object\",\"type\":\"Option\",\"relationName\":\"OptionToQuestion\"},{\"name\":\"correctKey\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"rubric\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"Option\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"questionId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"key\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"text\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"question\",\"kind\":\"object\",\"type\":\"Question\",\"relationName\":\"OptionToQuestion\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"Post\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdBy\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"PostToUser\"},{\"name\":\"createdById\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"Account\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"type\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"provider\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"providerAccountId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"refresh_token\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"access_token\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"expires_at\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"token_type\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"scope\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"id_token\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"session_state\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"AccountToUser\"},{\"name\":\"refresh_token_expires_in\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"Session\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sessionToken\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"expires\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"SessionToUser\"}],\"dbName\":null},\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"emailVerified\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"image\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"accounts\",\"kind\":\"object\",\"type\":\"Account\",\"relationName\":\"AccountToUser\"},{\"name\":\"sessions\",\"kind\":\"object\",\"type\":\"Session\",\"relationName\":\"SessionToUser\"},{\"name\":\"posts\",\"kind\":\"object\",\"type\":\"Post\",\"relationName\":\"PostToUser\"},{\"name\":\"applications\",\"kind\":\"object\",\"type\":\"Application\",\"relationName\":\"ApplicationToUser\"}],\"dbName\":null},\"VerificationToken\":{\"fields\":[{\"name\":\"identifier\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"token\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"expires\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"Job\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"company\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"location\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"type\",\"kind\":\"enum\",\"type\":\"JobType\"},{\"name\":\"level\",\"kind\":\"enum\",\"type\":\"JobLevel\"},{\"name\":\"tags\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"salary\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"responsibilities\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"requirements\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"benefits\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"applications\",\"kind\":\"object\",\"type\":\"Application\",\"relationName\":\"ApplicationToJob\"}],\"dbName\":null},\"Question\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"role\",\"kind\":\"enum\",\"type\":\"JobRole\"},{\"name\":\"topic\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"type\",\"kind\":\"enum\",\"type\":\"QuestionType\"},{\"name\":\"difficulty\",\"kind\":\"enum\",\"type\":\"Difficulty\"},{\"name\":\"prompt\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"explanation\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"options\",\"kind\":\"object\",\"type\":\"Option\",\"relationName\":\"OptionToQuestion\"},{\"name\":\"correctKey\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"rubric\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"examAnswers\",\"kind\":\"object\",\"type\":\"ExamAnswer\",\"relationName\":\"ExamAnswerToQuestion\"}],\"dbName\":null},\"Option\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"questionId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"key\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"text\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"question\",\"kind\":\"object\",\"type\":\"Question\",\"relationName\":\"OptionToQuestion\"}],\"dbName\":null},\"Application\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"jobId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"status\",\"kind\":\"enum\",\"type\":\"ApplicationStatus\"},{\"name\":\"fullName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"mobile\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"linkedin\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"github\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"portfolio\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"university\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"degree\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"specialization\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"cgpa\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"awards\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"programmingLanguages\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"frameworks\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"softwareProficiency\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"examSession\",\"kind\":\"object\",\"type\":\"ExamSession\",\"relationName\":\"ApplicationToExamSession\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"ApplicationToUser\"},{\"name\":\"job\",\"kind\":\"object\",\"type\":\"Job\",\"relationName\":\"ApplicationToJob\"}],\"dbName\":null},\"ExamSession\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"applicationId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"startedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"finishedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"score\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"violations\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"refreshCount\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"isLocked\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"timeLimitMinutes\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"currentQuestionIndex\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"questionOrder\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"optionOrder\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"answers\",\"kind\":\"object\",\"type\":\"ExamAnswer\",\"relationName\":\"ExamAnswerToExamSession\"},{\"name\":\"application\",\"kind\":\"object\",\"type\":\"Application\",\"relationName\":\"ApplicationToExamSession\"}],\"dbName\":null},\"ExamAnswer\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sessionId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"questionId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"studentAnswer\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"aiScore\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"session\",\"kind\":\"object\",\"type\":\"ExamSession\",\"relationName\":\"ExamAnswerToExamSession\"},{\"name\":\"question\",\"kind\":\"object\",\"type\":\"Question\",\"relationName\":\"ExamAnswerToQuestion\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
 defineDmmfProperty(exports.Prisma, config.runtimeDataModel)
 config.engineWasm = {
   getRuntime: async () => require('./query_engine_bg.js'),

@@ -126,3 +126,31 @@ model Option {
 
   @@unique([questionId, key])
 }
+
+//Module 2
+enum JobType {
+  INTERNSHIP
+  FULL_TIME
+}
+
+enum JobLevel {
+  JUNIOR
+  MID
+  SENIOR
+}
+
+model Job {
+  id               String   @id @default(cuid())
+  title            String
+  company          String
+  location         String
+  type             JobType
+  level            JobLevel
+  tags             String // store as comma-separated for now (simple)
+  salary           String?
+  description      String
+  responsibilities String
+  requirements     String
+  benefits         String?
+  createdAt        DateTime @default(now())
+}

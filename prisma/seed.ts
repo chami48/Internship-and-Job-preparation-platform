@@ -1,3 +1,4 @@
+//smart-screening\prisma\seed.ts
 import { PrismaClient, Difficulty, JobRole, QuestionType } from "../generated/prisma";
 
 const prisma = new PrismaClient();

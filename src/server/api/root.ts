@@ -5,6 +5,7 @@ import { companyRouter } from "~/server/api/routers/company";
 import { studentRouter } from "~/server/api/routers/student";
 import { examRouter } from "~/server/api/routers/exam";
 import { aiRouter } from "~/server/api/routers/ai";
+import { jobRouter } from "~/server/api/routers/job";//nilumi
 import { adminRouter } from "~/server/api/routers/admin";
 
 /**
@@ -17,6 +18,8 @@ export const appRouter = createTRPCRouter({
   exam: examRouter,
   ai: aiRouter,
   admin: adminRouter,
+  job: jobRouter,
+
 });
 
 // Export type definition of API
@@ -24,3 +27,4 @@ export type AppRouter = typeof appRouter;
 
 // Server-side caller
 export const createCaller = createCallerFactory(appRouter);
+

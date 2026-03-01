@@ -163,6 +163,22 @@ exports.Prisma.VerificationTokenScalarFieldEnum = {
   expires: 'expires'
 };
 
+exports.Prisma.JobScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  company: 'company',
+  location: 'location',
+  type: 'type',
+  level: 'level',
+  tags: 'tags',
+  salary: 'salary',
+  description: 'description',
+  responsibilities: 'responsibilities',
+  requirements: 'requirements',
+  benefits: 'benefits',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.QuestionScalarFieldEnum = {
   id: 'id',
   role: 'role',
@@ -183,6 +199,52 @@ exports.Prisma.OptionScalarFieldEnum = {
   text: 'text'
 };
 
+exports.Prisma.ApplicationScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  jobId: 'jobId',
+  status: 'status',
+  fullName: 'fullName',
+  email: 'email',
+  mobile: 'mobile',
+  linkedin: 'linkedin',
+  github: 'github',
+  portfolio: 'portfolio',
+  university: 'university',
+  degree: 'degree',
+  specialization: 'specialization',
+  cgpa: 'cgpa',
+  awards: 'awards',
+  programmingLanguages: 'programmingLanguages',
+  frameworks: 'frameworks',
+  softwareProficiency: 'softwareProficiency',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.ExamSessionScalarFieldEnum = {
+  id: 'id',
+  applicationId: 'applicationId',
+  startedAt: 'startedAt',
+  finishedAt: 'finishedAt',
+  score: 'score',
+  violations: 'violations',
+  refreshCount: 'refreshCount',
+  isLocked: 'isLocked',
+  timeLimitMinutes: 'timeLimitMinutes',
+  currentQuestionIndex: 'currentQuestionIndex',
+  questionOrder: 'questionOrder',
+  optionOrder: 'optionOrder'
+};
+
+exports.Prisma.ExamAnswerScalarFieldEnum = {
+  id: 'id',
+  sessionId: 'sessionId',
+  questionId: 'questionId',
+  studentAnswer: 'studentAnswer',
+  aiScore: 'aiScore',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -192,6 +254,17 @@ exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
+exports.JobType = exports.$Enums.JobType = {
+  INTERNSHIP: 'INTERNSHIP',
+  FULL_TIME: 'FULL_TIME'
+};
+
+exports.JobLevel = exports.$Enums.JobLevel = {
+  JUNIOR: 'JUNIOR',
+  MID: 'MID',
+  SENIOR: 'SENIOR'
+};
+
 exports.JobRole = exports.$Enums.JobRole = {
   SOFTWARE_ENGINEER: 'SOFTWARE_ENGINEER',
   UX_ENGINEER: 'UX_ENGINEER',
@@ -209,14 +282,25 @@ exports.Difficulty = exports.$Enums.Difficulty = {
   HARD: 'HARD'
 };
 
+exports.ApplicationStatus = exports.$Enums.ApplicationStatus = {
+  DRAFT: 'DRAFT',
+  SUBMITTED: 'SUBMITTED',
+  PASSED: 'PASSED',
+  FAILED: 'FAILED'
+};
+
 exports.Prisma.ModelName = {
   Post: 'Post',
   Account: 'Account',
   Session: 'Session',
   User: 'User',
   VerificationToken: 'VerificationToken',
+  Job: 'Job',
   Question: 'Question',
-  Option: 'Option'
+  Option: 'Option',
+  Application: 'Application',
+  ExamSession: 'ExamSession',
+  ExamAnswer: 'ExamAnswer'
 };
 
 /**
