@@ -231,11 +231,11 @@ router.push(
 
         :root{
           --bg: #ffffff;
-          --surface: #f8f9fb;
-          --border: #e6e8ec;
-          --text: #111111;
-          --muted: #6b7280;
-          --accent: #ff7a3d;
+          --surface: #f8faff;
+          --border: #e2e8f0;
+          --text: #0f172a;
+          --muted: #94a3b8;
+          --accent: #0ea5e9;
         }
 
         *{ box-sizing: border-box; }
@@ -261,7 +261,7 @@ router.push(
           position: sticky;
           top: 80px;
           height: calc(100vh - 80px);
-          background: #ffffff;
+          background: #fafbfc;
           border-right: 1px solid var(--border);
           padding: 28px 0;
         }
@@ -281,6 +281,7 @@ router.push(
         .brandTitle{
           font-size: 18px;
           font-weight: 700;
+          color: var(--text);
         }
 
         .progressWrap{
@@ -335,7 +336,7 @@ router.push(
         }
 
         .navBtn.active{
-          background: #fff3ec;
+          background: #e0f2fe;
           border-color: var(--accent);
         }
 
@@ -355,7 +356,7 @@ router.push(
 
         .navBtn.active .navNum{
           border-color: var(--accent);
-          background: #ffe8dc;
+          background: #bae6fd;
         }
 
         .main{
@@ -428,7 +429,7 @@ router.push(
         .input:focus, .textarea:focus{
           outline:none;
           border-color: var(--accent);
-          box-shadow: 0 0 0 3px rgba(255, 122, 61, 0.15);
+          box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
         }
 
         .textarea{
@@ -496,12 +497,24 @@ router.push(
           cursor:pointer;
           border:1px solid var(--border);
           background:#fff;
+          color: var(--text);
+          transition: all 0.2s;
+        }
+
+        .btn:hover{
+          border-color: var(--accent);
+          color: var(--accent);
         }
 
         .btnPrimary{
-          background: var(--accent);
+          background: var(--text);
           color:#fff;
           border:none;
+        }
+
+        .btnPrimary:hover{
+          background: var(--accent);
+          box-shadow: 0 4px 16px rgba(14, 165, 233, 0.18);
         }
 
         @media (max-width: 900px){

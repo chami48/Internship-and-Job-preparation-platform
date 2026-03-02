@@ -8,8 +8,18 @@ import { api } from "~/trpc/react";
 function Tag({ text }: { text: string }) {
   return (
     <span
-      className="rounded-full border border-orange-200 bg-orange-50 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-orange-600"
-      style={{ fontFamily: "'Inter', sans-serif" }}
+      style={{
+        fontFamily: "'Plus Jakarta Sans', sans-serif",
+        background: "#E0F2FE",
+        border: "1px solid rgba(14,165,233,0.3)",
+        color: "#0369A1",
+        borderRadius: "100px",
+        padding: "2px 10px",
+        fontSize: "10px",
+        fontWeight: 600,
+        letterSpacing: "0.08em",
+        textTransform: "uppercase",
+      }}
     >
       {text}
     </span>
@@ -17,44 +27,24 @@ function Tag({ text }: { text: string }) {
 }
 
 /* ─── Animated counter ───────────────────────────────────── */
-function Counter({
-  to,
-  label,
-  suffix = "+",
-}: {
-  to: number;
-  label: string;
-  suffix?: string;
-}) {
+function Counter({ to, label, suffix = "+" }: { to: number; label: string; suffix?: string }) {
   const [val, setVal] = useState(0);
-
   useEffect(() => {
     let v = 0;
     const step = Math.max(1, Math.ceil(to / 50));
     const id = setInterval(() => {
       v += step;
-      if (v >= to) {
-        setVal(to);
-        clearInterval(id);
-      } else setVal(v);
+      if (v >= to) { setVal(to); clearInterval(id); } else setVal(v);
     }, 25);
-
     return () => clearInterval(id);
   }, [to]);
 
   return (
     <div className="flex flex-col items-start">
-      <span
-        className="text-4xl font-black tabular-nums text-gray-900"
-        style={{ fontFamily: "'Poppins', sans-serif" }}
-      >
-        {val.toLocaleString()}
-        {suffix}
+      <span style={{ fontFamily: "'Clash Display', sans-serif", fontSize: "2.4rem", fontWeight: 700, color: "white", lineHeight: 1 }}>
+        {val.toLocaleString()}<span style={{ color: "#0EA5E9" }}>{suffix}</span>
       </span>
-      <span
-        className="mt-1 text-[11px] font-semibold uppercase tracking-widest text-gray-400"
-        style={{ fontFamily: "'Inter', sans-serif" }}
-      >
+      <span style={{ fontSize: "0.72rem", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)", marginTop: 5 }}>
         {label}
       </span>
     </div>
@@ -62,115 +52,107 @@ function Counter({
 }
 
 /* ─── Job Card ───────────────────────────────────────────── */
-function JobCard({
-  job,
-  index,
-}: {
-  job: {
-    id: string;
-    title: string;
-    company: string;
-    location: string;
-    type: string;
-    level: string;
-    tags: string[];
-    salary?: string | null;
-  };
+function JobCard({ job, index }: {
+  job: { id: string; title: string; company: string; location: string; type: string; level: string; tags: string[]; salary?: string | null };
   index: number;
 }) {
   const isIntern = job.type?.toLowerCase().includes("intern");
 
   return (
     <div
-      className="job-card group relative flex flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-gray-200/60"
-      style={{ animationDelay: `${index * 60}ms` }}
+      className="job-card"
+      style={{
+        animationDelay: `${index * 60}ms`,
+        background: "white",
+        border: "1px solid #E2E8F0",
+        borderRadius: 18,
+        display: "flex",
+        flexDirection: "column",
+        overflow: "hidden",
+        boxShadow: "0 4px 24px rgba(15,23,42,0.06)",
+        transition: "border-color 0.25s, box-shadow 0.25s, transform 0.25s",
+      }}
+      onMouseEnter={(e) => {
+        (e.currentTarget as HTMLElement).style.borderColor = "rgba(14,165,233,0.35)";
+        (e.currentTarget as HTMLElement).style.transform = "translateY(-4px)";
+        (e.currentTarget as HTMLElement).style.boxShadow = "0 12px 40px rgba(14,165,233,0.12)";
+      }}
+      onMouseLeave={(e) => {
+        (e.currentTarget as HTMLElement).style.borderColor = "#E2E8F0";
+        (e.currentTarget as HTMLElement).style.transform = "translateY(0)";
+        (e.currentTarget as HTMLElement).style.boxShadow = "0 4px 24px rgba(15,23,42,0.06)";
+      }}
     >
       {/* top colour strip */}
-      <div
-        className={`h-1 w-full flex-shrink-0 ${
-          isIntern
-            ? "bg-gradient-to-r from-violet-400 to-fuchsia-400"
-            : "bg-gradient-to-r from-orange-400 to-amber-400"
-        }`}
-      />
+      <div style={{ height: 4, width: "100%", background: isIntern ? "linear-gradient(90deg, #818CF8, #A78BFA)" : "linear-gradient(90deg, #0EA5E9, #38BDF8)", flexShrink: 0 }} />
 
-      <div className="flex flex-1 flex-col p-5">
+      <div style={{ display: "flex", flexDirection: "column", flex: 1, padding: "1.25rem" }}>
         {/* header */}
-        <div className="flex items-start justify-between gap-3">
-          <div
-            className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl text-lg ${
-              isIntern ? "bg-violet-50" : "bg-orange-50"
-            }`}
-          >
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+          <div style={{
+            width: 40, height: 40, flexShrink: 0, borderRadius: 13,
+            background: isIntern ? "#EEF2FF" : "#E0F2FE",
+            display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.2rem"
+          }}>
             {isIntern ? "🎓" : "💼"}
           </div>
-
-          <div className="flex gap-1.5">
-            <span
-              className={`rounded-full px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-widest ${
-                isIntern
-                  ? "bg-violet-50 text-violet-600"
-                  : "bg-orange-50 text-orange-600"
-              }`}
-              style={{ fontFamily: "'Inter', sans-serif" }}
-            >
+          <div style={{ display: "flex", gap: 6 }}>
+            <span style={{
+              borderRadius: "100px", padding: "2px 10px", fontSize: 9,
+              fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase",
+              background: isIntern ? "#EEF2FF" : "#E0F2FE",
+              color: isIntern ? "#6366F1" : "#0369A1",
+            }}>
               {job.type}
             </span>
-            <span
-              className="rounded-full bg-gray-100 px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-widest text-gray-500"
-              style={{ fontFamily: "'Inter', sans-serif" }}
-            >
+            <span style={{
+              borderRadius: "100px", padding: "2px 10px", fontSize: 9,
+              fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase",
+              background: "#F1F5F9", color: "#475569",
+            }}>
               {job.level}
             </span>
           </div>
         </div>
 
-        <div className="mt-3">
-          <h3
-            className="text-base font-bold leading-snug text-gray-900"
-            style={{ fontFamily: "'Poppins', sans-serif" }}
-          >
+        <div style={{ marginTop: 12 }}>
+          <h3 style={{ fontFamily: "'Clash Display', sans-serif", fontSize: "1rem", fontWeight: 600, color: "#0F172A", margin: 0, letterSpacing: "-0.01em" }}>
             {job.title}
           </h3>
-          <p
-            className="mt-1 text-xs text-gray-400"
-            style={{ fontFamily: "'Inter', sans-serif" }}
-          >
+          <p style={{ marginTop: 4, fontSize: "0.75rem", color: "#94A3B8", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
             {job.company} · {job.location}
           </p>
         </div>
 
-        {/* tags */}
         {job.tags?.length > 0 && (
-          <div className="mt-3 flex flex-wrap gap-1.5">
-            {job.tags.map((t) => (
-              <Tag key={t} text={t} />
-            ))}
+          <div style={{ marginTop: 12, display: "flex", flexWrap: "wrap", gap: 6 }}>
+            {job.tags.map((t) => <Tag key={t} text={t} />)}
           </div>
         )}
 
-        {/* footer */}
-        <div className="mt-auto flex items-center justify-between pt-5">
-          <p
-            className="text-xs text-gray-400"
-            style={{ fontFamily: "'Inter', sans-serif" }}
-          >
-            Salary:{" "}
-            <span className="font-semibold text-gray-700">
-              {job.salary ?? "Negotiable"}
-            </span>
+        <div style={{ marginTop: "auto", display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: 20 }}>
+          <p style={{ fontSize: "0.75rem", color: "#94A3B8", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            Salary: <span style={{ fontWeight: 600, color: "#475569" }}>{job.salary ?? "Negotiable"}</span>
           </p>
-
           <Link
             href={`/jobs/${job.id}`}
-            className={`rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-widest text-white transition-all ${
-              isIntern
-                ? "bg-violet-500 hover:bg-violet-600"
-                : "bg-orange-500 hover:bg-orange-600"
-            }`}
-            style={{ fontFamily: "'Inter', sans-serif" }}
+            style={{
+              borderRadius: 10, padding: "8px 16px", fontSize: "0.75rem",
+              fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase",
+              color: "white", background: "#0F172A", textDecoration: "none",
+              transition: "background 0.2s, box-shadow 0.2s",
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "#0EA5E9";
+              e.currentTarget.style.boxShadow = "0 4px 16px rgba(14,165,233,0.35)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "#0F172A";
+              e.currentTarget.style.boxShadow = "none";
+            }}
           >
-            View &amp; Apply →
+            View & Apply →
           </Link>
         </div>
       </div>
@@ -194,212 +176,224 @@ export default function HomePage() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Clash+Display:wght@500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap');
 
         .job-card { animation: fadeUp 0.45s ease both; }
         @keyframes fadeUp {
-          from{opacity:0;transform:translateY(14px)}
-          to{opacity:1;transform:translateY(0)}
+          from { opacity: 0; transform: translateY(14px); }
+          to   { opacity: 1; transform: translateY(0); }
         }
 
         .hero-word { animation: wordIn 0.55s cubic-bezier(0.16,1,0.3,1) both; }
         @keyframes wordIn {
-          from{opacity:0;transform:translateY(22px)}
-          to{opacity:1;transform:translateY(0)}
+          from { opacity: 0; transform: translateY(22px); }
+          to   { opacity: 1; transform: translateY(0); }
         }
 
         .dot-grid {
-          background-image: radial-gradient(circle, #e2e8f0 1.2px, transparent 1.2px);
+          background-image: radial-gradient(circle, rgba(14,165,233,0.15) 1.2px, transparent 1.2px);
           background-size: 26px 26px;
         }
 
         .filter-btn {
-          border: 1.5px solid #e5e7eb;
+          border: 1.5px solid #E2E8F0;
           background: white;
-          color: #6b7280;
+          color: #475569;
           border-radius: 999px;
           padding: 7px 18px;
           font-size: 11px;
-          font-family: 'Inter', sans-serif;
+          font-family: 'Plus Jakarta Sans', sans-serif;
           font-weight: 700;
           letter-spacing: 0.07em;
           text-transform: uppercase;
           cursor: pointer;
           transition: all 0.18s;
         }
-        .filter-btn:hover:not(.f-active) { border-color: #d1d5db; color: #374151; }
-        .f-active-all { border-color: #f97316 !important; background: #fff7ed !important; color: #ea580c !important; }
-        .f-active-intern { border-color: #a78bfa !important; background: #f5f3ff !important; color: #7c3aed !important; }
-        .f-active-full { border-color: #f97316 !important; background: #fff7ed !important; color: #ea580c !important; }
+        .filter-btn:hover:not(.f-active) { border-color: #94A3B8; color: #0F172A; }
+        .f-active-all  { border-color: #0EA5E9 !important; background: #E0F2FE !important; color: #0369A1 !important; }
+        .f-active-intern { border-color: #818CF8 !important; background: #EEF2FF !important; color: #6366F1 !important; }
+        .f-active-full { border-color: #0EA5E9 !important; background: #E0F2FE !important; color: #0369A1 !important; }
 
         .feature-card {
           background: white;
-          border: 1.5px solid #f1f5f9;
-          border-radius: 20px;
-          padding: 24px 22px;
-          transition: all 0.25s;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+          border: 1px solid #E2E8F0;
+          border-radius: 18px;
+          padding: 2rem;
+          transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s;
+          box-shadow: 0 4px 24px rgba(15,23,42,0.06);
+          position: relative;
+          overflow: hidden;
         }
         .feature-card:hover {
-          border-color: #fed7aa;
-          box-shadow: 0 10px 32px rgba(249,115,22,0.08);
-          transform: translateY(-3px);
+          border-color: rgba(14,165,233,0.35);
+          box-shadow: 0 12px 40px rgba(14,165,233,0.1);
+          transform: translateY(-4px);
+        }
+
+        .how-num-ring::after {
+          content: '';
+          position: absolute; inset: -4px; border-radius: 50%;
+          border: 2px dashed rgba(14,165,233,0.3);
+          animation: spin 8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .eyebrow-blink { animation: blink 1.4s infinite; }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+        .trending-row {
+          display: flex; align-items: center; gap: 12px;
+          border-radius: 12px; border: 1px solid #E2E8F0;
+          background: #F8FAFF; padding: 12px 16px;
+          font-size: 0.875rem; color: #475569;
+          transition: border-color 0.2s, background 0.2s;
+          cursor: default;
+        }
+        .trending-row:hover { border-color: rgba(14,165,233,0.3); background: #E0F2FE; color: #0F172A; }
+
+        .progress-bar-fill {
+          height: 100%; border-radius: 100px;
+          background: linear-gradient(90deg, #0EA5E9, #38BDF8);
         }
       `}</style>
 
-      <main
-        className="min-h-screen bg-[#f8fafc]"
-        style={{ fontFamily: "'Inter', sans-serif" }}
-      >
-        {/* Subtle dot background */}
-        <div className="pointer-events-none fixed inset-0 z-0 dot-grid opacity-70" />
+      <main style={{ minHeight: "100vh", background: "#F8FAFF", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
 
-        {/* Warm top gradient wash */}
-        <div
-          className="pointer-events-none fixed left-1/2 top-0 z-0 h-[480px] w-[1000px] -translate-x-1/2 rounded-full opacity-25"
-          style={{
-            background:
-              "radial-gradient(ellipse, #fb923c 0%, #fde68a 50%, transparent 75%)",
-            filter: "blur(80px)",
-          }}
-        />
+        {/* Dot grid */}
+        <div className="pointer-events-none fixed inset-0 z-0 dot-grid opacity-60" />
+
+        {/* Sky glow */}
+        <div className="pointer-events-none fixed left-1/2 top-0 z-0 -translate-x-1/2" style={{
+          width: 900, height: 500,
+          background: "radial-gradient(ellipse, rgba(14,165,233,0.12) 0%, transparent 70%)",
+          filter: "blur(60px)",
+        }} />
 
         <div className="relative z-10 mx-auto max-w-6xl px-5 py-14">
+
           {/* ── HERO ── */}
           <section className="grid gap-12 md:grid-cols-[1fr_400px] md:items-center">
             {/* LEFT */}
             <div>
               {/* eyebrow */}
-              <div className="mb-6 inline-flex items-center gap-2.5 rounded-full border border-orange-200 bg-orange-50 px-4 py-2">
-                <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-orange-400 opacity-70" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-orange-500" />
-                </span>
-                <span className="text-[11px] font-semibold uppercase tracking-widest text-orange-600">
-                  HireSmart · Smart Screening
-                </span>
+              <div style={{
+                display: "inline-flex", alignItems: "center", gap: 8,
+                background: "#E0F2FE", border: "1px solid rgba(14,165,233,0.3)",
+                borderRadius: 6, padding: "6px 14px", marginBottom: 24,
+                fontSize: "0.72rem", fontWeight: 700, color: "#0369A1",
+                letterSpacing: "0.08em", textTransform: "uppercase",
+              }}>
+                <span className="eyebrow-blink" style={{ width: 6, height: 6, borderRadius: "50%", background: "#0EA5E9", display: "inline-block" }} />
+                HireSmart · Smart Screening
               </div>
 
-              {/* heading */}
-              <h1
-  className="font-black tracking-tight text-gray-900"
-  style={{ fontFamily: "'Poppins', sans-serif", lineHeight: "1.0" }}
->
-  {/* Main Brand — VERY LARGE */}
-  <span
-    className="hero-word block text-[clamp(3.5rem,7vw,6rem)] leading-none"
-    style={{ animationDelay: "0ms" }}
-  >
-    HireSmart
-  </span>
+              <h1 className="hero-word" style={{ fontFamily: "'Clash Display', sans-serif", fontWeight: 700, letterSpacing: "-0.03em", color: "#0F172A", lineHeight: 1.06, margin: 0 }}>
+                <span className="hero-word block" style={{ fontSize: "clamp(3.2rem,6.5vw,5.5rem)", animationDelay: "0ms" }}>
+                  HireSmart
+                </span>
+                <span className="hero-word block" style={{ fontSize: "clamp(1.8rem,3.8vw,2.8rem)", marginTop: 8, animationDelay: "80ms" }}>
+                  Internship & Job{" "}
+                  <em style={{ fontStyle: "normal", color: "#0EA5E9", position: "relative" }}>Platform</em>
+                </span>
+                <span className="hero-word block" style={{ fontSize: "clamp(1.4rem,2.6vw,2rem)", marginTop: 8, animationDelay: "160ms", color: "#475569", fontWeight: 600 }}>
+                  for Skill-Based Hiring
+                </span>
+              </h1>
 
-  {/* Second Line — Smaller */}
-  <span
-    className="hero-word block text-[clamp(2rem,4vw,3rem)] mt-2"
-    style={{ animationDelay: "80ms" }}
-  >
-    Internship &amp; Job{" "}
-    <span
-      style={{
-        background:
-          "linear-gradient(110deg, #f97316 0%, #fb923c 40%, #fbbf24 100%)",
-        WebkitBackgroundClip: "text",
-        WebkitTextFillColor: "transparent",
-      }}
-    >
-      Platform
-    </span>
-  </span>
-
-  {/* Third Line — Even Smaller */}
-  <span
-    className="hero-word block text-[clamp(1.6rem,3vw,2.2rem)] mt-2"
-    style={{ animationDelay: "160ms" }}
-  >
-    for Skill-Based Hiring
-  </span>
-</h1>
-
-              <p className="mt-5 max-w-md text-[15px] leading-relaxed text-gray-500">
-                Candidates prove skills first with a secure exam. Only qualified students
-                unlock CV upload and proceed to interviews.
+              <p style={{ marginTop: 20, maxWidth: 480, fontSize: "1.05rem", lineHeight: 1.78, color: "#475569", fontWeight: 400 }}>
+                Candidates prove skills first with a secure exam. Only qualified students unlock CV upload and proceed to interviews.
               </p>
 
               {/* CTAs */}
-              <div className="mt-7 flex flex-wrap gap-3">
-                <a
-                  href="#jobs"
-                  className="rounded-2xl bg-orange-500 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-orange-200/70 transition hover:bg-orange-600 hover:shadow-orange-300"
+              <div style={{ marginTop: 28, display: "flex", flexWrap: "wrap", gap: 12 }}>
+                <a href="#jobs" style={{
+                  display: "inline-flex", alignItems: "center", gap: 8,
+                  padding: "14px 28px", borderRadius: 10,
+                  background: "#0F172A", color: "white",
+                  fontFamily: "'Plus Jakarta Sans', sans-serif",
+                  fontWeight: 600, fontSize: "0.95rem", textDecoration: "none",
+                  boxShadow: "0 4px 20px rgba(15,23,42,0.15)",
+                  transition: "background 0.2s, transform 0.2s, box-shadow 0.2s",
+                }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = "#0EA5E9";
+                    e.currentTarget.style.transform = "translateY(-2px)";
+                    e.currentTarget.style.boxShadow = "0 8px 28px rgba(14,165,233,0.35)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = "#0F172A";
+                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.boxShadow = "0 4px 20px rgba(15,23,42,0.15)";
+                  }}
                 >
                   Browse Jobs
+                  <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
                 </a>
-                <Link
-                  href="/how-it-works"
-                  className="rounded-2xl border-2 border-gray-200 bg-white px-6 py-3 text-sm font-semibold text-gray-600 transition hover:border-gray-300 hover:bg-gray-50"
+                <Link href="/how-it-works" style={{
+                  display: "inline-flex", alignItems: "center", gap: 8,
+                  padding: "14px 28px", borderRadius: 10,
+                  border: "2px solid #E2E8F0", background: "white",
+                  color: "#0F172A", fontFamily: "'Plus Jakarta Sans', sans-serif",
+                  fontWeight: 600, fontSize: "0.95rem", textDecoration: "none",
+                  transition: "border-color 0.2s, color 0.2s",
+                }}
+                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#0EA5E9"; e.currentTarget.style.color = "#0EA5E9"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#E2E8F0"; e.currentTarget.style.color = "#0F172A"; }}
                 >
                   How Smart Screening Works
                 </Link>
               </div>
 
-              {/* Stats row */}
-              <div className="mt-10 flex flex-wrap gap-8 border-t border-gray-200/60 pt-8">
-                <Counter to={2400} label="Active Roles" />
-                <Counter to={14800} label="Candidates" />
-                <Counter to={320} label="Companies" />
-                <Counter to={91} label="Avg Pass Rate" suffix="%" />
+              {/* Trust row */}
+              <div style={{ marginTop: 28, display: "flex", alignItems: "center", gap: 20, flexWrap: "wrap", borderTop: "1px solid #E2E8F0", paddingTop: 24 }}>
+                {["No credit card", "Free plan forever", "Cancel anytime"].map((t, i) => (
+                  <span key={t} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "0.82rem", color: "#94A3B8", fontWeight: 500 }}>
+                    <span style={{ color: "#0EA5E9" }}>✓</span> {t}
+                    {i < 2 && <span style={{ width: 1, height: 14, background: "#E2E8F0", display: "inline-block", marginLeft: 20 }} />}
+                  </span>
+                ))}
               </div>
             </div>
 
             {/* RIGHT PANEL */}
-            <div className="rounded-3xl border border-gray-100 bg-white p-6 shadow-2xl shadow-gray-100">
-              <div className="flex items-center justify-between">
-                <p
-                  className="text-sm font-bold text-gray-900"
-                  style={{ fontFamily: "'Poppins', sans-serif" }}
-                >
+            <div style={{ background: "white", border: "1px solid rgba(14,165,233,0.25)", borderRadius: 20, padding: 24, boxShadow: "0 8px 40px rgba(14,165,233,0.1)" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+                <p style={{ fontFamily: "'Clash Display', sans-serif", fontWeight: 600, fontSize: "0.95rem", color: "#0F172A", margin: 0 }}>
                   Trending Roles
                 </p>
-                <span className="rounded-full bg-gray-100 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-gray-400">
+                <span style={{ borderRadius: 100, background: "#F1F5F9", padding: "4px 12px", fontSize: "0.65rem", fontWeight: 600, letterSpacing: "0.07em", textTransform: "uppercase", color: "#94A3B8" }}>
                   Updated today
                 </span>
               </div>
 
-              <div className="mt-4 space-y-2">
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {[
-                  { label: "Software Engineer", dot: "bg-orange-400" },
-                  { label: "UX Engineer", dot: "bg-violet-400" },
-                  { label: "Project Manager", dot: "bg-sky-400" },
-                  { label: "Internship (Web)", dot: "bg-emerald-400" },
+                  { label: "Software Engineer", color: "#0EA5E9" },
+                  { label: "UX Engineer",        color: "#818CF8" },
+                  { label: "Project Manager",    color: "#38BDF8" },
+                  { label: "Internship (Web)",   color: "#34D399" },
                 ].map((r) => (
-                  <div
-                    key={r.label}
-                    className="flex items-center gap-3 rounded-xl border border-gray-100 bg-gray-50 px-4 py-3 text-sm text-gray-700 transition hover:border-orange-100 hover:bg-orange-50"
-                  >
-                    <span className={`h-2 w-2 flex-shrink-0 rounded-full ${r.dot}`} />
+                  <div key={r.label} className="trending-row">
+                    <span style={{ width: 8, height: 8, borderRadius: "50%", background: r.color, flexShrink: 0 }} />
                     {r.label}
                   </div>
                 ))}
               </div>
 
-              <div className="mt-5 rounded-2xl border border-orange-100 bg-gradient-to-br from-orange-50 to-amber-50 p-4">
-                <p
-                  className="text-sm font-bold text-gray-900"
-                  style={{ fontFamily: "'Poppins', sans-serif" }}
-                >
+              <div style={{ marginTop: 20, borderRadius: 16, border: "1px solid rgba(14,165,233,0.2)", background: "linear-gradient(135deg, #E0F2FE, #BAE6FD)", padding: 16 }}>
+                <p style={{ fontFamily: "'Clash Display', sans-serif", fontWeight: 600, fontSize: "0.9rem", color: "#0F172A", margin: "0 0 4px" }}>
                   HireSmart Pre-Screening
                 </p>
-                <p className="mt-1 text-xs leading-relaxed text-gray-500">
+                <p style={{ fontSize: "0.75rem", lineHeight: 1.6, color: "#475569", margin: "0 0 12px" }}>
                   Pass the assessment → unlock CV upload → proceed to interview stage.
                 </p>
-                <div className="mt-3 flex flex-wrap items-center gap-1.5">
+                <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 6 }}>
                   {["Skill Exam", "CV Upload", "Interview"].map((s, i) => (
-                    <span key={s} className="flex items-center gap-1.5">
-                      <span className="rounded-full border border-orange-200 bg-white px-2.5 py-0.5 text-[10px] font-bold text-orange-600">
+                    <span key={s} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      <span style={{ borderRadius: 100, border: "1px solid rgba(14,165,233,0.4)", background: "white", padding: "2px 10px", fontSize: "0.65rem", fontWeight: 700, color: "#0369A1" }}>
                         {s}
                       </span>
-                      {i < 2 && (
-                        <span className="text-[10px] font-bold text-gray-300">→</span>
-                      )}
+                      {i < 2 && <span style={{ fontSize: "0.65rem", fontWeight: 700, color: "#94A3B8" }}>→</span>}
                     </span>
                   ))}
                 </div>
@@ -407,80 +401,74 @@ export default function HomePage() {
             </div>
           </section>
 
-          {/* ── FEATURE CARDS ── */}
-          <section className="mt-16 grid grid-cols-1 gap-4 sm:grid-cols-3">
+          {/* ── STATS BANNER ── */}
+          <section style={{ background: "#0F172A", borderRadius: 20, marginTop: 60, padding: "2.5rem 2rem", display: "flex", justifyContent: "center", flexWrap: "wrap" }}>
             {[
-              {
-                icon: "🎯",
-                label: "Fair Exams",
-                desc: "Randomised role-based questions ensure every candidate faces a unique, equal challenge.",
-              },
-              {
-                icon: "🔒",
-                label: "Secure Mode",
-                desc: "Fullscreen lock + tab-switch detection keeps the screening process reliable and honest.",
-              },
-              {
-                icon: "🤖",
-                label: "AI Evaluation",
-                desc: "Scenario answers scored objectively by our evaluation module in real time.",
-              },
-            ].map((f) => (
-              <div key={f.label} className="feature-card">
-                <div className="mb-3 text-2xl">{f.icon}</div>
-                <h3
-                  className="text-sm font-bold text-gray-900"
-                  style={{ fontFamily: "'Poppins', sans-serif" }}
-                >
-                  {f.label}
-                </h3>
-                <p className="mt-1.5 text-xs leading-relaxed text-gray-500">{f.desc}</p>
+              { to: 2400, label: "Active Roles" },
+              { to: 14800, label: "Candidates" },
+              { to: 320, label: "Companies" },
+              { to: 91, label: "Avg Pass Rate", suffix: "%" },
+            ].map((s, i) => (
+              <div key={s.label} style={{
+                flex: 1, minWidth: 120, textAlign: "center", padding: "1rem 1.5rem",
+                borderRight: i < 3 ? "1px solid rgba(255,255,255,0.08)" : "none",
+              }}>
+                <Counter to={s.to} label={s.label} suffix={s.suffix ?? "+"} />
               </div>
             ))}
           </section>
 
+          {/* ── FEATURE CARDS ── */}
+          <section style={{ marginTop: 60 }}>
+            <div style={{ marginBottom: 32 }}>
+              <div style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#0EA5E9", marginBottom: 10 }}>
+                <span style={{ width: 20, height: 2, background: "#0EA5E9", borderRadius: 2 }} />
+                Platform Features
+              </div>
+              <h2 style={{ fontFamily: "'Clash Display', sans-serif", fontSize: "clamp(1.9rem,3vw,2.5rem)", fontWeight: 700, color: "#0F172A", letterSpacing: "-0.02em", margin: 0 }}>
+                Built for students who play to win
+              </h2>
+            </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+              {[
+                { icon: "🎯", label: "Fair Exams",     desc: "Randomised role-based questions ensure every candidate faces a unique, equal challenge." },
+                { icon: "🔒", label: "Secure Mode",    desc: "Fullscreen lock + tab-switch detection keeps the screening process reliable and honest." },
+                { icon: "🤖", label: "AI Evaluation",  desc: "Scenario answers scored objectively by our evaluation module in real time." },
+              ].map((f) => (
+                <div key={f.label} className="feature-card">
+                  <div style={{ width: 48, height: 48, borderRadius: 13, background: "#E0F2FE", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.5rem", marginBottom: 16 }}>
+                    {f.icon}
+                  </div>
+                  <h3 style={{ fontFamily: "'Clash Display', sans-serif", fontWeight: 600, fontSize: "1.05rem", color: "#0F172A", marginBottom: 6 }}>
+                    {f.label}
+                  </h3>
+                  <p style={{ color: "#94A3B8", fontSize: "0.875rem", lineHeight: 1.65, margin: 0 }}>{f.desc}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+
           {/* ── JOBS ── */}
-          <section id="jobs" className="mt-20 scroll-mt-8">
-            <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <section id="jobs" style={{ marginTop: 80, scrollMarginTop: 32 }}>
+            <div style={{ marginBottom: 28, display: "flex", flexWrap: "wrap", gap: 16, alignItems: "flex-end", justifyContent: "space-between" }}>
               <div>
-                <p className="mb-1.5 text-[10px] font-bold uppercase tracking-[0.25em] text-gray-400">
+                <p style={{ fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", color: "#94A3B8", marginBottom: 6 }}>
                   — Live from database (Prisma + SQLite)
                 </p>
-                <h2
-                  className="text-2xl font-black text-gray-900"
-                  style={{ fontFamily: "'Poppins', sans-serif" }}
-                >
+                <h2 style={{ fontFamily: "'Clash Display', sans-serif", fontSize: "1.8rem", fontWeight: 700, color: "#0F172A", letterSpacing: "-0.02em", margin: 0 }}>
                   Jobs for You
                 </h2>
               </div>
-
-              <div className="flex flex-wrap gap-2">
-                <button
-                  onClick={() => setFilter("all")}
-                  className={`filter-btn ${filter === "all" ? "f-active f-active-all" : ""}`}
-                >
-                  All Roles
-                </button>
-                <button
-                  onClick={() => setFilter("internship")}
-                  className={`filter-btn ${
-                    filter === "internship" ? "f-active f-active-intern" : ""
-                  }`}
-                >
-                  Internships
-                </button>
-                <button
-                  onClick={() => setFilter("fulltime")}
-                  className={`filter-btn ${filter === "fulltime" ? "f-active f-active-full" : ""}`}
-                >
-                  Full-time
-                </button>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                <button onClick={() => setFilter("all")} className={`filter-btn ${filter === "all" ? "f-active f-active-all" : ""}`}>All Roles</button>
+                <button onClick={() => setFilter("internship")} className={`filter-btn ${filter === "internship" ? "f-active f-active-intern" : ""}`}>Internships</button>
+                <button onClick={() => setFilter("fulltime")} className={`filter-btn ${filter === "fulltime" ? "f-active f-active-full" : ""}`}>Full-time</button>
               </div>
             </div>
 
             {isLoading && (
-              <div className="flex items-center gap-3 rounded-2xl border border-gray-100 bg-white px-6 py-10 text-sm text-gray-400">
-                <svg className="h-4 w-4 animate-spin text-orange-400" viewBox="0 0 24 24" fill="none">
+              <div style={{ display: "flex", alignItems: "center", gap: 12, background: "white", border: "1px solid #E2E8F0", borderRadius: 16, padding: "40px 24px", color: "#94A3B8", fontSize: "0.875rem" }}>
+                <svg className="animate-spin" style={{ width: 16, height: 16, color: "#0EA5E9" }} viewBox="0 0 24 24" fill="none">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
                 </svg>
@@ -489,13 +477,13 @@ export default function HomePage() {
             )}
 
             {error && (
-              <div className="rounded-2xl border border-red-200 bg-red-50 px-6 py-5 text-sm text-red-500">
+              <div style={{ borderRadius: 16, border: "1px solid #FECACA", background: "#FEF2F2", padding: "20px 24px", fontSize: "0.875rem", color: "#EF4444" }}>
                 Failed to load jobs: {error.message}
               </div>
             )}
 
             {!isLoading && !error && filteredJobs.length === 0 && (
-              <div className="py-12 text-center text-sm text-gray-400">
+              <div style={{ padding: "48px 0", textAlign: "center", fontSize: "0.875rem", color: "#94A3B8" }}>
                 No positions match this filter.
               </div>
             )}
@@ -503,43 +491,62 @@ export default function HomePage() {
             {!isLoading && !error && filteredJobs.length > 0 && (
               <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                 {filteredJobs.map((j, i) => (
-                  <JobCard
-                    key={j.id}
-                    index={i}
-                    job={{
-                      ...j,
-                      tags: Array.isArray((j as any).tags)
-                        ? ((j as any).tags as string[])
-                        : [],
-                    }}
-                  />
+                  <JobCard key={j.id} index={i} job={{ ...j, tags: Array.isArray((j as any).tags) ? ((j as any).tags as string[]) : [] }} />
                 ))}
               </div>
             )}
           </section>
 
           {/* ── CTA BANNER ── */}
-          <section className="mt-20 overflow-hidden rounded-3xl bg-gradient-to-r from-orange-500 to-amber-400 px-8 py-12 shadow-xl shadow-orange-200">
-            <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <h3
-                  className="text-2xl font-black text-white"
-                  style={{ fontFamily: "'Poppins', sans-serif" }}
+          <section style={{
+            marginTop: 80, borderRadius: 24, padding: "5rem 4rem",
+            background: "#0F172A", position: "relative", overflow: "hidden", textAlign: "center",
+          }}>
+            {/* glow */}
+            <div style={{ position: "absolute", top: "-60%", left: "50%", transform: "translateX(-50%)", width: 800, height: 500, background: "radial-gradient(ellipse, rgba(14,165,233,0.2) 0%, transparent 65%)", pointerEvents: "none" }} />
+            {/* grid */}
+            <div style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(rgba(14,165,233,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(14,165,233,0.05) 1px, transparent 1px)", backgroundSize: "48px 48px", pointerEvents: "none" }} />
+
+            <div style={{ position: "relative", zIndex: 2 }}>
+              <h2 style={{ fontFamily: "'Clash Display', sans-serif", fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 700, color: "white", letterSpacing: "-0.02em", margin: "0 0 12px" }}>
+                Ready to <em style={{ fontStyle: "normal", color: "#0EA5E9" }}>stand out?</em>
+              </h2>
+              <p style={{ color: "rgba(255,255,255,0.5)", maxWidth: 420, margin: "0 auto 32px", lineHeight: 1.7, fontSize: "0.95rem" }}>
+                Take the skill exam today and unlock your profile for top employers.
+              </p>
+              <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+                <Link href="/exam" style={{
+                  display: "inline-flex", alignItems: "center", gap: 8,
+                  padding: "14px 28px", borderRadius: 10,
+                  background: "#0EA5E9", color: "white", textDecoration: "none",
+                  fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, fontSize: "1rem",
+                  boxShadow: "0 4px 24px rgba(14,165,233,0.4)",
+                  transition: "transform 0.2s, box-shadow 0.2s",
+                }}
+                  onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 8px 36px rgba(14,165,233,0.5)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 4px 24px rgba(14,165,233,0.4)"; }}
                 >
-                  Ready to stand out?
-                </h3>
-                <p className="mt-1.5 max-w-sm text-sm text-orange-100">
-                  Take the skill exam today and unlock your profile for top employers.
-                </p>
+                  Start Skill Exam →
+                </Link>
+                <Link href="/how-it-works" style={{
+                  display: "inline-flex", alignItems: "center",
+                  padding: "14px 28px", borderRadius: 10,
+                  border: "1.5px solid rgba(255,255,255,0.2)", color: "rgba(255,255,255,0.8)",
+                  fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 600, fontSize: "1rem", textDecoration: "none",
+                  transition: "border-color 0.2s, color 0.2s",
+                }}
+                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#0EA5E9"; e.currentTarget.style.color = "#0EA5E9"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)"; e.currentTarget.style.color = "rgba(255,255,255,0.8)"; }}
+                >
+                  How It Works
+                </Link>
               </div>
-              <Link
-                href="/exam"
-                className="flex-shrink-0 rounded-2xl bg-white px-7 py-3.5 text-sm font-bold text-orange-600 shadow-lg transition hover:bg-orange-50"
-              >
-                Start Skill Exam →
-              </Link>
+              <p style={{ marginTop: 16, fontSize: "0.75rem", color: "rgba(255,255,255,0.2)" }}>
+                No credit card required · Cancel anytime · Free plan available
+              </p>
             </div>
           </section>
+
         </div>
       </main>
     </>
