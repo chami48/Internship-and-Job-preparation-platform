@@ -7,6 +7,13 @@ import { useEffect, useRef, useState, useCallback } from "react";
 // ─────────────────────────────────────────────
 // TYPES
 // ─────────────────────────────────────────────
+
+type QuestionType = {
+  id: string;
+  prompt: string;
+  type: "MCQ" | "SCENARIO";
+  options: { id: string; key: string; text: string }[];
+};
 type ViolationType =
   | "FULLSCREEN_EXIT"
   | "TAB_SWITCH"
@@ -47,9 +54,15 @@ export default function ExamPage() {
   const searchParams = useSearchParams();
   const appId = searchParams.get("appId");
 
-  const { data: questions, isLoading } = api.exam.getQuestions.useQuery({
+  const { data, isLoading } = api.exam.getQuestions.useQuery(
+  {
     role: "SOFTWARE_ENGINEER",
-  });
+    applicationId: appId!,
+  },
+  { enabled: !!appId }
+);
+
+const questions = data as QuestionType[] | undefined;
 
   const submitExam = api.exam.submit.useMutation();
 

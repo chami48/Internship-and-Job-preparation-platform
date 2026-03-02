@@ -10907,6 +10907,7 @@ export namespace Prisma {
     programmingLanguages: string | null
     frameworks: string | null
     softwareProficiency: string | null
+    examSubmitted: boolean | null
   }
 
   export type ApplicationMaxAggregateOutputType = {
@@ -10927,6 +10928,7 @@ export namespace Prisma {
     programmingLanguages: string | null
     frameworks: string | null
     softwareProficiency: string | null
+    examSubmitted: boolean | null
   }
 
   export type ApplicationCountAggregateOutputType = {
@@ -10947,6 +10949,8 @@ export namespace Prisma {
     programmingLanguages: number
     frameworks: number
     softwareProficiency: number
+    lockedQuestions: number
+    examSubmitted: number
     _all: number
   }
 
@@ -10969,6 +10973,7 @@ export namespace Prisma {
     programmingLanguages?: true
     frameworks?: true
     softwareProficiency?: true
+    examSubmitted?: true
   }
 
   export type ApplicationMaxAggregateInputType = {
@@ -10989,6 +10994,7 @@ export namespace Prisma {
     programmingLanguages?: true
     frameworks?: true
     softwareProficiency?: true
+    examSubmitted?: true
   }
 
   export type ApplicationCountAggregateInputType = {
@@ -11009,6 +11015,8 @@ export namespace Prisma {
     programmingLanguages?: true
     frameworks?: true
     softwareProficiency?: true
+    lockedQuestions?: true
+    examSubmitted?: true
     _all?: true
   }
 
@@ -11102,6 +11110,8 @@ export namespace Prisma {
     programmingLanguages: string
     frameworks: string | null
     softwareProficiency: string | null
+    lockedQuestions: JsonValue | null
+    examSubmitted: boolean
     _count: ApplicationCountAggregateOutputType | null
     _min: ApplicationMinAggregateOutputType | null
     _max: ApplicationMaxAggregateOutputType | null
@@ -11139,6 +11149,8 @@ export namespace Prisma {
     programmingLanguages?: boolean
     frameworks?: boolean
     softwareProficiency?: boolean
+    lockedQuestions?: boolean
+    examSubmitted?: boolean
     job?: boolean | JobDefaultArgs<ExtArgs>
     projects?: boolean | Application$projectsArgs<ExtArgs>
     scenarios?: boolean | Application$scenariosArgs<ExtArgs>
@@ -11164,6 +11176,8 @@ export namespace Prisma {
     programmingLanguages?: boolean
     frameworks?: boolean
     softwareProficiency?: boolean
+    lockedQuestions?: boolean
+    examSubmitted?: boolean
     job?: boolean | JobDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["application"]>
 
@@ -11185,6 +11199,8 @@ export namespace Prisma {
     programmingLanguages?: boolean
     frameworks?: boolean
     softwareProficiency?: boolean
+    lockedQuestions?: boolean
+    examSubmitted?: boolean
     job?: boolean | JobDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["application"]>
 
@@ -11206,9 +11222,11 @@ export namespace Prisma {
     programmingLanguages?: boolean
     frameworks?: boolean
     softwareProficiency?: boolean
+    lockedQuestions?: boolean
+    examSubmitted?: boolean
   }
 
-  export type ApplicationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "jobId" | "createdAt" | "fullName" | "email" | "mobile" | "linkedin" | "github" | "portfolio" | "university" | "degree" | "specialization" | "cgpa" | "awards" | "programmingLanguages" | "frameworks" | "softwareProficiency", ExtArgs["result"]["application"]>
+  export type ApplicationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "jobId" | "createdAt" | "fullName" | "email" | "mobile" | "linkedin" | "github" | "portfolio" | "university" | "degree" | "specialization" | "cgpa" | "awards" | "programmingLanguages" | "frameworks" | "softwareProficiency" | "lockedQuestions" | "examSubmitted", ExtArgs["result"]["application"]>
   export type ApplicationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     job?: boolean | JobDefaultArgs<ExtArgs>
     projects?: boolean | Application$projectsArgs<ExtArgs>
@@ -11249,6 +11267,8 @@ export namespace Prisma {
       programmingLanguages: string
       frameworks: string | null
       softwareProficiency: string | null
+      lockedQuestions: Prisma.JsonValue | null
+      examSubmitted: boolean
     }, ExtArgs["result"]["application"]>
     composites: {}
   }
@@ -11693,6 +11713,8 @@ export namespace Prisma {
     readonly programmingLanguages: FieldRef<"Application", 'String'>
     readonly frameworks: FieldRef<"Application", 'String'>
     readonly softwareProficiency: FieldRef<"Application", 'String'>
+    readonly lockedQuestions: FieldRef<"Application", 'Json'>
+    readonly examSubmitted: FieldRef<"Application", 'Boolean'>
   }
     
 
@@ -15506,7 +15528,9 @@ export namespace Prisma {
     awards: 'awards',
     programmingLanguages: 'programmingLanguages',
     frameworks: 'frameworks',
-    softwareProficiency: 'softwareProficiency'
+    softwareProficiency: 'softwareProficiency',
+    lockedQuestions: 'lockedQuestions',
+    examSubmitted: 'examSubmitted'
   };
 
   export type ApplicationScalarFieldEnum = (typeof ApplicationScalarFieldEnum)[keyof typeof ApplicationScalarFieldEnum]
@@ -15552,12 +15576,37 @@ export namespace Prisma {
   export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
+  export const NullableJsonNullValueInput: {
+    DbNull: typeof DbNull,
+    JsonNull: typeof JsonNull
+  };
+
+  export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
   export const NullsOrder: {
     first: 'first',
     last: 'last'
   };
 
   export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+  export const JsonNullValueFilter: {
+    DbNull: typeof DbNull,
+    JsonNull: typeof JsonNull,
+    AnyNull: typeof AnyNull
+  };
+
+  export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
+
+
+  export const QueryMode: {
+    default: 'default',
+    insensitive: 'insensitive'
+  };
+
+  export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
 
 
   /**
@@ -15618,6 +15667,27 @@ export namespace Prisma {
    * Reference to a field of type 'Difficulty'
    */
   export type EnumDifficultyFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Difficulty'>
+    
+
+
+  /**
+   * Reference to a field of type 'Json'
+   */
+  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+  /**
+   * Reference to a field of type 'QueryMode'
+   */
+  export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+  /**
+   * Reference to a field of type 'Boolean'
+   */
+  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
     
 
 
@@ -16185,6 +16255,8 @@ export namespace Prisma {
     programmingLanguages?: StringFilter<"Application"> | string
     frameworks?: StringNullableFilter<"Application"> | string | null
     softwareProficiency?: StringNullableFilter<"Application"> | string | null
+    lockedQuestions?: JsonNullableFilter<"Application">
+    examSubmitted?: BoolFilter<"Application"> | boolean
     job?: XOR<JobScalarRelationFilter, JobWhereInput>
     projects?: ProjectListRelationFilter
     scenarios?: ScenarioAnswerListRelationFilter
@@ -16209,6 +16281,8 @@ export namespace Prisma {
     programmingLanguages?: SortOrder
     frameworks?: SortOrderInput | SortOrder
     softwareProficiency?: SortOrderInput | SortOrder
+    lockedQuestions?: SortOrderInput | SortOrder
+    examSubmitted?: SortOrder
     job?: JobOrderByWithRelationInput
     projects?: ProjectOrderByRelationAggregateInput
     scenarios?: ScenarioAnswerOrderByRelationAggregateInput
@@ -16236,6 +16310,8 @@ export namespace Prisma {
     programmingLanguages?: StringFilter<"Application"> | string
     frameworks?: StringNullableFilter<"Application"> | string | null
     softwareProficiency?: StringNullableFilter<"Application"> | string | null
+    lockedQuestions?: JsonNullableFilter<"Application">
+    examSubmitted?: BoolFilter<"Application"> | boolean
     job?: XOR<JobScalarRelationFilter, JobWhereInput>
     projects?: ProjectListRelationFilter
     scenarios?: ScenarioAnswerListRelationFilter
@@ -16260,6 +16336,8 @@ export namespace Prisma {
     programmingLanguages?: SortOrder
     frameworks?: SortOrderInput | SortOrder
     softwareProficiency?: SortOrderInput | SortOrder
+    lockedQuestions?: SortOrderInput | SortOrder
+    examSubmitted?: SortOrder
     _count?: ApplicationCountOrderByAggregateInput
     _max?: ApplicationMaxOrderByAggregateInput
     _min?: ApplicationMinOrderByAggregateInput
@@ -16286,6 +16364,8 @@ export namespace Prisma {
     programmingLanguages?: StringWithAggregatesFilter<"Application"> | string
     frameworks?: StringNullableWithAggregatesFilter<"Application"> | string | null
     softwareProficiency?: StringNullableWithAggregatesFilter<"Application"> | string | null
+    lockedQuestions?: JsonNullableWithAggregatesFilter<"Application">
+    examSubmitted?: BoolWithAggregatesFilter<"Application"> | boolean
   }
 
   export type ProjectWhereInput = {
@@ -17047,6 +17127,8 @@ export namespace Prisma {
     programmingLanguages: string
     frameworks?: string | null
     softwareProficiency?: string | null
+    lockedQuestions?: NullableJsonNullValueInput | InputJsonValue
+    examSubmitted?: boolean
     job: JobCreateNestedOneWithoutApplicationsInput
     projects?: ProjectCreateNestedManyWithoutApplicationInput
     scenarios?: ScenarioAnswerCreateNestedManyWithoutApplicationInput
@@ -17071,6 +17153,8 @@ export namespace Prisma {
     programmingLanguages: string
     frameworks?: string | null
     softwareProficiency?: string | null
+    lockedQuestions?: NullableJsonNullValueInput | InputJsonValue
+    examSubmitted?: boolean
     projects?: ProjectUncheckedCreateNestedManyWithoutApplicationInput
     scenarios?: ScenarioAnswerUncheckedCreateNestedManyWithoutApplicationInput
     examAnswers?: ExamAnswerUncheckedCreateNestedManyWithoutApplicationInput
@@ -17093,6 +17177,8 @@ export namespace Prisma {
     programmingLanguages?: StringFieldUpdateOperationsInput | string
     frameworks?: NullableStringFieldUpdateOperationsInput | string | null
     softwareProficiency?: NullableStringFieldUpdateOperationsInput | string | null
+    lockedQuestions?: NullableJsonNullValueInput | InputJsonValue
+    examSubmitted?: BoolFieldUpdateOperationsInput | boolean
     job?: JobUpdateOneRequiredWithoutApplicationsNestedInput
     projects?: ProjectUpdateManyWithoutApplicationNestedInput
     scenarios?: ScenarioAnswerUpdateManyWithoutApplicationNestedInput
@@ -17117,6 +17203,8 @@ export namespace Prisma {
     programmingLanguages?: StringFieldUpdateOperationsInput | string
     frameworks?: NullableStringFieldUpdateOperationsInput | string | null
     softwareProficiency?: NullableStringFieldUpdateOperationsInput | string | null
+    lockedQuestions?: NullableJsonNullValueInput | InputJsonValue
+    examSubmitted?: BoolFieldUpdateOperationsInput | boolean
     projects?: ProjectUncheckedUpdateManyWithoutApplicationNestedInput
     scenarios?: ScenarioAnswerUncheckedUpdateManyWithoutApplicationNestedInput
     examAnswers?: ExamAnswerUncheckedUpdateManyWithoutApplicationNestedInput
@@ -17140,6 +17228,8 @@ export namespace Prisma {
     programmingLanguages: string
     frameworks?: string | null
     softwareProficiency?: string | null
+    lockedQuestions?: NullableJsonNullValueInput | InputJsonValue
+    examSubmitted?: boolean
   }
 
   export type ApplicationUpdateManyMutationInput = {
@@ -17159,6 +17249,8 @@ export namespace Prisma {
     programmingLanguages?: StringFieldUpdateOperationsInput | string
     frameworks?: NullableStringFieldUpdateOperationsInput | string | null
     softwareProficiency?: NullableStringFieldUpdateOperationsInput | string | null
+    lockedQuestions?: NullableJsonNullValueInput | InputJsonValue
+    examSubmitted?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type ApplicationUncheckedUpdateManyInput = {
@@ -17179,6 +17271,8 @@ export namespace Prisma {
     programmingLanguages?: StringFieldUpdateOperationsInput | string
     frameworks?: NullableStringFieldUpdateOperationsInput | string | null
     softwareProficiency?: NullableStringFieldUpdateOperationsInput | string | null
+    lockedQuestions?: NullableJsonNullValueInput | InputJsonValue
+    examSubmitted?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type ProjectCreateInput = {
@@ -17934,6 +18028,29 @@ export namespace Prisma {
     key?: SortOrder
     text?: SortOrder
   }
+  export type JsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type BoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
 
   export type JobScalarRelationFilter = {
     is?: JobWhereInput
@@ -17978,6 +18095,8 @@ export namespace Prisma {
     programmingLanguages?: SortOrder
     frameworks?: SortOrder
     softwareProficiency?: SortOrder
+    lockedQuestions?: SortOrder
+    examSubmitted?: SortOrder
   }
 
   export type ApplicationMaxOrderByAggregateInput = {
@@ -17998,6 +18117,7 @@ export namespace Prisma {
     programmingLanguages?: SortOrder
     frameworks?: SortOrder
     softwareProficiency?: SortOrder
+    examSubmitted?: SortOrder
   }
 
   export type ApplicationMinOrderByAggregateInput = {
@@ -18018,6 +18138,36 @@ export namespace Prisma {
     programmingLanguages?: SortOrder
     frameworks?: SortOrder
     softwareProficiency?: SortOrder
+    examSubmitted?: SortOrder
+  }
+  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedJsonNullableFilter<$PrismaModel>
+    _max?: NestedJsonNullableFilter<$PrismaModel>
+  }
+
+  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type ApplicationScalarRelationFilter = {
@@ -18537,6 +18687,10 @@ export namespace Prisma {
     connect?: ExamAnswerWhereUniqueInput | ExamAnswerWhereUniqueInput[]
   }
 
+  export type BoolFieldUpdateOperationsInput = {
+    set?: boolean
+  }
+
   export type JobUpdateOneRequiredWithoutApplicationsNestedInput = {
     create?: XOR<JobCreateWithoutApplicationsInput, JobUncheckedCreateWithoutApplicationsInput>
     connectOrCreate?: JobCreateOrConnectWithoutApplicationsInput
@@ -18966,6 +19120,37 @@ export namespace Prisma {
     _max?: NestedEnumDifficultyFilter<$PrismaModel>
   }
 
+  export type NestedBoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+  export type NestedJsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
+  }
+
   export type NestedFloatNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel> | null
     in?: number[] | null
@@ -19334,6 +19519,8 @@ export namespace Prisma {
     programmingLanguages: string
     frameworks?: string | null
     softwareProficiency?: string | null
+    lockedQuestions?: NullableJsonNullValueInput | InputJsonValue
+    examSubmitted?: boolean
     projects?: ProjectCreateNestedManyWithoutApplicationInput
     scenarios?: ScenarioAnswerCreateNestedManyWithoutApplicationInput
     examAnswers?: ExamAnswerCreateNestedManyWithoutApplicationInput
@@ -19356,6 +19543,8 @@ export namespace Prisma {
     programmingLanguages: string
     frameworks?: string | null
     softwareProficiency?: string | null
+    lockedQuestions?: NullableJsonNullValueInput | InputJsonValue
+    examSubmitted?: boolean
     projects?: ProjectUncheckedCreateNestedManyWithoutApplicationInput
     scenarios?: ScenarioAnswerUncheckedCreateNestedManyWithoutApplicationInput
     examAnswers?: ExamAnswerUncheckedCreateNestedManyWithoutApplicationInput
@@ -19407,6 +19596,8 @@ export namespace Prisma {
     programmingLanguages?: StringFilter<"Application"> | string
     frameworks?: StringNullableFilter<"Application"> | string | null
     softwareProficiency?: StringNullableFilter<"Application"> | string | null
+    lockedQuestions?: JsonNullableFilter<"Application">
+    examSubmitted?: BoolFilter<"Application"> | boolean
   }
 
   export type OptionCreateWithoutQuestionInput = {
@@ -19813,6 +20004,8 @@ export namespace Prisma {
     programmingLanguages: string
     frameworks?: string | null
     softwareProficiency?: string | null
+    lockedQuestions?: NullableJsonNullValueInput | InputJsonValue
+    examSubmitted?: boolean
     job: JobCreateNestedOneWithoutApplicationsInput
     scenarios?: ScenarioAnswerCreateNestedManyWithoutApplicationInput
     examAnswers?: ExamAnswerCreateNestedManyWithoutApplicationInput
@@ -19836,6 +20029,8 @@ export namespace Prisma {
     programmingLanguages: string
     frameworks?: string | null
     softwareProficiency?: string | null
+    lockedQuestions?: NullableJsonNullValueInput | InputJsonValue
+    examSubmitted?: boolean
     scenarios?: ScenarioAnswerUncheckedCreateNestedManyWithoutApplicationInput
     examAnswers?: ExamAnswerUncheckedCreateNestedManyWithoutApplicationInput
   }
@@ -19873,6 +20068,8 @@ export namespace Prisma {
     programmingLanguages?: StringFieldUpdateOperationsInput | string
     frameworks?: NullableStringFieldUpdateOperationsInput | string | null
     softwareProficiency?: NullableStringFieldUpdateOperationsInput | string | null
+    lockedQuestions?: NullableJsonNullValueInput | InputJsonValue
+    examSubmitted?: BoolFieldUpdateOperationsInput | boolean
     job?: JobUpdateOneRequiredWithoutApplicationsNestedInput
     scenarios?: ScenarioAnswerUpdateManyWithoutApplicationNestedInput
     examAnswers?: ExamAnswerUpdateManyWithoutApplicationNestedInput
@@ -19896,6 +20093,8 @@ export namespace Prisma {
     programmingLanguages?: StringFieldUpdateOperationsInput | string
     frameworks?: NullableStringFieldUpdateOperationsInput | string | null
     softwareProficiency?: NullableStringFieldUpdateOperationsInput | string | null
+    lockedQuestions?: NullableJsonNullValueInput | InputJsonValue
+    examSubmitted?: BoolFieldUpdateOperationsInput | boolean
     scenarios?: ScenarioAnswerUncheckedUpdateManyWithoutApplicationNestedInput
     examAnswers?: ExamAnswerUncheckedUpdateManyWithoutApplicationNestedInput
   }
@@ -19917,6 +20116,8 @@ export namespace Prisma {
     programmingLanguages: string
     frameworks?: string | null
     softwareProficiency?: string | null
+    lockedQuestions?: NullableJsonNullValueInput | InputJsonValue
+    examSubmitted?: boolean
     job: JobCreateNestedOneWithoutApplicationsInput
     projects?: ProjectCreateNestedManyWithoutApplicationInput
     examAnswers?: ExamAnswerCreateNestedManyWithoutApplicationInput
@@ -19940,6 +20141,8 @@ export namespace Prisma {
     programmingLanguages: string
     frameworks?: string | null
     softwareProficiency?: string | null
+    lockedQuestions?: NullableJsonNullValueInput | InputJsonValue
+    examSubmitted?: boolean
     projects?: ProjectUncheckedCreateNestedManyWithoutApplicationInput
     examAnswers?: ExamAnswerUncheckedCreateNestedManyWithoutApplicationInput
   }
@@ -19977,6 +20180,8 @@ export namespace Prisma {
     programmingLanguages?: StringFieldUpdateOperationsInput | string
     frameworks?: NullableStringFieldUpdateOperationsInput | string | null
     softwareProficiency?: NullableStringFieldUpdateOperationsInput | string | null
+    lockedQuestions?: NullableJsonNullValueInput | InputJsonValue
+    examSubmitted?: BoolFieldUpdateOperationsInput | boolean
     job?: JobUpdateOneRequiredWithoutApplicationsNestedInput
     projects?: ProjectUpdateManyWithoutApplicationNestedInput
     examAnswers?: ExamAnswerUpdateManyWithoutApplicationNestedInput
@@ -20000,6 +20205,8 @@ export namespace Prisma {
     programmingLanguages?: StringFieldUpdateOperationsInput | string
     frameworks?: NullableStringFieldUpdateOperationsInput | string | null
     softwareProficiency?: NullableStringFieldUpdateOperationsInput | string | null
+    lockedQuestions?: NullableJsonNullValueInput | InputJsonValue
+    examSubmitted?: BoolFieldUpdateOperationsInput | boolean
     projects?: ProjectUncheckedUpdateManyWithoutApplicationNestedInput
     examAnswers?: ExamAnswerUncheckedUpdateManyWithoutApplicationNestedInput
   }
@@ -20054,6 +20261,8 @@ export namespace Prisma {
     programmingLanguages: string
     frameworks?: string | null
     softwareProficiency?: string | null
+    lockedQuestions?: NullableJsonNullValueInput | InputJsonValue
+    examSubmitted?: boolean
     job: JobCreateNestedOneWithoutApplicationsInput
     projects?: ProjectCreateNestedManyWithoutApplicationInput
     scenarios?: ScenarioAnswerCreateNestedManyWithoutApplicationInput
@@ -20077,6 +20286,8 @@ export namespace Prisma {
     programmingLanguages: string
     frameworks?: string | null
     softwareProficiency?: string | null
+    lockedQuestions?: NullableJsonNullValueInput | InputJsonValue
+    examSubmitted?: boolean
     projects?: ProjectUncheckedCreateNestedManyWithoutApplicationInput
     scenarios?: ScenarioAnswerUncheckedCreateNestedManyWithoutApplicationInput
   }
@@ -20153,6 +20364,8 @@ export namespace Prisma {
     programmingLanguages?: StringFieldUpdateOperationsInput | string
     frameworks?: NullableStringFieldUpdateOperationsInput | string | null
     softwareProficiency?: NullableStringFieldUpdateOperationsInput | string | null
+    lockedQuestions?: NullableJsonNullValueInput | InputJsonValue
+    examSubmitted?: BoolFieldUpdateOperationsInput | boolean
     job?: JobUpdateOneRequiredWithoutApplicationsNestedInput
     projects?: ProjectUpdateManyWithoutApplicationNestedInput
     scenarios?: ScenarioAnswerUpdateManyWithoutApplicationNestedInput
@@ -20176,6 +20389,8 @@ export namespace Prisma {
     programmingLanguages?: StringFieldUpdateOperationsInput | string
     frameworks?: NullableStringFieldUpdateOperationsInput | string | null
     softwareProficiency?: NullableStringFieldUpdateOperationsInput | string | null
+    lockedQuestions?: NullableJsonNullValueInput | InputJsonValue
+    examSubmitted?: BoolFieldUpdateOperationsInput | boolean
     projects?: ProjectUncheckedUpdateManyWithoutApplicationNestedInput
     scenarios?: ScenarioAnswerUncheckedUpdateManyWithoutApplicationNestedInput
   }
@@ -20304,6 +20519,8 @@ export namespace Prisma {
     programmingLanguages: string
     frameworks?: string | null
     softwareProficiency?: string | null
+    lockedQuestions?: NullableJsonNullValueInput | InputJsonValue
+    examSubmitted?: boolean
   }
 
   export type ApplicationUpdateWithoutJobInput = {
@@ -20323,6 +20540,8 @@ export namespace Prisma {
     programmingLanguages?: StringFieldUpdateOperationsInput | string
     frameworks?: NullableStringFieldUpdateOperationsInput | string | null
     softwareProficiency?: NullableStringFieldUpdateOperationsInput | string | null
+    lockedQuestions?: NullableJsonNullValueInput | InputJsonValue
+    examSubmitted?: BoolFieldUpdateOperationsInput | boolean
     projects?: ProjectUpdateManyWithoutApplicationNestedInput
     scenarios?: ScenarioAnswerUpdateManyWithoutApplicationNestedInput
     examAnswers?: ExamAnswerUpdateManyWithoutApplicationNestedInput
@@ -20345,6 +20564,8 @@ export namespace Prisma {
     programmingLanguages?: StringFieldUpdateOperationsInput | string
     frameworks?: NullableStringFieldUpdateOperationsInput | string | null
     softwareProficiency?: NullableStringFieldUpdateOperationsInput | string | null
+    lockedQuestions?: NullableJsonNullValueInput | InputJsonValue
+    examSubmitted?: BoolFieldUpdateOperationsInput | boolean
     projects?: ProjectUncheckedUpdateManyWithoutApplicationNestedInput
     scenarios?: ScenarioAnswerUncheckedUpdateManyWithoutApplicationNestedInput
     examAnswers?: ExamAnswerUncheckedUpdateManyWithoutApplicationNestedInput
@@ -20367,6 +20588,8 @@ export namespace Prisma {
     programmingLanguages?: StringFieldUpdateOperationsInput | string
     frameworks?: NullableStringFieldUpdateOperationsInput | string | null
     softwareProficiency?: NullableStringFieldUpdateOperationsInput | string | null
+    lockedQuestions?: NullableJsonNullValueInput | InputJsonValue
+    examSubmitted?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type OptionCreateManyQuestionInput = {

@@ -194,6 +194,9 @@ model Application {
   scenarios   ScenarioAnswer[]
   examAnswers ExamAnswer[] // ✅ REQUIRED reverse relation
 
+  lockedQuestions Json?
+  examSubmitted   Boolean @default(false)
+
   @@index([jobId])
 }
 
@@ -214,10 +217,6 @@ model ScenarioAnswer {
 
   application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
 }
-
-//////////////////////////////////////////////////////
-// Module 4 - Exam Answers
-//////////////////////////////////////////////////////
 
 model ExamAnswer {
   id            String   @id @default(cuid())
