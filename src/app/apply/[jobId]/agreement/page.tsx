@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 export default function AgreementPage({
@@ -9,6 +9,9 @@ export default function AgreementPage({
   params: { jobId: string };
 }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const appId = searchParams.get("appId");
+
   const [checked, setChecked] = useState(false);
 
   const handleStart = () => {
@@ -17,7 +20,12 @@ export default function AgreementPage({
       return;
     }
 
-    router.push(`/exam/${params.jobId}`);
+    if (!appId) {
+      alert("Application ID missing. Please re-apply.");
+      return;
+    }
+
+    router.push(`/exam/${params.jobId}?appId=${appId}`);
   };
 
   return (

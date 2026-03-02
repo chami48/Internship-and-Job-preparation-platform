@@ -1,83 +1,85 @@
-//smart-screening\prisma\schema.prisma
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
-    provider = "prisma-client-js"
-    output   = "../generated/prisma"
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
 }
 
 datasource db {
-    provider = "sqlite"
-    // NOTE: When using mysql or sqlserver, uncomment the @db.Text annotations in model Account below
-    // Further reading:
-    // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
-    // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
-    url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
 }
+
+//////////////////////////////////////////////////////
+// Basic Post Model
+//////////////////////////////////////////////////////
 
 model Post {
-    id        Int      @id @default(autoincrement())
-    name      String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    createdBy   User   @relation(fields: [createdById], references: [id])
-    createdById String
+  createdBy   User   @relation(fields: [createdById], references: [id])
+  createdById String
 
-    @@index([name])
+  @@index([name])
 }
 
-// Necessary for Next auth
-model Account {
-    id                       String  @id @default(cuid())
-    userId                   String
-    type                     String
-    provider                 String
-    providerAccountId        String
-    refresh_token            String? // @db.Text
-    access_token             String? // @db.Text
-    expires_at               Int?
-    token_type               String?
-    scope                    String?
-    id_token                 String? // @db.Text
-    session_state            String?
-    user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-    refresh_token_expires_in Int?
+//////////////////////////////////////////////////////
+// NextAuth Models (kept for future use)
+//////////////////////////////////////////////////////
 
-    @@unique([provider, providerAccountId])
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
 }
 
 model Session {
-    id           String   @id @default(cuid())
-    sessionToken String   @unique
-    userId       String
-    expires      DateTime
-    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model User {
-    id            String    @id @default(cuid())
-    name          String?
-    email         String?   @unique
-    emailVerified DateTime?
-    image         String?
-    accounts      Account[]
-    sessions      Session[]
-    posts         Post[]
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
 
-    applications  Application[]
+  accounts Account[]
+  sessions Session[]
+  posts    Post[]
 }
 
 model VerificationToken {
-    identifier String
-    token      String   @unique
-    expires    DateTime
+  identifier String
+  token      String   @unique
+  expires    DateTime
 
-    @@unique([identifier, token])
+  @@unique([identifier, token])
 }
 
-//Module 2
+//////////////////////////////////////////////////////
+// Module 2 - Job Management
+//////////////////////////////////////////////////////
+
 enum JobType {
   INTERNSHIP
   FULL_TIME
@@ -96,21 +98,22 @@ model Job {
   location  String
   type      JobType
   level     JobLevel
-  tags      String   // store as comma-separated for now (simple)
+  tags      String
   salary    String?
+
   description      String
-responsibilities String
-requirements     String
-benefits         String?
+  responsibilities String
+  requirements     String
+  benefits         String?
+
   createdAt DateTime @default(now())
 
   applications Application[]
 }
 
-
-// =========================
+//////////////////////////////////////////////////////
 // Module 3 - Question Bank
-// =========================
+//////////////////////////////////////////////////////
 
 enum JobRole {
   SOFTWARE_ENGINEER
@@ -139,12 +142,9 @@ model Question {
   explanation String?
   createdAt   DateTime     @default(now())
 
-  // MCQ only
-  options     Option[]
-  correctKey  String?
-
-  // Scenario only
-  rubric      String?
+  options    Option[]
+  correctKey String?
+  rubric     String?
 
   examAnswers ExamAnswer[]
 
@@ -152,27 +152,25 @@ model Question {
 }
 
 model Option {
-  id         String   @id @default(cuid())
+  id         String @id @default(cuid())
   questionId String
   key        String
   text       String
 
-  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
 
   @@unique([questionId, key])
 }
 
-// =========================
-// Application Model
-// =========================
+//////////////////////////////////////////////////////
+// Module 3 - Application System
+//////////////////////////////////////////////////////
 
 model Application {
   id        String   @id @default(cuid())
   jobId     String
-  userId    String
   createdAt DateTime @default(now())
 
-  // Personal
   fullName  String
   email     String
   mobile    String?
@@ -180,27 +178,23 @@ model Application {
   github    String?
   portfolio String?
 
-  // Education
   university     String
   degree         String
   specialization String?
   cgpa           String?
   awards         String?
 
-  // Skills
   programmingLanguages String
   frameworks           String?
   softwareProficiency  String?
 
-  // Relations
-  job       Job  @relation(fields: [jobId], references: [id])
-  user      User @relation(fields: [userId], references: [id])
+  job Job @relation(fields: [jobId], references: [id], onDelete: Cascade)
 
-  projects  Project[]
-  scenarios ScenarioAnswer[]
+  projects     Project[]
+  scenarios    ScenarioAnswer[]
+  examAnswers  ExamAnswer[]   // ✅ REQUIRED reverse relation
 
   @@index([jobId])
-  @@index([userId])
 }
 
 model Project {
@@ -219,4 +213,23 @@ model ScenarioAnswer {
   answer        String
 
   application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+}
+
+//////////////////////////////////////////////////////
+// Module 4 - Exam Answers
+//////////////////////////////////////////////////////
+
+model ExamAnswer {
+  id            String   @id @default(cuid())
+  questionId    String
+  applicationId String
+  answer        String
+  score         Float?
+  createdAt     DateTime @default(now())
+
+  question     Question     @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  application  Application  @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@index([questionId])
+  @@index([applicationId])
 }

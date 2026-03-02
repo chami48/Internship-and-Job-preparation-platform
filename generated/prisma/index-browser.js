@@ -138,8 +138,7 @@ exports.Prisma.AccountScalarFieldEnum = {
   token_type: 'token_type',
   scope: 'scope',
   id_token: 'id_token',
-  session_state: 'session_state',
-  refresh_token_expires_in: 'refresh_token_expires_in'
+  session_state: 'session_state'
 };
 
 exports.Prisma.SessionScalarFieldEnum = {
@@ -201,9 +200,8 @@ exports.Prisma.OptionScalarFieldEnum = {
 
 exports.Prisma.ApplicationScalarFieldEnum = {
   id: 'id',
-  userId: 'userId',
   jobId: 'jobId',
-  status: 'status',
+  createdAt: 'createdAt',
   fullName: 'fullName',
   email: 'email',
   mobile: 'mobile',
@@ -217,31 +215,29 @@ exports.Prisma.ApplicationScalarFieldEnum = {
   awards: 'awards',
   programmingLanguages: 'programmingLanguages',
   frameworks: 'frameworks',
-  softwareProficiency: 'softwareProficiency',
-  createdAt: 'createdAt'
+  softwareProficiency: 'softwareProficiency'
 };
 
-exports.Prisma.ExamSessionScalarFieldEnum = {
+exports.Prisma.ProjectScalarFieldEnum = {
   id: 'id',
   applicationId: 'applicationId',
-  startedAt: 'startedAt',
-  finishedAt: 'finishedAt',
-  score: 'score',
-  violations: 'violations',
-  refreshCount: 'refreshCount',
-  isLocked: 'isLocked',
-  timeLimitMinutes: 'timeLimitMinutes',
-  currentQuestionIndex: 'currentQuestionIndex',
-  questionOrder: 'questionOrder',
-  optionOrder: 'optionOrder'
+  name: 'name',
+  details: 'details'
+};
+
+exports.Prisma.ScenarioAnswerScalarFieldEnum = {
+  id: 'id',
+  applicationId: 'applicationId',
+  questionKey: 'questionKey',
+  answer: 'answer'
 };
 
 exports.Prisma.ExamAnswerScalarFieldEnum = {
   id: 'id',
-  sessionId: 'sessionId',
   questionId: 'questionId',
-  studentAnswer: 'studentAnswer',
-  aiScore: 'aiScore',
+  applicationId: 'applicationId',
+  answer: 'answer',
+  score: 'score',
   createdAt: 'createdAt'
 };
 
@@ -282,13 +278,6 @@ exports.Difficulty = exports.$Enums.Difficulty = {
   HARD: 'HARD'
 };
 
-exports.ApplicationStatus = exports.$Enums.ApplicationStatus = {
-  DRAFT: 'DRAFT',
-  SUBMITTED: 'SUBMITTED',
-  PASSED: 'PASSED',
-  FAILED: 'FAILED'
-};
-
 exports.Prisma.ModelName = {
   Post: 'Post',
   Account: 'Account',
@@ -299,7 +288,8 @@ exports.Prisma.ModelName = {
   Question: 'Question',
   Option: 'Option',
   Application: 'Application',
-  ExamSession: 'ExamSession',
+  Project: 'Project',
+  ScenarioAnswer: 'ScenarioAnswer',
   ExamAnswer: 'ExamAnswer'
 };
 

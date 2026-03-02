@@ -70,6 +70,7 @@ type FormState = {
 };
 
 export default function ApplyPage({ params }: { params: { jobId: string } }) {
+  const createApplication = api.application.create.useMutation();
   const router = useRouter();
 
   const [activeSection, setActiveSection] = useState(0);
@@ -165,24 +166,59 @@ export default function ApplyPage({ params }: { params: { jobId: string } }) {
     return true;
   };
 
-  const handleNext = () => {
-    if (!validateCurrentStep()) {
-      alert("Please fill the required fields before continuing.");
-      return;
-    }
+  const handleNext = async () => {
+  if (!validateCurrentStep()) {
+    alert("Please fill the required fields before continuing.");
+    return;
+  }
 
-    setCompletedSections((prev) => new Set([...prev, activeSection]));
+  setCompletedSections((prev) => new Set([...prev, activeSection]));
 
-    if (activeSection < SECTIONS.length - 1) {
-      setActiveSection((s) => s + 1);
-      return;
-    }
+  if (activeSection < SECTIONS.length - 1) {
+    setActiveSection((s) => s + 1);
+    return;
+  }
 
-    console.log("Application Draft for Job:", params.jobId);
-    console.log("Form:", form);
+  // FINAL STEP — SAVE TO DATABASE
+  try {
+   const created = await createApplication.mutateAsync({
+  jobId: params.jobId,
 
-    router.push(`/apply/${params.jobId}/agreement`);
-  };
+  fullName: form.fullName,
+  email: form.email,
+  mobile: form.mobile,
+  linkedin: form.linkedin,
+  github: form.github,
+  portfolio: form.portfolio,
+
+  university: form.university,
+  degree: form.degree,
+  specialization: form.specialization,
+  cgpa: form.cgpa,
+  awards: form.awards,
+
+  programmingLanguages: form.programmingLanguages,
+  frameworks: form.frameworks,
+  softwareProficiency: form.softwareProficiency,
+
+  projects: form.projects,
+
+  scenarios: [
+    { questionKey: "q1", answer: form.q1 },
+    { questionKey: "q2", answer: form.q2 },
+    { questionKey: "q3", answer: form.q3 },
+  ],
+});
+
+// 🔥 PASS APPLICATION ID
+router.push(
+  `/apply/${params.jobId}/agreement?appId=${created.id}`
+);
+  } catch (error) {
+    console.error(error);
+    alert("Failed to submit application.");
+  }
+};
 
   const handleBack = () => {
     if (activeSection > 0) setActiveSection((s) => s - 1);
