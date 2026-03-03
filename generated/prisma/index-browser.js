@@ -138,8 +138,7 @@ exports.Prisma.AccountScalarFieldEnum = {
   token_type: 'token_type',
   scope: 'scope',
   id_token: 'id_token',
-  session_state: 'session_state',
-  refresh_token_expires_in: 'refresh_token_expires_in'
+  session_state: 'session_state'
 };
 
 exports.Prisma.SessionScalarFieldEnum = {
@@ -163,9 +162,95 @@ exports.Prisma.VerificationTokenScalarFieldEnum = {
   expires: 'expires'
 };
 
+exports.Prisma.JobScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  company: 'company',
+  location: 'location',
+  type: 'type',
+  level: 'level',
+  tags: 'tags',
+  salary: 'salary',
+  description: 'description',
+  responsibilities: 'responsibilities',
+  requirements: 'requirements',
+  benefits: 'benefits',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.QuestionScalarFieldEnum = {
+  id: 'id',
+  role: 'role',
+  topic: 'topic',
+  type: 'type',
+  difficulty: 'difficulty',
+  prompt: 'prompt',
+  explanation: 'explanation',
+  createdAt: 'createdAt',
+  correctKey: 'correctKey',
+  rubric: 'rubric'
+};
+
+exports.Prisma.OptionScalarFieldEnum = {
+  id: 'id',
+  questionId: 'questionId',
+  key: 'key',
+  text: 'text'
+};
+
+exports.Prisma.ApplicationScalarFieldEnum = {
+  id: 'id',
+  jobId: 'jobId',
+  createdAt: 'createdAt',
+  fullName: 'fullName',
+  email: 'email',
+  mobile: 'mobile',
+  linkedin: 'linkedin',
+  github: 'github',
+  portfolio: 'portfolio',
+  university: 'university',
+  degree: 'degree',
+  specialization: 'specialization',
+  cgpa: 'cgpa',
+  awards: 'awards',
+  programmingLanguages: 'programmingLanguages',
+  frameworks: 'frameworks',
+  softwareProficiency: 'softwareProficiency',
+  lockedQuestions: 'lockedQuestions',
+  examSubmitted: 'examSubmitted'
+};
+
+exports.Prisma.ProjectScalarFieldEnum = {
+  id: 'id',
+  applicationId: 'applicationId',
+  name: 'name',
+  details: 'details'
+};
+
+exports.Prisma.ScenarioAnswerScalarFieldEnum = {
+  id: 'id',
+  applicationId: 'applicationId',
+  questionKey: 'questionKey',
+  answer: 'answer'
+};
+
+exports.Prisma.ExamAnswerScalarFieldEnum = {
+  id: 'id',
+  questionId: 'questionId',
+  applicationId: 'applicationId',
+  answer: 'answer',
+  score: 'score',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
+};
+
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
 };
 
 exports.Prisma.NullsOrder = {
@@ -173,13 +258,57 @@ exports.Prisma.NullsOrder = {
   last: 'last'
 };
 
+exports.Prisma.JsonNullValueFilter = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull,
+  AnyNull: Prisma.AnyNull
+};
+
+exports.Prisma.QueryMode = {
+  default: 'default',
+  insensitive: 'insensitive'
+};
+exports.JobType = exports.$Enums.JobType = {
+  INTERNSHIP: 'INTERNSHIP',
+  FULL_TIME: 'FULL_TIME'
+};
+
+exports.JobLevel = exports.$Enums.JobLevel = {
+  JUNIOR: 'JUNIOR',
+  MID: 'MID',
+  SENIOR: 'SENIOR'
+};
+
+exports.JobRole = exports.$Enums.JobRole = {
+  SOFTWARE_ENGINEER: 'SOFTWARE_ENGINEER',
+  UX_ENGINEER: 'UX_ENGINEER',
+  PROJECT_MANAGER: 'PROJECT_MANAGER'
+};
+
+exports.QuestionType = exports.$Enums.QuestionType = {
+  MCQ: 'MCQ',
+  SCENARIO: 'SCENARIO'
+};
+
+exports.Difficulty = exports.$Enums.Difficulty = {
+  EASY: 'EASY',
+  MEDIUM: 'MEDIUM',
+  HARD: 'HARD'
+};
 
 exports.Prisma.ModelName = {
   Post: 'Post',
   Account: 'Account',
   Session: 'Session',
   User: 'User',
-  VerificationToken: 'VerificationToken'
+  VerificationToken: 'VerificationToken',
+  Job: 'Job',
+  Question: 'Question',
+  Option: 'Option',
+  Application: 'Application',
+  Project: 'Project',
+  ScenarioAnswer: 'ScenarioAnswer',
+  ExamAnswer: 'ExamAnswer'
 };
 
 /**
