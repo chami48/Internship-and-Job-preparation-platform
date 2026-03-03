@@ -929,7 +929,352 @@ await scenario({
     "Expect logs analysis, monitoring tools, rollback strategy, communication, root cause analysis.",
 });
 
-  // -------------------- UX ENGINEER (12) --------------------
+await mcq({
+  role: JobRole.SOFTWARE_ENGINEER,
+  topic: "HTTP",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "What is the difference between PUT and PATCH?",
+  options: [
+    { key: "A", text: "PUT replaces entire resource, PATCH updates partially" },
+    { key: "B", text: "PATCH replaces entire resource" },
+    { key: "C", text: "PUT deletes resource" },
+    { key: "D", text: "No difference" },
+  ],
+  correctKey: "A",
+});
+
+await scenario({
+  role: JobRole.SOFTWARE_ENGINEER,
+  topic: "API Security",
+  difficulty: Difficulty.HARD,
+  prompt: "How would you prevent brute force login attacks?",
+  rubric:
+    "Expect rate limiting, account lockout, CAPTCHA, monitoring failed attempts.",
+});
+
+await mcq({
+  role: JobRole.SOFTWARE_ENGINEER,
+  topic: "Databases",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "What is ACID in databases?",
+  options: [
+    { key: "A", text: "Atomicity, Consistency, Isolation, Durability" },
+    { key: "B", text: "Access, Control, Index, Data" },
+    { key: "C", text: "Async, Cache, Index, Deploy" },
+    { key: "D", text: "None of the above" },
+  ],
+  correctKey: "A",
+});
+
+await scenario({
+  role: JobRole.SOFTWARE_ENGINEER,
+  topic: "Transactions",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Why are transactions important in financial systems?",
+  rubric:
+    "Expect atomic operations, rollback on failure, data consistency.",
+});
+
+await mcq({
+  role: JobRole.SOFTWARE_ENGINEER,
+  topic: "Frontend Performance",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Lazy loading improves performance by:",
+  options: [
+    { key: "A", text: "Loading all assets immediately" },
+    { key: "B", text: "Loading resources only when needed" },
+    { key: "C", text: "Deleting unused files" },
+    { key: "D", text: "Restarting browser" },
+  ],
+  correctKey: "B",
+});
+
+await scenario({
+  role: JobRole.SOFTWARE_ENGINEER,
+  topic: "Frontend Optimization",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "How would you reduce bundle size in a React app?",
+  rubric:
+    "Expect code splitting, tree shaking, removing unused libraries, dynamic imports.",
+});
+
+await mcq({
+  role: JobRole.SOFTWARE_ENGINEER,
+  topic: "Concurrency",
+  difficulty: Difficulty.HARD,
+  prompt: "What is a deadlock?",
+  options: [
+    { key: "A", text: "Two processes waiting on each other indefinitely" },
+    { key: "B", text: "Memory overflow" },
+    { key: "C", text: "API timeout" },
+    { key: "D", text: "Infinite loop" },
+  ],
+  correctKey: "A",
+});
+
+await scenario({
+  role: JobRole.SOFTWARE_ENGINEER,
+  topic: "System Design",
+  difficulty: Difficulty.HARD,
+  prompt: "How would you design a file upload system that handles large files?",
+  rubric:
+    "Expect chunk uploads, validation, storage service, CDN, retry mechanism.",
+});
+
+await mcq({
+  role: JobRole.SOFTWARE_ENGINEER,
+  topic: "Authentication",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "JWT tokens are typically stored in:",
+  options: [
+    { key: "A", text: "Local storage or cookies" },
+    { key: "B", text: "CSS files" },
+    { key: "C", text: "HTML tags" },
+    { key: "D", text: "Database indexes" },
+  ],
+  correctKey: "A",
+});
+
+await scenario({
+  role: JobRole.SOFTWARE_ENGINEER,
+  topic: "Security",
+  difficulty: Difficulty.HARD,
+  prompt: "How would you secure an API against SQL injection?",
+  rubric:
+    "Expect parameterized queries, ORM usage, input validation.",
+});
+
+await mcq({
+  role: JobRole.SOFTWARE_ENGINEER,
+  topic: "Monitoring",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Why is logging important in production?",
+  options: [
+    { key: "A", text: "Improve UI" },
+    { key: "B", text: "Track errors and monitor system behavior" },
+    { key: "C", text: "Increase RAM" },
+    { key: "D", text: "Change CSS" },
+  ],
+  correctKey: "B",
+});
+
+await scenario({
+  role: JobRole.SOFTWARE_ENGINEER,
+  topic: "Monitoring",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "What metrics would you monitor in a backend server?",
+  rubric:
+    "Expect CPU usage, memory usage, response time, error rate.",
+});
+
+await mcq({
+  role: JobRole.SOFTWARE_ENGINEER,
+  topic: "Deployment",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "What is blue-green deployment?",
+  options: [
+    { key: "A", text: "Deploying UI twice" },
+    { key: "B", text: "Two identical environments for zero downtime release" },
+    { key: "C", text: "Deleting old servers" },
+    { key: "D", text: "Manual deployment" },
+  ],
+  correctKey: "B",
+});
+
+await scenario({
+  role: JobRole.SOFTWARE_ENGINEER,
+  topic: "Deployment",
+  difficulty: Difficulty.HARD,
+  prompt: "How would you roll back a failed deployment?",
+  rubric:
+    "Expect version control tags, CI/CD rollback, database migration strategy.",
+});
+
+await mcq({
+  role: JobRole.SOFTWARE_ENGINEER,
+  topic: "Data Structures",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "A heap is commonly used for:",
+  options: [
+    { key: "A", text: "Priority queues" },
+    { key: "B", text: "Stacks" },
+    { key: "C", text: "Graphs" },
+    { key: "D", text: "Linked lists" },
+  ],
+  correctKey: "A",
+});
+
+await scenario({
+  role: JobRole.SOFTWARE_ENGINEER,
+  topic: "Algorithm Design",
+  difficulty: Difficulty.HARD,
+  prompt: "How would you detect a cycle in a linked list?",
+  rubric:
+    "Expect Floyd’s cycle detection algorithm (slow & fast pointers).",
+});
+
+await mcq({
+  role: JobRole.SOFTWARE_ENGINEER,
+  topic: "Clean Code",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Good function names should:",
+  options: [
+    { key: "A", text: "Be short and unclear" },
+    { key: "B", text: "Clearly describe purpose" },
+    { key: "C", text: "Contain numbers" },
+    { key: "D", text: "Be random" },
+  ],
+  correctKey: "B",
+});
+
+await scenario({
+  role: JobRole.SOFTWARE_ENGINEER,
+  topic: "Refactoring",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "When should you refactor code?",
+  rubric:
+    "Expect when adding features, fixing bugs, improving readability.",
+});
+
+await mcq({
+  role: JobRole.SOFTWARE_ENGINEER,
+  topic: "DevOps",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Infrastructure as Code means:",
+  options: [
+    { key: "A", text: "Managing infrastructure using code and automation" },
+    { key: "B", text: "Writing frontend CSS" },
+    { key: "C", text: "Manual server setup" },
+    { key: "D", text: "Deleting servers" },
+  ],
+  correctKey: "A",
+});
+
+await scenario({
+  role: JobRole.SOFTWARE_ENGINEER,
+  topic: "Reliability",
+  difficulty: Difficulty.HARD,
+  prompt: "How would you design a system with high availability?",
+  rubric:
+    "Expect redundancy, load balancers, failover strategy, monitoring.",
+});
+
+await mcq({
+  role: JobRole.SOFTWARE_ENGINEER,
+  topic: "Networking",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "What is latency?",
+  options: [
+    { key: "A", text: "Data storage" },
+    { key: "B", text: "Delay before data transfer begins" },
+    { key: "C", text: "CPU speed" },
+    { key: "D", text: "Memory allocation" },
+  ],
+  correctKey: "B",
+});
+
+await scenario({
+  role: JobRole.SOFTWARE_ENGINEER,
+  topic: "API Design",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "How would you version a public API?",
+  rubric:
+    "Expect URL versioning (/v1), backward compatibility, documentation.",
+});
+
+await mcq({
+  role: JobRole.SOFTWARE_ENGINEER,
+  topic: "Microservices",
+  difficulty: Difficulty.HARD,
+  prompt: "Microservices architecture promotes:",
+  options: [
+    { key: "A", text: "Single large codebase" },
+    { key: "B", text: "Independent deployable services" },
+    { key: "C", text: "Manual scaling only" },
+    { key: "D", text: "No APIs" },
+  ],
+  correctKey: "B",
+});
+
+await scenario({
+  role: JobRole.SOFTWARE_ENGINEER,
+  topic: "Microservices",
+  difficulty: Difficulty.HARD,
+  prompt: "What are trade-offs of microservices?",
+  rubric:
+    "Expect complexity, communication overhead, scalability benefits.",
+});
+
+await mcq({
+  role: JobRole.SOFTWARE_ENGINEER,
+  topic: "Security",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Two-factor authentication improves security by:",
+  options: [
+    { key: "A", text: "Reducing password length" },
+    { key: "B", text: "Adding additional verification step" },
+    { key: "C", text: "Disabling login" },
+    { key: "D", text: "Encrypting CSS" },
+  ],
+  correctKey: "B",
+});
+
+await scenario({
+  role: JobRole.SOFTWARE_ENGINEER,
+  topic: "Incident Response",
+  difficulty: Difficulty.HARD,
+  prompt: "A data breach is detected. What immediate actions should be taken?",
+  rubric:
+    "Expect isolate systems, notify stakeholders, investigate logs, patch vulnerability.",
+});
+
+await mcq({
+  role: JobRole.SOFTWARE_ENGINEER,
+  topic: "Software Development",
+  difficulty: Difficulty.EASY,
+  prompt: "What is technical debt?",
+  options: [
+    { key: "A", text: "Borrowing money for servers" },
+    { key: "B", text: "Future cost of quick or poor design decisions" },
+    { key: "C", text: "Database error" },
+    { key: "D", text: "Testing strategy" },
+  ],
+  correctKey: "B",
+});
+
+await scenario({
+  role: JobRole.SOFTWARE_ENGINEER,
+  topic: "Code Review",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "What do you look for in a pull request review?",
+  rubric:
+    "Expect readability, correctness, security issues, performance, tests.",
+});
+
+await scenario({
+  role: JobRole.SOFTWARE_ENGINEER,
+  topic: "Engineering Mindset",
+  difficulty: Difficulty.HARD,
+  prompt: "What makes a software system maintainable long-term?",
+  rubric:
+    "Expect clean architecture, documentation, testing, modularity, monitoring.",
+});
+
+ await mcq({
+  role: JobRole.SOFTWARE_ENGINEER,
+  topic: "Web Fundamentals",
+  difficulty: Difficulty.EASY,
+  prompt: "What does DNS do?",
+  options: [
+    { key: "A", text: "Encrypts data" },
+    { key: "B", text: "Translates domain names to IP addresses" },
+    { key: "C", text: "Stores passwords" },
+    { key: "D", text: "Optimizes CSS" },
+  ],
+  correctKey: "B",
+});
+
+// -------------------- UX ENGINEER --------------------
   await mcq({
     role: JobRole.UX_ENGINEER,
     topic: "UX Basics",
@@ -971,273 +1316,1811 @@ await scenario({
 
   // Add more quickly (keep short)
   await mcq({
-    role: JobRole.UX_ENGINEER,
-    topic: "Usability",
-    difficulty: Difficulty.MEDIUM,
-    prompt: "Which is a usability metric?",
-    options: [
-      { key: "A", text: "Task completion rate" },
-      { key: "B", text: "CPU temperature" },
-      { key: "C", text: "RAM speed" },
-      { key: "D", text: "Git commit count" },
-    ],
-    correctKey: "A",
-  });
+  role: JobRole.UX_ENGINEER,
+  topic: "UX Fundamentals",
+  difficulty: Difficulty.EASY,
+  prompt: "What is the main goal of UX design?",
+  options: [
+    { key: "A", text: "Make websites colorful" },
+    { key: "B", text: "Improve user satisfaction and usability" },
+    { key: "C", text: "Increase server speed" },
+    { key: "D", text: "Reduce database size" },
+  ],
+  correctKey: "B",
+});
+
+  await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "UI Design",
+  difficulty: Difficulty.EASY,
+  prompt: "UI primarily focuses on:",
+  options: [
+    { key: "A", text: "User interface visuals and interactions" },
+    { key: "B", text: "Backend APIs" },
+    { key: "C", text: "Database queries" },
+    { key: "D", text: "Server monitoring" },
+  ],
+  correctKey: "A",
+});
+
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "User Flows",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "A user flow diagram shows:",
+  options: [
+    { key: "A", text: "How users move through an application" },
+    { key: "B", text: "Database structure" },
+    { key: "C", text: "Server logs" },
+    { key: "D", text: "API endpoints" },
+  ],
+  correctKey: "A",
+});
+
+await scenario({
+  role: JobRole.UX_ENGINEER,
+  topic: "Navigation Design",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Users cannot find the apply button easily. What changes would you suggest?",
+  rubric:
+    "Expect visual hierarchy improvements, color emphasis, positioning, A/B testing.",
+});
+
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "Figma",
+  difficulty: Difficulty.EASY,
+  prompt: "Components in Figma help with:",
+  options: [
+    { key: "A", text: "Reusable UI elements" },
+    { key: "B", text: "Server deployment" },
+    { key: "C", text: "Database management" },
+    { key: "D", text: "API security" },
+  ],
+  correctKey: "A",
+});
+
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "Responsive Design",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Responsive design ensures:",
+  options: [
+    { key: "A", text: "App works on different screen sizes" },
+    { key: "B", text: "Database scales" },
+    { key: "C", text: "Faster backend performance" },
+    { key: "D", text: "More RAM usage" },
+  ],
+  correctKey: "A",
+});
+
+await scenario({
+  role: JobRole.UX_ENGINEER,
+  topic: "Mobile UX",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "What are key differences when designing for mobile vs desktop?",
+  rubric:
+    "Expect touch interactions, smaller screens, thumb zones, simplified layouts.",
+});
+
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "Heuristics",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "‘Error prevention’ in UX means:",
+  options: [
+    { key: "A", text: "Allowing users to make mistakes freely" },
+    { key: "B", text: "Designing to minimize user errors" },
+    { key: "C", text: "Deleting error messages" },
+    { key: "D", text: "Restarting system" },
+  ],
+  correctKey: "B",
+});
+
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "Information Architecture",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Information architecture organizes:",
+  options: [
+    { key: "A", text: "Content structure and navigation" },
+    { key: "B", text: "Database queries" },
+    { key: "C", text: "API requests" },
+    { key: "D", text: "Server memory" },
+  ],
+  correctKey: "A",
+});
+
+await scenario({
+  role: JobRole.UX_ENGINEER,
+  topic: "User Personas",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "How do user personas help in design decisions?",
+  rubric:
+    "Expect empathy building, target audience clarity, prioritizing features.",
+});
+
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "A/B Testing",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "A/B testing is used to:",
+  options: [
+    { key: "A", text: "Compare two design variations" },
+    { key: "B", text: "Test database speed" },
+    { key: "C", text: "Delete features" },
+    { key: "D", text: "Encrypt UI" },
+  ],
+  correctKey: "A",
+});
+
+await scenario({
+  role: JobRole.UX_ENGINEER,
+  topic: "Usability Testing",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "How would you conduct a usability test for a job application flow?",
+  rubric:
+    "Expect defining tasks, observing users, collecting feedback, identifying friction points.",
+});
+
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "UX Metrics",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Task completion rate measures:",
+  options: [
+    { key: "A", text: "How many users successfully finish a task" },
+    { key: "B", text: "Server response time" },
+    { key: "C", text: "Number of UI components" },
+    { key: "D", text: "Database speed" },
+  ],
+  correctKey: "A",
+});
+
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "UX Metrics",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Bounce rate indicates:",
+  options: [
+    { key: "A", text: "Users leaving after viewing one page" },
+    { key: "B", text: "Server crash" },
+    { key: "C", text: "Memory leak" },
+    { key: "D", text: "Database timeout" },
+  ],
+  correctKey: "A",
+});
+
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "UX Metrics",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Bounce rate indicates:",
+  options: [
+    { key: "A", text: "Users leaving after viewing one page" },
+    { key: "B", text: "Server crash" },
+    { key: "C", text: "Memory leak" },
+    { key: "D", text: "Database timeout" },
+  ],
+  correctKey: "A",
+});
+
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "Accessibility",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "WCAG guidelines are related to:",
+  options: [
+    { key: "A", text: "Web accessibility standards" },
+    { key: "B", text: "Database schema" },
+    { key: "C", text: "Backend security" },
+    { key: "D", text: "Cloud deployment" },
+  ],
+  correctKey: "A",
+});
+
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "Accessibility",
+  difficulty: Difficulty.HARD,
+  prompt: "Keyboard accessibility ensures:",
+  options: [
+    { key: "A", text: "Users can navigate without a mouse" },
+    { key: "B", text: "UI loads faster" },
+    { key: "C", text: "Server uses less RAM" },
+    { key: "D", text: "Database is optimized" },
+  ],
+  correctKey: "A",
+});
+
+await scenario({
+  role: JobRole.UX_ENGINEER,
+  topic: "Inclusive Design",
+  difficulty: Difficulty.HARD,
+  prompt: "How would you design for users with color blindness?",
+  rubric:
+    "Expect not relying on color alone, using patterns/icons, high contrast, accessibility testing.",
+});
+
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "Interaction Patterns",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Modal dialogs should be used:",
+  options: [
+    { key: "A", text: "For critical actions requiring attention" },
+    { key: "B", text: "For every message" },
+    { key: "C", text: "To display database logs" },
+    { key: "D", text: "To improve server performance" },
+  ],
+  correctKey: "A",
+});
+
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "Interaction Design",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Progress indicators help users by:",
+  options: [
+    { key: "A", text: "Reducing uncertainty during long tasks" },
+    { key: "B", text: "Speeding up database queries" },
+    { key: "C", text: "Improving backend security" },
+    { key: "D", text: "Reducing RAM usage" },
+  ],
+  correctKey: "A",
+});
+
+await scenario({
+  role: JobRole.UX_ENGINEER,
+  topic: "Form Design",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "How would you design error messages for better UX?",
+  rubric:
+    "Expect clear language, field-level feedback, suggestions for correction, avoiding technical jargon.",
+});
+
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "Psychology in UX",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Hick’s Law states that:",
+  options: [
+    { key: "A", text: "More choices increase decision time" },
+    { key: "B", text: "Users love complex menus" },
+    { key: "C", text: "Animations improve performance" },
+    { key: "D", text: "Fonts affect server speed" },
+  ],
+  correctKey: "A",
+});
+
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "Psychology in UX",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Fitts’s Law relates to:",
+  options: [
+    { key: "A", text: "Target size and interaction time" },
+    { key: "B", text: "Database scaling" },
+    { key: "C", text: "API latency" },
+    { key: "D", text: "Server caching" },
+  ],
+  correctKey: "A",
+});
+
+await scenario({
+  role: JobRole.UX_ENGINEER,
+  topic: "User Behavior",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Users rarely scroll below the fold. How would you redesign the page?",
+  rubric:
+    "Expect placing key actions above fold, visual cues, progressive disclosure.",
+});
+
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "Design Systems",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "A design system ensures:",
+  options: [
+    { key: "A", text: "Consistency across products" },
+    { key: "B", text: "Faster database queries" },
+    { key: "C", text: "Better server scaling" },
+    { key: "D", text: "Improved memory usage" },
+  ],
+  correctKey: "A",
+});
+
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "UI Consistency",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Consistency improves UX by:",
+  options: [
+    { key: "A", text: "Reducing learning curve" },
+    { key: "B", text: "Increasing code size" },
+    { key: "C", text: "Improving CPU speed" },
+    { key: "D", text: "Encrypting assets" },
+  ],
+  correctKey: "A",
+});
+
+await scenario({
+  role: JobRole.UX_ENGINEER,
+  topic: "Design Tokens",
+  difficulty: Difficulty.HARD,
+  prompt: "What are design tokens and why are they useful?",
+  rubric:
+    "Expect centralized values for color, spacing, typography, easier maintenance.",
+});
+
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "Animation",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Animations should be used to:",
+  options: [
+    { key: "A", text: "Guide user attention and provide feedback" },
+    { key: "B", text: "Slow down website intentionally" },
+    { key: "C", text: "Increase database load" },
+    { key: "D", text: "Replace accessibility features" },
+  ],
+  correctKey: "A",
+});
+
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "Loading States",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Skeleton screens improve UX by:",
+  options: [
+    { key: "A", text: "Reducing perceived waiting time" },
+    { key: "B", text: "Reducing server usage" },
+    { key: "C", text: "Improving database indexing" },
+    { key: "D", text: "Encrypting user data" },
+  ],
+  correctKey: "A",
+});
+
+await scenario({
+  role: JobRole.UX_ENGINEER,
+  topic: "Performance Perception",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "How can design improve perceived performance even if backend speed is same?",
+  rubric:
+    "Expect progress bars, skeleton loaders, optimistic UI updates.",
+});
+
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "Navigation",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Breadcrumb navigation helps users:",
+  options: [
+    { key: "A", text: "Understand location in hierarchy" },
+    { key: "B", text: "Increase RAM usage" },
+    { key: "C", text: "Improve API calls" },
+    { key: "D", text: "Delete content" },
+  ],
+  correctKey: "A",
+});
+
+await scenario({
+  role: JobRole.UX_ENGINEER,
+  topic: "Navigation Design",
+  difficulty: Difficulty.HARD,
+  prompt: "When would you use tabs vs accordion components?",
+  rubric:
+    "Expect tabs for parallel sections, accordion for progressive disclosure, mobile considerations.",
+});
+
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "Design to Development",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Why should designers understand frontend constraints?",
+  options: [
+    { key: "A", text: "To design unrealistic interfaces" },
+    { key: "B", text: "To create feasible and implementable designs" },
+    { key: "C", text: "To replace developers" },
+    { key: "D", text: "To optimize databases" },
+  ],
+  correctKey: "B",
+});
+
+await scenario({
+  role: JobRole.UX_ENGINEER,
+  topic: "Developer Collaboration",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Developers say your design is too complex to implement. What do you do?",
+  rubric:
+    "Expect discussion, understanding constraints, simplifying interactions, iterative refinement.",
+});
+
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "Responsive UX",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Mobile-first design means:",
+  options: [
+    { key: "A", text: "Designing for desktop first" },
+    { key: "B", text: "Designing smallest screen first, then scaling up" },
+    { key: "C", text: "Ignoring desktop users" },
+    { key: "D", text: "Only building mobile apps" },
+  ],
+  correctKey: "B",
+});
+
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "UX Strategy",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "What is a pain point?",
+  options: [
+    { key: "A", text: "A feature users love" },
+    { key: "B", text: "A recurring user problem or frustration" },
+    { key: "C", text: "Database failure" },
+    { key: "D", text: "Server overload" },
+  ],
+  correctKey: "B",
+});
+
+await scenario({
+  role: JobRole.UX_ENGINEER,
+  topic: "User Frustration",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Users complain that the onboarding process is too long. How would you improve it?",
+  rubric:
+    "Expect reducing steps, progressive disclosure, skip options, clearer guidance.",
+});
+
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "Cognitive Load",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Reducing cognitive load means:",
+  options: [
+    { key: "A", text: "Adding more options" },
+    { key: "B", text: "Making tasks easier to understand" },
+    { key: "C", text: "Increasing animation" },
+    { key: "D", text: "Removing accessibility features" },
+  ],
+  correctKey: "B",
+});
+
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "Error Handling",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Good error states should:",
+  options: [
+    { key: "A", text: "Blame the user" },
+    { key: "B", text: "Clearly explain problem and solution" },
+    { key: "C", text: "Use technical jargon" },
+    { key: "D", text: "Hide the error" },
+  ],
+  correctKey: "B",
+});
+
+await scenario({
+  role: JobRole.UX_ENGINEER,
+  topic: "Edge Cases",
+  difficulty: Difficulty.HARD,
+  prompt: "How would you design for empty states (no data available)?",
+  rubric:
+    "Expect helpful messaging, guidance, call-to-action, friendly tone.",
+});
+
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "Dark Mode",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Dark mode improves UX primarily by:",
+  options: [
+    { key: "A", text: "Reducing eye strain in low light" },
+    { key: "B", text: "Increasing database speed" },
+    { key: "C", text: "Reducing API calls" },
+    { key: "D", text: "Improving server memory" },
+  ],
+  correctKey: "A",
+});
+
+await scenario({
+  role: JobRole.UX_ENGINEER,
+  topic: "Theming",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "How would you design a system that supports both light and dark themes?",
+  rubric:
+    "Expect design tokens, contrast testing, consistent color palettes.",
+});
+
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "Microcopy",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Microcopy refers to:",
+  options: [
+    { key: "A", text: "Small UI helper text guiding users" },
+    { key: "B", text: "Database comments" },
+    { key: "C", text: "Server logs" },
+    { key: "D", text: "HTML structure" },
+  ],
+  correctKey: "A",
+});
+
+await scenario({
+  role: JobRole.UX_ENGINEER,
+  topic: "Trust Design",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "How would you increase user trust on a payment page?",
+  rubric:
+    "Expect security indicators, testimonials, clear pricing, transparent policies.",
+});
+
+  await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "Usability",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "What is usability?",
+  options: [
+    { key: "A", text: "How easy and efficient a product is to use" },
+    { key: "B", text: "How colorful a UI is" },
+    { key: "C", text: "How many buttons are used" },
+    { key: "D", text: "How many animations exist" },
+  ],
+  correctKey: "A",
+});
+
+  await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "Design Thinking",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "The first stage of Design Thinking is:",
+  options: [
+    { key: "A", text: "Prototype" },
+    { key: "B", text: "Test" },
+    { key: "C", text: "Empathize" },
+    { key: "D", text: "Deploy" },
+  ],
+  correctKey: "C",
+});
 
   await scenario({
-    role: JobRole.UX_ENGINEER,
-    topic: "Accessibility",
-    difficulty: Difficulty.HARD,
-    prompt:
-      "List key accessibility improvements for a job listing page (3–5 points).",
-    rubric:
-      "Expect: contrast, keyboard nav, ARIA labels, focus states, semantic HTML, alt text, readable font sizes, error messaging.",
-  });
+  role: JobRole.UX_ENGINEER,
+  topic: "User Research",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "How would you gather user feedback before redesigning a dashboard?",
+  rubric:
+    "Expect surveys, interviews, usability tests, analytics review, identifying pain points.",
+});
 
-  // (fill to 12 with a few more)
+  
   await mcq({
-    role: JobRole.UX_ENGINEER,
-    topic: "UI",
-    difficulty: Difficulty.EASY,
-    prompt: "What is a primary benefit of consistent spacing and typography?",
-    options: [
-      { key: "A", text: "Better readability and scannability" },
-      { key: "B", text: "Faster internet" },
-      { key: "C", text: "More database storage" },
-      { key: "D", text: "Better encryption" },
-    ],
-    correctKey: "A",
-  });
+  role: JobRole.UX_ENGINEER,
+  topic: "Wireframing",
+  difficulty: Difficulty.EASY,
+  prompt: "A wireframe is used to:",
+  options: [
+    { key: "A", text: "Define layout structure without visual styling" },
+    { key: "B", text: "Deploy application" },
+    { key: "C", text: "Test backend APIs" },
+    { key: "D", text: "Encrypt data" },
+  ],
+  correctKey: "A",
+});
 
   await mcq({
-    role: JobRole.UX_ENGINEER,
-    topic: "Figma",
-    difficulty: Difficulty.MEDIUM,
-    prompt: "A design system in Figma typically includes:",
-    options: [
-      { key: "A", text: "Components, styles, and guidelines" },
-      { key: "B", text: "Only images" },
-      { key: "C", text: "Only code" },
-      { key: "D", text: "Only database tables" },
-    ],
-    correctKey: "A",
-  });
+  role: JobRole.UX_ENGINEER,
+  topic: "Typography",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Why is typography important in UX?",
+  options: [
+    { key: "A", text: "Improves readability and hierarchy" },
+    { key: "B", text: "Improves server performance" },
+    { key: "C", text: "Reduces database size" },
+    { key: "D", text: "Increases CPU usage" },
+  ],
+  correctKey: "A",
+});
+
+  await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "Color Theory",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "High contrast in UI helps with:",
+  options: [
+    { key: "A", text: "Accessibility and readability" },
+    { key: "B", text: "Server caching" },
+    { key: "C", text: "Database indexing" },
+    { key: "D", text: "API performance" },
+  ],
+  correctKey: "A",
+});
 
   await scenario({
-    role: JobRole.UX_ENGINEER,
-    topic: "Interaction Design",
-    difficulty: Difficulty.MEDIUM,
-    prompt:
-      "A student accidentally closes the exam page. Suggest a safer UX flow.",
-    rubric:
-      "Expect: confirm before leaving, autosave answers, warnings, resume option (with integrity rules), clear states.",
-  });
+  role: JobRole.UX_ENGINEER,
+  topic: "Accessibility",
+  difficulty: Difficulty.HARD,
+  prompt: "How would you design a form accessible to visually impaired users?",
+  rubric:
+    "Expect proper labels, ARIA attributes, keyboard navigation, screen reader compatibility.",
+});
 
-  // quick fillers
-  await mcq({
-    role: JobRole.UX_ENGINEER,
-    topic: "Heuristics",
-    difficulty: Difficulty.MEDIUM,
-    prompt: "‘Visibility of system status’ means:",
-    options: [
-      { key: "A", text: "Hide loading indicators" },
-      { key: "B", text: "Keep users informed with feedback" },
-      { key: "C", text: "Disable buttons always" },
-      { key: "D", text: "Use only icons" },
-    ],
-    correctKey: "B",
-  });
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "Interaction Design",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Micro-interactions are used to:",
+  options: [
+    { key: "A", text: "Provide subtle feedback to user actions" },
+    { key: "B", text: "Store data" },
+    { key: "C", text: "Replace backend APIs" },
+    { key: "D", text: "Reduce CSS" },
+  ],
+  correctKey: "A",
+});
 
-  await mcq({
-    role: JobRole.UX_ENGINEER,
-    topic: "Research",
-    difficulty: Difficulty.EASY,
-    prompt: "A/B testing compares:",
-    options: [
-      { key: "A", text: "Two design variants to see which performs better" },
-      { key: "B", text: "Two databases" },
-      { key: "C", text: "Two laptops" },
-      { key: "D", text: "Two internet providers" },
-    ],
-    correctKey: "A",
-  });
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "Feedback Systems",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Immediate feedback is important because:",
+  options: [
+    { key: "A", text: "It confirms user actions instantly" },
+    { key: "B", text: "It reduces RAM" },
+    { key: "C", text: "It speeds up database queries" },
+    { key: "D", text: "It encrypts content" },
+  ],
+  correctKey: "A",
+});
 
-  await mcq({
-    role: JobRole.UX_ENGINEER,
-    topic: "UX Writing",
-    difficulty: Difficulty.EASY,
-    prompt: "Good microcopy should be:",
-    options: [
-      { key: "A", text: "Clear and helpful" },
-      { key: "B", text: "Long and complex" },
-      { key: "C", text: "Only technical" },
-      { key: "D", text: "Random" },
-    ],
-    correctKey: "A",
-  });
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "UX Research",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Qualitative research provides:",
+  options: [
+    { key: "A", text: "In-depth insights into user behavior" },
+    { key: "B", text: "Database indexing" },
+    { key: "C", text: "Faster rendering" },
+    { key: "D", text: "API response codes" },
+  ],
+  correctKey: "A",
+});
 
-  await scenario({
-    role: JobRole.UX_ENGINEER,
-    topic: "Usability Testing",
-    difficulty: Difficulty.MEDIUM,
-    prompt: "Write 3 usability test tasks for the job apply flow.",
-    rubric:
-      "Expect: find a job, open details, start application, fill profile, accept rules, start exam; tasks are measurable and clear.",
-  });
+await scenario({
+  role: JobRole.UX_ENGINEER,
+  topic: "Quantitative Research",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "What quantitative data would you collect to measure UX success?",
+  rubric:
+    "Expect conversion rate, task completion rate, error rate, retention.",
+});
+
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "Design Handoff",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "A proper design handoff should include:",
+  options: [
+    { key: "A", text: "Design specs and interaction details" },
+    { key: "B", text: "Only screenshots" },
+    { key: "C", text: "Database schema" },
+    { key: "D", text: "Server configuration" },
+  ],
+  correctKey: "A",
+});
+
+await scenario({
+  role: JobRole.UX_ENGINEER,
+  topic: "Design Handoff",
+  difficulty: Difficulty.HARD,
+  prompt: "What problems happen when design documentation is incomplete?",
+  rubric:
+    "Expect misinterpretation, inconsistent UI, delays, rework.",
+});
+
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "UX Debt",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "UX debt refers to:",
+  options: [
+    { key: "A", text: "Accumulated poor design decisions" },
+    { key: "B", text: "Database storage" },
+    { key: "C", text: "Server overload" },
+    { key: "D", text: "Extra CSS files" },
+  ],
+  correctKey: "A",
+});
+
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "Design Systems",
+  difficulty: Difficulty.HARD,
+  prompt: "Atomic design methodology includes:",
+  options: [
+    { key: "A", text: "Atoms, molecules, organisms" },
+    { key: "B", text: "Tables, rows, columns" },
+    { key: "C", text: "Servers, clients, APIs" },
+    { key: "D", text: "Files and folders" },
+  ],
+  correctKey: "A",
+});
+await scenario({
+  role: JobRole.UX_ENGINEER,
+  topic: "Component Thinking",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Why is component-based design important in modern UI?",
+  rubric:
+    "Expect reusability, consistency, easier maintenance.",
+});
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "Form UX",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Inline validation improves UX because:",
+  options: [
+    { key: "A", text: "Users get instant feedback" },
+    { key: "B", text: "It reduces database load" },
+    { key: "C", text: "It increases complexity" },
+    { key: "D", text: "It removes CSS" },
+  ],
+  correctKey: "A",
+});
+await scenario({
+  role: JobRole.UX_ENGINEER,
+  topic: "Search UX",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "How would you improve search functionality in a job portal?",
+  rubric:
+    "Expect auto-suggestions, filters, typo tolerance, clear results display.",
+});
+
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "UX Evaluation",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Heuristic evaluation is:",
+  options: [
+    { key: "A", text: "Expert review using usability principles" },
+    { key: "B", text: "Database stress testing" },
+    { key: "C", text: "Server benchmarking" },
+    { key: "D", text: "Code compilation" },
+  ],
+  correctKey: "A",
+});
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "Design Ethics",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Dark patterns are:",
+  options: [
+    { key: "A", text: "Unethical design tactics manipulating users" },
+    { key: "B", text: "Dark mode UI" },
+    { key: "C", text: "Secure forms" },
+    { key: "D", text: "Minimalistic design" },
+  ],
+  correctKey: "A",
+});
+await scenario({
+  role: JobRole.UX_ENGINEER,
+  topic: "Ethical UX",
+  difficulty: Difficulty.HARD,
+  prompt: "How do you balance business goals with ethical UX?",
+  rubric:
+    "Expect transparency, user respect, avoiding manipulation, aligning KPIs ethically.",
+});
+
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "Accessibility",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Alt text is important for:",
+  options: [
+    { key: "A", text: "Screen readers describing images" },
+    { key: "B", text: "Database indexing" },
+    { key: "C", text: "CSS rendering" },
+    { key: "D", text: "Server caching" },
+  ],
+  correctKey: "A",
+});
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "UX Psychology",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Social proof influences users by:",
+  options: [
+    { key: "A", text: "Showing others’ positive experiences" },
+    { key: "B", text: "Increasing server load" },
+    { key: "C", text: "Deleting accounts" },
+    { key: "D", text: "Hiding content" },
+  ],
+  correctKey: "A",
+});
+
+await scenario({
+  role: JobRole.UX_ENGINEER,
+  topic: "Conversion Optimization",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "How would you improve conversion on a signup page?",
+  rubric:
+    "Expect simplifying form, clear CTA, trust signals, testing variations.",
+});
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "Navigation Patterns",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Hamburger menus are most suitable for:",
+  options: [
+    { key: "A", text: "Mobile navigation" },
+    { key: "B", text: "Server routing" },
+    { key: "C", text: "Database tables" },
+    { key: "D", text: "Backend APIs" },
+  ],
+  correctKey: "A",
+});
+
+await scenario({
+  role: JobRole.UX_ENGINEER,
+  topic: "Long-term UX Strategy",
+  difficulty: Difficulty.HARD,
+  prompt: "What makes a product’s UX sustainable over time?",
+  rubric:
+    "Expect consistency, design system, user feedback loop, scalability, accessibility compliance.",
+});
+
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "Product Thinking",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "User-centered design prioritizes:",
+  options: [
+    { key: "A", text: "Business needs only" },
+    { key: "B", text: "User needs and goals" },
+    { key: "C", text: "Backend architecture" },
+    { key: "D", text: "Database optimization" },
+  ],
+  correctKey: "B",
+});
+
+await scenario({
+  role: JobRole.UX_ENGINEER,
+  topic: "Feature Prioritization",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "You have limited time. How do you prioritize UX improvements?",
+  rubric:
+    "Expect impact vs effort analysis, user pain points, business value alignment.",
+});
+
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "Usability",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Affordance in UI means:",
+  options: [
+    { key: "A", text: "Visual cues indicating how an element works" },
+    { key: "B", text: "Database structure" },
+    { key: "C", text: "Server logs" },
+    { key: "D", text: "API routes" },
+  ],
+  correctKey: "A",
+});
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "Usability",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Affordance in UI means:",
+  options: [
+    { key: "A", text: "Visual cues indicating how an element works" },
+    { key: "B", text: "Database structure" },
+    { key: "C", text: "Server logs" },
+    { key: "D", text: "API routes" },
+  ],
+  correctKey: "A",
+});
+
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "UX Writing",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Good UX writing should be:",
+  options: [
+    { key: "A", text: "Clear, concise, and helpful" },
+    { key: "B", text: "Technical and complex" },
+    { key: "C", text: "Very long paragraphs" },
+    { key: "D", text: "Hidden in small text" },
+  ],
+  correctKey: "A",
+});
+await scenario({
+  role: JobRole.UX_ENGINEER,
+  topic: "Trust Signals",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "What visual elements increase credibility on a job portal?",
+  rubric:
+    "Expect testimonials, company logos, verified badges, professional layout.",
+});
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "UX Research",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "A usability test with 5 users can:",
+  options: [
+    { key: "A", text: "Identify majority of major usability issues" },
+    { key: "B", text: "Replace backend testing" },
+    { key: "C", text: "Fix database bugs" },
+    { key: "D", text: "Deploy application" },
+  ],
+  correctKey: "A",
+});
+await scenario({
+  role: JobRole.UX_ENGINEER,
+  topic: "User Retention",
+  difficulty: Difficulty.HARD,
+  prompt: "How would you design features to increase user retention?",
+  rubric:
+    "Expect personalization, reminders, progress tracking, value reinforcement.",
+});
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "Minimalism",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Minimalist design helps by:",
+  options: [
+    { key: "A", text: "Reducing distractions" },
+    { key: "B", text: "Increasing database load" },
+    { key: "C", text: "Removing accessibility" },
+    { key: "D", text: "Slowing down UI" },
+  ],
+  correctKey: "A",
+});
+
+await scenario({
+  role: JobRole.UX_ENGINEER,
+  topic: "Visual Hierarchy",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "How would you emphasize the primary call-to-action?",
+  rubric:
+    "Expect contrast, size, placement, spacing, visual priority.",
+});
+
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "Accessibility",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Focus states are important because:",
+  options: [
+    { key: "A", text: "They show which element is active for keyboard users" },
+    { key: "B", text: "They speed up server" },
+    { key: "C", text: "They reduce CSS" },
+    { key: "D", text: "They encrypt data" },
+  ],
+  correctKey: "A",
+});
+
+await scenario({
+  role: JobRole.UX_ENGINEER,
+  topic: "Keyboard Navigation",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "How would you test keyboard accessibility?",
+  rubric:
+    "Expect tab navigation testing, visible focus, logical order, screen reader testing.",
+});
+
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "Feedback Loops",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "User feedback loops are important for:",
+  options: [
+    { key: "A", text: "Continuous improvement of product" },
+    { key: "B", text: "Increasing RAM usage" },
+    { key: "C", text: "Reducing backend APIs" },
+    { key: "D", text: "Deleting UI components" },
+  ],
+  correctKey: "A",
+});
+
+await scenario({
+  role: JobRole.UX_ENGINEER,
+  topic: "Feature Removal",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Users don’t use a feature you designed. What would you do?",
+  rubric:
+    "Expect data analysis, user interviews, iteration or removal decision.",
+});
+
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "Performance Perception",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Optimistic UI updates:",
+  options: [
+    { key: "A", text: "Update interface before server confirms" },
+    { key: "B", text: "Wait for server always" },
+    { key: "C", text: "Remove user feedback" },
+    { key: "D", text: "Block UI interactions" },
+  ],
+  correctKey: "A",
+});
+
+await scenario({
+  role: JobRole.UX_ENGINEER,
+  topic: "Error Recovery",
+  difficulty: Difficulty.HARD,
+  prompt: "How would you design undo functionality?",
+  rubric:
+    "Expect reversible actions, clear feedback, time-limited undo.",
+});
+
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "Consistency",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Platform conventions should be followed because:",
+  options: [
+    { key: "A", text: "Users are familiar with them" },
+    { key: "B", text: "They improve backend speed" },
+    { key: "C", text: "They reduce CSS" },
+    { key: "D", text: "They encrypt data" },
+  ],
+  correctKey: "A",
+});
+
+await scenario({
+  role: JobRole.UX_ENGINEER,
+  topic: "Cross-platform UX",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "How would you maintain consistent UX across web and mobile?",
+  rubric:
+    "Expect shared design system, consistent branding, adaptive layouts.",
+});
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "Gamification",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Gamification can improve engagement by:",
+  options: [
+    { key: "A", text: "Adding progress, rewards, achievements" },
+    { key: "B", text: "Removing features" },
+    { key: "C", text: "Increasing database size" },
+    { key: "D", text: "Reducing security" },
+  ],
+  correctKey: "A",
+});
+
+await scenario({
+  role: JobRole.UX_ENGINEER,
+  topic: "Motivation Design",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "How would you motivate users to complete their profiles?",
+  rubric:
+    "Expect progress bars, reminders, incentives, simplified steps.",
+});
+
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "Feedback Timing",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Delayed feedback can cause:",
+  options: [
+    { key: "A", text: "User confusion and frustration" },
+    { key: "B", text: "Faster loading" },
+    { key: "C", text: "Database crash" },
+    { key: "D", text: "Better UI" },
+  ],
+  correctKey: "A",
+});
+
+await scenario({
+  role: JobRole.UX_ENGINEER,
+  topic: "Stress Testing UX",
+  difficulty: Difficulty.HARD,
+  prompt: "How would you design UX for high-stress situations (e.g., exam platform)?",
+  rubric:
+    "Expect clarity, minimal distractions, visible timers, clear instructions.",
+});
+
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "Design Documentation",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Design documentation helps by:",
+  options: [
+    { key: "A", text: "Ensuring shared understanding among team" },
+    { key: "B", text: "Increasing CSS size" },
+    { key: "C", text: "Reducing API calls" },
+    { key: "D", text: "Encrypting assets" },
+  ],
+  correctKey: "A",
+});
+await scenario({
+  role: JobRole.UX_ENGINEER,
+  topic: "Stakeholder Communication",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "How would you justify a UX decision to non-design stakeholders?",
+  rubric:
+    "Expect using data, user research, impact metrics, clear reasoning.",
+});
+
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "UX KPIs",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Which is a UX KPI?",
+  options: [
+    { key: "A", text: "User satisfaction score" },
+    { key: "B", text: "Database index size" },
+    { key: "C", text: "Server CPU model" },
+    { key: "D", text: "Code file length" },
+  ],
+  correctKey: "A",
+});
+
+await scenario({
+  role: JobRole.UX_ENGINEER,
+  topic: "Product Iteration",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "After launching a redesign, metrics dropped. What next?",
+  rubric:
+    "Expect analyzing data, gathering feedback, iterative improvements.",
+});
+
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "International UX",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Designing for global audiences requires:",
+  options: [
+    { key: "A", text: "Localization and cultural awareness" },
+    { key: "B", text: "More CSS files" },
+    { key: "C", text: "Bigger database" },
+    { key: "D", text: "Faster server" },
+  ],
+  correctKey: "A",
+});
+
+await scenario({
+  role: JobRole.UX_ENGINEER,
+  topic: "Localization",
+  difficulty: Difficulty.HARD,
+  prompt: "What challenges arise when designing multilingual interfaces?",
+  rubric:
+    "Expect text expansion, layout flexibility, cultural differences.",
+});
+
+await mcq({
+  role: JobRole.UX_ENGINEER,
+  topic: "UX Vision",
+  difficulty: Difficulty.HARD,
+  prompt: "A strong UX vision helps by:",
+  options: [
+    { key: "A", text: "Guiding long-term product consistency" },
+    { key: "B", text: "Improving database indexing" },
+    { key: "C", text: "Increasing RAM" },
+    { key: "D", text: "Reducing API latency" },
+  ],
+  correctKey: "A",
+});
+
+await scenario({
+  role: JobRole.UX_ENGINEER,
+  topic: "UX Engineering Mindset",
+  difficulty: Difficulty.HARD,
+  prompt: "What qualities make a strong UI/UX Engineering Intern?",
+  rubric:
+    "Expect empathy, technical awareness, collaboration, continuous learning, user-first thinking.",
+});
 
   // -------------------- PROJECT MANAGER (12) --------------------
   await mcq({
-    role: JobRole.PROJECT_MANAGER,
-    topic: "Agile",
-    difficulty: Difficulty.EASY,
-    prompt: "A sprint is:",
-    options: [
-      { key: "A", text: "A fixed time-boxed iteration" },
-      { key: "B", text: "A database index" },
-      { key: "C", text: "A UI color theme" },
-      { key: "D", text: "A server crash" },
-    ],
-    correctKey: "A",
-  });
+  role: JobRole.PROJECT_MANAGER,
+  topic: "Project Fundamentals",
+  difficulty: Difficulty.EASY,
+  prompt: "What is a project?",
+  options: [
+    { key: "A", text: "Ongoing repetitive work" },
+    { key: "B", text: "A temporary effort to create a unique product or service" },
+    { key: "C", text: "A database system" },
+    { key: "D", text: "A backend API" },
+  ],
+  correctKey: "B",
+});
 
-  await scenario({
-    role: JobRole.PROJECT_MANAGER,
-    topic: "Risk",
-    difficulty: Difficulty.MEDIUM,
-    prompt:
-      "Your module depends on another team’s DB model (job posting). What is your plan to avoid delays?",
-    rubric:
-      "Expect: mock data, clear interface/contract, integration points, timeline buffer, frequent sync, fallback plan.",
-  });
+ await mcq({
+  role: JobRole.PROJECT_MANAGER,
+  topic: "Project Roles",
+  difficulty: Difficulty.EASY,
+  prompt: "The primary responsibility of a project manager is to:",
+  options: [
+    { key: "A", text: "Write code" },
+    { key: "B", text: "Ensure project objectives are achieved" },
+    { key: "C", text: "Design UI screens" },
+    { key: "D", text: "Maintain database servers" },
+  ],
+  correctKey: "B",
+});
 
   await mcq({
-    role: JobRole.PROJECT_MANAGER,
-    topic: "Planning",
-    difficulty: Difficulty.MEDIUM,
-    prompt: "The purpose of a Gantt chart is to:",
-    options: [
-      { key: "A", text: "Show project schedule and dependencies" },
-      { key: "B", text: "Store passwords" },
-      { key: "C", text: "Design UI" },
-      { key: "D", text: "Write code automatically" },
-    ],
-    correctKey: "A",
-  });
+  role: JobRole.PROJECT_MANAGER,
+  topic: "Agile",
+  difficulty: Difficulty.EASY,
+  prompt: "Scrum is a framework used in:",
+  options: [
+    { key: "A", text: "Agile project management" },
+    { key: "B", text: "Database design" },
+    { key: "C", text: "Graphic design" },
+    { key: "D", text: "Server hosting" },
+  ],
+  correctKey: "A",
+});
 
   await scenario({
-    role: JobRole.PROJECT_MANAGER,
-    topic: "Communication",
-    difficulty: Difficulty.EASY,
-    prompt:
-      "A teammate is not pushing code regularly. How do you handle it?",
-    rubric:
-      "Expect: 1:1 chat, understand blockers, set small tasks, define deadlines, pair programming, daily check-ins.",
-  });
+  role: JobRole.PROJECT_MANAGER,
+  topic: "Stakeholder Management",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "A stakeholder keeps requesting new features mid-project. How would you handle it?",
+  rubric:
+    "Expect scope discussion, change request process, prioritization, impact analysis.",
+});
 
   // fillers to reach 12
-  await mcq({
-    role: JobRole.PROJECT_MANAGER,
-    topic: "Scrum",
-    difficulty: Difficulty.EASY,
-    prompt: "Daily standup is mainly for:",
-    options: [
-      { key: "A", text: "Status sync and blockers" },
-      { key: "B", text: "Writing full documentation" },
-      { key: "C", text: "Database migrations" },
-      { key: "D", text: "UI design only" },
-    ],
-    correctKey: "A",
-  });
+ await mcq({
+  role: JobRole.PROJECT_MANAGER,
+  topic: "Planning",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "A Gantt chart is mainly used to:",
+  options: [
+    { key: "A", text: "Visualize project schedule" },
+    { key: "B", text: "Improve database performance" },
+    { key: "C", text: "Write code" },
+    { key: "D", text: "Design UI" },
+  ],
+  correctKey: "A",
+});
 
   await mcq({
-    role: JobRole.PROJECT_MANAGER,
-    topic: "Scope",
-    difficulty: Difficulty.MEDIUM,
-    prompt: "Scope creep means:",
-    options: [
-      { key: "A", text: "Unexpected expansion of requirements" },
-      { key: "B", text: "Faster coding" },
-      { key: "C", text: "More testing" },
-      { key: "D", text: "Better UI" },
-    ],
-    correctKey: "A",
-  });
+  role: JobRole.PROJECT_MANAGER,
+  topic: "Agile",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "A sprint retrospective is used to:",
+  options: [
+    { key: "A", text: "Deploy code" },
+    { key: "B", text: "Reflect and improve team process" },
+    { key: "C", text: "Design backend schema" },
+    { key: "D", text: "Increase server RAM" },
+  ],
+  correctKey: "B",
+});
+
+ await scenario({
+  role: JobRole.PROJECT_MANAGER,
+  topic: "Team Management",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Two team members are in conflict. What steps would you take?",
+  rubric:
+    "Expect mediation, listening, identifying root cause, aligning on goals.",
+});
+
+  await mcq({
+  role: JobRole.PROJECT_MANAGER,
+  topic: "Risk Management",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Risk mitigation means:",
+  options: [
+    { key: "A", text: "Ignoring risks" },
+    { key: "B", text: "Reducing likelihood or impact of risks" },
+    { key: "C", text: "Increasing project scope" },
+    { key: "D", text: "Deleting project plan" },
+  ],
+  correctKey: "B",
+});
+
+  await mcq({
+  role: JobRole.PROJECT_MANAGER,
+  topic: "Communication",
+  difficulty: Difficulty.EASY,
+  prompt: "Effective communication in a project ensures:",
+  options: [
+    { key: "A", text: "Better alignment and fewer misunderstandings" },
+    { key: "B", text: "Higher database load" },
+    { key: "C", text: "Slower development" },
+    { key: "D", text: "More meetings only" },
+  ],
+  correctKey: "A",
+});
 
   await scenario({
-    role: JobRole.PROJECT_MANAGER,
-    topic: "Stakeholders",
-    difficulty: Difficulty.HARD,
-    prompt:
-      "Company wants strict exam rules, students complain it’s too strict. How do you balance?",
-    rubric:
-      "Expect: define policy, evidence-based decision, adjustable thresholds, transparency, user feedback, align with project goals.",
-  });
+  role: JobRole.PROJECT_MANAGER,
+  topic: "Deadlines",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "The project is behind schedule. What actions would you take?",
+  rubric:
+    "Expect reprioritization, reallocation of resources, adjusting scope, stakeholder communication.",
+});
 
   await mcq({
-    role: JobRole.PROJECT_MANAGER,
-    topic: "Metrics",
-    difficulty: Difficulty.MEDIUM,
-    prompt: "Which is a good KPI for your screening module?",
-    options: [
-      { key: "A", text: "Number of qualified applicants after exam" },
-      { key: "B", text: "Laptop fan speed" },
-      { key: "C", text: "Wallpaper color" },
-      { key: "D", text: "Monitor size" },
-    ],
-    correctKey: "A",
-  });
+  role: JobRole.PROJECT_MANAGER,
+  topic: "Scope",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Scope creep refers to:",
+  options: [
+    { key: "A", text: "Unexpected expansion of project requirements" },
+    { key: "B", text: "Improving design quality" },
+    { key: "C", text: "Reducing features" },
+    { key: "D", text: "Database errors" },
+  ],
+  correctKey: "A",
+});
 
   await mcq({
-    role: JobRole.PROJECT_MANAGER,
-    topic: "Quality",
-    difficulty: Difficulty.EASY,
-    prompt: "Definition of Done usually includes:",
-    options: [
-      { key: "A", text: "Coded, tested, reviewed, and meets acceptance criteria" },
-      { key: "B", text: "Only coded" },
-      { key: "C", text: "Only documented" },
-      { key: "D", text: "Only deployed" },
-    ],
-    correctKey: "A",
-  });
+  role: JobRole.PROJECT_MANAGER,
+  topic: "Agile Roles",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "The Scrum Master primarily:",
+  options: [
+    { key: "A", text: "Removes impediments and facilitates Scrum process" },
+    { key: "B", text: "Writes production code" },
+    { key: "C", text: "Designs UI screens" },
+    { key: "D", text: "Maintains database" },
+  ],
+  correctKey: "A",
+});
+await scenario({
+  role: JobRole.PROJECT_MANAGER,
+  topic: "Resource Allocation",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "A key developer becomes unavailable. How do you manage risk?",
+  rubric:
+    "Expect reassign tasks, adjust timeline, knowledge transfer, risk planning.",
+});
+await mcq({
+  role: JobRole.PROJECT_MANAGER,
+  topic: "KPIs",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Which is a project KPI?",
+  options: [
+    { key: "A", text: "On-time delivery rate" },
+    { key: "B", text: "Font size used" },
+    { key: "C", text: "Server brand" },
+    { key: "D", text: "Database color scheme" },
+  ],
+  correctKey: "A",
+});
+await mcq({
+  role: JobRole.PROJECT_MANAGER,
+  topic: "Quality",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Quality assurance focuses on:",
+  options: [
+    { key: "A", text: "Preventing defects" },
+    { key: "B", text: "Fixing bugs only" },
+    { key: "C", text: "Increasing RAM" },
+    { key: "D", text: "Removing documentation" },
+  ],
+  correctKey: "A",
+});
 
-  await scenario({
-    role: JobRole.PROJECT_MANAGER,
-    topic: "Timeline",
-    difficulty: Difficulty.MEDIUM,
-    prompt:
-      "You have 1 week left. List the most important deliverables to secure marks.",
-    rubric:
-      "Expect: working end-to-end flow demo, CRUD/DB, secure mode rules, evaluation output, documentation, screenshots, small tests.",
-  });
+await scenario({
+  role: JobRole.PROJECT_MANAGER,
+  topic: "Quality Management",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "How would you ensure quality in a software project?",
+  rubric:
+    "Expect testing plans, reviews, standards, continuous monitoring.",
+});
 
-  await mcq({
-    role: JobRole.PROJECT_MANAGER,
-    topic: "Tools",
-    difficulty: Difficulty.EASY,
-    prompt: "Which tool is commonly used for issue tracking?",
-    options: [
-      { key: "A", text: "Jira/Trello" },
-      { key: "B", text: "MS Paint" },
-      { key: "C", text: "Calculator" },
-      { key: "D", text: "Notepad only" },
-    ],
-    correctKey: "A",
-  });
+await mcq({
+  role: JobRole.PROJECT_MANAGER,
+  topic: "Budget",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Cost variance indicates:",
+  options: [
+    { key: "A", text: "Difference between planned and actual cost" },
+    { key: "B", text: "UI responsiveness" },
+    { key: "C", text: "Database speed" },
+    { key: "D", text: "Server uptime" },
+  ],
+  correctKey: "A",
+});
+await mcq({
+  role: JobRole.PROJECT_MANAGER,
+  topic: "Documentation",
+  difficulty: Difficulty.EASY,
+  prompt: "Project documentation helps by:",
+  options: [
+    { key: "A", text: "Maintaining clarity and record of decisions" },
+    { key: "B", text: "Reducing CSS" },
+    { key: "C", text: "Encrypting APIs" },
+    { key: "D", text: "Improving server speed" },
+  ],
+  correctKey: "A",
+});
+await scenario({
+  role: JobRole.PROJECT_MANAGER,
+  topic: "Client Communication",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "A client is unhappy with progress. How would you respond?",
+  rubric:
+    "Expect active listening, transparency, action plan, reassurance.",
+});
+await mcq({
+  role: JobRole.PROJECT_MANAGER,
+  topic: "Team Performance",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Velocity in Scrum measures:",
+  options: [
+    { key: "A", text: "Work completed per sprint" },
+    { key: "B", text: "Server latency" },
+    { key: "C", text: "UI load time" },
+    { key: "D", text: "Database throughput" },
+  ],
+  correctKey: "A",
+});
+await mcq({
+  role: JobRole.PROJECT_MANAGER,
+  topic: "Agile Planning",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Sprint planning is used to:",
+  options: [
+    { key: "A", text: "Define sprint goals and tasks" },
+    { key: "B", text: "Fix server bugs" },
+    { key: "C", text: "Design UI themes" },
+    { key: "D", text: "Upgrade database" },
+  ],
+  correctKey: "A",
+});
 
-  await mcq({
-    role: JobRole.PROJECT_MANAGER,
-    topic: "Risk",
-    difficulty: Difficulty.MEDIUM,
-    prompt: "Risk response 'Mitigation' means:",
-    options: [
-      { key: "A", text: "Reduce probability or impact" },
-      { key: "B", text: "Ignore it" },
-      { key: "C", text: "Only report after failure" },
-      { key: "D", text: "Increase uncertainty" },
-    ],
-    correctKey: "A",
-  });
+await mcq({
+  role: JobRole.PROJECT_MANAGER,
+  topic: "Backlog Management",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "The product backlog is owned by:",
+  options: [
+    { key: "A", text: "Product Owner" },
+    { key: "B", text: "Database Admin" },
+    { key: "C", text: "UI Designer" },
+    { key: "D", text: "Client Only" },
+  ],
+  correctKey: "A",
+});
+await scenario({
+  role: JobRole.PROJECT_MANAGER,
+  topic: "Backlog Prioritization",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "How would you prioritize tasks in a backlog?",
+  rubric:
+    "Expect business value, urgency, risk, dependencies, stakeholder input.",
+});
+await mcq({
+  role: JobRole.PROJECT_MANAGER,
+  topic: "Risk Analysis",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Risk probability and impact matrix helps to:",
+  options: [
+    { key: "A", text: "Prioritize risks" },
+    { key: "B", text: "Write backend logic" },
+    { key: "C", text: "Design UI layouts" },
+    { key: "D", text: "Optimize CSS" },
+  ],
+  correctKey: "A",
+});
+await mcq({
+  role: JobRole.PROJECT_MANAGER,
+  topic: "Estimation",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Story points measure:",
+  options: [
+    { key: "A", text: "Relative effort and complexity" },
+    { key: "B", text: "Exact hours worked" },
+    { key: "C", text: "Server speed" },
+    { key: "D", text: "Database rows" },
+  ],
+  correctKey: "A",
+});
+
+await scenario({
+  role: JobRole.PROJECT_MANAGER,
+  topic: "Estimation Issues",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "The team consistently underestimates tasks. What would you improve?",
+  rubric:
+    "Expect better refinement, historical data, planning poker, buffer time.",
+});
+
+await mcq({
+  role: JobRole.PROJECT_MANAGER,
+  topic: "Leadership",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Servant leadership focuses on:",
+  options: [
+    { key: "A", text: "Supporting and empowering team members" },
+    { key: "B", text: "Strict command control" },
+    { key: "C", text: "Reducing meetings only" },
+    { key: "D", text: "Increasing deadlines" },
+  ],
+  correctKey: "A",
+});
+
+await mcq({
+  role: JobRole.PROJECT_MANAGER,
+  topic: "Stakeholders",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "High power, high interest stakeholders should be:",
+  options: [
+    { key: "A", text: "Closely managed" },
+    { key: "B", text: "Ignored" },
+    { key: "C", text: "Given minimal updates" },
+    { key: "D", text: "Removed from communication" },
+  ],
+  correctKey: "A",
+});
+
+await scenario({
+  role: JobRole.PROJECT_MANAGER,
+  topic: "Stakeholder Communication",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "How would you report project status to senior management?",
+  rubric:
+    "Expect concise summary, KPIs, risks, blockers, timeline updates.",
+});
+
+await mcq({
+  role: JobRole.PROJECT_MANAGER,
+  topic: "Change Management",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "A formal change request should include:",
+  options: [
+    { key: "A", text: "Impact on scope, cost, and timeline" },
+    { key: "B", text: "UI screenshots only" },
+    { key: "C", text: "Database backups" },
+    { key: "D", text: "Server logs" },
+  ],
+  correctKey: "A",
+});
+
+await mcq({
+  role: JobRole.PROJECT_MANAGER,
+  topic: "Monitoring",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Burndown charts track:",
+  options: [
+    { key: "A", text: "Remaining work in sprint" },
+    { key: "B", text: "Server usage" },
+    { key: "C", text: "Database memory" },
+    { key: "D", text: "CSS files" },
+  ],
+  correctKey: "A",
+});
+await scenario({
+  role: JobRole.PROJECT_MANAGER,
+  topic: "Team Motivation",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "The team seems demotivated. What would you do?",
+  rubric:
+    "Expect recognition, clear goals, removing blockers, supportive leadership.",
+});
+await mcq({
+  role: JobRole.PROJECT_MANAGER,
+  topic: "Dependencies",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Task dependencies affect:",
+  options: [
+    { key: "A", text: "Project schedule sequencing" },
+    { key: "B", text: "Database encryption" },
+    { key: "C", text: "UI animations" },
+    { key: "D", text: "Server hosting" },
+  ],
+  correctKey: "A",
+});
+
+await mcq({
+  role: JobRole.PROJECT_MANAGER,
+  topic: "Communication Channels",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Daily stand-ups are primarily for:",
+  options: [
+    { key: "A", text: "Quick team synchronization" },
+    { key: "B", text: "Long client presentations" },
+    { key: "C", text: "Database tuning" },
+    { key: "D", text: "Budget approval" },
+  ],
+  correctKey: "A",
+});
+await scenario({
+  role: JobRole.PROJECT_MANAGER,
+  topic: "Escalation",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "When should a problem be escalated to higher management?",
+  rubric:
+    "Expect when impact is high, beyond authority, major delays or risks.",
+});
+await mcq({
+  role: JobRole.PROJECT_MANAGER,
+  topic: "Risk Response",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Risk avoidance means:",
+  options: [
+    { key: "A", text: "Eliminating the risk entirely" },
+    { key: "B", text: "Ignoring the risk" },
+    { key: "C", text: "Increasing project scope" },
+    { key: "D", text: "Reducing testing" },
+  ],
+  correctKey: "A",
+});
+await mcq({
+  role: JobRole.PROJECT_MANAGER,
+  topic: "Quality Control",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Quality control focuses on:",
+  options: [
+    { key: "A", text: "Identifying defects in deliverables" },
+    { key: "B", text: "Increasing CSS" },
+    { key: "C", text: "Deploying server" },
+    { key: "D", text: "Removing documentation" },
+  ],
+  correctKey: "A",
+});
+
+await mcq({
+  role: JobRole.PROJECT_MANAGER,
+  topic: "Quality Control",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Quality control focuses on:",
+  options: [
+    { key: "A", text: "Identifying defects in deliverables" },
+    { key: "B", text: "Increasing CSS" },
+    { key: "C", text: "Deploying server" },
+    { key: "D", text: "Removing documentation" },
+  ],
+  correctKey: "A",
+});
+
+await scenario({
+  role: JobRole.PROJECT_MANAGER,
+  topic: "Time Management",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "How would you manage overlapping deadlines?",
+  rubric:
+    "Expect prioritization, delegation, timeline adjustment, communication.",
+});
+
+await scenario({
+  role: JobRole.PROJECT_MANAGER,
+  topic: "Time Management",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "How would you manage overlapping deadlines?",
+  rubric:
+    "Expect prioritization, delegation, timeline adjustment, communication.",
+});
+
+await mcq({
+  role: JobRole.PROJECT_MANAGER,
+  topic: "Crisis Management",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "If a critical bug appears before release, the first step is to:",
+  options: [
+    { key: "A", text: "Ignore it and release anyway" },
+    { key: "B", text: "Assess severity and impact" },
+    { key: "C", text: "Blame the developer" },
+    { key: "D", text: "Delete the feature" },
+  ],
+  correctKey: "B",
+});
+
+await scenario({
+  role: JobRole.PROJECT_MANAGER,
+  topic: "Release Pressure",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Management wants to release early, but quality is not stable. What do you do?",
+  rubric:
+    "Expect risk assessment, transparent communication, propose phased release or fix plan.",
+});
+
+await mcq({
+  role: JobRole.PROJECT_MANAGER,
+  topic: "Negotiation",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Successful negotiation requires:",
+  options: [
+    { key: "A", text: "Understanding both parties' interests" },
+    { key: "B", text: "Forcing decisions" },
+    { key: "C", text: "Avoiding communication" },
+    { key: "D", text: "Increasing deadlines" },
+  ],
+  correctKey: "A",
+});
+
+await scenario({
+  role: JobRole.PROJECT_MANAGER,
+  topic: "Client Expectations",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "A client expects features outside agreed scope. How would you respond?",
+  rubric:
+    "Expect reviewing contract, change control, cost/time impact explanation.",
+});
+
+await mcq({
+  role: JobRole.PROJECT_MANAGER,
+  topic: "Delivery Management",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Milestones are used to:",
+  options: [
+    { key: "A", text: "Track major progress points" },
+    { key: "B", text: "Increase server speed" },
+    { key: "C", text: "Design UI icons" },
+    { key: "D", text: "Manage database size" },
+  ],
+  correctKey: "A",
+});
+
+
+await mcq({
+  role: JobRole.PROJECT_MANAGER,
+  topic: "Delivery Management",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Milestones are used to:",
+  options: [
+    { key: "A", text: "Track major progress points" },
+    { key: "B", text: "Increase server speed" },
+    { key: "C", text: "Design UI icons" },
+    { key: "D", text: "Manage database size" },
+  ],
+  correctKey: "A",
+});
+
+await scenario({
+  role: JobRole.PROJECT_MANAGER,
+  topic: "Deadline Risk",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "A key milestone may be missed. What actions would you take?",
+  rubric:
+    "Expect stakeholder communication, reallocation of resources, adjusting scope.",
+});
+
+await mcq({
+  role: JobRole.PROJECT_MANAGER,
+  topic: "Team Performance",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "Low team productivity may result from:",
+  options: [
+    { key: "A", text: "Unclear goals and poor communication" },
+    { key: "B", text: "Too much planning only" },
+    { key: "C", text: "Database overload" },
+    { key: "D", text: "CSS complexity" },
+  ],
+  correctKey: "A",
+});
+await scenario({
+  role: JobRole.PROJECT_MANAGER,
+  topic: "Remote Teams",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "How do you manage productivity in a remote team?",
+  rubric:
+    "Expect clear communication tools, regular check-ins, defined goals.",
+});
+
+await mcq({
+  role: JobRole.PROJECT_MANAGER,
+  topic: "Risk Register",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "A risk register is used to:",
+  options: [
+    { key: "A", text: "Document and track risks" },
+    { key: "B", text: "Design UI wireframes" },
+    { key: "C", text: "Host APIs" },
+    { key: "D", text: "Store CSS" },
+  ],
+  correctKey: "A",
+});
+await scenario({
+  role: JobRole.PROJECT_MANAGER,
+  topic: "Risk Monitoring",
+  difficulty: Difficulty.MEDIUM,
+  prompt: "How often should project risks be reviewed?",
+  rubric:
+    "Expect regularly during meetings, sprint reviews, and milestone checks.",
+});
 
   console.log("✅ Seeded question bank successfully!");
 }
