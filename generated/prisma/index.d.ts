@@ -73,6 +73,11 @@ export type ScenarioAnswer = $Result.DefaultSelection<Prisma.$ScenarioAnswerPayl
  * 
  */
 export type ExamAnswer = $Result.DefaultSelection<Prisma.$ExamAnswerPayload>
+/**
+ * Model ExamViolation
+ * 
+ */
+export type ExamViolation = $Result.DefaultSelection<Prisma.$ExamViolationPayload>
 
 /**
  * Enums
@@ -120,6 +125,17 @@ export const Difficulty: {
 
 export type Difficulty = (typeof Difficulty)[keyof typeof Difficulty]
 
+
+export const ViolationType: {
+  FULLSCREEN_EXIT: 'FULLSCREEN_EXIT',
+  TAB_SWITCH: 'TAB_SWITCH',
+  COPY_PASTE_RIGHTCLICK: 'COPY_PASTE_RIGHTCLICK',
+  SCREENSHOT_ATTEMPT: 'SCREENSHOT_ATTEMPT',
+  DEV_TOOLS: 'DEV_TOOLS'
+};
+
+export type ViolationType = (typeof ViolationType)[keyof typeof ViolationType]
+
 }
 
 export type JobType = $Enums.JobType
@@ -141,6 +157,10 @@ export const QuestionType: typeof $Enums.QuestionType
 export type Difficulty = $Enums.Difficulty
 
 export const Difficulty: typeof $Enums.Difficulty
+
+export type ViolationType = $Enums.ViolationType
+
+export const ViolationType: typeof $Enums.ViolationType
 
 /**
  * ##  Prisma Client ʲˢ
@@ -379,6 +399,16 @@ export class PrismaClient<
     * ```
     */
   get examAnswer(): Prisma.ExamAnswerDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.examViolation`: Exposes CRUD operations for the **ExamViolation** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ExamViolations
+    * const examViolations = await prisma.examViolation.findMany()
+    * ```
+    */
+  get examViolation(): Prisma.ExamViolationDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -831,7 +861,8 @@ export namespace Prisma {
     Application: 'Application',
     Project: 'Project',
     ScenarioAnswer: 'ScenarioAnswer',
-    ExamAnswer: 'ExamAnswer'
+    ExamAnswer: 'ExamAnswer',
+    ExamViolation: 'ExamViolation'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -850,7 +881,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "post" | "account" | "session" | "user" | "verificationToken" | "job" | "question" | "option" | "application" | "project" | "scenarioAnswer" | "examAnswer"
+      modelProps: "post" | "account" | "session" | "user" | "verificationToken" | "job" | "question" | "option" | "application" | "project" | "scenarioAnswer" | "examAnswer" | "examViolation"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1742,6 +1773,80 @@ export namespace Prisma {
           }
         }
       }
+      ExamViolation: {
+        payload: Prisma.$ExamViolationPayload<ExtArgs>
+        fields: Prisma.ExamViolationFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ExamViolationFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExamViolationPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ExamViolationFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExamViolationPayload>
+          }
+          findFirst: {
+            args: Prisma.ExamViolationFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExamViolationPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ExamViolationFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExamViolationPayload>
+          }
+          findMany: {
+            args: Prisma.ExamViolationFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExamViolationPayload>[]
+          }
+          create: {
+            args: Prisma.ExamViolationCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExamViolationPayload>
+          }
+          createMany: {
+            args: Prisma.ExamViolationCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ExamViolationCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExamViolationPayload>[]
+          }
+          delete: {
+            args: Prisma.ExamViolationDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExamViolationPayload>
+          }
+          update: {
+            args: Prisma.ExamViolationUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExamViolationPayload>
+          }
+          deleteMany: {
+            args: Prisma.ExamViolationDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ExamViolationUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ExamViolationUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExamViolationPayload>[]
+          }
+          upsert: {
+            args: Prisma.ExamViolationUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExamViolationPayload>
+          }
+          aggregate: {
+            args: Prisma.ExamViolationAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateExamViolation>
+          }
+          groupBy: {
+            args: Prisma.ExamViolationGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ExamViolationGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ExamViolationCountArgs<ExtArgs>
+            result: $Utils.Optional<ExamViolationCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1850,6 +1955,7 @@ export namespace Prisma {
     project?: ProjectOmit
     scenarioAnswer?: ScenarioAnswerOmit
     examAnswer?: ExamAnswerOmit
+    examViolation?: ExamViolationOmit
   }
 
   /* Types for Logging */
@@ -2053,12 +2159,14 @@ export namespace Prisma {
     projects: number
     scenarios: number
     examAnswers: number
+    violations: number
   }
 
   export type ApplicationCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     projects?: boolean | ApplicationCountOutputTypeCountProjectsArgs
     scenarios?: boolean | ApplicationCountOutputTypeCountScenariosArgs
     examAnswers?: boolean | ApplicationCountOutputTypeCountExamAnswersArgs
+    violations?: boolean | ApplicationCountOutputTypeCountViolationsArgs
   }
 
   // Custom InputTypes
@@ -2091,6 +2199,13 @@ export namespace Prisma {
    */
   export type ApplicationCountOutputTypeCountExamAnswersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ExamAnswerWhereInput
+  }
+
+  /**
+   * ApplicationCountOutputType without action
+   */
+  export type ApplicationCountOutputTypeCountViolationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ExamViolationWhereInput
   }
 
 
@@ -7518,6 +7633,7 @@ export namespace Prisma {
     title: string | null
     company: string | null
     location: string | null
+    role: $Enums.JobRole | null
     type: $Enums.JobType | null
     level: $Enums.JobLevel | null
     tags: string | null
@@ -7534,6 +7650,7 @@ export namespace Prisma {
     title: string | null
     company: string | null
     location: string | null
+    role: $Enums.JobRole | null
     type: $Enums.JobType | null
     level: $Enums.JobLevel | null
     tags: string | null
@@ -7550,6 +7667,7 @@ export namespace Prisma {
     title: number
     company: number
     location: number
+    role: number
     type: number
     level: number
     tags: number
@@ -7568,6 +7686,7 @@ export namespace Prisma {
     title?: true
     company?: true
     location?: true
+    role?: true
     type?: true
     level?: true
     tags?: true
@@ -7584,6 +7703,7 @@ export namespace Prisma {
     title?: true
     company?: true
     location?: true
+    role?: true
     type?: true
     level?: true
     tags?: true
@@ -7600,6 +7720,7 @@ export namespace Prisma {
     title?: true
     company?: true
     location?: true
+    role?: true
     type?: true
     level?: true
     tags?: true
@@ -7689,6 +7810,7 @@ export namespace Prisma {
     title: string
     company: string
     location: string
+    role: $Enums.JobRole
     type: $Enums.JobType
     level: $Enums.JobLevel
     tags: string
@@ -7722,6 +7844,7 @@ export namespace Prisma {
     title?: boolean
     company?: boolean
     location?: boolean
+    role?: boolean
     type?: boolean
     level?: boolean
     tags?: boolean
@@ -7740,6 +7863,7 @@ export namespace Prisma {
     title?: boolean
     company?: boolean
     location?: boolean
+    role?: boolean
     type?: boolean
     level?: boolean
     tags?: boolean
@@ -7756,6 +7880,7 @@ export namespace Prisma {
     title?: boolean
     company?: boolean
     location?: boolean
+    role?: boolean
     type?: boolean
     level?: boolean
     tags?: boolean
@@ -7772,6 +7897,7 @@ export namespace Prisma {
     title?: boolean
     company?: boolean
     location?: boolean
+    role?: boolean
     type?: boolean
     level?: boolean
     tags?: boolean
@@ -7783,7 +7909,7 @@ export namespace Prisma {
     createdAt?: boolean
   }
 
-  export type JobOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "company" | "location" | "type" | "level" | "tags" | "salary" | "description" | "responsibilities" | "requirements" | "benefits" | "createdAt", ExtArgs["result"]["job"]>
+  export type JobOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "company" | "location" | "role" | "type" | "level" | "tags" | "salary" | "description" | "responsibilities" | "requirements" | "benefits" | "createdAt", ExtArgs["result"]["job"]>
   export type JobInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     applications?: boolean | Job$applicationsArgs<ExtArgs>
     _count?: boolean | JobCountOutputTypeDefaultArgs<ExtArgs>
@@ -7801,6 +7927,7 @@ export namespace Prisma {
       title: string
       company: string
       location: string
+      role: $Enums.JobRole
       type: $Enums.JobType
       level: $Enums.JobLevel
       tags: string
@@ -8238,6 +8365,7 @@ export namespace Prisma {
     readonly title: FieldRef<"Job", 'String'>
     readonly company: FieldRef<"Job", 'String'>
     readonly location: FieldRef<"Job", 'String'>
+    readonly role: FieldRef<"Job", 'JobRole'>
     readonly type: FieldRef<"Job", 'JobType'>
     readonly level: FieldRef<"Job", 'JobLevel'>
     readonly tags: FieldRef<"Job", 'String'>
@@ -10892,6 +11020,7 @@ export namespace Prisma {
   export type ApplicationMinAggregateOutputType = {
     id: string | null
     jobId: string | null
+    role: $Enums.JobRole | null
     createdAt: Date | null
     fullName: string | null
     email: string | null
@@ -10913,6 +11042,7 @@ export namespace Prisma {
   export type ApplicationMaxAggregateOutputType = {
     id: string | null
     jobId: string | null
+    role: $Enums.JobRole | null
     createdAt: Date | null
     fullName: string | null
     email: string | null
@@ -10934,6 +11064,7 @@ export namespace Prisma {
   export type ApplicationCountAggregateOutputType = {
     id: number
     jobId: number
+    role: number
     createdAt: number
     fullName: number
     email: number
@@ -10958,6 +11089,7 @@ export namespace Prisma {
   export type ApplicationMinAggregateInputType = {
     id?: true
     jobId?: true
+    role?: true
     createdAt?: true
     fullName?: true
     email?: true
@@ -10979,6 +11111,7 @@ export namespace Prisma {
   export type ApplicationMaxAggregateInputType = {
     id?: true
     jobId?: true
+    role?: true
     createdAt?: true
     fullName?: true
     email?: true
@@ -11000,6 +11133,7 @@ export namespace Prisma {
   export type ApplicationCountAggregateInputType = {
     id?: true
     jobId?: true
+    role?: true
     createdAt?: true
     fullName?: true
     email?: true
@@ -11095,6 +11229,7 @@ export namespace Prisma {
   export type ApplicationGroupByOutputType = {
     id: string
     jobId: string
+    role: $Enums.JobRole
     createdAt: Date
     fullName: string
     email: string
@@ -11134,6 +11269,7 @@ export namespace Prisma {
   export type ApplicationSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     jobId?: boolean
+    role?: boolean
     createdAt?: boolean
     fullName?: boolean
     email?: boolean
@@ -11155,12 +11291,14 @@ export namespace Prisma {
     projects?: boolean | Application$projectsArgs<ExtArgs>
     scenarios?: boolean | Application$scenariosArgs<ExtArgs>
     examAnswers?: boolean | Application$examAnswersArgs<ExtArgs>
+    violations?: boolean | Application$violationsArgs<ExtArgs>
     _count?: boolean | ApplicationCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["application"]>
 
   export type ApplicationSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     jobId?: boolean
+    role?: boolean
     createdAt?: boolean
     fullName?: boolean
     email?: boolean
@@ -11184,6 +11322,7 @@ export namespace Prisma {
   export type ApplicationSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     jobId?: boolean
+    role?: boolean
     createdAt?: boolean
     fullName?: boolean
     email?: boolean
@@ -11207,6 +11346,7 @@ export namespace Prisma {
   export type ApplicationSelectScalar = {
     id?: boolean
     jobId?: boolean
+    role?: boolean
     createdAt?: boolean
     fullName?: boolean
     email?: boolean
@@ -11226,12 +11366,13 @@ export namespace Prisma {
     examSubmitted?: boolean
   }
 
-  export type ApplicationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "jobId" | "createdAt" | "fullName" | "email" | "mobile" | "linkedin" | "github" | "portfolio" | "university" | "degree" | "specialization" | "cgpa" | "awards" | "programmingLanguages" | "frameworks" | "softwareProficiency" | "lockedQuestions" | "examSubmitted", ExtArgs["result"]["application"]>
+  export type ApplicationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "jobId" | "role" | "createdAt" | "fullName" | "email" | "mobile" | "linkedin" | "github" | "portfolio" | "university" | "degree" | "specialization" | "cgpa" | "awards" | "programmingLanguages" | "frameworks" | "softwareProficiency" | "lockedQuestions" | "examSubmitted", ExtArgs["result"]["application"]>
   export type ApplicationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     job?: boolean | JobDefaultArgs<ExtArgs>
     projects?: boolean | Application$projectsArgs<ExtArgs>
     scenarios?: boolean | Application$scenariosArgs<ExtArgs>
     examAnswers?: boolean | Application$examAnswersArgs<ExtArgs>
+    violations?: boolean | Application$violationsArgs<ExtArgs>
     _count?: boolean | ApplicationCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type ApplicationIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -11248,10 +11389,12 @@ export namespace Prisma {
       projects: Prisma.$ProjectPayload<ExtArgs>[]
       scenarios: Prisma.$ScenarioAnswerPayload<ExtArgs>[]
       examAnswers: Prisma.$ExamAnswerPayload<ExtArgs>[]
+      violations: Prisma.$ExamViolationPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       jobId: string
+      role: $Enums.JobRole
       createdAt: Date
       fullName: string
       email: string
@@ -11667,6 +11810,7 @@ export namespace Prisma {
     projects<T extends Application$projectsArgs<ExtArgs> = {}>(args?: Subset<T, Application$projectsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     scenarios<T extends Application$scenariosArgs<ExtArgs> = {}>(args?: Subset<T, Application$scenariosArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ScenarioAnswerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     examAnswers<T extends Application$examAnswersArgs<ExtArgs> = {}>(args?: Subset<T, Application$examAnswersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExamAnswerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    violations<T extends Application$violationsArgs<ExtArgs> = {}>(args?: Subset<T, Application$violationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExamViolationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -11698,6 +11842,7 @@ export namespace Prisma {
   interface ApplicationFieldRefs {
     readonly id: FieldRef<"Application", 'String'>
     readonly jobId: FieldRef<"Application", 'String'>
+    readonly role: FieldRef<"Application", 'JobRole'>
     readonly createdAt: FieldRef<"Application", 'DateTime'>
     readonly fullName: FieldRef<"Application", 'String'>
     readonly email: FieldRef<"Application", 'String'>
@@ -12178,6 +12323,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: ExamAnswerScalarFieldEnum | ExamAnswerScalarFieldEnum[]
+  }
+
+  /**
+   * Application.violations
+   */
+  export type Application$violationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamViolation
+     */
+    select?: ExamViolationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ExamViolation
+     */
+    omit?: ExamViolationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamViolationInclude<ExtArgs> | null
+    where?: ExamViolationWhereInput
+    orderBy?: ExamViolationOrderByWithRelationInput | ExamViolationOrderByWithRelationInput[]
+    cursor?: ExamViolationWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ExamViolationScalarFieldEnum | ExamViolationScalarFieldEnum[]
   }
 
   /**
@@ -14291,18 +14460,8 @@ export namespace Prisma {
 
   export type AggregateExamAnswer = {
     _count: ExamAnswerCountAggregateOutputType | null
-    _avg: ExamAnswerAvgAggregateOutputType | null
-    _sum: ExamAnswerSumAggregateOutputType | null
     _min: ExamAnswerMinAggregateOutputType | null
     _max: ExamAnswerMaxAggregateOutputType | null
-  }
-
-  export type ExamAnswerAvgAggregateOutputType = {
-    score: number | null
-  }
-
-  export type ExamAnswerSumAggregateOutputType = {
-    score: number | null
   }
 
   export type ExamAnswerMinAggregateOutputType = {
@@ -14310,7 +14469,6 @@ export namespace Prisma {
     questionId: string | null
     applicationId: string | null
     answer: string | null
-    score: number | null
     createdAt: Date | null
   }
 
@@ -14319,7 +14477,6 @@ export namespace Prisma {
     questionId: string | null
     applicationId: string | null
     answer: string | null
-    score: number | null
     createdAt: Date | null
   }
 
@@ -14328,26 +14485,16 @@ export namespace Prisma {
     questionId: number
     applicationId: number
     answer: number
-    score: number
     createdAt: number
     _all: number
   }
 
-
-  export type ExamAnswerAvgAggregateInputType = {
-    score?: true
-  }
-
-  export type ExamAnswerSumAggregateInputType = {
-    score?: true
-  }
 
   export type ExamAnswerMinAggregateInputType = {
     id?: true
     questionId?: true
     applicationId?: true
     answer?: true
-    score?: true
     createdAt?: true
   }
 
@@ -14356,7 +14503,6 @@ export namespace Prisma {
     questionId?: true
     applicationId?: true
     answer?: true
-    score?: true
     createdAt?: true
   }
 
@@ -14365,7 +14511,6 @@ export namespace Prisma {
     questionId?: true
     applicationId?: true
     answer?: true
-    score?: true
     createdAt?: true
     _all?: true
   }
@@ -14408,18 +14553,6 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Select which fields to average
-    **/
-    _avg?: ExamAnswerAvgAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to sum
-    **/
-    _sum?: ExamAnswerSumAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
      * Select which fields to find the minimum value
     **/
     _min?: ExamAnswerMinAggregateInputType
@@ -14450,8 +14583,6 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: ExamAnswerCountAggregateInputType | true
-    _avg?: ExamAnswerAvgAggregateInputType
-    _sum?: ExamAnswerSumAggregateInputType
     _min?: ExamAnswerMinAggregateInputType
     _max?: ExamAnswerMaxAggregateInputType
   }
@@ -14460,12 +14591,9 @@ export namespace Prisma {
     id: string
     questionId: string
     applicationId: string
-    answer: string
-    score: number | null
+    answer: string | null
     createdAt: Date
     _count: ExamAnswerCountAggregateOutputType | null
-    _avg: ExamAnswerAvgAggregateOutputType | null
-    _sum: ExamAnswerSumAggregateOutputType | null
     _min: ExamAnswerMinAggregateOutputType | null
     _max: ExamAnswerMaxAggregateOutputType | null
   }
@@ -14489,7 +14617,6 @@ export namespace Prisma {
     questionId?: boolean
     applicationId?: boolean
     answer?: boolean
-    score?: boolean
     createdAt?: boolean
     question?: boolean | QuestionDefaultArgs<ExtArgs>
     application?: boolean | ApplicationDefaultArgs<ExtArgs>
@@ -14500,7 +14627,6 @@ export namespace Prisma {
     questionId?: boolean
     applicationId?: boolean
     answer?: boolean
-    score?: boolean
     createdAt?: boolean
     question?: boolean | QuestionDefaultArgs<ExtArgs>
     application?: boolean | ApplicationDefaultArgs<ExtArgs>
@@ -14511,7 +14637,6 @@ export namespace Prisma {
     questionId?: boolean
     applicationId?: boolean
     answer?: boolean
-    score?: boolean
     createdAt?: boolean
     question?: boolean | QuestionDefaultArgs<ExtArgs>
     application?: boolean | ApplicationDefaultArgs<ExtArgs>
@@ -14522,11 +14647,10 @@ export namespace Prisma {
     questionId?: boolean
     applicationId?: boolean
     answer?: boolean
-    score?: boolean
     createdAt?: boolean
   }
 
-  export type ExamAnswerOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "questionId" | "applicationId" | "answer" | "score" | "createdAt", ExtArgs["result"]["examAnswer"]>
+  export type ExamAnswerOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "questionId" | "applicationId" | "answer" | "createdAt", ExtArgs["result"]["examAnswer"]>
   export type ExamAnswerInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     question?: boolean | QuestionDefaultArgs<ExtArgs>
     application?: boolean | ApplicationDefaultArgs<ExtArgs>
@@ -14550,8 +14674,7 @@ export namespace Prisma {
       id: string
       questionId: string
       applicationId: string
-      answer: string
-      score: number | null
+      answer: string | null
       createdAt: Date
     }, ExtArgs["result"]["examAnswer"]>
     composites: {}
@@ -14982,7 +15105,6 @@ export namespace Prisma {
     readonly questionId: FieldRef<"ExamAnswer", 'String'>
     readonly applicationId: FieldRef<"ExamAnswer", 'String'>
     readonly answer: FieldRef<"ExamAnswer", 'String'>
-    readonly score: FieldRef<"ExamAnswer", 'Float'>
     readonly createdAt: FieldRef<"ExamAnswer", 'DateTime'>
   }
     
@@ -15397,6 +15519,1062 @@ export namespace Prisma {
 
 
   /**
+   * Model ExamViolation
+   */
+
+  export type AggregateExamViolation = {
+    _count: ExamViolationCountAggregateOutputType | null
+    _min: ExamViolationMinAggregateOutputType | null
+    _max: ExamViolationMaxAggregateOutputType | null
+  }
+
+  export type ExamViolationMinAggregateOutputType = {
+    id: string | null
+    applicationId: string | null
+    type: $Enums.ViolationType | null
+    message: string | null
+    createdAt: Date | null
+  }
+
+  export type ExamViolationMaxAggregateOutputType = {
+    id: string | null
+    applicationId: string | null
+    type: $Enums.ViolationType | null
+    message: string | null
+    createdAt: Date | null
+  }
+
+  export type ExamViolationCountAggregateOutputType = {
+    id: number
+    applicationId: number
+    type: number
+    message: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type ExamViolationMinAggregateInputType = {
+    id?: true
+    applicationId?: true
+    type?: true
+    message?: true
+    createdAt?: true
+  }
+
+  export type ExamViolationMaxAggregateInputType = {
+    id?: true
+    applicationId?: true
+    type?: true
+    message?: true
+    createdAt?: true
+  }
+
+  export type ExamViolationCountAggregateInputType = {
+    id?: true
+    applicationId?: true
+    type?: true
+    message?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type ExamViolationAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ExamViolation to aggregate.
+     */
+    where?: ExamViolationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ExamViolations to fetch.
+     */
+    orderBy?: ExamViolationOrderByWithRelationInput | ExamViolationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ExamViolationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ExamViolations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ExamViolations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ExamViolations
+    **/
+    _count?: true | ExamViolationCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ExamViolationMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ExamViolationMaxAggregateInputType
+  }
+
+  export type GetExamViolationAggregateType<T extends ExamViolationAggregateArgs> = {
+        [P in keyof T & keyof AggregateExamViolation]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateExamViolation[P]>
+      : GetScalarType<T[P], AggregateExamViolation[P]>
+  }
+
+
+
+
+  export type ExamViolationGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ExamViolationWhereInput
+    orderBy?: ExamViolationOrderByWithAggregationInput | ExamViolationOrderByWithAggregationInput[]
+    by: ExamViolationScalarFieldEnum[] | ExamViolationScalarFieldEnum
+    having?: ExamViolationScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ExamViolationCountAggregateInputType | true
+    _min?: ExamViolationMinAggregateInputType
+    _max?: ExamViolationMaxAggregateInputType
+  }
+
+  export type ExamViolationGroupByOutputType = {
+    id: string
+    applicationId: string
+    type: $Enums.ViolationType
+    message: string
+    createdAt: Date
+    _count: ExamViolationCountAggregateOutputType | null
+    _min: ExamViolationMinAggregateOutputType | null
+    _max: ExamViolationMaxAggregateOutputType | null
+  }
+
+  type GetExamViolationGroupByPayload<T extends ExamViolationGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ExamViolationGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ExamViolationGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ExamViolationGroupByOutputType[P]>
+            : GetScalarType<T[P], ExamViolationGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ExamViolationSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    applicationId?: boolean
+    type?: boolean
+    message?: boolean
+    createdAt?: boolean
+    application?: boolean | ApplicationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["examViolation"]>
+
+  export type ExamViolationSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    applicationId?: boolean
+    type?: boolean
+    message?: boolean
+    createdAt?: boolean
+    application?: boolean | ApplicationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["examViolation"]>
+
+  export type ExamViolationSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    applicationId?: boolean
+    type?: boolean
+    message?: boolean
+    createdAt?: boolean
+    application?: boolean | ApplicationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["examViolation"]>
+
+  export type ExamViolationSelectScalar = {
+    id?: boolean
+    applicationId?: boolean
+    type?: boolean
+    message?: boolean
+    createdAt?: boolean
+  }
+
+  export type ExamViolationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "applicationId" | "type" | "message" | "createdAt", ExtArgs["result"]["examViolation"]>
+  export type ExamViolationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    application?: boolean | ApplicationDefaultArgs<ExtArgs>
+  }
+  export type ExamViolationIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    application?: boolean | ApplicationDefaultArgs<ExtArgs>
+  }
+  export type ExamViolationIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    application?: boolean | ApplicationDefaultArgs<ExtArgs>
+  }
+
+  export type $ExamViolationPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ExamViolation"
+    objects: {
+      application: Prisma.$ApplicationPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      applicationId: string
+      type: $Enums.ViolationType
+      message: string
+      createdAt: Date
+    }, ExtArgs["result"]["examViolation"]>
+    composites: {}
+  }
+
+  type ExamViolationGetPayload<S extends boolean | null | undefined | ExamViolationDefaultArgs> = $Result.GetResult<Prisma.$ExamViolationPayload, S>
+
+  type ExamViolationCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ExamViolationFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ExamViolationCountAggregateInputType | true
+    }
+
+  export interface ExamViolationDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ExamViolation'], meta: { name: 'ExamViolation' } }
+    /**
+     * Find zero or one ExamViolation that matches the filter.
+     * @param {ExamViolationFindUniqueArgs} args - Arguments to find a ExamViolation
+     * @example
+     * // Get one ExamViolation
+     * const examViolation = await prisma.examViolation.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ExamViolationFindUniqueArgs>(args: SelectSubset<T, ExamViolationFindUniqueArgs<ExtArgs>>): Prisma__ExamViolationClient<$Result.GetResult<Prisma.$ExamViolationPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ExamViolation that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ExamViolationFindUniqueOrThrowArgs} args - Arguments to find a ExamViolation
+     * @example
+     * // Get one ExamViolation
+     * const examViolation = await prisma.examViolation.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ExamViolationFindUniqueOrThrowArgs>(args: SelectSubset<T, ExamViolationFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ExamViolationClient<$Result.GetResult<Prisma.$ExamViolationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ExamViolation that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExamViolationFindFirstArgs} args - Arguments to find a ExamViolation
+     * @example
+     * // Get one ExamViolation
+     * const examViolation = await prisma.examViolation.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ExamViolationFindFirstArgs>(args?: SelectSubset<T, ExamViolationFindFirstArgs<ExtArgs>>): Prisma__ExamViolationClient<$Result.GetResult<Prisma.$ExamViolationPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ExamViolation that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExamViolationFindFirstOrThrowArgs} args - Arguments to find a ExamViolation
+     * @example
+     * // Get one ExamViolation
+     * const examViolation = await prisma.examViolation.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ExamViolationFindFirstOrThrowArgs>(args?: SelectSubset<T, ExamViolationFindFirstOrThrowArgs<ExtArgs>>): Prisma__ExamViolationClient<$Result.GetResult<Prisma.$ExamViolationPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ExamViolations that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExamViolationFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ExamViolations
+     * const examViolations = await prisma.examViolation.findMany()
+     * 
+     * // Get first 10 ExamViolations
+     * const examViolations = await prisma.examViolation.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const examViolationWithIdOnly = await prisma.examViolation.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ExamViolationFindManyArgs>(args?: SelectSubset<T, ExamViolationFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExamViolationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ExamViolation.
+     * @param {ExamViolationCreateArgs} args - Arguments to create a ExamViolation.
+     * @example
+     * // Create one ExamViolation
+     * const ExamViolation = await prisma.examViolation.create({
+     *   data: {
+     *     // ... data to create a ExamViolation
+     *   }
+     * })
+     * 
+     */
+    create<T extends ExamViolationCreateArgs>(args: SelectSubset<T, ExamViolationCreateArgs<ExtArgs>>): Prisma__ExamViolationClient<$Result.GetResult<Prisma.$ExamViolationPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ExamViolations.
+     * @param {ExamViolationCreateManyArgs} args - Arguments to create many ExamViolations.
+     * @example
+     * // Create many ExamViolations
+     * const examViolation = await prisma.examViolation.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ExamViolationCreateManyArgs>(args?: SelectSubset<T, ExamViolationCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ExamViolations and returns the data saved in the database.
+     * @param {ExamViolationCreateManyAndReturnArgs} args - Arguments to create many ExamViolations.
+     * @example
+     * // Create many ExamViolations
+     * const examViolation = await prisma.examViolation.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ExamViolations and only return the `id`
+     * const examViolationWithIdOnly = await prisma.examViolation.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ExamViolationCreateManyAndReturnArgs>(args?: SelectSubset<T, ExamViolationCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExamViolationPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ExamViolation.
+     * @param {ExamViolationDeleteArgs} args - Arguments to delete one ExamViolation.
+     * @example
+     * // Delete one ExamViolation
+     * const ExamViolation = await prisma.examViolation.delete({
+     *   where: {
+     *     // ... filter to delete one ExamViolation
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ExamViolationDeleteArgs>(args: SelectSubset<T, ExamViolationDeleteArgs<ExtArgs>>): Prisma__ExamViolationClient<$Result.GetResult<Prisma.$ExamViolationPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ExamViolation.
+     * @param {ExamViolationUpdateArgs} args - Arguments to update one ExamViolation.
+     * @example
+     * // Update one ExamViolation
+     * const examViolation = await prisma.examViolation.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ExamViolationUpdateArgs>(args: SelectSubset<T, ExamViolationUpdateArgs<ExtArgs>>): Prisma__ExamViolationClient<$Result.GetResult<Prisma.$ExamViolationPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ExamViolations.
+     * @param {ExamViolationDeleteManyArgs} args - Arguments to filter ExamViolations to delete.
+     * @example
+     * // Delete a few ExamViolations
+     * const { count } = await prisma.examViolation.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ExamViolationDeleteManyArgs>(args?: SelectSubset<T, ExamViolationDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ExamViolations.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExamViolationUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ExamViolations
+     * const examViolation = await prisma.examViolation.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ExamViolationUpdateManyArgs>(args: SelectSubset<T, ExamViolationUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ExamViolations and returns the data updated in the database.
+     * @param {ExamViolationUpdateManyAndReturnArgs} args - Arguments to update many ExamViolations.
+     * @example
+     * // Update many ExamViolations
+     * const examViolation = await prisma.examViolation.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ExamViolations and only return the `id`
+     * const examViolationWithIdOnly = await prisma.examViolation.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ExamViolationUpdateManyAndReturnArgs>(args: SelectSubset<T, ExamViolationUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExamViolationPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ExamViolation.
+     * @param {ExamViolationUpsertArgs} args - Arguments to update or create a ExamViolation.
+     * @example
+     * // Update or create a ExamViolation
+     * const examViolation = await prisma.examViolation.upsert({
+     *   create: {
+     *     // ... data to create a ExamViolation
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ExamViolation we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ExamViolationUpsertArgs>(args: SelectSubset<T, ExamViolationUpsertArgs<ExtArgs>>): Prisma__ExamViolationClient<$Result.GetResult<Prisma.$ExamViolationPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ExamViolations.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExamViolationCountArgs} args - Arguments to filter ExamViolations to count.
+     * @example
+     * // Count the number of ExamViolations
+     * const count = await prisma.examViolation.count({
+     *   where: {
+     *     // ... the filter for the ExamViolations we want to count
+     *   }
+     * })
+    **/
+    count<T extends ExamViolationCountArgs>(
+      args?: Subset<T, ExamViolationCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ExamViolationCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ExamViolation.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExamViolationAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ExamViolationAggregateArgs>(args: Subset<T, ExamViolationAggregateArgs>): Prisma.PrismaPromise<GetExamViolationAggregateType<T>>
+
+    /**
+     * Group by ExamViolation.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExamViolationGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ExamViolationGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ExamViolationGroupByArgs['orderBy'] }
+        : { orderBy?: ExamViolationGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ExamViolationGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetExamViolationGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ExamViolation model
+   */
+  readonly fields: ExamViolationFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ExamViolation.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ExamViolationClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    application<T extends ApplicationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ApplicationDefaultArgs<ExtArgs>>): Prisma__ApplicationClient<$Result.GetResult<Prisma.$ApplicationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ExamViolation model
+   */
+  interface ExamViolationFieldRefs {
+    readonly id: FieldRef<"ExamViolation", 'String'>
+    readonly applicationId: FieldRef<"ExamViolation", 'String'>
+    readonly type: FieldRef<"ExamViolation", 'ViolationType'>
+    readonly message: FieldRef<"ExamViolation", 'String'>
+    readonly createdAt: FieldRef<"ExamViolation", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ExamViolation findUnique
+   */
+  export type ExamViolationFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamViolation
+     */
+    select?: ExamViolationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ExamViolation
+     */
+    omit?: ExamViolationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamViolationInclude<ExtArgs> | null
+    /**
+     * Filter, which ExamViolation to fetch.
+     */
+    where: ExamViolationWhereUniqueInput
+  }
+
+  /**
+   * ExamViolation findUniqueOrThrow
+   */
+  export type ExamViolationFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamViolation
+     */
+    select?: ExamViolationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ExamViolation
+     */
+    omit?: ExamViolationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamViolationInclude<ExtArgs> | null
+    /**
+     * Filter, which ExamViolation to fetch.
+     */
+    where: ExamViolationWhereUniqueInput
+  }
+
+  /**
+   * ExamViolation findFirst
+   */
+  export type ExamViolationFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamViolation
+     */
+    select?: ExamViolationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ExamViolation
+     */
+    omit?: ExamViolationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamViolationInclude<ExtArgs> | null
+    /**
+     * Filter, which ExamViolation to fetch.
+     */
+    where?: ExamViolationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ExamViolations to fetch.
+     */
+    orderBy?: ExamViolationOrderByWithRelationInput | ExamViolationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ExamViolations.
+     */
+    cursor?: ExamViolationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ExamViolations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ExamViolations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ExamViolations.
+     */
+    distinct?: ExamViolationScalarFieldEnum | ExamViolationScalarFieldEnum[]
+  }
+
+  /**
+   * ExamViolation findFirstOrThrow
+   */
+  export type ExamViolationFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamViolation
+     */
+    select?: ExamViolationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ExamViolation
+     */
+    omit?: ExamViolationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamViolationInclude<ExtArgs> | null
+    /**
+     * Filter, which ExamViolation to fetch.
+     */
+    where?: ExamViolationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ExamViolations to fetch.
+     */
+    orderBy?: ExamViolationOrderByWithRelationInput | ExamViolationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ExamViolations.
+     */
+    cursor?: ExamViolationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ExamViolations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ExamViolations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ExamViolations.
+     */
+    distinct?: ExamViolationScalarFieldEnum | ExamViolationScalarFieldEnum[]
+  }
+
+  /**
+   * ExamViolation findMany
+   */
+  export type ExamViolationFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamViolation
+     */
+    select?: ExamViolationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ExamViolation
+     */
+    omit?: ExamViolationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamViolationInclude<ExtArgs> | null
+    /**
+     * Filter, which ExamViolations to fetch.
+     */
+    where?: ExamViolationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ExamViolations to fetch.
+     */
+    orderBy?: ExamViolationOrderByWithRelationInput | ExamViolationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ExamViolations.
+     */
+    cursor?: ExamViolationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ExamViolations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ExamViolations.
+     */
+    skip?: number
+    distinct?: ExamViolationScalarFieldEnum | ExamViolationScalarFieldEnum[]
+  }
+
+  /**
+   * ExamViolation create
+   */
+  export type ExamViolationCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamViolation
+     */
+    select?: ExamViolationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ExamViolation
+     */
+    omit?: ExamViolationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamViolationInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ExamViolation.
+     */
+    data: XOR<ExamViolationCreateInput, ExamViolationUncheckedCreateInput>
+  }
+
+  /**
+   * ExamViolation createMany
+   */
+  export type ExamViolationCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ExamViolations.
+     */
+    data: ExamViolationCreateManyInput | ExamViolationCreateManyInput[]
+  }
+
+  /**
+   * ExamViolation createManyAndReturn
+   */
+  export type ExamViolationCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamViolation
+     */
+    select?: ExamViolationSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ExamViolation
+     */
+    omit?: ExamViolationOmit<ExtArgs> | null
+    /**
+     * The data used to create many ExamViolations.
+     */
+    data: ExamViolationCreateManyInput | ExamViolationCreateManyInput[]
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamViolationIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ExamViolation update
+   */
+  export type ExamViolationUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamViolation
+     */
+    select?: ExamViolationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ExamViolation
+     */
+    omit?: ExamViolationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamViolationInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ExamViolation.
+     */
+    data: XOR<ExamViolationUpdateInput, ExamViolationUncheckedUpdateInput>
+    /**
+     * Choose, which ExamViolation to update.
+     */
+    where: ExamViolationWhereUniqueInput
+  }
+
+  /**
+   * ExamViolation updateMany
+   */
+  export type ExamViolationUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ExamViolations.
+     */
+    data: XOR<ExamViolationUpdateManyMutationInput, ExamViolationUncheckedUpdateManyInput>
+    /**
+     * Filter which ExamViolations to update
+     */
+    where?: ExamViolationWhereInput
+    /**
+     * Limit how many ExamViolations to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ExamViolation updateManyAndReturn
+   */
+  export type ExamViolationUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamViolation
+     */
+    select?: ExamViolationSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ExamViolation
+     */
+    omit?: ExamViolationOmit<ExtArgs> | null
+    /**
+     * The data used to update ExamViolations.
+     */
+    data: XOR<ExamViolationUpdateManyMutationInput, ExamViolationUncheckedUpdateManyInput>
+    /**
+     * Filter which ExamViolations to update
+     */
+    where?: ExamViolationWhereInput
+    /**
+     * Limit how many ExamViolations to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamViolationIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ExamViolation upsert
+   */
+  export type ExamViolationUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamViolation
+     */
+    select?: ExamViolationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ExamViolation
+     */
+    omit?: ExamViolationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamViolationInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ExamViolation to update in case it exists.
+     */
+    where: ExamViolationWhereUniqueInput
+    /**
+     * In case the ExamViolation found by the `where` argument doesn't exist, create a new ExamViolation with this data.
+     */
+    create: XOR<ExamViolationCreateInput, ExamViolationUncheckedCreateInput>
+    /**
+     * In case the ExamViolation was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ExamViolationUpdateInput, ExamViolationUncheckedUpdateInput>
+  }
+
+  /**
+   * ExamViolation delete
+   */
+  export type ExamViolationDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamViolation
+     */
+    select?: ExamViolationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ExamViolation
+     */
+    omit?: ExamViolationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamViolationInclude<ExtArgs> | null
+    /**
+     * Filter which ExamViolation to delete.
+     */
+    where: ExamViolationWhereUniqueInput
+  }
+
+  /**
+   * ExamViolation deleteMany
+   */
+  export type ExamViolationDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ExamViolations to delete
+     */
+    where?: ExamViolationWhereInput
+    /**
+     * Limit how many ExamViolations to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ExamViolation without action
+   */
+  export type ExamViolationDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamViolation
+     */
+    select?: ExamViolationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ExamViolation
+     */
+    omit?: ExamViolationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamViolationInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -15471,6 +16649,7 @@ export namespace Prisma {
     title: 'title',
     company: 'company',
     location: 'location',
+    role: 'role',
     type: 'type',
     level: 'level',
     tags: 'tags',
@@ -15514,6 +16693,7 @@ export namespace Prisma {
   export const ApplicationScalarFieldEnum: {
     id: 'id',
     jobId: 'jobId',
+    role: 'role',
     createdAt: 'createdAt',
     fullName: 'fullName',
     email: 'email',
@@ -15561,11 +16741,21 @@ export namespace Prisma {
     questionId: 'questionId',
     applicationId: 'applicationId',
     answer: 'answer',
-    score: 'score',
     createdAt: 'createdAt'
   };
 
   export type ExamAnswerScalarFieldEnum = (typeof ExamAnswerScalarFieldEnum)[keyof typeof ExamAnswerScalarFieldEnum]
+
+
+  export const ExamViolationScalarFieldEnum: {
+    id: 'id',
+    applicationId: 'applicationId',
+    type: 'type',
+    message: 'message',
+    createdAt: 'createdAt'
+  };
+
+  export type ExamViolationScalarFieldEnum = (typeof ExamViolationScalarFieldEnum)[keyof typeof ExamViolationScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -15636,6 +16826,13 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'JobRole'
+   */
+  export type EnumJobRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'JobRole'>
+    
+
+
+  /**
    * Reference to a field of type 'JobType'
    */
   export type EnumJobTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'JobType'>
@@ -15646,13 +16843,6 @@ export namespace Prisma {
    * Reference to a field of type 'JobLevel'
    */
   export type EnumJobLevelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'JobLevel'>
-    
-
-
-  /**
-   * Reference to a field of type 'JobRole'
-   */
-  export type EnumJobRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'JobRole'>
     
 
 
@@ -15688,6 +16878,13 @@ export namespace Prisma {
    * Reference to a field of type 'Boolean'
    */
   export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+  /**
+   * Reference to a field of type 'ViolationType'
+   */
+  export type EnumViolationTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ViolationType'>
     
 
 
@@ -16013,6 +17210,7 @@ export namespace Prisma {
     title?: StringFilter<"Job"> | string
     company?: StringFilter<"Job"> | string
     location?: StringFilter<"Job"> | string
+    role?: EnumJobRoleFilter<"Job"> | $Enums.JobRole
     type?: EnumJobTypeFilter<"Job"> | $Enums.JobType
     level?: EnumJobLevelFilter<"Job"> | $Enums.JobLevel
     tags?: StringFilter<"Job"> | string
@@ -16030,6 +17228,7 @@ export namespace Prisma {
     title?: SortOrder
     company?: SortOrder
     location?: SortOrder
+    role?: SortOrder
     type?: SortOrder
     level?: SortOrder
     tags?: SortOrder
@@ -16050,6 +17249,7 @@ export namespace Prisma {
     title?: StringFilter<"Job"> | string
     company?: StringFilter<"Job"> | string
     location?: StringFilter<"Job"> | string
+    role?: EnumJobRoleFilter<"Job"> | $Enums.JobRole
     type?: EnumJobTypeFilter<"Job"> | $Enums.JobType
     level?: EnumJobLevelFilter<"Job"> | $Enums.JobLevel
     tags?: StringFilter<"Job"> | string
@@ -16067,6 +17267,7 @@ export namespace Prisma {
     title?: SortOrder
     company?: SortOrder
     location?: SortOrder
+    role?: SortOrder
     type?: SortOrder
     level?: SortOrder
     tags?: SortOrder
@@ -16089,6 +17290,7 @@ export namespace Prisma {
     title?: StringWithAggregatesFilter<"Job"> | string
     company?: StringWithAggregatesFilter<"Job"> | string
     location?: StringWithAggregatesFilter<"Job"> | string
+    role?: EnumJobRoleWithAggregatesFilter<"Job"> | $Enums.JobRole
     type?: EnumJobTypeWithAggregatesFilter<"Job"> | $Enums.JobType
     level?: EnumJobLevelWithAggregatesFilter<"Job"> | $Enums.JobLevel
     tags?: StringWithAggregatesFilter<"Job"> | string
@@ -16240,6 +17442,7 @@ export namespace Prisma {
     NOT?: ApplicationWhereInput | ApplicationWhereInput[]
     id?: StringFilter<"Application"> | string
     jobId?: StringFilter<"Application"> | string
+    role?: EnumJobRoleFilter<"Application"> | $Enums.JobRole
     createdAt?: DateTimeFilter<"Application"> | Date | string
     fullName?: StringFilter<"Application"> | string
     email?: StringFilter<"Application"> | string
@@ -16261,11 +17464,13 @@ export namespace Prisma {
     projects?: ProjectListRelationFilter
     scenarios?: ScenarioAnswerListRelationFilter
     examAnswers?: ExamAnswerListRelationFilter
+    violations?: ExamViolationListRelationFilter
   }
 
   export type ApplicationOrderByWithRelationInput = {
     id?: SortOrder
     jobId?: SortOrder
+    role?: SortOrder
     createdAt?: SortOrder
     fullName?: SortOrder
     email?: SortOrder
@@ -16287,6 +17492,7 @@ export namespace Prisma {
     projects?: ProjectOrderByRelationAggregateInput
     scenarios?: ScenarioAnswerOrderByRelationAggregateInput
     examAnswers?: ExamAnswerOrderByRelationAggregateInput
+    violations?: ExamViolationOrderByRelationAggregateInput
   }
 
   export type ApplicationWhereUniqueInput = Prisma.AtLeast<{
@@ -16295,6 +17501,7 @@ export namespace Prisma {
     OR?: ApplicationWhereInput[]
     NOT?: ApplicationWhereInput | ApplicationWhereInput[]
     jobId?: StringFilter<"Application"> | string
+    role?: EnumJobRoleFilter<"Application"> | $Enums.JobRole
     createdAt?: DateTimeFilter<"Application"> | Date | string
     fullName?: StringFilter<"Application"> | string
     email?: StringFilter<"Application"> | string
@@ -16316,11 +17523,13 @@ export namespace Prisma {
     projects?: ProjectListRelationFilter
     scenarios?: ScenarioAnswerListRelationFilter
     examAnswers?: ExamAnswerListRelationFilter
+    violations?: ExamViolationListRelationFilter
   }, "id">
 
   export type ApplicationOrderByWithAggregationInput = {
     id?: SortOrder
     jobId?: SortOrder
+    role?: SortOrder
     createdAt?: SortOrder
     fullName?: SortOrder
     email?: SortOrder
@@ -16349,6 +17558,7 @@ export namespace Prisma {
     NOT?: ApplicationScalarWhereWithAggregatesInput | ApplicationScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Application"> | string
     jobId?: StringWithAggregatesFilter<"Application"> | string
+    role?: EnumJobRoleWithAggregatesFilter<"Application"> | $Enums.JobRole
     createdAt?: DateTimeWithAggregatesFilter<"Application"> | Date | string
     fullName?: StringWithAggregatesFilter<"Application"> | string
     email?: StringWithAggregatesFilter<"Application"> | string
@@ -16475,8 +17685,7 @@ export namespace Prisma {
     id?: StringFilter<"ExamAnswer"> | string
     questionId?: StringFilter<"ExamAnswer"> | string
     applicationId?: StringFilter<"ExamAnswer"> | string
-    answer?: StringFilter<"ExamAnswer"> | string
-    score?: FloatNullableFilter<"ExamAnswer"> | number | null
+    answer?: StringNullableFilter<"ExamAnswer"> | string | null
     createdAt?: DateTimeFilter<"ExamAnswer"> | Date | string
     question?: XOR<QuestionScalarRelationFilter, QuestionWhereInput>
     application?: XOR<ApplicationScalarRelationFilter, ApplicationWhereInput>
@@ -16486,8 +17695,7 @@ export namespace Prisma {
     id?: SortOrder
     questionId?: SortOrder
     applicationId?: SortOrder
-    answer?: SortOrder
-    score?: SortOrderInput | SortOrder
+    answer?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     question?: QuestionOrderByWithRelationInput
     application?: ApplicationOrderByWithRelationInput
@@ -16500,8 +17708,7 @@ export namespace Prisma {
     NOT?: ExamAnswerWhereInput | ExamAnswerWhereInput[]
     questionId?: StringFilter<"ExamAnswer"> | string
     applicationId?: StringFilter<"ExamAnswer"> | string
-    answer?: StringFilter<"ExamAnswer"> | string
-    score?: FloatNullableFilter<"ExamAnswer"> | number | null
+    answer?: StringNullableFilter<"ExamAnswer"> | string | null
     createdAt?: DateTimeFilter<"ExamAnswer"> | Date | string
     question?: XOR<QuestionScalarRelationFilter, QuestionWhereInput>
     application?: XOR<ApplicationScalarRelationFilter, ApplicationWhereInput>
@@ -16511,14 +17718,11 @@ export namespace Prisma {
     id?: SortOrder
     questionId?: SortOrder
     applicationId?: SortOrder
-    answer?: SortOrder
-    score?: SortOrderInput | SortOrder
+    answer?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     _count?: ExamAnswerCountOrderByAggregateInput
-    _avg?: ExamAnswerAvgOrderByAggregateInput
     _max?: ExamAnswerMaxOrderByAggregateInput
     _min?: ExamAnswerMinOrderByAggregateInput
-    _sum?: ExamAnswerSumOrderByAggregateInput
   }
 
   export type ExamAnswerScalarWhereWithAggregatesInput = {
@@ -16528,9 +17732,63 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"ExamAnswer"> | string
     questionId?: StringWithAggregatesFilter<"ExamAnswer"> | string
     applicationId?: StringWithAggregatesFilter<"ExamAnswer"> | string
-    answer?: StringWithAggregatesFilter<"ExamAnswer"> | string
-    score?: FloatNullableWithAggregatesFilter<"ExamAnswer"> | number | null
+    answer?: StringNullableWithAggregatesFilter<"ExamAnswer"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"ExamAnswer"> | Date | string
+  }
+
+  export type ExamViolationWhereInput = {
+    AND?: ExamViolationWhereInput | ExamViolationWhereInput[]
+    OR?: ExamViolationWhereInput[]
+    NOT?: ExamViolationWhereInput | ExamViolationWhereInput[]
+    id?: StringFilter<"ExamViolation"> | string
+    applicationId?: StringFilter<"ExamViolation"> | string
+    type?: EnumViolationTypeFilter<"ExamViolation"> | $Enums.ViolationType
+    message?: StringFilter<"ExamViolation"> | string
+    createdAt?: DateTimeFilter<"ExamViolation"> | Date | string
+    application?: XOR<ApplicationScalarRelationFilter, ApplicationWhereInput>
+  }
+
+  export type ExamViolationOrderByWithRelationInput = {
+    id?: SortOrder
+    applicationId?: SortOrder
+    type?: SortOrder
+    message?: SortOrder
+    createdAt?: SortOrder
+    application?: ApplicationOrderByWithRelationInput
+  }
+
+  export type ExamViolationWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: ExamViolationWhereInput | ExamViolationWhereInput[]
+    OR?: ExamViolationWhereInput[]
+    NOT?: ExamViolationWhereInput | ExamViolationWhereInput[]
+    applicationId?: StringFilter<"ExamViolation"> | string
+    type?: EnumViolationTypeFilter<"ExamViolation"> | $Enums.ViolationType
+    message?: StringFilter<"ExamViolation"> | string
+    createdAt?: DateTimeFilter<"ExamViolation"> | Date | string
+    application?: XOR<ApplicationScalarRelationFilter, ApplicationWhereInput>
+  }, "id">
+
+  export type ExamViolationOrderByWithAggregationInput = {
+    id?: SortOrder
+    applicationId?: SortOrder
+    type?: SortOrder
+    message?: SortOrder
+    createdAt?: SortOrder
+    _count?: ExamViolationCountOrderByAggregateInput
+    _max?: ExamViolationMaxOrderByAggregateInput
+    _min?: ExamViolationMinOrderByAggregateInput
+  }
+
+  export type ExamViolationScalarWhereWithAggregatesInput = {
+    AND?: ExamViolationScalarWhereWithAggregatesInput | ExamViolationScalarWhereWithAggregatesInput[]
+    OR?: ExamViolationScalarWhereWithAggregatesInput[]
+    NOT?: ExamViolationScalarWhereWithAggregatesInput | ExamViolationScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ExamViolation"> | string
+    applicationId?: StringWithAggregatesFilter<"ExamViolation"> | string
+    type?: EnumViolationTypeWithAggregatesFilter<"ExamViolation"> | $Enums.ViolationType
+    message?: StringWithAggregatesFilter<"ExamViolation"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"ExamViolation"> | Date | string
   }
 
   export type PostCreateInput = {
@@ -16852,6 +18110,7 @@ export namespace Prisma {
     title: string
     company: string
     location: string
+    role: $Enums.JobRole
     type: $Enums.JobType
     level: $Enums.JobLevel
     tags: string
@@ -16869,6 +18128,7 @@ export namespace Prisma {
     title: string
     company: string
     location: string
+    role: $Enums.JobRole
     type: $Enums.JobType
     level: $Enums.JobLevel
     tags: string
@@ -16886,6 +18146,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     company?: StringFieldUpdateOperationsInput | string
     location?: StringFieldUpdateOperationsInput | string
+    role?: EnumJobRoleFieldUpdateOperationsInput | $Enums.JobRole
     type?: EnumJobTypeFieldUpdateOperationsInput | $Enums.JobType
     level?: EnumJobLevelFieldUpdateOperationsInput | $Enums.JobLevel
     tags?: StringFieldUpdateOperationsInput | string
@@ -16903,6 +18164,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     company?: StringFieldUpdateOperationsInput | string
     location?: StringFieldUpdateOperationsInput | string
+    role?: EnumJobRoleFieldUpdateOperationsInput | $Enums.JobRole
     type?: EnumJobTypeFieldUpdateOperationsInput | $Enums.JobType
     level?: EnumJobLevelFieldUpdateOperationsInput | $Enums.JobLevel
     tags?: StringFieldUpdateOperationsInput | string
@@ -16920,6 +18182,7 @@ export namespace Prisma {
     title: string
     company: string
     location: string
+    role: $Enums.JobRole
     type: $Enums.JobType
     level: $Enums.JobLevel
     tags: string
@@ -16936,6 +18199,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     company?: StringFieldUpdateOperationsInput | string
     location?: StringFieldUpdateOperationsInput | string
+    role?: EnumJobRoleFieldUpdateOperationsInput | $Enums.JobRole
     type?: EnumJobTypeFieldUpdateOperationsInput | $Enums.JobType
     level?: EnumJobLevelFieldUpdateOperationsInput | $Enums.JobLevel
     tags?: StringFieldUpdateOperationsInput | string
@@ -16952,6 +18216,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     company?: StringFieldUpdateOperationsInput | string
     location?: StringFieldUpdateOperationsInput | string
+    role?: EnumJobRoleFieldUpdateOperationsInput | $Enums.JobRole
     type?: EnumJobTypeFieldUpdateOperationsInput | $Enums.JobType
     level?: EnumJobLevelFieldUpdateOperationsInput | $Enums.JobLevel
     tags?: StringFieldUpdateOperationsInput | string
@@ -17112,6 +18377,7 @@ export namespace Prisma {
 
   export type ApplicationCreateInput = {
     id?: string
+    role: $Enums.JobRole
     createdAt?: Date | string
     fullName: string
     email: string
@@ -17133,11 +18399,13 @@ export namespace Prisma {
     projects?: ProjectCreateNestedManyWithoutApplicationInput
     scenarios?: ScenarioAnswerCreateNestedManyWithoutApplicationInput
     examAnswers?: ExamAnswerCreateNestedManyWithoutApplicationInput
+    violations?: ExamViolationCreateNestedManyWithoutApplicationInput
   }
 
   export type ApplicationUncheckedCreateInput = {
     id?: string
     jobId: string
+    role: $Enums.JobRole
     createdAt?: Date | string
     fullName: string
     email: string
@@ -17158,10 +18426,12 @@ export namespace Prisma {
     projects?: ProjectUncheckedCreateNestedManyWithoutApplicationInput
     scenarios?: ScenarioAnswerUncheckedCreateNestedManyWithoutApplicationInput
     examAnswers?: ExamAnswerUncheckedCreateNestedManyWithoutApplicationInput
+    violations?: ExamViolationUncheckedCreateNestedManyWithoutApplicationInput
   }
 
   export type ApplicationUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
+    role?: EnumJobRoleFieldUpdateOperationsInput | $Enums.JobRole
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     fullName?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
@@ -17183,11 +18453,13 @@ export namespace Prisma {
     projects?: ProjectUpdateManyWithoutApplicationNestedInput
     scenarios?: ScenarioAnswerUpdateManyWithoutApplicationNestedInput
     examAnswers?: ExamAnswerUpdateManyWithoutApplicationNestedInput
+    violations?: ExamViolationUpdateManyWithoutApplicationNestedInput
   }
 
   export type ApplicationUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     jobId?: StringFieldUpdateOperationsInput | string
+    role?: EnumJobRoleFieldUpdateOperationsInput | $Enums.JobRole
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     fullName?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
@@ -17208,11 +18480,13 @@ export namespace Prisma {
     projects?: ProjectUncheckedUpdateManyWithoutApplicationNestedInput
     scenarios?: ScenarioAnswerUncheckedUpdateManyWithoutApplicationNestedInput
     examAnswers?: ExamAnswerUncheckedUpdateManyWithoutApplicationNestedInput
+    violations?: ExamViolationUncheckedUpdateManyWithoutApplicationNestedInput
   }
 
   export type ApplicationCreateManyInput = {
     id?: string
     jobId: string
+    role: $Enums.JobRole
     createdAt?: Date | string
     fullName: string
     email: string
@@ -17234,6 +18508,7 @@ export namespace Prisma {
 
   export type ApplicationUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
+    role?: EnumJobRoleFieldUpdateOperationsInput | $Enums.JobRole
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     fullName?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
@@ -17256,6 +18531,7 @@ export namespace Prisma {
   export type ApplicationUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     jobId?: StringFieldUpdateOperationsInput | string
+    role?: EnumJobRoleFieldUpdateOperationsInput | $Enums.JobRole
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     fullName?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
@@ -17373,8 +18649,7 @@ export namespace Prisma {
 
   export type ExamAnswerCreateInput = {
     id?: string
-    answer: string
-    score?: number | null
+    answer?: string | null
     createdAt?: Date | string
     question: QuestionCreateNestedOneWithoutExamAnswersInput
     application: ApplicationCreateNestedOneWithoutExamAnswersInput
@@ -17384,15 +18659,13 @@ export namespace Prisma {
     id?: string
     questionId: string
     applicationId: string
-    answer: string
-    score?: number | null
+    answer?: string | null
     createdAt?: Date | string
   }
 
   export type ExamAnswerUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    answer?: StringFieldUpdateOperationsInput | string
-    score?: NullableFloatFieldUpdateOperationsInput | number | null
+    answer?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     question?: QuestionUpdateOneRequiredWithoutExamAnswersNestedInput
     application?: ApplicationUpdateOneRequiredWithoutExamAnswersNestedInput
@@ -17402,8 +18675,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     questionId?: StringFieldUpdateOperationsInput | string
     applicationId?: StringFieldUpdateOperationsInput | string
-    answer?: StringFieldUpdateOperationsInput | string
-    score?: NullableFloatFieldUpdateOperationsInput | number | null
+    answer?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -17411,15 +18683,13 @@ export namespace Prisma {
     id?: string
     questionId: string
     applicationId: string
-    answer: string
-    score?: number | null
+    answer?: string | null
     createdAt?: Date | string
   }
 
   export type ExamAnswerUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    answer?: StringFieldUpdateOperationsInput | string
-    score?: NullableFloatFieldUpdateOperationsInput | number | null
+    answer?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -17427,8 +18697,62 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     questionId?: StringFieldUpdateOperationsInput | string
     applicationId?: StringFieldUpdateOperationsInput | string
-    answer?: StringFieldUpdateOperationsInput | string
-    score?: NullableFloatFieldUpdateOperationsInput | number | null
+    answer?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ExamViolationCreateInput = {
+    id?: string
+    type: $Enums.ViolationType
+    message: string
+    createdAt?: Date | string
+    application: ApplicationCreateNestedOneWithoutViolationsInput
+  }
+
+  export type ExamViolationUncheckedCreateInput = {
+    id?: string
+    applicationId: string
+    type: $Enums.ViolationType
+    message: string
+    createdAt?: Date | string
+  }
+
+  export type ExamViolationUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumViolationTypeFieldUpdateOperationsInput | $Enums.ViolationType
+    message?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    application?: ApplicationUpdateOneRequiredWithoutViolationsNestedInput
+  }
+
+  export type ExamViolationUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    applicationId?: StringFieldUpdateOperationsInput | string
+    type?: EnumViolationTypeFieldUpdateOperationsInput | $Enums.ViolationType
+    message?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ExamViolationCreateManyInput = {
+    id?: string
+    applicationId: string
+    type: $Enums.ViolationType
+    message: string
+    createdAt?: Date | string
+  }
+
+  export type ExamViolationUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumViolationTypeFieldUpdateOperationsInput | $Enums.ViolationType
+    message?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ExamViolationUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    applicationId?: StringFieldUpdateOperationsInput | string
+    type?: EnumViolationTypeFieldUpdateOperationsInput | $Enums.ViolationType
+    message?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -17796,6 +19120,13 @@ export namespace Prisma {
     expires?: SortOrder
   }
 
+  export type EnumJobRoleFilter<$PrismaModel = never> = {
+    equals?: $Enums.JobRole | EnumJobRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.JobRole[]
+    notIn?: $Enums.JobRole[]
+    not?: NestedEnumJobRoleFilter<$PrismaModel> | $Enums.JobRole
+  }
+
   export type EnumJobTypeFilter<$PrismaModel = never> = {
     equals?: $Enums.JobType | EnumJobTypeFieldRefInput<$PrismaModel>
     in?: $Enums.JobType[]
@@ -17825,6 +19156,7 @@ export namespace Prisma {
     title?: SortOrder
     company?: SortOrder
     location?: SortOrder
+    role?: SortOrder
     type?: SortOrder
     level?: SortOrder
     tags?: SortOrder
@@ -17841,6 +19173,7 @@ export namespace Prisma {
     title?: SortOrder
     company?: SortOrder
     location?: SortOrder
+    role?: SortOrder
     type?: SortOrder
     level?: SortOrder
     tags?: SortOrder
@@ -17857,6 +19190,7 @@ export namespace Prisma {
     title?: SortOrder
     company?: SortOrder
     location?: SortOrder
+    role?: SortOrder
     type?: SortOrder
     level?: SortOrder
     tags?: SortOrder
@@ -17866,6 +19200,16 @@ export namespace Prisma {
     requirements?: SortOrder
     benefits?: SortOrder
     createdAt?: SortOrder
+  }
+
+  export type EnumJobRoleWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.JobRole | EnumJobRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.JobRole[]
+    notIn?: $Enums.JobRole[]
+    not?: NestedEnumJobRoleWithAggregatesFilter<$PrismaModel> | $Enums.JobRole
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumJobRoleFilter<$PrismaModel>
+    _max?: NestedEnumJobRoleFilter<$PrismaModel>
   }
 
   export type EnumJobTypeWithAggregatesFilter<$PrismaModel = never> = {
@@ -17886,13 +19230,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumJobLevelFilter<$PrismaModel>
     _max?: NestedEnumJobLevelFilter<$PrismaModel>
-  }
-
-  export type EnumJobRoleFilter<$PrismaModel = never> = {
-    equals?: $Enums.JobRole | EnumJobRoleFieldRefInput<$PrismaModel>
-    in?: $Enums.JobRole[]
-    notIn?: $Enums.JobRole[]
-    not?: NestedEnumJobRoleFilter<$PrismaModel> | $Enums.JobRole
   }
 
   export type EnumQuestionTypeFilter<$PrismaModel = never> = {
@@ -17966,16 +19303,6 @@ export namespace Prisma {
     createdAt?: SortOrder
     correctKey?: SortOrder
     rubric?: SortOrder
-  }
-
-  export type EnumJobRoleWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.JobRole | EnumJobRoleFieldRefInput<$PrismaModel>
-    in?: $Enums.JobRole[]
-    notIn?: $Enums.JobRole[]
-    not?: NestedEnumJobRoleWithAggregatesFilter<$PrismaModel> | $Enums.JobRole
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumJobRoleFilter<$PrismaModel>
-    _max?: NestedEnumJobRoleFilter<$PrismaModel>
   }
 
   export type EnumQuestionTypeWithAggregatesFilter<$PrismaModel = never> = {
@@ -18069,6 +19396,12 @@ export namespace Prisma {
     none?: ScenarioAnswerWhereInput
   }
 
+  export type ExamViolationListRelationFilter = {
+    every?: ExamViolationWhereInput
+    some?: ExamViolationWhereInput
+    none?: ExamViolationWhereInput
+  }
+
   export type ProjectOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -18077,9 +19410,14 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
+  export type ExamViolationOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type ApplicationCountOrderByAggregateInput = {
     id?: SortOrder
     jobId?: SortOrder
+    role?: SortOrder
     createdAt?: SortOrder
     fullName?: SortOrder
     email?: SortOrder
@@ -18102,6 +19440,7 @@ export namespace Prisma {
   export type ApplicationMaxOrderByAggregateInput = {
     id?: SortOrder
     jobId?: SortOrder
+    role?: SortOrder
     createdAt?: SortOrder
     fullName?: SortOrder
     email?: SortOrder
@@ -18123,6 +19462,7 @@ export namespace Prisma {
   export type ApplicationMinOrderByAggregateInput = {
     id?: SortOrder
     jobId?: SortOrder
+    role?: SortOrder
     createdAt?: SortOrder
     fullName?: SortOrder
     email?: SortOrder
@@ -18217,28 +19557,12 @@ export namespace Prisma {
     answer?: SortOrder
   }
 
-  export type FloatNullableFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel> | null
-    in?: number[] | null
-    notIn?: number[] | null
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
-  }
-
   export type ExamAnswerCountOrderByAggregateInput = {
     id?: SortOrder
     questionId?: SortOrder
     applicationId?: SortOrder
     answer?: SortOrder
-    score?: SortOrder
     createdAt?: SortOrder
-  }
-
-  export type ExamAnswerAvgOrderByAggregateInput = {
-    score?: SortOrder
   }
 
   export type ExamAnswerMaxOrderByAggregateInput = {
@@ -18246,7 +19570,6 @@ export namespace Prisma {
     questionId?: SortOrder
     applicationId?: SortOrder
     answer?: SortOrder
-    score?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -18255,28 +19578,48 @@ export namespace Prisma {
     questionId?: SortOrder
     applicationId?: SortOrder
     answer?: SortOrder
-    score?: SortOrder
     createdAt?: SortOrder
   }
 
-  export type ExamAnswerSumOrderByAggregateInput = {
-    score?: SortOrder
+  export type EnumViolationTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.ViolationType | EnumViolationTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.ViolationType[]
+    notIn?: $Enums.ViolationType[]
+    not?: NestedEnumViolationTypeFilter<$PrismaModel> | $Enums.ViolationType
   }
 
-  export type FloatNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel> | null
-    in?: number[] | null
-    notIn?: number[] | null
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _avg?: NestedFloatNullableFilter<$PrismaModel>
-    _sum?: NestedFloatNullableFilter<$PrismaModel>
-    _min?: NestedFloatNullableFilter<$PrismaModel>
-    _max?: NestedFloatNullableFilter<$PrismaModel>
+  export type ExamViolationCountOrderByAggregateInput = {
+    id?: SortOrder
+    applicationId?: SortOrder
+    type?: SortOrder
+    message?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ExamViolationMaxOrderByAggregateInput = {
+    id?: SortOrder
+    applicationId?: SortOrder
+    type?: SortOrder
+    message?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ExamViolationMinOrderByAggregateInput = {
+    id?: SortOrder
+    applicationId?: SortOrder
+    type?: SortOrder
+    message?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type EnumViolationTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ViolationType | EnumViolationTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.ViolationType[]
+    notIn?: $Enums.ViolationType[]
+    not?: NestedEnumViolationTypeWithAggregatesFilter<$PrismaModel> | $Enums.ViolationType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumViolationTypeFilter<$PrismaModel>
+    _max?: NestedEnumViolationTypeFilter<$PrismaModel>
   }
 
   export type UserCreateNestedOneWithoutPostsInput = {
@@ -18493,6 +19836,10 @@ export namespace Prisma {
     connect?: ApplicationWhereUniqueInput | ApplicationWhereUniqueInput[]
   }
 
+  export type EnumJobRoleFieldUpdateOperationsInput = {
+    set?: $Enums.JobRole
+  }
+
   export type EnumJobTypeFieldUpdateOperationsInput = {
     set?: $Enums.JobType
   }
@@ -18555,10 +19902,6 @@ export namespace Prisma {
     connectOrCreate?: ExamAnswerCreateOrConnectWithoutQuestionInput | ExamAnswerCreateOrConnectWithoutQuestionInput[]
     createMany?: ExamAnswerCreateManyQuestionInputEnvelope
     connect?: ExamAnswerWhereUniqueInput | ExamAnswerWhereUniqueInput[]
-  }
-
-  export type EnumJobRoleFieldUpdateOperationsInput = {
-    set?: $Enums.JobRole
   }
 
   export type EnumQuestionTypeFieldUpdateOperationsInput = {
@@ -18666,6 +20009,13 @@ export namespace Prisma {
     connect?: ExamAnswerWhereUniqueInput | ExamAnswerWhereUniqueInput[]
   }
 
+  export type ExamViolationCreateNestedManyWithoutApplicationInput = {
+    create?: XOR<ExamViolationCreateWithoutApplicationInput, ExamViolationUncheckedCreateWithoutApplicationInput> | ExamViolationCreateWithoutApplicationInput[] | ExamViolationUncheckedCreateWithoutApplicationInput[]
+    connectOrCreate?: ExamViolationCreateOrConnectWithoutApplicationInput | ExamViolationCreateOrConnectWithoutApplicationInput[]
+    createMany?: ExamViolationCreateManyApplicationInputEnvelope
+    connect?: ExamViolationWhereUniqueInput | ExamViolationWhereUniqueInput[]
+  }
+
   export type ProjectUncheckedCreateNestedManyWithoutApplicationInput = {
     create?: XOR<ProjectCreateWithoutApplicationInput, ProjectUncheckedCreateWithoutApplicationInput> | ProjectCreateWithoutApplicationInput[] | ProjectUncheckedCreateWithoutApplicationInput[]
     connectOrCreate?: ProjectCreateOrConnectWithoutApplicationInput | ProjectCreateOrConnectWithoutApplicationInput[]
@@ -18685,6 +20035,13 @@ export namespace Prisma {
     connectOrCreate?: ExamAnswerCreateOrConnectWithoutApplicationInput | ExamAnswerCreateOrConnectWithoutApplicationInput[]
     createMany?: ExamAnswerCreateManyApplicationInputEnvelope
     connect?: ExamAnswerWhereUniqueInput | ExamAnswerWhereUniqueInput[]
+  }
+
+  export type ExamViolationUncheckedCreateNestedManyWithoutApplicationInput = {
+    create?: XOR<ExamViolationCreateWithoutApplicationInput, ExamViolationUncheckedCreateWithoutApplicationInput> | ExamViolationCreateWithoutApplicationInput[] | ExamViolationUncheckedCreateWithoutApplicationInput[]
+    connectOrCreate?: ExamViolationCreateOrConnectWithoutApplicationInput | ExamViolationCreateOrConnectWithoutApplicationInput[]
+    createMany?: ExamViolationCreateManyApplicationInputEnvelope
+    connect?: ExamViolationWhereUniqueInput | ExamViolationWhereUniqueInput[]
   }
 
   export type BoolFieldUpdateOperationsInput = {
@@ -18741,6 +20098,20 @@ export namespace Prisma {
     deleteMany?: ExamAnswerScalarWhereInput | ExamAnswerScalarWhereInput[]
   }
 
+  export type ExamViolationUpdateManyWithoutApplicationNestedInput = {
+    create?: XOR<ExamViolationCreateWithoutApplicationInput, ExamViolationUncheckedCreateWithoutApplicationInput> | ExamViolationCreateWithoutApplicationInput[] | ExamViolationUncheckedCreateWithoutApplicationInput[]
+    connectOrCreate?: ExamViolationCreateOrConnectWithoutApplicationInput | ExamViolationCreateOrConnectWithoutApplicationInput[]
+    upsert?: ExamViolationUpsertWithWhereUniqueWithoutApplicationInput | ExamViolationUpsertWithWhereUniqueWithoutApplicationInput[]
+    createMany?: ExamViolationCreateManyApplicationInputEnvelope
+    set?: ExamViolationWhereUniqueInput | ExamViolationWhereUniqueInput[]
+    disconnect?: ExamViolationWhereUniqueInput | ExamViolationWhereUniqueInput[]
+    delete?: ExamViolationWhereUniqueInput | ExamViolationWhereUniqueInput[]
+    connect?: ExamViolationWhereUniqueInput | ExamViolationWhereUniqueInput[]
+    update?: ExamViolationUpdateWithWhereUniqueWithoutApplicationInput | ExamViolationUpdateWithWhereUniqueWithoutApplicationInput[]
+    updateMany?: ExamViolationUpdateManyWithWhereWithoutApplicationInput | ExamViolationUpdateManyWithWhereWithoutApplicationInput[]
+    deleteMany?: ExamViolationScalarWhereInput | ExamViolationScalarWhereInput[]
+  }
+
   export type ProjectUncheckedUpdateManyWithoutApplicationNestedInput = {
     create?: XOR<ProjectCreateWithoutApplicationInput, ProjectUncheckedCreateWithoutApplicationInput> | ProjectCreateWithoutApplicationInput[] | ProjectUncheckedCreateWithoutApplicationInput[]
     connectOrCreate?: ProjectCreateOrConnectWithoutApplicationInput | ProjectCreateOrConnectWithoutApplicationInput[]
@@ -18783,6 +20154,20 @@ export namespace Prisma {
     deleteMany?: ExamAnswerScalarWhereInput | ExamAnswerScalarWhereInput[]
   }
 
+  export type ExamViolationUncheckedUpdateManyWithoutApplicationNestedInput = {
+    create?: XOR<ExamViolationCreateWithoutApplicationInput, ExamViolationUncheckedCreateWithoutApplicationInput> | ExamViolationCreateWithoutApplicationInput[] | ExamViolationUncheckedCreateWithoutApplicationInput[]
+    connectOrCreate?: ExamViolationCreateOrConnectWithoutApplicationInput | ExamViolationCreateOrConnectWithoutApplicationInput[]
+    upsert?: ExamViolationUpsertWithWhereUniqueWithoutApplicationInput | ExamViolationUpsertWithWhereUniqueWithoutApplicationInput[]
+    createMany?: ExamViolationCreateManyApplicationInputEnvelope
+    set?: ExamViolationWhereUniqueInput | ExamViolationWhereUniqueInput[]
+    disconnect?: ExamViolationWhereUniqueInput | ExamViolationWhereUniqueInput[]
+    delete?: ExamViolationWhereUniqueInput | ExamViolationWhereUniqueInput[]
+    connect?: ExamViolationWhereUniqueInput | ExamViolationWhereUniqueInput[]
+    update?: ExamViolationUpdateWithWhereUniqueWithoutApplicationInput | ExamViolationUpdateWithWhereUniqueWithoutApplicationInput[]
+    updateMany?: ExamViolationUpdateManyWithWhereWithoutApplicationInput | ExamViolationUpdateManyWithWhereWithoutApplicationInput[]
+    deleteMany?: ExamViolationScalarWhereInput | ExamViolationScalarWhereInput[]
+  }
+
   export type ApplicationCreateNestedOneWithoutProjectsInput = {
     create?: XOR<ApplicationCreateWithoutProjectsInput, ApplicationUncheckedCreateWithoutProjectsInput>
     connectOrCreate?: ApplicationCreateOrConnectWithoutProjectsInput
@@ -18823,14 +20208,6 @@ export namespace Prisma {
     connect?: ApplicationWhereUniqueInput
   }
 
-  export type NullableFloatFieldUpdateOperationsInput = {
-    set?: number | null
-    increment?: number
-    decrement?: number
-    multiply?: number
-    divide?: number
-  }
-
   export type QuestionUpdateOneRequiredWithoutExamAnswersNestedInput = {
     create?: XOR<QuestionCreateWithoutExamAnswersInput, QuestionUncheckedCreateWithoutExamAnswersInput>
     connectOrCreate?: QuestionCreateOrConnectWithoutExamAnswersInput
@@ -18845,6 +20222,24 @@ export namespace Prisma {
     upsert?: ApplicationUpsertWithoutExamAnswersInput
     connect?: ApplicationWhereUniqueInput
     update?: XOR<XOR<ApplicationUpdateToOneWithWhereWithoutExamAnswersInput, ApplicationUpdateWithoutExamAnswersInput>, ApplicationUncheckedUpdateWithoutExamAnswersInput>
+  }
+
+  export type ApplicationCreateNestedOneWithoutViolationsInput = {
+    create?: XOR<ApplicationCreateWithoutViolationsInput, ApplicationUncheckedCreateWithoutViolationsInput>
+    connectOrCreate?: ApplicationCreateOrConnectWithoutViolationsInput
+    connect?: ApplicationWhereUniqueInput
+  }
+
+  export type EnumViolationTypeFieldUpdateOperationsInput = {
+    set?: $Enums.ViolationType
+  }
+
+  export type ApplicationUpdateOneRequiredWithoutViolationsNestedInput = {
+    create?: XOR<ApplicationCreateWithoutViolationsInput, ApplicationUncheckedCreateWithoutViolationsInput>
+    connectOrCreate?: ApplicationCreateOrConnectWithoutViolationsInput
+    upsert?: ApplicationUpsertWithoutViolationsInput
+    connect?: ApplicationWhereUniqueInput
+    update?: XOR<XOR<ApplicationUpdateToOneWithWhereWithoutViolationsInput, ApplicationUpdateWithoutViolationsInput>, ApplicationUncheckedUpdateWithoutViolationsInput>
   }
 
   export type NestedIntFilter<$PrismaModel = never> = {
@@ -19035,6 +20430,13 @@ export namespace Prisma {
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
+  export type NestedEnumJobRoleFilter<$PrismaModel = never> = {
+    equals?: $Enums.JobRole | EnumJobRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.JobRole[]
+    notIn?: $Enums.JobRole[]
+    not?: NestedEnumJobRoleFilter<$PrismaModel> | $Enums.JobRole
+  }
+
   export type NestedEnumJobTypeFilter<$PrismaModel = never> = {
     equals?: $Enums.JobType | EnumJobTypeFieldRefInput<$PrismaModel>
     in?: $Enums.JobType[]
@@ -19047,6 +20449,16 @@ export namespace Prisma {
     in?: $Enums.JobLevel[]
     notIn?: $Enums.JobLevel[]
     not?: NestedEnumJobLevelFilter<$PrismaModel> | $Enums.JobLevel
+  }
+
+  export type NestedEnumJobRoleWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.JobRole | EnumJobRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.JobRole[]
+    notIn?: $Enums.JobRole[]
+    not?: NestedEnumJobRoleWithAggregatesFilter<$PrismaModel> | $Enums.JobRole
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumJobRoleFilter<$PrismaModel>
+    _max?: NestedEnumJobRoleFilter<$PrismaModel>
   }
 
   export type NestedEnumJobTypeWithAggregatesFilter<$PrismaModel = never> = {
@@ -19069,13 +20481,6 @@ export namespace Prisma {
     _max?: NestedEnumJobLevelFilter<$PrismaModel>
   }
 
-  export type NestedEnumJobRoleFilter<$PrismaModel = never> = {
-    equals?: $Enums.JobRole | EnumJobRoleFieldRefInput<$PrismaModel>
-    in?: $Enums.JobRole[]
-    notIn?: $Enums.JobRole[]
-    not?: NestedEnumJobRoleFilter<$PrismaModel> | $Enums.JobRole
-  }
-
   export type NestedEnumQuestionTypeFilter<$PrismaModel = never> = {
     equals?: $Enums.QuestionType | EnumQuestionTypeFieldRefInput<$PrismaModel>
     in?: $Enums.QuestionType[]
@@ -19088,16 +20493,6 @@ export namespace Prisma {
     in?: $Enums.Difficulty[]
     notIn?: $Enums.Difficulty[]
     not?: NestedEnumDifficultyFilter<$PrismaModel> | $Enums.Difficulty
-  }
-
-  export type NestedEnumJobRoleWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.JobRole | EnumJobRoleFieldRefInput<$PrismaModel>
-    in?: $Enums.JobRole[]
-    notIn?: $Enums.JobRole[]
-    not?: NestedEnumJobRoleWithAggregatesFilter<$PrismaModel> | $Enums.JobRole
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumJobRoleFilter<$PrismaModel>
-    _max?: NestedEnumJobRoleFilter<$PrismaModel>
   }
 
   export type NestedEnumQuestionTypeWithAggregatesFilter<$PrismaModel = never> = {
@@ -19151,20 +20546,21 @@ export namespace Prisma {
     _max?: NestedBoolFilter<$PrismaModel>
   }
 
-  export type NestedFloatNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel> | null
-    in?: number[] | null
-    notIn?: number[] | null
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _avg?: NestedFloatNullableFilter<$PrismaModel>
-    _sum?: NestedFloatNullableFilter<$PrismaModel>
-    _min?: NestedFloatNullableFilter<$PrismaModel>
-    _max?: NestedFloatNullableFilter<$PrismaModel>
+  export type NestedEnumViolationTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.ViolationType | EnumViolationTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.ViolationType[]
+    notIn?: $Enums.ViolationType[]
+    not?: NestedEnumViolationTypeFilter<$PrismaModel> | $Enums.ViolationType
+  }
+
+  export type NestedEnumViolationTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ViolationType | EnumViolationTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.ViolationType[]
+    notIn?: $Enums.ViolationType[]
+    not?: NestedEnumViolationTypeWithAggregatesFilter<$PrismaModel> | $Enums.ViolationType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumViolationTypeFilter<$PrismaModel>
+    _max?: NestedEnumViolationTypeFilter<$PrismaModel>
   }
 
   export type UserCreateWithoutPostsInput = {
@@ -19504,6 +20900,7 @@ export namespace Prisma {
 
   export type ApplicationCreateWithoutJobInput = {
     id?: string
+    role: $Enums.JobRole
     createdAt?: Date | string
     fullName: string
     email: string
@@ -19524,10 +20921,12 @@ export namespace Prisma {
     projects?: ProjectCreateNestedManyWithoutApplicationInput
     scenarios?: ScenarioAnswerCreateNestedManyWithoutApplicationInput
     examAnswers?: ExamAnswerCreateNestedManyWithoutApplicationInput
+    violations?: ExamViolationCreateNestedManyWithoutApplicationInput
   }
 
   export type ApplicationUncheckedCreateWithoutJobInput = {
     id?: string
+    role: $Enums.JobRole
     createdAt?: Date | string
     fullName: string
     email: string
@@ -19548,6 +20947,7 @@ export namespace Prisma {
     projects?: ProjectUncheckedCreateNestedManyWithoutApplicationInput
     scenarios?: ScenarioAnswerUncheckedCreateNestedManyWithoutApplicationInput
     examAnswers?: ExamAnswerUncheckedCreateNestedManyWithoutApplicationInput
+    violations?: ExamViolationUncheckedCreateNestedManyWithoutApplicationInput
   }
 
   export type ApplicationCreateOrConnectWithoutJobInput = {
@@ -19581,6 +20981,7 @@ export namespace Prisma {
     NOT?: ApplicationScalarWhereInput | ApplicationScalarWhereInput[]
     id?: StringFilter<"Application"> | string
     jobId?: StringFilter<"Application"> | string
+    role?: EnumJobRoleFilter<"Application"> | $Enums.JobRole
     createdAt?: DateTimeFilter<"Application"> | Date | string
     fullName?: StringFilter<"Application"> | string
     email?: StringFilter<"Application"> | string
@@ -19623,8 +21024,7 @@ export namespace Prisma {
 
   export type ExamAnswerCreateWithoutQuestionInput = {
     id?: string
-    answer: string
-    score?: number | null
+    answer?: string | null
     createdAt?: Date | string
     application: ApplicationCreateNestedOneWithoutExamAnswersInput
   }
@@ -19632,8 +21032,7 @@ export namespace Prisma {
   export type ExamAnswerUncheckedCreateWithoutQuestionInput = {
     id?: string
     applicationId: string
-    answer: string
-    score?: number | null
+    answer?: string | null
     createdAt?: Date | string
   }
 
@@ -19695,8 +21094,7 @@ export namespace Prisma {
     id?: StringFilter<"ExamAnswer"> | string
     questionId?: StringFilter<"ExamAnswer"> | string
     applicationId?: StringFilter<"ExamAnswer"> | string
-    answer?: StringFilter<"ExamAnswer"> | string
-    score?: FloatNullableFilter<"ExamAnswer"> | number | null
+    answer?: StringNullableFilter<"ExamAnswer"> | string | null
     createdAt?: DateTimeFilter<"ExamAnswer"> | Date | string
   }
 
@@ -19777,6 +21175,7 @@ export namespace Prisma {
     title: string
     company: string
     location: string
+    role: $Enums.JobRole
     type: $Enums.JobType
     level: $Enums.JobLevel
     tags: string
@@ -19793,6 +21192,7 @@ export namespace Prisma {
     title: string
     company: string
     location: string
+    role: $Enums.JobRole
     type: $Enums.JobType
     level: $Enums.JobLevel
     tags: string
@@ -19853,8 +21253,7 @@ export namespace Prisma {
 
   export type ExamAnswerCreateWithoutApplicationInput = {
     id?: string
-    answer: string
-    score?: number | null
+    answer?: string | null
     createdAt?: Date | string
     question: QuestionCreateNestedOneWithoutExamAnswersInput
   }
@@ -19862,8 +21261,7 @@ export namespace Prisma {
   export type ExamAnswerUncheckedCreateWithoutApplicationInput = {
     id?: string
     questionId: string
-    answer: string
-    score?: number | null
+    answer?: string | null
     createdAt?: Date | string
   }
 
@@ -19874,6 +21272,29 @@ export namespace Prisma {
 
   export type ExamAnswerCreateManyApplicationInputEnvelope = {
     data: ExamAnswerCreateManyApplicationInput | ExamAnswerCreateManyApplicationInput[]
+  }
+
+  export type ExamViolationCreateWithoutApplicationInput = {
+    id?: string
+    type: $Enums.ViolationType
+    message: string
+    createdAt?: Date | string
+  }
+
+  export type ExamViolationUncheckedCreateWithoutApplicationInput = {
+    id?: string
+    type: $Enums.ViolationType
+    message: string
+    createdAt?: Date | string
+  }
+
+  export type ExamViolationCreateOrConnectWithoutApplicationInput = {
+    where: ExamViolationWhereUniqueInput
+    create: XOR<ExamViolationCreateWithoutApplicationInput, ExamViolationUncheckedCreateWithoutApplicationInput>
+  }
+
+  export type ExamViolationCreateManyApplicationInputEnvelope = {
+    data: ExamViolationCreateManyApplicationInput | ExamViolationCreateManyApplicationInput[]
   }
 
   export type JobUpsertWithoutApplicationsInput = {
@@ -19892,6 +21313,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     company?: StringFieldUpdateOperationsInput | string
     location?: StringFieldUpdateOperationsInput | string
+    role?: EnumJobRoleFieldUpdateOperationsInput | $Enums.JobRole
     type?: EnumJobTypeFieldUpdateOperationsInput | $Enums.JobType
     level?: EnumJobLevelFieldUpdateOperationsInput | $Enums.JobLevel
     tags?: StringFieldUpdateOperationsInput | string
@@ -19908,6 +21330,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     company?: StringFieldUpdateOperationsInput | string
     location?: StringFieldUpdateOperationsInput | string
+    role?: EnumJobRoleFieldUpdateOperationsInput | $Enums.JobRole
     type?: EnumJobTypeFieldUpdateOperationsInput | $Enums.JobType
     level?: EnumJobLevelFieldUpdateOperationsInput | $Enums.JobLevel
     tags?: StringFieldUpdateOperationsInput | string
@@ -19987,8 +21410,36 @@ export namespace Prisma {
     data: XOR<ExamAnswerUpdateManyMutationInput, ExamAnswerUncheckedUpdateManyWithoutApplicationInput>
   }
 
+  export type ExamViolationUpsertWithWhereUniqueWithoutApplicationInput = {
+    where: ExamViolationWhereUniqueInput
+    update: XOR<ExamViolationUpdateWithoutApplicationInput, ExamViolationUncheckedUpdateWithoutApplicationInput>
+    create: XOR<ExamViolationCreateWithoutApplicationInput, ExamViolationUncheckedCreateWithoutApplicationInput>
+  }
+
+  export type ExamViolationUpdateWithWhereUniqueWithoutApplicationInput = {
+    where: ExamViolationWhereUniqueInput
+    data: XOR<ExamViolationUpdateWithoutApplicationInput, ExamViolationUncheckedUpdateWithoutApplicationInput>
+  }
+
+  export type ExamViolationUpdateManyWithWhereWithoutApplicationInput = {
+    where: ExamViolationScalarWhereInput
+    data: XOR<ExamViolationUpdateManyMutationInput, ExamViolationUncheckedUpdateManyWithoutApplicationInput>
+  }
+
+  export type ExamViolationScalarWhereInput = {
+    AND?: ExamViolationScalarWhereInput | ExamViolationScalarWhereInput[]
+    OR?: ExamViolationScalarWhereInput[]
+    NOT?: ExamViolationScalarWhereInput | ExamViolationScalarWhereInput[]
+    id?: StringFilter<"ExamViolation"> | string
+    applicationId?: StringFilter<"ExamViolation"> | string
+    type?: EnumViolationTypeFilter<"ExamViolation"> | $Enums.ViolationType
+    message?: StringFilter<"ExamViolation"> | string
+    createdAt?: DateTimeFilter<"ExamViolation"> | Date | string
+  }
+
   export type ApplicationCreateWithoutProjectsInput = {
     id?: string
+    role: $Enums.JobRole
     createdAt?: Date | string
     fullName: string
     email: string
@@ -20009,11 +21460,13 @@ export namespace Prisma {
     job: JobCreateNestedOneWithoutApplicationsInput
     scenarios?: ScenarioAnswerCreateNestedManyWithoutApplicationInput
     examAnswers?: ExamAnswerCreateNestedManyWithoutApplicationInput
+    violations?: ExamViolationCreateNestedManyWithoutApplicationInput
   }
 
   export type ApplicationUncheckedCreateWithoutProjectsInput = {
     id?: string
     jobId: string
+    role: $Enums.JobRole
     createdAt?: Date | string
     fullName: string
     email: string
@@ -20033,6 +21486,7 @@ export namespace Prisma {
     examSubmitted?: boolean
     scenarios?: ScenarioAnswerUncheckedCreateNestedManyWithoutApplicationInput
     examAnswers?: ExamAnswerUncheckedCreateNestedManyWithoutApplicationInput
+    violations?: ExamViolationUncheckedCreateNestedManyWithoutApplicationInput
   }
 
   export type ApplicationCreateOrConnectWithoutProjectsInput = {
@@ -20053,6 +21507,7 @@ export namespace Prisma {
 
   export type ApplicationUpdateWithoutProjectsInput = {
     id?: StringFieldUpdateOperationsInput | string
+    role?: EnumJobRoleFieldUpdateOperationsInput | $Enums.JobRole
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     fullName?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
@@ -20073,11 +21528,13 @@ export namespace Prisma {
     job?: JobUpdateOneRequiredWithoutApplicationsNestedInput
     scenarios?: ScenarioAnswerUpdateManyWithoutApplicationNestedInput
     examAnswers?: ExamAnswerUpdateManyWithoutApplicationNestedInput
+    violations?: ExamViolationUpdateManyWithoutApplicationNestedInput
   }
 
   export type ApplicationUncheckedUpdateWithoutProjectsInput = {
     id?: StringFieldUpdateOperationsInput | string
     jobId?: StringFieldUpdateOperationsInput | string
+    role?: EnumJobRoleFieldUpdateOperationsInput | $Enums.JobRole
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     fullName?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
@@ -20097,10 +21554,12 @@ export namespace Prisma {
     examSubmitted?: BoolFieldUpdateOperationsInput | boolean
     scenarios?: ScenarioAnswerUncheckedUpdateManyWithoutApplicationNestedInput
     examAnswers?: ExamAnswerUncheckedUpdateManyWithoutApplicationNestedInput
+    violations?: ExamViolationUncheckedUpdateManyWithoutApplicationNestedInput
   }
 
   export type ApplicationCreateWithoutScenariosInput = {
     id?: string
+    role: $Enums.JobRole
     createdAt?: Date | string
     fullName: string
     email: string
@@ -20121,11 +21580,13 @@ export namespace Prisma {
     job: JobCreateNestedOneWithoutApplicationsInput
     projects?: ProjectCreateNestedManyWithoutApplicationInput
     examAnswers?: ExamAnswerCreateNestedManyWithoutApplicationInput
+    violations?: ExamViolationCreateNestedManyWithoutApplicationInput
   }
 
   export type ApplicationUncheckedCreateWithoutScenariosInput = {
     id?: string
     jobId: string
+    role: $Enums.JobRole
     createdAt?: Date | string
     fullName: string
     email: string
@@ -20145,6 +21606,7 @@ export namespace Prisma {
     examSubmitted?: boolean
     projects?: ProjectUncheckedCreateNestedManyWithoutApplicationInput
     examAnswers?: ExamAnswerUncheckedCreateNestedManyWithoutApplicationInput
+    violations?: ExamViolationUncheckedCreateNestedManyWithoutApplicationInput
   }
 
   export type ApplicationCreateOrConnectWithoutScenariosInput = {
@@ -20165,6 +21627,7 @@ export namespace Prisma {
 
   export type ApplicationUpdateWithoutScenariosInput = {
     id?: StringFieldUpdateOperationsInput | string
+    role?: EnumJobRoleFieldUpdateOperationsInput | $Enums.JobRole
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     fullName?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
@@ -20185,11 +21648,13 @@ export namespace Prisma {
     job?: JobUpdateOneRequiredWithoutApplicationsNestedInput
     projects?: ProjectUpdateManyWithoutApplicationNestedInput
     examAnswers?: ExamAnswerUpdateManyWithoutApplicationNestedInput
+    violations?: ExamViolationUpdateManyWithoutApplicationNestedInput
   }
 
   export type ApplicationUncheckedUpdateWithoutScenariosInput = {
     id?: StringFieldUpdateOperationsInput | string
     jobId?: StringFieldUpdateOperationsInput | string
+    role?: EnumJobRoleFieldUpdateOperationsInput | $Enums.JobRole
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     fullName?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
@@ -20209,6 +21674,7 @@ export namespace Prisma {
     examSubmitted?: BoolFieldUpdateOperationsInput | boolean
     projects?: ProjectUncheckedUpdateManyWithoutApplicationNestedInput
     examAnswers?: ExamAnswerUncheckedUpdateManyWithoutApplicationNestedInput
+    violations?: ExamViolationUncheckedUpdateManyWithoutApplicationNestedInput
   }
 
   export type QuestionCreateWithoutExamAnswersInput = {
@@ -20246,6 +21712,7 @@ export namespace Prisma {
 
   export type ApplicationCreateWithoutExamAnswersInput = {
     id?: string
+    role: $Enums.JobRole
     createdAt?: Date | string
     fullName: string
     email: string
@@ -20266,11 +21733,13 @@ export namespace Prisma {
     job: JobCreateNestedOneWithoutApplicationsInput
     projects?: ProjectCreateNestedManyWithoutApplicationInput
     scenarios?: ScenarioAnswerCreateNestedManyWithoutApplicationInput
+    violations?: ExamViolationCreateNestedManyWithoutApplicationInput
   }
 
   export type ApplicationUncheckedCreateWithoutExamAnswersInput = {
     id?: string
     jobId: string
+    role: $Enums.JobRole
     createdAt?: Date | string
     fullName: string
     email: string
@@ -20290,6 +21759,7 @@ export namespace Prisma {
     examSubmitted?: boolean
     projects?: ProjectUncheckedCreateNestedManyWithoutApplicationInput
     scenarios?: ScenarioAnswerUncheckedCreateNestedManyWithoutApplicationInput
+    violations?: ExamViolationUncheckedCreateNestedManyWithoutApplicationInput
   }
 
   export type ApplicationCreateOrConnectWithoutExamAnswersInput = {
@@ -20349,6 +21819,7 @@ export namespace Prisma {
 
   export type ApplicationUpdateWithoutExamAnswersInput = {
     id?: StringFieldUpdateOperationsInput | string
+    role?: EnumJobRoleFieldUpdateOperationsInput | $Enums.JobRole
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     fullName?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
@@ -20369,11 +21840,13 @@ export namespace Prisma {
     job?: JobUpdateOneRequiredWithoutApplicationsNestedInput
     projects?: ProjectUpdateManyWithoutApplicationNestedInput
     scenarios?: ScenarioAnswerUpdateManyWithoutApplicationNestedInput
+    violations?: ExamViolationUpdateManyWithoutApplicationNestedInput
   }
 
   export type ApplicationUncheckedUpdateWithoutExamAnswersInput = {
     id?: StringFieldUpdateOperationsInput | string
     jobId?: StringFieldUpdateOperationsInput | string
+    role?: EnumJobRoleFieldUpdateOperationsInput | $Enums.JobRole
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     fullName?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
@@ -20393,6 +21866,127 @@ export namespace Prisma {
     examSubmitted?: BoolFieldUpdateOperationsInput | boolean
     projects?: ProjectUncheckedUpdateManyWithoutApplicationNestedInput
     scenarios?: ScenarioAnswerUncheckedUpdateManyWithoutApplicationNestedInput
+    violations?: ExamViolationUncheckedUpdateManyWithoutApplicationNestedInput
+  }
+
+  export type ApplicationCreateWithoutViolationsInput = {
+    id?: string
+    role: $Enums.JobRole
+    createdAt?: Date | string
+    fullName: string
+    email: string
+    mobile?: string | null
+    linkedin?: string | null
+    github?: string | null
+    portfolio?: string | null
+    university: string
+    degree: string
+    specialization?: string | null
+    cgpa?: string | null
+    awards?: string | null
+    programmingLanguages: string
+    frameworks?: string | null
+    softwareProficiency?: string | null
+    lockedQuestions?: NullableJsonNullValueInput | InputJsonValue
+    examSubmitted?: boolean
+    job: JobCreateNestedOneWithoutApplicationsInput
+    projects?: ProjectCreateNestedManyWithoutApplicationInput
+    scenarios?: ScenarioAnswerCreateNestedManyWithoutApplicationInput
+    examAnswers?: ExamAnswerCreateNestedManyWithoutApplicationInput
+  }
+
+  export type ApplicationUncheckedCreateWithoutViolationsInput = {
+    id?: string
+    jobId: string
+    role: $Enums.JobRole
+    createdAt?: Date | string
+    fullName: string
+    email: string
+    mobile?: string | null
+    linkedin?: string | null
+    github?: string | null
+    portfolio?: string | null
+    university: string
+    degree: string
+    specialization?: string | null
+    cgpa?: string | null
+    awards?: string | null
+    programmingLanguages: string
+    frameworks?: string | null
+    softwareProficiency?: string | null
+    lockedQuestions?: NullableJsonNullValueInput | InputJsonValue
+    examSubmitted?: boolean
+    projects?: ProjectUncheckedCreateNestedManyWithoutApplicationInput
+    scenarios?: ScenarioAnswerUncheckedCreateNestedManyWithoutApplicationInput
+    examAnswers?: ExamAnswerUncheckedCreateNestedManyWithoutApplicationInput
+  }
+
+  export type ApplicationCreateOrConnectWithoutViolationsInput = {
+    where: ApplicationWhereUniqueInput
+    create: XOR<ApplicationCreateWithoutViolationsInput, ApplicationUncheckedCreateWithoutViolationsInput>
+  }
+
+  export type ApplicationUpsertWithoutViolationsInput = {
+    update: XOR<ApplicationUpdateWithoutViolationsInput, ApplicationUncheckedUpdateWithoutViolationsInput>
+    create: XOR<ApplicationCreateWithoutViolationsInput, ApplicationUncheckedCreateWithoutViolationsInput>
+    where?: ApplicationWhereInput
+  }
+
+  export type ApplicationUpdateToOneWithWhereWithoutViolationsInput = {
+    where?: ApplicationWhereInput
+    data: XOR<ApplicationUpdateWithoutViolationsInput, ApplicationUncheckedUpdateWithoutViolationsInput>
+  }
+
+  export type ApplicationUpdateWithoutViolationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    role?: EnumJobRoleFieldUpdateOperationsInput | $Enums.JobRole
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    fullName?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    mobile?: NullableStringFieldUpdateOperationsInput | string | null
+    linkedin?: NullableStringFieldUpdateOperationsInput | string | null
+    github?: NullableStringFieldUpdateOperationsInput | string | null
+    portfolio?: NullableStringFieldUpdateOperationsInput | string | null
+    university?: StringFieldUpdateOperationsInput | string
+    degree?: StringFieldUpdateOperationsInput | string
+    specialization?: NullableStringFieldUpdateOperationsInput | string | null
+    cgpa?: NullableStringFieldUpdateOperationsInput | string | null
+    awards?: NullableStringFieldUpdateOperationsInput | string | null
+    programmingLanguages?: StringFieldUpdateOperationsInput | string
+    frameworks?: NullableStringFieldUpdateOperationsInput | string | null
+    softwareProficiency?: NullableStringFieldUpdateOperationsInput | string | null
+    lockedQuestions?: NullableJsonNullValueInput | InputJsonValue
+    examSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    job?: JobUpdateOneRequiredWithoutApplicationsNestedInput
+    projects?: ProjectUpdateManyWithoutApplicationNestedInput
+    scenarios?: ScenarioAnswerUpdateManyWithoutApplicationNestedInput
+    examAnswers?: ExamAnswerUpdateManyWithoutApplicationNestedInput
+  }
+
+  export type ApplicationUncheckedUpdateWithoutViolationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    jobId?: StringFieldUpdateOperationsInput | string
+    role?: EnumJobRoleFieldUpdateOperationsInput | $Enums.JobRole
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    fullName?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    mobile?: NullableStringFieldUpdateOperationsInput | string | null
+    linkedin?: NullableStringFieldUpdateOperationsInput | string | null
+    github?: NullableStringFieldUpdateOperationsInput | string | null
+    portfolio?: NullableStringFieldUpdateOperationsInput | string | null
+    university?: StringFieldUpdateOperationsInput | string
+    degree?: StringFieldUpdateOperationsInput | string
+    specialization?: NullableStringFieldUpdateOperationsInput | string | null
+    cgpa?: NullableStringFieldUpdateOperationsInput | string | null
+    awards?: NullableStringFieldUpdateOperationsInput | string | null
+    programmingLanguages?: StringFieldUpdateOperationsInput | string
+    frameworks?: NullableStringFieldUpdateOperationsInput | string | null
+    softwareProficiency?: NullableStringFieldUpdateOperationsInput | string | null
+    lockedQuestions?: NullableJsonNullValueInput | InputJsonValue
+    examSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    projects?: ProjectUncheckedUpdateManyWithoutApplicationNestedInput
+    scenarios?: ScenarioAnswerUncheckedUpdateManyWithoutApplicationNestedInput
+    examAnswers?: ExamAnswerUncheckedUpdateManyWithoutApplicationNestedInput
   }
 
   export type AccountCreateManyUserInput = {
@@ -20504,6 +22098,7 @@ export namespace Prisma {
 
   export type ApplicationCreateManyJobInput = {
     id?: string
+    role: $Enums.JobRole
     createdAt?: Date | string
     fullName: string
     email: string
@@ -20525,6 +22120,7 @@ export namespace Prisma {
 
   export type ApplicationUpdateWithoutJobInput = {
     id?: StringFieldUpdateOperationsInput | string
+    role?: EnumJobRoleFieldUpdateOperationsInput | $Enums.JobRole
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     fullName?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
@@ -20545,10 +22141,12 @@ export namespace Prisma {
     projects?: ProjectUpdateManyWithoutApplicationNestedInput
     scenarios?: ScenarioAnswerUpdateManyWithoutApplicationNestedInput
     examAnswers?: ExamAnswerUpdateManyWithoutApplicationNestedInput
+    violations?: ExamViolationUpdateManyWithoutApplicationNestedInput
   }
 
   export type ApplicationUncheckedUpdateWithoutJobInput = {
     id?: StringFieldUpdateOperationsInput | string
+    role?: EnumJobRoleFieldUpdateOperationsInput | $Enums.JobRole
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     fullName?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
@@ -20569,10 +22167,12 @@ export namespace Prisma {
     projects?: ProjectUncheckedUpdateManyWithoutApplicationNestedInput
     scenarios?: ScenarioAnswerUncheckedUpdateManyWithoutApplicationNestedInput
     examAnswers?: ExamAnswerUncheckedUpdateManyWithoutApplicationNestedInput
+    violations?: ExamViolationUncheckedUpdateManyWithoutApplicationNestedInput
   }
 
   export type ApplicationUncheckedUpdateManyWithoutJobInput = {
     id?: StringFieldUpdateOperationsInput | string
+    role?: EnumJobRoleFieldUpdateOperationsInput | $Enums.JobRole
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     fullName?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
@@ -20601,8 +22201,7 @@ export namespace Prisma {
   export type ExamAnswerCreateManyQuestionInput = {
     id?: string
     applicationId: string
-    answer: string
-    score?: number | null
+    answer?: string | null
     createdAt?: Date | string
   }
 
@@ -20626,8 +22225,7 @@ export namespace Prisma {
 
   export type ExamAnswerUpdateWithoutQuestionInput = {
     id?: StringFieldUpdateOperationsInput | string
-    answer?: StringFieldUpdateOperationsInput | string
-    score?: NullableFloatFieldUpdateOperationsInput | number | null
+    answer?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     application?: ApplicationUpdateOneRequiredWithoutExamAnswersNestedInput
   }
@@ -20635,16 +22233,14 @@ export namespace Prisma {
   export type ExamAnswerUncheckedUpdateWithoutQuestionInput = {
     id?: StringFieldUpdateOperationsInput | string
     applicationId?: StringFieldUpdateOperationsInput | string
-    answer?: StringFieldUpdateOperationsInput | string
-    score?: NullableFloatFieldUpdateOperationsInput | number | null
+    answer?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ExamAnswerUncheckedUpdateManyWithoutQuestionInput = {
     id?: StringFieldUpdateOperationsInput | string
     applicationId?: StringFieldUpdateOperationsInput | string
-    answer?: StringFieldUpdateOperationsInput | string
-    score?: NullableFloatFieldUpdateOperationsInput | number | null
+    answer?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -20663,8 +22259,14 @@ export namespace Prisma {
   export type ExamAnswerCreateManyApplicationInput = {
     id?: string
     questionId: string
-    answer: string
-    score?: number | null
+    answer?: string | null
+    createdAt?: Date | string
+  }
+
+  export type ExamViolationCreateManyApplicationInput = {
+    id?: string
+    type: $Enums.ViolationType
+    message: string
     createdAt?: Date | string
   }
 
@@ -20706,8 +22308,7 @@ export namespace Prisma {
 
   export type ExamAnswerUpdateWithoutApplicationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    answer?: StringFieldUpdateOperationsInput | string
-    score?: NullableFloatFieldUpdateOperationsInput | number | null
+    answer?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     question?: QuestionUpdateOneRequiredWithoutExamAnswersNestedInput
   }
@@ -20715,16 +22316,35 @@ export namespace Prisma {
   export type ExamAnswerUncheckedUpdateWithoutApplicationInput = {
     id?: StringFieldUpdateOperationsInput | string
     questionId?: StringFieldUpdateOperationsInput | string
-    answer?: StringFieldUpdateOperationsInput | string
-    score?: NullableFloatFieldUpdateOperationsInput | number | null
+    answer?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ExamAnswerUncheckedUpdateManyWithoutApplicationInput = {
     id?: StringFieldUpdateOperationsInput | string
     questionId?: StringFieldUpdateOperationsInput | string
-    answer?: StringFieldUpdateOperationsInput | string
-    score?: NullableFloatFieldUpdateOperationsInput | number | null
+    answer?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ExamViolationUpdateWithoutApplicationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumViolationTypeFieldUpdateOperationsInput | $Enums.ViolationType
+    message?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ExamViolationUncheckedUpdateWithoutApplicationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumViolationTypeFieldUpdateOperationsInput | $Enums.ViolationType
+    message?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ExamViolationUncheckedUpdateManyWithoutApplicationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumViolationTypeFieldUpdateOperationsInput | $Enums.ViolationType
+    message?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 

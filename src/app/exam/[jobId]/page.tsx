@@ -1,3 +1,4 @@
+//smart-screening\src\app\exam\[jobId]\page.tsx
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
@@ -56,15 +57,17 @@ export default function ExamPage() {
 
   const { data, isLoading } = api.exam.getQuestions.useQuery(
   {
-    role: "SOFTWARE_ENGINEER",
     applicationId: appId!,
   },
-  { enabled: !!appId }
+  {
+    enabled: !!appId,
+  }
 );
 
 const questions = data as QuestionType[] | undefined;
 
   const submitExam = api.exam.submit.useMutation();
+  const logViolationMutation = api.exam.logViolation.useMutation();
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
@@ -135,38 +138,65 @@ const questions = data as QuestionType[] | undefined;
   // VIOLATION SYSTEM
   // ─────────────────────────────────────────────
   const triggerViolation = useCallback(
-    (type: ViolationType) => {
-      setViolations((prev) => {
-        const count = prev.length + 1;
-        const event: ViolationEvent = {
-          type,
-          message: violationLabel[type],
-          timestamp: new Date(),
-        };
-        const next = [...prev, event];
+  (type: ViolationType) => {
+    setViolations((prev) => {
+      const count = prev.length + 1;
 
-        setActiveAlert(event);
-        if (alertTimeoutRef.current) clearTimeout(alertTimeoutRef.current);
-        alertTimeoutRef.current = setTimeout(() => setActiveAlert(null), 6000);
+      const event: ViolationEvent = {
+        type,
+        message: violationLabel[type],
+        timestamp: new Date(),
+      };
 
-        if (count >= MAX_VIOLATIONS) {
-          setTerminated(true);
-          stopCamera();
-          // Exit fullscreen first, then redirect after short delay
-          setTimeout(async () => {
-            await exitFullscreen();
-            setTimeout(() => router.push("/"), 600);
-          }, 3500);
-        } else {
-          // Re-enter fullscreen without closing it
-          enterFullscreen();
-        }
+      const next = [...prev, event];
 
-        return next;
-      });
+      // 🔥 SAVE TO DATABASE
+      if (appId) {
+        logViolationMutation.mutate(
+  {
+    applicationId: appId,
+    type,
+    message: violationLabel[type],
+  },
+  {
+    onSuccess: (data) => {
+      if (data.terminated) {
+        setTerminated(true);
+      }
     },
-    [enterFullscreen, exitFullscreen, stopCamera, router]
-  );
+  }
+);
+      }
+
+      setActiveAlert(event);
+
+      if (alertTimeoutRef.current) clearTimeout(alertTimeoutRef.current);
+      alertTimeoutRef.current = setTimeout(() => setActiveAlert(null), 6000);
+
+      if (count >= MAX_VIOLATIONS) {
+        setTerminated(true);
+        stopCamera();
+
+        setTimeout(async () => {
+          await exitFullscreen();
+          setTimeout(() => router.push("/"), 600);
+        }, 3500);
+      } else {
+        enterFullscreen();
+      }
+
+      return next;
+    });
+  },
+  [
+    appId,
+    logViolationMutation,
+    enterFullscreen,
+    exitFullscreen,
+    stopCamera,
+    router,
+  ]
+);
 
   // ─────────────────────────────────────────────
   // ANTI-CHEAT — only active during exam

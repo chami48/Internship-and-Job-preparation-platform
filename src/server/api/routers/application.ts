@@ -35,9 +35,21 @@ export const applicationRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
+
+      // ✅ 1. Find the job first
+      const job = await ctx.db.job.findUnique({
+        where: { id: input.jobId },
+      });
+
+      if (!job) {
+        throw new Error("Job not found");
+      }
+
+      // ✅ 2. Create application with role from job
       return ctx.db.application.create({
         data: {
           jobId: input.jobId,
+          role: job.role, // ⭐ IMPORTANT FIX
 
           fullName: input.fullName,
           email: input.email,

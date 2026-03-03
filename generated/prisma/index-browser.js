@@ -167,6 +167,7 @@ exports.Prisma.JobScalarFieldEnum = {
   title: 'title',
   company: 'company',
   location: 'location',
+  role: 'role',
   type: 'type',
   level: 'level',
   tags: 'tags',
@@ -201,6 +202,7 @@ exports.Prisma.OptionScalarFieldEnum = {
 exports.Prisma.ApplicationScalarFieldEnum = {
   id: 'id',
   jobId: 'jobId',
+  role: 'role',
   createdAt: 'createdAt',
   fullName: 'fullName',
   email: 'email',
@@ -239,7 +241,14 @@ exports.Prisma.ExamAnswerScalarFieldEnum = {
   questionId: 'questionId',
   applicationId: 'applicationId',
   answer: 'answer',
-  score: 'score',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.ExamViolationScalarFieldEnum = {
+  id: 'id',
+  applicationId: 'applicationId',
+  type: 'type',
+  message: 'message',
   createdAt: 'createdAt'
 };
 
@@ -268,6 +277,12 @@ exports.Prisma.QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
 };
+exports.JobRole = exports.$Enums.JobRole = {
+  SOFTWARE_ENGINEER: 'SOFTWARE_ENGINEER',
+  UX_ENGINEER: 'UX_ENGINEER',
+  PROJECT_MANAGER: 'PROJECT_MANAGER'
+};
+
 exports.JobType = exports.$Enums.JobType = {
   INTERNSHIP: 'INTERNSHIP',
   FULL_TIME: 'FULL_TIME'
@@ -279,12 +294,6 @@ exports.JobLevel = exports.$Enums.JobLevel = {
   SENIOR: 'SENIOR'
 };
 
-exports.JobRole = exports.$Enums.JobRole = {
-  SOFTWARE_ENGINEER: 'SOFTWARE_ENGINEER',
-  UX_ENGINEER: 'UX_ENGINEER',
-  PROJECT_MANAGER: 'PROJECT_MANAGER'
-};
-
 exports.QuestionType = exports.$Enums.QuestionType = {
   MCQ: 'MCQ',
   SCENARIO: 'SCENARIO'
@@ -294,6 +303,14 @@ exports.Difficulty = exports.$Enums.Difficulty = {
   EASY: 'EASY',
   MEDIUM: 'MEDIUM',
   HARD: 'HARD'
+};
+
+exports.ViolationType = exports.$Enums.ViolationType = {
+  FULLSCREEN_EXIT: 'FULLSCREEN_EXIT',
+  TAB_SWITCH: 'TAB_SWITCH',
+  COPY_PASTE_RIGHTCLICK: 'COPY_PASTE_RIGHTCLICK',
+  SCREENSHOT_ATTEMPT: 'SCREENSHOT_ATTEMPT',
+  DEV_TOOLS: 'DEV_TOOLS'
 };
 
 exports.Prisma.ModelName = {
@@ -308,7 +325,8 @@ exports.Prisma.ModelName = {
   Application: 'Application',
   Project: 'Project',
   ScenarioAnswer: 'ScenarioAnswer',
-  ExamAnswer: 'ExamAnswer'
+  ExamAnswer: 'ExamAnswer',
+  ExamViolation: 'ExamViolation'
 };
 
 /**
