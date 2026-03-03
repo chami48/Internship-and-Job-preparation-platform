@@ -162,13 +162,22 @@ exports.Prisma.VerificationTokenScalarFieldEnum = {
   expires: 'expires'
 };
 
+exports.Prisma.CompanyScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  email: 'email',
+  description: 'description',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.JobScalarFieldEnum = {
   id: 'id',
   title: 'title',
-  company: 'company',
+  companyId: 'companyId',
   location: 'location',
-  role: 'role',
   type: 'type',
+  role: 'role',
   level: 'level',
   tags: 'tags',
   salary: 'salary',
@@ -277,15 +286,15 @@ exports.Prisma.QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
 };
+exports.JobType = exports.$Enums.JobType = {
+  INTERNSHIP: 'INTERNSHIP',
+  FULL_TIME: 'FULL_TIME'
+};
+
 exports.JobRole = exports.$Enums.JobRole = {
   SOFTWARE_ENGINEER: 'SOFTWARE_ENGINEER',
   UX_ENGINEER: 'UX_ENGINEER',
   PROJECT_MANAGER: 'PROJECT_MANAGER'
-};
-
-exports.JobType = exports.$Enums.JobType = {
-  INTERNSHIP: 'INTERNSHIP',
-  FULL_TIME: 'FULL_TIME'
 };
 
 exports.JobLevel = exports.$Enums.JobLevel = {
@@ -319,6 +328,7 @@ exports.Prisma.ModelName = {
   Session: 'Session',
   User: 'User',
   VerificationToken: 'VerificationToken',
+  Company: 'Company',
   Job: 'Job',
   Question: 'Question',
   Option: 'Option',

@@ -80,6 +80,17 @@ model VerificationToken {
 // Module 2 - Job Management
 //////////////////////////////////////////////////////
 
+model Company {
+  id          String   @id @default(cuid())
+  name        String
+  email       String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  jobs Job[]
+}
+
 enum JobType {
   INTERNSHIP
   FULL_TIME
@@ -92,11 +103,13 @@ enum JobLevel {
 }
 
 model Job {
-  id       String   @id @default(cuid())
-  title    String
-  company  String
+  id    String @id @default(cuid())
+  title String
+
+  company   Company @relation(fields: [companyId], references: [id])
+  companyId String
+
   location String
-  role     JobRole
   type     JobType
   level    JobLevel
   tags     String
@@ -225,7 +238,7 @@ model ExamAnswer {
   id            String   @id @default(cuid())
   questionId    String
   applicationId String
-  answer        String
+  answer        String?
   createdAt     DateTime @default(now())
 
   question    Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
