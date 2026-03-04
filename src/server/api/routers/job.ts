@@ -5,6 +5,9 @@ import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 export const jobRouter = createTRPCRouter({
   list: publicProcedure.query(async ({ ctx }) => {
     return ctx.db.job.findMany({
+      include: {
+        company: true,
+      },
       orderBy: { createdAt: "desc" },
     });
   }),
@@ -14,6 +17,9 @@ export const jobRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const job = await ctx.db.job.findUnique({
         where: { id: input.id },
+        include: {
+          company: true,
+        },
       });
 
       if (!job) throw new Error("Job not found");

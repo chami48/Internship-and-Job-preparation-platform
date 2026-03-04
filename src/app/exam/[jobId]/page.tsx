@@ -134,6 +134,8 @@ const questions = data as QuestionType[] | undefined;
     mediaStreamRef.current = null;
   }, []);
 
+  
+
   // ─────────────────────────────────────────────
   // VIOLATION SYSTEM
   // ─────────────────────────────────────────────
@@ -169,6 +171,7 @@ const questions = data as QuestionType[] | undefined;
       }
 
       setActiveAlert(event);
+      window.focus();
 
       if (alertTimeoutRef.current) clearTimeout(alertTimeoutRef.current);
       alertTimeoutRef.current = setTimeout(() => setActiveAlert(null), 6000);
@@ -182,7 +185,8 @@ const questions = data as QuestionType[] | undefined;
           setTimeout(() => router.push("/"), 600);
         }, 3500);
       } else {
-        enterFullscreen();
+        if (!document.fullscreenElement) {
+        enterFullscreen();}
       }
 
       return next;
@@ -286,6 +290,91 @@ const questions = data as QuestionType[] | undefined;
     return () => clearInterval(id);
   }, [examStarted, triggerViolation]);
 
+  // DEV TOOLS DETECTION
+useEffect(() => {
+  if (!examStarted) return;
+  let devOpen = false;
+  const check = () => {
+    const w = window.outerWidth - window.innerWidth > 160;
+    const h = window.outerHeight - window.innerHeight > 160;
+    if ((w || h) && !devOpen) {
+      devOpen = true;
+      triggerViolation("DEV_TOOLS");
+    } else if (!w && !h) {
+      devOpen = false;
+    }
+  };
+  const id = setInterval(check, 1500);
+  return () => clearInterval(id);
+}, [examStarted, triggerViolation]);
+
+// ─────────────────────────────────────────────
+// BLOCK PAGE REFRESH (F5 / CTRL+R)
+// ─────────────────────────────────────────────
+// ─────────────────────────────────────────────
+// BLOCK REFRESH + ESC + PRINTSCREEN
+// ─────────────────────────────────────────────
+useEffect(() => {
+  if (!examStarted) return;
+
+  const preventKeys = (e: KeyboardEvent) => {
+
+    // REFRESH BLOCK
+    if (
+      e.key === "F5" ||
+      (e.ctrlKey && e.key.toLowerCase() === "r") ||
+      (e.metaKey && e.key.toLowerCase() === "r")
+    ) {
+      e.preventDefault();
+      triggerViolation("TAB_SWITCH");
+    }
+
+    // ESC KEY BLOCK (exit fullscreen)
+    if (e.key === "Escape") {
+  e.preventDefault();
+  triggerViolation("FULLSCREEN_EXIT");
+  document.documentElement.requestFullscreen();
+}
+
+    // PRINT SCREEN BLOCK
+    if (e.key === "PrintScreen") {
+      e.preventDefault();
+      triggerViolation("SCREENSHOT_ATTEMPT");
+    }
+
+  };
+
+  document.addEventListener("keydown", preventKeys);
+
+  return () => {
+    document.removeEventListener("keydown", preventKeys);
+  };
+
+}, [examStarted, triggerViolation]);
+
+// ─────────────────────────────────────────────
+// BLOCK NEW TAB / NEW WINDOW
+// ─────────────────────────────────────────────
+useEffect(() => {
+  if (!examStarted) return;
+
+  const blockShortcuts = (e: KeyboardEvent) => {
+    if (
+      (e.ctrlKey || e.metaKey) &&
+      ["t", "n"].includes(e.key.toLowerCase())
+    ) {
+      e.preventDefault();
+      triggerViolation("TAB_SWITCH");
+    }
+  };
+
+  document.addEventListener("keydown", blockShortcuts);
+
+  return () => {
+    document.removeEventListener("keydown", blockShortcuts);
+  };
+}, [examStarted, triggerViolation]);
+
   // ─────────────────────────────────────────────
   // TOTAL TIMER
   // ─────────────────────────────────────────────
@@ -303,6 +392,46 @@ const questions = data as QuestionType[] | undefined;
     }, 1000);
     return () => clearInterval(timer);
   }, [examStarted]);
+
+  // ─────────────────────────────────────────────
+// DETECT BROWSER MINIMIZE
+// ─────────────────────────────────────────────
+useEffect(() => {
+  if (!examStarted) return;
+
+  const handleVisibility = () => {
+    if (document.hidden) {
+      triggerViolation("TAB_SWITCH");
+    }
+  };
+
+  document.addEventListener("visibilitychange", handleVisibility);
+
+  return () => {
+    document.removeEventListener("visibilitychange", handleVisibility);
+  };
+}, [examStarted, triggerViolation]);
+
+  // ─────────────────────────────────────────────
+// DETECT WINDOW RESIZE / SPLIT SCREEN
+// ─────────────────────────────────────────────
+useEffect(() => {
+  if (!examStarted) return;
+
+  const detectResize = () => {
+    const widthRatio = window.innerWidth / screen.width;
+
+    if (widthRatio < 0.8) {
+      triggerViolation("TAB_SWITCH");
+    }
+  };
+
+  window.addEventListener("resize", detectResize);
+
+  return () => {
+    window.removeEventListener("resize", detectResize);
+  };
+}, [examStarted, triggerViolation]);
 
   // ─────────────────────────────────────────────
   // PER-QUESTION TIMER
@@ -418,7 +547,7 @@ const questions = data as QuestionType[] | undefined;
                   Technical Assessment
                 </p>
                 <h1 className="text-xl font-bold text-slate-800 leading-tight">
-                  Software Engineer Examination
+                  Role Based Examination
                 </h1>
               </div>
             </div>
@@ -509,7 +638,7 @@ const questions = data as QuestionType[] | undefined;
           <button
             onClick={handleStartExam}
             disabled={startingExam}
-            className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold rounded-xl transition-colors text-sm shadow-sm flex items-center justify-center gap-2"
+            className="w-full py-3.5 bg-slate-900 hover:bg-sky-500 disabled:bg-slate-700 text-white font-semibold rounded-xl transition-colors text-sm shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
           >
             {startingExam ? (
               <>
@@ -933,7 +1062,7 @@ const questions = data as QuestionType[] | undefined;
           </div>
           <button
             onClick={goNext}
-            className="flex items-center gap-2 px-7 py-3 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold rounded-xl transition-colors text-sm shadow-sm shadow-blue-200/60"
+            className="flex items-center gap-2 px-6 py-3 bg-slate-900 hover:bg-sky-500 text-white font-medium rounded-2xl transition-colors text-sm disabled:opacity-50"
           >
             {currentIndex < questions.length - 1 ? "Next Question →" : "Submit Exam ✓"}
           </button>

@@ -1,3 +1,4 @@
+//smart-screening\src\app\apply\[jobId]\agreement\page.tsx
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
