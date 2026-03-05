@@ -4,6 +4,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { api } from "~/trpc/react";
 import { useEffect, useRef, useState, useCallback } from "react";
+import * as faceapi from "face-api.js";
 
 // ─────────────────────────────────────────────
 // TYPES
@@ -20,7 +21,9 @@ type ViolationType =
   | "TAB_SWITCH"
   | "COPY_PASTE_RIGHTCLICK"
   | "SCREENSHOT_ATTEMPT"
-  | "DEV_TOOLS";
+  | "DEV_TOOLS"
+  | "FACE_NOT_DETECTED"
+  | "MULTIPLE_FACES";
 
 interface ViolationEvent {
   type: ViolationType;
@@ -45,6 +48,8 @@ const violationLabel: Record<ViolationType, string> = {
   COPY_PASTE_RIGHTCLICK: "Copy / Paste / Right-click attempt",
   SCREENSHOT_ATTEMPT: "Screenshot attempt detected",
   DEV_TOOLS: "Developer tools opened",
+  FACE_NOT_DETECTED: "No face detected in camera",
+  MULTIPLE_FACES: "Multiple faces detected in camera",
 };
 
 // ─────────────────────────────────────────────
@@ -252,6 +257,7 @@ const questions = data as QuestionType[] | undefined;
       if (e.key === "PrintScreen") {
         e.preventDefault();
         triggerViolation("SCREENSHOT_ATTEMPT");
+        navigator.clipboard.writeText("").catch(() => {});
       }
       if (
         (e.ctrlKey || e.metaKey) &&
@@ -375,6 +381,54 @@ useEffect(() => {
   };
 }, [examStarted, triggerViolation]);
 
+// ─────────────────────────────────────────────
+// AI FACE MONITORING
+// ─────────────────────────────────────────────
+useEffect(() => {
+  let noFaceCounter = 0;
+  let multipleFaceCounter = 0;
+
+  const detectFaces = async () => {
+    if (!videoRef.current) return;
+
+    try {
+      const detections = await faceapi.detectAllFaces(
+        videoRef.current,
+        new faceapi.TinyFaceDetectorOptions()
+      );
+
+      // ❌ No face detected
+      if (detections.length === 0) {
+        noFaceCounter++;
+
+        if (noFaceCounter >= 3) {
+          triggerViolation("FACE_NOT_DETECTED");
+          noFaceCounter = 0;
+        }
+      } else {
+        noFaceCounter = 0;
+      }
+
+      // ❌ Multiple faces detected
+      if (detections.length > 1) {
+        multipleFaceCounter++;
+
+        if (multipleFaceCounter >= 2) {
+          triggerViolation("MULTIPLE_FACES");
+          multipleFaceCounter = 0;
+        }
+      } else {
+        multipleFaceCounter = 0;
+      }
+    } catch (err) {
+      console.error("Face detection error:", err);
+    }
+  };
+
+  const interval = setInterval(detectFaces, 4000); // check every 4 seconds
+
+  return () => clearInterval(interval);
+}, [triggerViolation]);
   // ─────────────────────────────────────────────
   // TOTAL TIMER
   // ─────────────────────────────────────────────
@@ -418,11 +472,20 @@ useEffect(() => {
 useEffect(() => {
   if (!examStarted) return;
 
+  let lastViolation = 0;
+
   const detectResize = () => {
     const widthRatio = window.innerWidth / screen.width;
 
     if (widthRatio < 0.8) {
-      triggerViolation("TAB_SWITCH");
+
+      const now = Date.now();
+
+      if (now - lastViolation > 4000) {
+        lastViolation = now;
+        triggerViolation("TAB_SWITCH");
+      }
+
     }
   };
 
@@ -431,6 +494,7 @@ useEffect(() => {
   return () => {
     window.removeEventListener("resize", detectResize);
   };
+
 }, [examStarted, triggerViolation]);
 
   // ─────────────────────────────────────────────
@@ -492,17 +556,24 @@ useEffect(() => {
   // START EXAM — fullscreen starts ONLY here
   // ─────────────────────────────────────────────
   const handleStartExam = async () => {
-    setStartingExam(true);
-    setCameraError(null);
-    const camOk = await startCamera();
-    if (!camOk) {
-      setStartingExam(false);
-      return;
-    }
-    await enterFullscreen(); // ← fullscreen begins here, NOT before
-    setExamStarted(true);
+  setStartingExam(true);
+  setCameraError(null);
+
+  const camOk = await startCamera();
+
+  if (!camOk) {
     setStartingExam(false);
-  };
+    return;
+  }
+
+  // load face detection model
+  await faceapi.nets.tinyFaceDetector.loadFromUri("/models");
+
+  await enterFullscreen();
+
+  setExamStarted(true);
+  setStartingExam(false);
+};
 
   // Cleanup on unmount
   useEffect(() => {
@@ -694,6 +765,18 @@ useEffect(() => {
   if (submitted) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
+
+      {/* Camera for Face Detection */}
+    <div className="fixed bottom-4 right-4 w-48 h-36 border rounded-lg overflow-hidden shadow-lg">
+      <video
+        ref={videoRef}
+        autoPlay
+        muted
+        playsInline
+        className="w-full h-full object-cover"
+      />
+    </div>
+    
         <div className="text-center max-w-sm">
           <div className="w-16 h-16 bg-green-100 border border-green-200 rounded-full flex items-center justify-center mx-auto mb-5">
             <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">

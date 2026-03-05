@@ -84,6 +84,8 @@ logViolation: publicProcedure
         "COPY_PASTE_RIGHTCLICK",
         "SCREENSHOT_ATTEMPT",
         "DEV_TOOLS",
+        "FACE_NOT_DETECTED",
+        "MULTIPLE_FACES",
       ]),
       message: z.string(),
     })

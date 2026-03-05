@@ -111,6 +111,7 @@ model Job {
 
   location String
   type     JobType
+  role     JobRole
   level    JobLevel
   tags     String
   salary   String?
@@ -266,4 +267,6 @@ enum ViolationType {
   COPY_PASTE_RIGHTCLICK
   SCREENSHOT_ATTEMPT
   DEV_TOOLS
+  FACE_NOT_DETECTED
+  MULTIPLE_FACES
 }

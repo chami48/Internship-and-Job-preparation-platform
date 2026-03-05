@@ -136,7 +136,9 @@ export const ViolationType: {
   TAB_SWITCH: 'TAB_SWITCH',
   COPY_PASTE_RIGHTCLICK: 'COPY_PASTE_RIGHTCLICK',
   SCREENSHOT_ATTEMPT: 'SCREENSHOT_ATTEMPT',
-  DEV_TOOLS: 'DEV_TOOLS'
+  DEV_TOOLS: 'DEV_TOOLS',
+  FACE_NOT_DETECTED: 'FACE_NOT_DETECTED',
+  MULTIPLE_FACES: 'MULTIPLE_FACES'
 };
 
 export type ViolationType = (typeof ViolationType)[keyof typeof ViolationType]
