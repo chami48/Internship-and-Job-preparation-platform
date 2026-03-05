@@ -1,10 +1,18 @@
-export default function StudentHomePage() {
+import { auth } from "../api/auth/[...nextauth]/route";
+import { redirect } from "next/navigation";
+
+export default async function StudentDashboard() {
+  const session = await auth();
+
+  if (!session) {
+    redirect("/student/login");
+  }
+
   return (
-    <main className="p-6">
-      <h1 className="text-2xl font-semibold">Student Module</h1>
-      <p className="mt-2 text-sm text-muted-foreground">
-        Module 2 – Sandani (Student profile, job browsing, interview prep)
-      </p>
-    </main>
+    <div className="p-10">
+      <h1 className="text-3xl font-bold">
+        Welcome {session.user?.name}
+      </h1>
+    </div>
   );
 }

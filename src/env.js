@@ -3,6 +3,8 @@ import { z } from "zod";
 
 export const env = createEnv({
   server: {
+    NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
+
     // ✅ Database is required
     DATABASE_URL: z.string().min(1),
 
@@ -17,6 +19,8 @@ export const env = createEnv({
   client: {},
 
   runtimeEnv: {
+    NODE_ENV: process.env.NODE_ENV,
+
     DATABASE_URL: process.env.DATABASE_URL,
     AUTH_SECRET: process.env.AUTH_SECRET,
 

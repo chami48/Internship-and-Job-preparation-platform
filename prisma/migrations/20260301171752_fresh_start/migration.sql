@@ -1,0 +1,177 @@
+-- CreateTable
+CREATE TABLE "Post" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "name" TEXT NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    "createdById" TEXT NOT NULL,
+    CONSTRAINT "Post_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "Account" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "userId" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
+    "provider" TEXT NOT NULL,
+    "providerAccountId" TEXT NOT NULL,
+    "refresh_token" TEXT,
+    "access_token" TEXT,
+    "expires_at" INTEGER,
+    "token_type" TEXT,
+    "scope" TEXT,
+    "id_token" TEXT,
+    "session_state" TEXT,
+    "refresh_token_expires_in" INTEGER,
+    CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "Session" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "sessionToken" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "expires" DATETIME NOT NULL,
+    CONSTRAINT "Session_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "User" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "name" TEXT,
+    "email" TEXT,
+    "emailVerified" DATETIME,
+    "image" TEXT
+);
+
+-- CreateTable
+CREATE TABLE "VerificationToken" (
+    "identifier" TEXT NOT NULL,
+    "token" TEXT NOT NULL,
+    "expires" DATETIME NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "Job" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "title" TEXT NOT NULL,
+    "company" TEXT NOT NULL,
+    "location" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
+    "level" TEXT NOT NULL,
+    "tags" TEXT NOT NULL,
+    "salary" TEXT,
+    "description" TEXT NOT NULL,
+    "responsibilities" TEXT NOT NULL,
+    "requirements" TEXT NOT NULL,
+    "benefits" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- CreateTable
+CREATE TABLE "Question" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "role" TEXT NOT NULL,
+    "topic" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
+    "difficulty" TEXT NOT NULL,
+    "prompt" TEXT NOT NULL,
+    "explanation" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "correctKey" TEXT,
+    "rubric" TEXT
+);
+
+-- CreateTable
+CREATE TABLE "Option" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "questionId" TEXT NOT NULL,
+    "key" TEXT NOT NULL,
+    "text" TEXT NOT NULL,
+    CONSTRAINT "Option_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "Question" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "Application" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "jobId" TEXT NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "fullName" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "mobile" TEXT,
+    "linkedin" TEXT,
+    "github" TEXT,
+    "portfolio" TEXT,
+    "university" TEXT NOT NULL,
+    "degree" TEXT NOT NULL,
+    "specialization" TEXT,
+    "cgpa" TEXT,
+    "awards" TEXT,
+    "programmingLanguages" TEXT NOT NULL,
+    "frameworks" TEXT,
+    "softwareProficiency" TEXT,
+    CONSTRAINT "Application_jobId_fkey" FOREIGN KEY ("jobId") REFERENCES "Job" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "Project" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "applicationId" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "details" TEXT NOT NULL,
+    CONSTRAINT "Project_applicationId_fkey" FOREIGN KEY ("applicationId") REFERENCES "Application" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "ScenarioAnswer" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "applicationId" TEXT NOT NULL,
+    "questionKey" TEXT NOT NULL,
+    "answer" TEXT NOT NULL,
+    CONSTRAINT "ScenarioAnswer_applicationId_fkey" FOREIGN KEY ("applicationId") REFERENCES "Application" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "ExamAnswer" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "questionId" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "answer" TEXT NOT NULL,
+    "score" REAL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "ExamAnswer_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "Question" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "ExamAnswer_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateIndex
+CREATE INDEX "Post_name_idx" ON "Post"("name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Account_provider_providerAccountId_key" ON "Account"("provider", "providerAccountId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Session_sessionToken_key" ON "Session"("sessionToken");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "VerificationToken_token_key" ON "VerificationToken"("token");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "VerificationToken_identifier_token_key" ON "VerificationToken"("identifier", "token");
+
+-- CreateIndex
+CREATE INDEX "Question_role_difficulty_topic_idx" ON "Question"("role", "difficulty", "topic");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Option_questionId_key_key" ON "Option"("questionId", "key");
+
+-- CreateIndex
+CREATE INDEX "Application_jobId_idx" ON "Application"("jobId");
+
+-- CreateIndex
+CREATE INDEX "ExamAnswer_questionId_idx" ON "ExamAnswer"("questionId");
+
+-- CreateIndex
+CREATE INDEX "ExamAnswer_userId_idx" ON "ExamAnswer"("userId");
