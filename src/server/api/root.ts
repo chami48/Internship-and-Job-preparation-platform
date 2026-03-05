@@ -8,6 +8,7 @@ import { aiRouter } from "~/server/api/routers/ai";
 import { jobRouter } from "~/server/api/routers/job";//nilumi
 import { adminRouter } from "~/server/api/routers/admin";
 import { applicationRouter } from "./routers/application";//dil
+import { verificationRouter } from "./routers/verification";//dil
 
 
 /**
@@ -22,6 +23,7 @@ export const appRouter = createTRPCRouter({
   admin: adminRouter,
   job: jobRouter,
   application: applicationRouter,
+  verification: verificationRouter,
 
 });
 

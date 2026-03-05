@@ -295,3 +295,13 @@ enum ViolationType {
   FACE_NOT_DETECTED
   MULTIPLE_FACES
 }
+
+model ApplicantVerification {
+  id              String   @id @default(cuid())
+  fullName        String
+  email           String   @unique
+  studentIdNumber String
+  role            String
+  idImageUrl      String
+  createdAt       DateTime @default(now())
+}
