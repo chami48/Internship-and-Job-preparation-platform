@@ -34,6 +34,11 @@ export type Session = $Result.DefaultSelection<Prisma.$SessionPayload>
  */
 export type User = $Result.DefaultSelection<Prisma.$UserPayload>
 /**
+ * Model EmailOTP
+ * 
+ */
+export type EmailOTP = $Result.DefaultSelection<Prisma.$EmailOTPPayload>
+/**
  * Model VerificationToken
  * 
  */
@@ -299,6 +304,16 @@ export class PrismaClient<
     * ```
     */
   get user(): Prisma.UserDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.emailOTP`: Exposes CRUD operations for the **EmailOTP** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more EmailOTPS
+    * const emailOTPS = await prisma.emailOTP.findMany()
+    * ```
+    */
+  get emailOTP(): Prisma.EmailOTPDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.verificationToken`: Exposes CRUD operations for the **VerificationToken** model.
@@ -824,6 +839,7 @@ export namespace Prisma {
     Account: 'Account',
     Session: 'Session',
     User: 'User',
+    EmailOTP: 'EmailOTP',
     VerificationToken: 'VerificationToken',
     Job: 'Job',
     Question: 'Question',
@@ -850,7 +866,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "post" | "account" | "session" | "user" | "verificationToken" | "job" | "question" | "option" | "application" | "project" | "scenarioAnswer" | "examAnswer"
+      modelProps: "post" | "account" | "session" | "user" | "emailOTP" | "verificationToken" | "job" | "question" | "option" | "application" | "project" | "scenarioAnswer" | "examAnswer"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1147,6 +1163,80 @@ export namespace Prisma {
           count: {
             args: Prisma.UserCountArgs<ExtArgs>
             result: $Utils.Optional<UserCountAggregateOutputType> | number
+          }
+        }
+      }
+      EmailOTP: {
+        payload: Prisma.$EmailOTPPayload<ExtArgs>
+        fields: Prisma.EmailOTPFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.EmailOTPFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailOTPPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.EmailOTPFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailOTPPayload>
+          }
+          findFirst: {
+            args: Prisma.EmailOTPFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailOTPPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.EmailOTPFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailOTPPayload>
+          }
+          findMany: {
+            args: Prisma.EmailOTPFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailOTPPayload>[]
+          }
+          create: {
+            args: Prisma.EmailOTPCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailOTPPayload>
+          }
+          createMany: {
+            args: Prisma.EmailOTPCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.EmailOTPCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailOTPPayload>[]
+          }
+          delete: {
+            args: Prisma.EmailOTPDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailOTPPayload>
+          }
+          update: {
+            args: Prisma.EmailOTPUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailOTPPayload>
+          }
+          deleteMany: {
+            args: Prisma.EmailOTPDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.EmailOTPUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.EmailOTPUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailOTPPayload>[]
+          }
+          upsert: {
+            args: Prisma.EmailOTPUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailOTPPayload>
+          }
+          aggregate: {
+            args: Prisma.EmailOTPAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateEmailOTP>
+          }
+          groupBy: {
+            args: Prisma.EmailOTPGroupByArgs<ExtArgs>
+            result: $Utils.Optional<EmailOTPGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.EmailOTPCountArgs<ExtArgs>
+            result: $Utils.Optional<EmailOTPCountAggregateOutputType> | number
           }
         }
       }
@@ -1842,6 +1932,7 @@ export namespace Prisma {
     account?: AccountOmit
     session?: SessionOmit
     user?: UserOmit
+    emailOTP?: EmailOTPOmit
     verificationToken?: VerificationTokenOmit
     job?: JobOmit
     question?: QuestionOmit
@@ -5426,6 +5517,17 @@ export namespace Prisma {
     id: string | null
     name: string | null
     email: string | null
+    password: string | null
+    role: string | null
+    studentId: string | null
+    degree: string | null
+    year: string | null
+    specialization: string | null
+    skills: string | null
+    github: string | null
+    linkedin: string | null
+    portfolio: string | null
+    bio: string | null
     emailVerified: Date | null
     image: string | null
   }
@@ -5434,6 +5536,17 @@ export namespace Prisma {
     id: string | null
     name: string | null
     email: string | null
+    password: string | null
+    role: string | null
+    studentId: string | null
+    degree: string | null
+    year: string | null
+    specialization: string | null
+    skills: string | null
+    github: string | null
+    linkedin: string | null
+    portfolio: string | null
+    bio: string | null
     emailVerified: Date | null
     image: string | null
   }
@@ -5442,6 +5555,17 @@ export namespace Prisma {
     id: number
     name: number
     email: number
+    password: number
+    role: number
+    studentId: number
+    degree: number
+    year: number
+    specialization: number
+    skills: number
+    github: number
+    linkedin: number
+    portfolio: number
+    bio: number
     emailVerified: number
     image: number
     _all: number
@@ -5452,6 +5576,17 @@ export namespace Prisma {
     id?: true
     name?: true
     email?: true
+    password?: true
+    role?: true
+    studentId?: true
+    degree?: true
+    year?: true
+    specialization?: true
+    skills?: true
+    github?: true
+    linkedin?: true
+    portfolio?: true
+    bio?: true
     emailVerified?: true
     image?: true
   }
@@ -5460,6 +5595,17 @@ export namespace Prisma {
     id?: true
     name?: true
     email?: true
+    password?: true
+    role?: true
+    studentId?: true
+    degree?: true
+    year?: true
+    specialization?: true
+    skills?: true
+    github?: true
+    linkedin?: true
+    portfolio?: true
+    bio?: true
     emailVerified?: true
     image?: true
   }
@@ -5468,6 +5614,17 @@ export namespace Prisma {
     id?: true
     name?: true
     email?: true
+    password?: true
+    role?: true
+    studentId?: true
+    degree?: true
+    year?: true
+    specialization?: true
+    skills?: true
+    github?: true
+    linkedin?: true
+    portfolio?: true
+    bio?: true
     emailVerified?: true
     image?: true
     _all?: true
@@ -5549,6 +5706,17 @@ export namespace Prisma {
     id: string
     name: string | null
     email: string | null
+    password: string | null
+    role: string
+    studentId: string | null
+    degree: string | null
+    year: string | null
+    specialization: string | null
+    skills: string | null
+    github: string | null
+    linkedin: string | null
+    portfolio: string | null
+    bio: string | null
     emailVerified: Date | null
     image: string | null
     _count: UserCountAggregateOutputType | null
@@ -5574,6 +5742,17 @@ export namespace Prisma {
     id?: boolean
     name?: boolean
     email?: boolean
+    password?: boolean
+    role?: boolean
+    studentId?: boolean
+    degree?: boolean
+    year?: boolean
+    specialization?: boolean
+    skills?: boolean
+    github?: boolean
+    linkedin?: boolean
+    portfolio?: boolean
+    bio?: boolean
     emailVerified?: boolean
     image?: boolean
     accounts?: boolean | User$accountsArgs<ExtArgs>
@@ -5586,6 +5765,17 @@ export namespace Prisma {
     id?: boolean
     name?: boolean
     email?: boolean
+    password?: boolean
+    role?: boolean
+    studentId?: boolean
+    degree?: boolean
+    year?: boolean
+    specialization?: boolean
+    skills?: boolean
+    github?: boolean
+    linkedin?: boolean
+    portfolio?: boolean
+    bio?: boolean
     emailVerified?: boolean
     image?: boolean
   }, ExtArgs["result"]["user"]>
@@ -5594,6 +5784,17 @@ export namespace Prisma {
     id?: boolean
     name?: boolean
     email?: boolean
+    password?: boolean
+    role?: boolean
+    studentId?: boolean
+    degree?: boolean
+    year?: boolean
+    specialization?: boolean
+    skills?: boolean
+    github?: boolean
+    linkedin?: boolean
+    portfolio?: boolean
+    bio?: boolean
     emailVerified?: boolean
     image?: boolean
   }, ExtArgs["result"]["user"]>
@@ -5602,11 +5803,22 @@ export namespace Prisma {
     id?: boolean
     name?: boolean
     email?: boolean
+    password?: boolean
+    role?: boolean
+    studentId?: boolean
+    degree?: boolean
+    year?: boolean
+    specialization?: boolean
+    skills?: boolean
+    github?: boolean
+    linkedin?: boolean
+    portfolio?: boolean
+    bio?: boolean
     emailVerified?: boolean
     image?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "emailVerified" | "image", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "password" | "role" | "studentId" | "degree" | "year" | "specialization" | "skills" | "github" | "linkedin" | "portfolio" | "bio" | "emailVerified" | "image", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     accounts?: boolean | User$accountsArgs<ExtArgs>
     sessions?: boolean | User$sessionsArgs<ExtArgs>
@@ -5627,6 +5839,17 @@ export namespace Prisma {
       id: string
       name: string | null
       email: string | null
+      password: string | null
+      role: string
+      studentId: string | null
+      degree: string | null
+      year: string | null
+      specialization: string | null
+      skills: string | null
+      github: string | null
+      linkedin: string | null
+      portfolio: string | null
+      bio: string | null
       emailVerified: Date | null
       image: string | null
     }, ExtArgs["result"]["user"]>
@@ -6058,6 +6281,17 @@ export namespace Prisma {
     readonly id: FieldRef<"User", 'String'>
     readonly name: FieldRef<"User", 'String'>
     readonly email: FieldRef<"User", 'String'>
+    readonly password: FieldRef<"User", 'String'>
+    readonly role: FieldRef<"User", 'String'>
+    readonly studentId: FieldRef<"User", 'String'>
+    readonly degree: FieldRef<"User", 'String'>
+    readonly year: FieldRef<"User", 'String'>
+    readonly specialization: FieldRef<"User", 'String'>
+    readonly skills: FieldRef<"User", 'String'>
+    readonly github: FieldRef<"User", 'String'>
+    readonly linkedin: FieldRef<"User", 'String'>
+    readonly portfolio: FieldRef<"User", 'String'>
+    readonly bio: FieldRef<"User", 'String'>
     readonly emailVerified: FieldRef<"User", 'DateTime'>
     readonly image: FieldRef<"User", 'String'>
   }
@@ -6533,6 +6767,999 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: UserInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model EmailOTP
+   */
+
+  export type AggregateEmailOTP = {
+    _count: EmailOTPCountAggregateOutputType | null
+    _min: EmailOTPMinAggregateOutputType | null
+    _max: EmailOTPMaxAggregateOutputType | null
+  }
+
+  export type EmailOTPMinAggregateOutputType = {
+    id: string | null
+    email: string | null
+    otp: string | null
+    expiresAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type EmailOTPMaxAggregateOutputType = {
+    id: string | null
+    email: string | null
+    otp: string | null
+    expiresAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type EmailOTPCountAggregateOutputType = {
+    id: number
+    email: number
+    otp: number
+    expiresAt: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type EmailOTPMinAggregateInputType = {
+    id?: true
+    email?: true
+    otp?: true
+    expiresAt?: true
+    createdAt?: true
+  }
+
+  export type EmailOTPMaxAggregateInputType = {
+    id?: true
+    email?: true
+    otp?: true
+    expiresAt?: true
+    createdAt?: true
+  }
+
+  export type EmailOTPCountAggregateInputType = {
+    id?: true
+    email?: true
+    otp?: true
+    expiresAt?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type EmailOTPAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which EmailOTP to aggregate.
+     */
+    where?: EmailOTPWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EmailOTPS to fetch.
+     */
+    orderBy?: EmailOTPOrderByWithRelationInput | EmailOTPOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: EmailOTPWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EmailOTPS from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EmailOTPS.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned EmailOTPS
+    **/
+    _count?: true | EmailOTPCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: EmailOTPMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: EmailOTPMaxAggregateInputType
+  }
+
+  export type GetEmailOTPAggregateType<T extends EmailOTPAggregateArgs> = {
+        [P in keyof T & keyof AggregateEmailOTP]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateEmailOTP[P]>
+      : GetScalarType<T[P], AggregateEmailOTP[P]>
+  }
+
+
+
+
+  export type EmailOTPGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EmailOTPWhereInput
+    orderBy?: EmailOTPOrderByWithAggregationInput | EmailOTPOrderByWithAggregationInput[]
+    by: EmailOTPScalarFieldEnum[] | EmailOTPScalarFieldEnum
+    having?: EmailOTPScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: EmailOTPCountAggregateInputType | true
+    _min?: EmailOTPMinAggregateInputType
+    _max?: EmailOTPMaxAggregateInputType
+  }
+
+  export type EmailOTPGroupByOutputType = {
+    id: string
+    email: string
+    otp: string
+    expiresAt: Date
+    createdAt: Date
+    _count: EmailOTPCountAggregateOutputType | null
+    _min: EmailOTPMinAggregateOutputType | null
+    _max: EmailOTPMaxAggregateOutputType | null
+  }
+
+  type GetEmailOTPGroupByPayload<T extends EmailOTPGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<EmailOTPGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof EmailOTPGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], EmailOTPGroupByOutputType[P]>
+            : GetScalarType<T[P], EmailOTPGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type EmailOTPSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    email?: boolean
+    otp?: boolean
+    expiresAt?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["emailOTP"]>
+
+  export type EmailOTPSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    email?: boolean
+    otp?: boolean
+    expiresAt?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["emailOTP"]>
+
+  export type EmailOTPSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    email?: boolean
+    otp?: boolean
+    expiresAt?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["emailOTP"]>
+
+  export type EmailOTPSelectScalar = {
+    id?: boolean
+    email?: boolean
+    otp?: boolean
+    expiresAt?: boolean
+    createdAt?: boolean
+  }
+
+  export type EmailOTPOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "otp" | "expiresAt" | "createdAt", ExtArgs["result"]["emailOTP"]>
+
+  export type $EmailOTPPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "EmailOTP"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      email: string
+      otp: string
+      expiresAt: Date
+      createdAt: Date
+    }, ExtArgs["result"]["emailOTP"]>
+    composites: {}
+  }
+
+  type EmailOTPGetPayload<S extends boolean | null | undefined | EmailOTPDefaultArgs> = $Result.GetResult<Prisma.$EmailOTPPayload, S>
+
+  type EmailOTPCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<EmailOTPFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: EmailOTPCountAggregateInputType | true
+    }
+
+  export interface EmailOTPDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['EmailOTP'], meta: { name: 'EmailOTP' } }
+    /**
+     * Find zero or one EmailOTP that matches the filter.
+     * @param {EmailOTPFindUniqueArgs} args - Arguments to find a EmailOTP
+     * @example
+     * // Get one EmailOTP
+     * const emailOTP = await prisma.emailOTP.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends EmailOTPFindUniqueArgs>(args: SelectSubset<T, EmailOTPFindUniqueArgs<ExtArgs>>): Prisma__EmailOTPClient<$Result.GetResult<Prisma.$EmailOTPPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one EmailOTP that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {EmailOTPFindUniqueOrThrowArgs} args - Arguments to find a EmailOTP
+     * @example
+     * // Get one EmailOTP
+     * const emailOTP = await prisma.emailOTP.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends EmailOTPFindUniqueOrThrowArgs>(args: SelectSubset<T, EmailOTPFindUniqueOrThrowArgs<ExtArgs>>): Prisma__EmailOTPClient<$Result.GetResult<Prisma.$EmailOTPPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first EmailOTP that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailOTPFindFirstArgs} args - Arguments to find a EmailOTP
+     * @example
+     * // Get one EmailOTP
+     * const emailOTP = await prisma.emailOTP.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends EmailOTPFindFirstArgs>(args?: SelectSubset<T, EmailOTPFindFirstArgs<ExtArgs>>): Prisma__EmailOTPClient<$Result.GetResult<Prisma.$EmailOTPPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first EmailOTP that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailOTPFindFirstOrThrowArgs} args - Arguments to find a EmailOTP
+     * @example
+     * // Get one EmailOTP
+     * const emailOTP = await prisma.emailOTP.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends EmailOTPFindFirstOrThrowArgs>(args?: SelectSubset<T, EmailOTPFindFirstOrThrowArgs<ExtArgs>>): Prisma__EmailOTPClient<$Result.GetResult<Prisma.$EmailOTPPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more EmailOTPS that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailOTPFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all EmailOTPS
+     * const emailOTPS = await prisma.emailOTP.findMany()
+     * 
+     * // Get first 10 EmailOTPS
+     * const emailOTPS = await prisma.emailOTP.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const emailOTPWithIdOnly = await prisma.emailOTP.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends EmailOTPFindManyArgs>(args?: SelectSubset<T, EmailOTPFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmailOTPPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a EmailOTP.
+     * @param {EmailOTPCreateArgs} args - Arguments to create a EmailOTP.
+     * @example
+     * // Create one EmailOTP
+     * const EmailOTP = await prisma.emailOTP.create({
+     *   data: {
+     *     // ... data to create a EmailOTP
+     *   }
+     * })
+     * 
+     */
+    create<T extends EmailOTPCreateArgs>(args: SelectSubset<T, EmailOTPCreateArgs<ExtArgs>>): Prisma__EmailOTPClient<$Result.GetResult<Prisma.$EmailOTPPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many EmailOTPS.
+     * @param {EmailOTPCreateManyArgs} args - Arguments to create many EmailOTPS.
+     * @example
+     * // Create many EmailOTPS
+     * const emailOTP = await prisma.emailOTP.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends EmailOTPCreateManyArgs>(args?: SelectSubset<T, EmailOTPCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many EmailOTPS and returns the data saved in the database.
+     * @param {EmailOTPCreateManyAndReturnArgs} args - Arguments to create many EmailOTPS.
+     * @example
+     * // Create many EmailOTPS
+     * const emailOTP = await prisma.emailOTP.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many EmailOTPS and only return the `id`
+     * const emailOTPWithIdOnly = await prisma.emailOTP.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends EmailOTPCreateManyAndReturnArgs>(args?: SelectSubset<T, EmailOTPCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmailOTPPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a EmailOTP.
+     * @param {EmailOTPDeleteArgs} args - Arguments to delete one EmailOTP.
+     * @example
+     * // Delete one EmailOTP
+     * const EmailOTP = await prisma.emailOTP.delete({
+     *   where: {
+     *     // ... filter to delete one EmailOTP
+     *   }
+     * })
+     * 
+     */
+    delete<T extends EmailOTPDeleteArgs>(args: SelectSubset<T, EmailOTPDeleteArgs<ExtArgs>>): Prisma__EmailOTPClient<$Result.GetResult<Prisma.$EmailOTPPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one EmailOTP.
+     * @param {EmailOTPUpdateArgs} args - Arguments to update one EmailOTP.
+     * @example
+     * // Update one EmailOTP
+     * const emailOTP = await prisma.emailOTP.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends EmailOTPUpdateArgs>(args: SelectSubset<T, EmailOTPUpdateArgs<ExtArgs>>): Prisma__EmailOTPClient<$Result.GetResult<Prisma.$EmailOTPPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more EmailOTPS.
+     * @param {EmailOTPDeleteManyArgs} args - Arguments to filter EmailOTPS to delete.
+     * @example
+     * // Delete a few EmailOTPS
+     * const { count } = await prisma.emailOTP.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends EmailOTPDeleteManyArgs>(args?: SelectSubset<T, EmailOTPDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more EmailOTPS.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailOTPUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many EmailOTPS
+     * const emailOTP = await prisma.emailOTP.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends EmailOTPUpdateManyArgs>(args: SelectSubset<T, EmailOTPUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more EmailOTPS and returns the data updated in the database.
+     * @param {EmailOTPUpdateManyAndReturnArgs} args - Arguments to update many EmailOTPS.
+     * @example
+     * // Update many EmailOTPS
+     * const emailOTP = await prisma.emailOTP.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more EmailOTPS and only return the `id`
+     * const emailOTPWithIdOnly = await prisma.emailOTP.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends EmailOTPUpdateManyAndReturnArgs>(args: SelectSubset<T, EmailOTPUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmailOTPPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one EmailOTP.
+     * @param {EmailOTPUpsertArgs} args - Arguments to update or create a EmailOTP.
+     * @example
+     * // Update or create a EmailOTP
+     * const emailOTP = await prisma.emailOTP.upsert({
+     *   create: {
+     *     // ... data to create a EmailOTP
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the EmailOTP we want to update
+     *   }
+     * })
+     */
+    upsert<T extends EmailOTPUpsertArgs>(args: SelectSubset<T, EmailOTPUpsertArgs<ExtArgs>>): Prisma__EmailOTPClient<$Result.GetResult<Prisma.$EmailOTPPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of EmailOTPS.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailOTPCountArgs} args - Arguments to filter EmailOTPS to count.
+     * @example
+     * // Count the number of EmailOTPS
+     * const count = await prisma.emailOTP.count({
+     *   where: {
+     *     // ... the filter for the EmailOTPS we want to count
+     *   }
+     * })
+    **/
+    count<T extends EmailOTPCountArgs>(
+      args?: Subset<T, EmailOTPCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], EmailOTPCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a EmailOTP.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailOTPAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends EmailOTPAggregateArgs>(args: Subset<T, EmailOTPAggregateArgs>): Prisma.PrismaPromise<GetEmailOTPAggregateType<T>>
+
+    /**
+     * Group by EmailOTP.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailOTPGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends EmailOTPGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: EmailOTPGroupByArgs['orderBy'] }
+        : { orderBy?: EmailOTPGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, EmailOTPGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetEmailOTPGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the EmailOTP model
+   */
+  readonly fields: EmailOTPFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for EmailOTP.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__EmailOTPClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the EmailOTP model
+   */
+  interface EmailOTPFieldRefs {
+    readonly id: FieldRef<"EmailOTP", 'String'>
+    readonly email: FieldRef<"EmailOTP", 'String'>
+    readonly otp: FieldRef<"EmailOTP", 'String'>
+    readonly expiresAt: FieldRef<"EmailOTP", 'DateTime'>
+    readonly createdAt: FieldRef<"EmailOTP", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * EmailOTP findUnique
+   */
+  export type EmailOTPFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailOTP
+     */
+    select?: EmailOTPSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailOTP
+     */
+    omit?: EmailOTPOmit<ExtArgs> | null
+    /**
+     * Filter, which EmailOTP to fetch.
+     */
+    where: EmailOTPWhereUniqueInput
+  }
+
+  /**
+   * EmailOTP findUniqueOrThrow
+   */
+  export type EmailOTPFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailOTP
+     */
+    select?: EmailOTPSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailOTP
+     */
+    omit?: EmailOTPOmit<ExtArgs> | null
+    /**
+     * Filter, which EmailOTP to fetch.
+     */
+    where: EmailOTPWhereUniqueInput
+  }
+
+  /**
+   * EmailOTP findFirst
+   */
+  export type EmailOTPFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailOTP
+     */
+    select?: EmailOTPSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailOTP
+     */
+    omit?: EmailOTPOmit<ExtArgs> | null
+    /**
+     * Filter, which EmailOTP to fetch.
+     */
+    where?: EmailOTPWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EmailOTPS to fetch.
+     */
+    orderBy?: EmailOTPOrderByWithRelationInput | EmailOTPOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for EmailOTPS.
+     */
+    cursor?: EmailOTPWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EmailOTPS from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EmailOTPS.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EmailOTPS.
+     */
+    distinct?: EmailOTPScalarFieldEnum | EmailOTPScalarFieldEnum[]
+  }
+
+  /**
+   * EmailOTP findFirstOrThrow
+   */
+  export type EmailOTPFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailOTP
+     */
+    select?: EmailOTPSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailOTP
+     */
+    omit?: EmailOTPOmit<ExtArgs> | null
+    /**
+     * Filter, which EmailOTP to fetch.
+     */
+    where?: EmailOTPWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EmailOTPS to fetch.
+     */
+    orderBy?: EmailOTPOrderByWithRelationInput | EmailOTPOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for EmailOTPS.
+     */
+    cursor?: EmailOTPWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EmailOTPS from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EmailOTPS.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EmailOTPS.
+     */
+    distinct?: EmailOTPScalarFieldEnum | EmailOTPScalarFieldEnum[]
+  }
+
+  /**
+   * EmailOTP findMany
+   */
+  export type EmailOTPFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailOTP
+     */
+    select?: EmailOTPSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailOTP
+     */
+    omit?: EmailOTPOmit<ExtArgs> | null
+    /**
+     * Filter, which EmailOTPS to fetch.
+     */
+    where?: EmailOTPWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EmailOTPS to fetch.
+     */
+    orderBy?: EmailOTPOrderByWithRelationInput | EmailOTPOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing EmailOTPS.
+     */
+    cursor?: EmailOTPWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EmailOTPS from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EmailOTPS.
+     */
+    skip?: number
+    distinct?: EmailOTPScalarFieldEnum | EmailOTPScalarFieldEnum[]
+  }
+
+  /**
+   * EmailOTP create
+   */
+  export type EmailOTPCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailOTP
+     */
+    select?: EmailOTPSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailOTP
+     */
+    omit?: EmailOTPOmit<ExtArgs> | null
+    /**
+     * The data needed to create a EmailOTP.
+     */
+    data: XOR<EmailOTPCreateInput, EmailOTPUncheckedCreateInput>
+  }
+
+  /**
+   * EmailOTP createMany
+   */
+  export type EmailOTPCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many EmailOTPS.
+     */
+    data: EmailOTPCreateManyInput | EmailOTPCreateManyInput[]
+  }
+
+  /**
+   * EmailOTP createManyAndReturn
+   */
+  export type EmailOTPCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailOTP
+     */
+    select?: EmailOTPSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailOTP
+     */
+    omit?: EmailOTPOmit<ExtArgs> | null
+    /**
+     * The data used to create many EmailOTPS.
+     */
+    data: EmailOTPCreateManyInput | EmailOTPCreateManyInput[]
+  }
+
+  /**
+   * EmailOTP update
+   */
+  export type EmailOTPUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailOTP
+     */
+    select?: EmailOTPSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailOTP
+     */
+    omit?: EmailOTPOmit<ExtArgs> | null
+    /**
+     * The data needed to update a EmailOTP.
+     */
+    data: XOR<EmailOTPUpdateInput, EmailOTPUncheckedUpdateInput>
+    /**
+     * Choose, which EmailOTP to update.
+     */
+    where: EmailOTPWhereUniqueInput
+  }
+
+  /**
+   * EmailOTP updateMany
+   */
+  export type EmailOTPUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update EmailOTPS.
+     */
+    data: XOR<EmailOTPUpdateManyMutationInput, EmailOTPUncheckedUpdateManyInput>
+    /**
+     * Filter which EmailOTPS to update
+     */
+    where?: EmailOTPWhereInput
+    /**
+     * Limit how many EmailOTPS to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * EmailOTP updateManyAndReturn
+   */
+  export type EmailOTPUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailOTP
+     */
+    select?: EmailOTPSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailOTP
+     */
+    omit?: EmailOTPOmit<ExtArgs> | null
+    /**
+     * The data used to update EmailOTPS.
+     */
+    data: XOR<EmailOTPUpdateManyMutationInput, EmailOTPUncheckedUpdateManyInput>
+    /**
+     * Filter which EmailOTPS to update
+     */
+    where?: EmailOTPWhereInput
+    /**
+     * Limit how many EmailOTPS to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * EmailOTP upsert
+   */
+  export type EmailOTPUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailOTP
+     */
+    select?: EmailOTPSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailOTP
+     */
+    omit?: EmailOTPOmit<ExtArgs> | null
+    /**
+     * The filter to search for the EmailOTP to update in case it exists.
+     */
+    where: EmailOTPWhereUniqueInput
+    /**
+     * In case the EmailOTP found by the `where` argument doesn't exist, create a new EmailOTP with this data.
+     */
+    create: XOR<EmailOTPCreateInput, EmailOTPUncheckedCreateInput>
+    /**
+     * In case the EmailOTP was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<EmailOTPUpdateInput, EmailOTPUncheckedUpdateInput>
+  }
+
+  /**
+   * EmailOTP delete
+   */
+  export type EmailOTPDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailOTP
+     */
+    select?: EmailOTPSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailOTP
+     */
+    omit?: EmailOTPOmit<ExtArgs> | null
+    /**
+     * Filter which EmailOTP to delete.
+     */
+    where: EmailOTPWhereUniqueInput
+  }
+
+  /**
+   * EmailOTP deleteMany
+   */
+  export type EmailOTPDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which EmailOTPS to delete
+     */
+    where?: EmailOTPWhereInput
+    /**
+     * Limit how many EmailOTPS to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * EmailOTP without action
+   */
+  export type EmailOTPDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailOTP
+     */
+    select?: EmailOTPSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailOTP
+     */
+    omit?: EmailOTPOmit<ExtArgs> | null
   }
 
 
@@ -15450,11 +16677,33 @@ export namespace Prisma {
     id: 'id',
     name: 'name',
     email: 'email',
+    password: 'password',
+    role: 'role',
+    studentId: 'studentId',
+    degree: 'degree',
+    year: 'year',
+    specialization: 'specialization',
+    skills: 'skills',
+    github: 'github',
+    linkedin: 'linkedin',
+    portfolio: 'portfolio',
+    bio: 'bio',
     emailVerified: 'emailVerified',
     image: 'image'
   };
 
   export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+  export const EmailOTPScalarFieldEnum: {
+    id: 'id',
+    email: 'email',
+    otp: 'otp',
+    expiresAt: 'expiresAt',
+    createdAt: 'createdAt'
+  };
+
+  export type EmailOTPScalarFieldEnum = (typeof EmailOTPScalarFieldEnum)[keyof typeof EmailOTPScalarFieldEnum]
 
 
   export const VerificationTokenScalarFieldEnum: {
@@ -15908,6 +17157,17 @@ export namespace Prisma {
     id?: StringFilter<"User"> | string
     name?: StringNullableFilter<"User"> | string | null
     email?: StringNullableFilter<"User"> | string | null
+    password?: StringNullableFilter<"User"> | string | null
+    role?: StringFilter<"User"> | string
+    studentId?: StringNullableFilter<"User"> | string | null
+    degree?: StringNullableFilter<"User"> | string | null
+    year?: StringNullableFilter<"User"> | string | null
+    specialization?: StringNullableFilter<"User"> | string | null
+    skills?: StringNullableFilter<"User"> | string | null
+    github?: StringNullableFilter<"User"> | string | null
+    linkedin?: StringNullableFilter<"User"> | string | null
+    portfolio?: StringNullableFilter<"User"> | string | null
+    bio?: StringNullableFilter<"User"> | string | null
     emailVerified?: DateTimeNullableFilter<"User"> | Date | string | null
     image?: StringNullableFilter<"User"> | string | null
     accounts?: AccountListRelationFilter
@@ -15919,6 +17179,17 @@ export namespace Prisma {
     id?: SortOrder
     name?: SortOrderInput | SortOrder
     email?: SortOrderInput | SortOrder
+    password?: SortOrderInput | SortOrder
+    role?: SortOrder
+    studentId?: SortOrderInput | SortOrder
+    degree?: SortOrderInput | SortOrder
+    year?: SortOrderInput | SortOrder
+    specialization?: SortOrderInput | SortOrder
+    skills?: SortOrderInput | SortOrder
+    github?: SortOrderInput | SortOrder
+    linkedin?: SortOrderInput | SortOrder
+    portfolio?: SortOrderInput | SortOrder
+    bio?: SortOrderInput | SortOrder
     emailVerified?: SortOrderInput | SortOrder
     image?: SortOrderInput | SortOrder
     accounts?: AccountOrderByRelationAggregateInput
@@ -15933,6 +17204,17 @@ export namespace Prisma {
     OR?: UserWhereInput[]
     NOT?: UserWhereInput | UserWhereInput[]
     name?: StringNullableFilter<"User"> | string | null
+    password?: StringNullableFilter<"User"> | string | null
+    role?: StringFilter<"User"> | string
+    studentId?: StringNullableFilter<"User"> | string | null
+    degree?: StringNullableFilter<"User"> | string | null
+    year?: StringNullableFilter<"User"> | string | null
+    specialization?: StringNullableFilter<"User"> | string | null
+    skills?: StringNullableFilter<"User"> | string | null
+    github?: StringNullableFilter<"User"> | string | null
+    linkedin?: StringNullableFilter<"User"> | string | null
+    portfolio?: StringNullableFilter<"User"> | string | null
+    bio?: StringNullableFilter<"User"> | string | null
     emailVerified?: DateTimeNullableFilter<"User"> | Date | string | null
     image?: StringNullableFilter<"User"> | string | null
     accounts?: AccountListRelationFilter
@@ -15944,6 +17226,17 @@ export namespace Prisma {
     id?: SortOrder
     name?: SortOrderInput | SortOrder
     email?: SortOrderInput | SortOrder
+    password?: SortOrderInput | SortOrder
+    role?: SortOrder
+    studentId?: SortOrderInput | SortOrder
+    degree?: SortOrderInput | SortOrder
+    year?: SortOrderInput | SortOrder
+    specialization?: SortOrderInput | SortOrder
+    skills?: SortOrderInput | SortOrder
+    github?: SortOrderInput | SortOrder
+    linkedin?: SortOrderInput | SortOrder
+    portfolio?: SortOrderInput | SortOrder
+    bio?: SortOrderInput | SortOrder
     emailVerified?: SortOrderInput | SortOrder
     image?: SortOrderInput | SortOrder
     _count?: UserCountOrderByAggregateInput
@@ -15958,8 +17251,71 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"User"> | string
     name?: StringNullableWithAggregatesFilter<"User"> | string | null
     email?: StringNullableWithAggregatesFilter<"User"> | string | null
+    password?: StringNullableWithAggregatesFilter<"User"> | string | null
+    role?: StringWithAggregatesFilter<"User"> | string
+    studentId?: StringNullableWithAggregatesFilter<"User"> | string | null
+    degree?: StringNullableWithAggregatesFilter<"User"> | string | null
+    year?: StringNullableWithAggregatesFilter<"User"> | string | null
+    specialization?: StringNullableWithAggregatesFilter<"User"> | string | null
+    skills?: StringNullableWithAggregatesFilter<"User"> | string | null
+    github?: StringNullableWithAggregatesFilter<"User"> | string | null
+    linkedin?: StringNullableWithAggregatesFilter<"User"> | string | null
+    portfolio?: StringNullableWithAggregatesFilter<"User"> | string | null
+    bio?: StringNullableWithAggregatesFilter<"User"> | string | null
     emailVerified?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
     image?: StringNullableWithAggregatesFilter<"User"> | string | null
+  }
+
+  export type EmailOTPWhereInput = {
+    AND?: EmailOTPWhereInput | EmailOTPWhereInput[]
+    OR?: EmailOTPWhereInput[]
+    NOT?: EmailOTPWhereInput | EmailOTPWhereInput[]
+    id?: StringFilter<"EmailOTP"> | string
+    email?: StringFilter<"EmailOTP"> | string
+    otp?: StringFilter<"EmailOTP"> | string
+    expiresAt?: DateTimeFilter<"EmailOTP"> | Date | string
+    createdAt?: DateTimeFilter<"EmailOTP"> | Date | string
+  }
+
+  export type EmailOTPOrderByWithRelationInput = {
+    id?: SortOrder
+    email?: SortOrder
+    otp?: SortOrder
+    expiresAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type EmailOTPWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: EmailOTPWhereInput | EmailOTPWhereInput[]
+    OR?: EmailOTPWhereInput[]
+    NOT?: EmailOTPWhereInput | EmailOTPWhereInput[]
+    email?: StringFilter<"EmailOTP"> | string
+    otp?: StringFilter<"EmailOTP"> | string
+    expiresAt?: DateTimeFilter<"EmailOTP"> | Date | string
+    createdAt?: DateTimeFilter<"EmailOTP"> | Date | string
+  }, "id">
+
+  export type EmailOTPOrderByWithAggregationInput = {
+    id?: SortOrder
+    email?: SortOrder
+    otp?: SortOrder
+    expiresAt?: SortOrder
+    createdAt?: SortOrder
+    _count?: EmailOTPCountOrderByAggregateInput
+    _max?: EmailOTPMaxOrderByAggregateInput
+    _min?: EmailOTPMinOrderByAggregateInput
+  }
+
+  export type EmailOTPScalarWhereWithAggregatesInput = {
+    AND?: EmailOTPScalarWhereWithAggregatesInput | EmailOTPScalarWhereWithAggregatesInput[]
+    OR?: EmailOTPScalarWhereWithAggregatesInput[]
+    NOT?: EmailOTPScalarWhereWithAggregatesInput | EmailOTPScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"EmailOTP"> | string
+    email?: StringWithAggregatesFilter<"EmailOTP"> | string
+    otp?: StringWithAggregatesFilter<"EmailOTP"> | string
+    expiresAt?: DateTimeWithAggregatesFilter<"EmailOTP"> | Date | string
+    createdAt?: DateTimeWithAggregatesFilter<"EmailOTP"> | Date | string
   }
 
   export type VerificationTokenWhereInput = {
@@ -16741,6 +18097,17 @@ export namespace Prisma {
     id?: string
     name?: string | null
     email?: string | null
+    password?: string | null
+    role?: string
+    studentId?: string | null
+    degree?: string | null
+    year?: string | null
+    specialization?: string | null
+    skills?: string | null
+    github?: string | null
+    linkedin?: string | null
+    portfolio?: string | null
+    bio?: string | null
     emailVerified?: Date | string | null
     image?: string | null
     accounts?: AccountCreateNestedManyWithoutUserInput
@@ -16752,6 +18119,17 @@ export namespace Prisma {
     id?: string
     name?: string | null
     email?: string | null
+    password?: string | null
+    role?: string
+    studentId?: string | null
+    degree?: string | null
+    year?: string | null
+    specialization?: string | null
+    skills?: string | null
+    github?: string | null
+    linkedin?: string | null
+    portfolio?: string | null
+    bio?: string | null
     emailVerified?: Date | string | null
     image?: string | null
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
@@ -16763,6 +18141,17 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    studentId?: NullableStringFieldUpdateOperationsInput | string | null
+    degree?: NullableStringFieldUpdateOperationsInput | string | null
+    year?: NullableStringFieldUpdateOperationsInput | string | null
+    specialization?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: NullableStringFieldUpdateOperationsInput | string | null
+    github?: NullableStringFieldUpdateOperationsInput | string | null
+    linkedin?: NullableStringFieldUpdateOperationsInput | string | null
+    portfolio?: NullableStringFieldUpdateOperationsInput | string | null
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
     emailVerified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     image?: NullableStringFieldUpdateOperationsInput | string | null
     accounts?: AccountUpdateManyWithoutUserNestedInput
@@ -16774,6 +18163,17 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    studentId?: NullableStringFieldUpdateOperationsInput | string | null
+    degree?: NullableStringFieldUpdateOperationsInput | string | null
+    year?: NullableStringFieldUpdateOperationsInput | string | null
+    specialization?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: NullableStringFieldUpdateOperationsInput | string | null
+    github?: NullableStringFieldUpdateOperationsInput | string | null
+    linkedin?: NullableStringFieldUpdateOperationsInput | string | null
+    portfolio?: NullableStringFieldUpdateOperationsInput | string | null
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
     emailVerified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     image?: NullableStringFieldUpdateOperationsInput | string | null
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
@@ -16785,6 +18185,17 @@ export namespace Prisma {
     id?: string
     name?: string | null
     email?: string | null
+    password?: string | null
+    role?: string
+    studentId?: string | null
+    degree?: string | null
+    year?: string | null
+    specialization?: string | null
+    skills?: string | null
+    github?: string | null
+    linkedin?: string | null
+    portfolio?: string | null
+    bio?: string | null
     emailVerified?: Date | string | null
     image?: string | null
   }
@@ -16793,6 +18204,17 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    studentId?: NullableStringFieldUpdateOperationsInput | string | null
+    degree?: NullableStringFieldUpdateOperationsInput | string | null
+    year?: NullableStringFieldUpdateOperationsInput | string | null
+    specialization?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: NullableStringFieldUpdateOperationsInput | string | null
+    github?: NullableStringFieldUpdateOperationsInput | string | null
+    linkedin?: NullableStringFieldUpdateOperationsInput | string | null
+    portfolio?: NullableStringFieldUpdateOperationsInput | string | null
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
     emailVerified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     image?: NullableStringFieldUpdateOperationsInput | string | null
   }
@@ -16801,8 +18223,75 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    studentId?: NullableStringFieldUpdateOperationsInput | string | null
+    degree?: NullableStringFieldUpdateOperationsInput | string | null
+    year?: NullableStringFieldUpdateOperationsInput | string | null
+    specialization?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: NullableStringFieldUpdateOperationsInput | string | null
+    github?: NullableStringFieldUpdateOperationsInput | string | null
+    linkedin?: NullableStringFieldUpdateOperationsInput | string | null
+    portfolio?: NullableStringFieldUpdateOperationsInput | string | null
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
     emailVerified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     image?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type EmailOTPCreateInput = {
+    id?: string
+    email: string
+    otp: string
+    expiresAt: Date | string
+    createdAt?: Date | string
+  }
+
+  export type EmailOTPUncheckedCreateInput = {
+    id?: string
+    email: string
+    otp: string
+    expiresAt: Date | string
+    createdAt?: Date | string
+  }
+
+  export type EmailOTPUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    otp?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmailOTPUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    otp?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmailOTPCreateManyInput = {
+    id?: string
+    email: string
+    otp: string
+    expiresAt: Date | string
+    createdAt?: Date | string
+  }
+
+  export type EmailOTPUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    otp?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmailOTPUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    otp?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type VerificationTokenCreateInput = {
@@ -17739,6 +19228,17 @@ export namespace Prisma {
     id?: SortOrder
     name?: SortOrder
     email?: SortOrder
+    password?: SortOrder
+    role?: SortOrder
+    studentId?: SortOrder
+    degree?: SortOrder
+    year?: SortOrder
+    specialization?: SortOrder
+    skills?: SortOrder
+    github?: SortOrder
+    linkedin?: SortOrder
+    portfolio?: SortOrder
+    bio?: SortOrder
     emailVerified?: SortOrder
     image?: SortOrder
   }
@@ -17747,6 +19247,17 @@ export namespace Prisma {
     id?: SortOrder
     name?: SortOrder
     email?: SortOrder
+    password?: SortOrder
+    role?: SortOrder
+    studentId?: SortOrder
+    degree?: SortOrder
+    year?: SortOrder
+    specialization?: SortOrder
+    skills?: SortOrder
+    github?: SortOrder
+    linkedin?: SortOrder
+    portfolio?: SortOrder
+    bio?: SortOrder
     emailVerified?: SortOrder
     image?: SortOrder
   }
@@ -17755,6 +19266,17 @@ export namespace Prisma {
     id?: SortOrder
     name?: SortOrder
     email?: SortOrder
+    password?: SortOrder
+    role?: SortOrder
+    studentId?: SortOrder
+    degree?: SortOrder
+    year?: SortOrder
+    specialization?: SortOrder
+    skills?: SortOrder
+    github?: SortOrder
+    linkedin?: SortOrder
+    portfolio?: SortOrder
+    bio?: SortOrder
     emailVerified?: SortOrder
     image?: SortOrder
   }
@@ -17771,6 +19293,30 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedDateTimeNullableFilter<$PrismaModel>
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
+  export type EmailOTPCountOrderByAggregateInput = {
+    id?: SortOrder
+    email?: SortOrder
+    otp?: SortOrder
+    expiresAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type EmailOTPMaxOrderByAggregateInput = {
+    id?: SortOrder
+    email?: SortOrder
+    otp?: SortOrder
+    expiresAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type EmailOTPMinOrderByAggregateInput = {
+    id?: SortOrder
+    email?: SortOrder
+    otp?: SortOrder
+    expiresAt?: SortOrder
+    createdAt?: SortOrder
   }
 
   export type VerificationTokenIdentifierTokenCompoundUniqueInput = {
@@ -19171,6 +20717,17 @@ export namespace Prisma {
     id?: string
     name?: string | null
     email?: string | null
+    password?: string | null
+    role?: string
+    studentId?: string | null
+    degree?: string | null
+    year?: string | null
+    specialization?: string | null
+    skills?: string | null
+    github?: string | null
+    linkedin?: string | null
+    portfolio?: string | null
+    bio?: string | null
     emailVerified?: Date | string | null
     image?: string | null
     accounts?: AccountCreateNestedManyWithoutUserInput
@@ -19181,6 +20738,17 @@ export namespace Prisma {
     id?: string
     name?: string | null
     email?: string | null
+    password?: string | null
+    role?: string
+    studentId?: string | null
+    degree?: string | null
+    year?: string | null
+    specialization?: string | null
+    skills?: string | null
+    github?: string | null
+    linkedin?: string | null
+    portfolio?: string | null
+    bio?: string | null
     emailVerified?: Date | string | null
     image?: string | null
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
@@ -19207,6 +20775,17 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    studentId?: NullableStringFieldUpdateOperationsInput | string | null
+    degree?: NullableStringFieldUpdateOperationsInput | string | null
+    year?: NullableStringFieldUpdateOperationsInput | string | null
+    specialization?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: NullableStringFieldUpdateOperationsInput | string | null
+    github?: NullableStringFieldUpdateOperationsInput | string | null
+    linkedin?: NullableStringFieldUpdateOperationsInput | string | null
+    portfolio?: NullableStringFieldUpdateOperationsInput | string | null
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
     emailVerified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     image?: NullableStringFieldUpdateOperationsInput | string | null
     accounts?: AccountUpdateManyWithoutUserNestedInput
@@ -19217,6 +20796,17 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    studentId?: NullableStringFieldUpdateOperationsInput | string | null
+    degree?: NullableStringFieldUpdateOperationsInput | string | null
+    year?: NullableStringFieldUpdateOperationsInput | string | null
+    specialization?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: NullableStringFieldUpdateOperationsInput | string | null
+    github?: NullableStringFieldUpdateOperationsInput | string | null
+    linkedin?: NullableStringFieldUpdateOperationsInput | string | null
+    portfolio?: NullableStringFieldUpdateOperationsInput | string | null
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
     emailVerified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     image?: NullableStringFieldUpdateOperationsInput | string | null
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
@@ -19227,6 +20817,17 @@ export namespace Prisma {
     id?: string
     name?: string | null
     email?: string | null
+    password?: string | null
+    role?: string
+    studentId?: string | null
+    degree?: string | null
+    year?: string | null
+    specialization?: string | null
+    skills?: string | null
+    github?: string | null
+    linkedin?: string | null
+    portfolio?: string | null
+    bio?: string | null
     emailVerified?: Date | string | null
     image?: string | null
     sessions?: SessionCreateNestedManyWithoutUserInput
@@ -19237,6 +20838,17 @@ export namespace Prisma {
     id?: string
     name?: string | null
     email?: string | null
+    password?: string | null
+    role?: string
+    studentId?: string | null
+    degree?: string | null
+    year?: string | null
+    specialization?: string | null
+    skills?: string | null
+    github?: string | null
+    linkedin?: string | null
+    portfolio?: string | null
+    bio?: string | null
     emailVerified?: Date | string | null
     image?: string | null
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
@@ -19263,6 +20875,17 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    studentId?: NullableStringFieldUpdateOperationsInput | string | null
+    degree?: NullableStringFieldUpdateOperationsInput | string | null
+    year?: NullableStringFieldUpdateOperationsInput | string | null
+    specialization?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: NullableStringFieldUpdateOperationsInput | string | null
+    github?: NullableStringFieldUpdateOperationsInput | string | null
+    linkedin?: NullableStringFieldUpdateOperationsInput | string | null
+    portfolio?: NullableStringFieldUpdateOperationsInput | string | null
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
     emailVerified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     image?: NullableStringFieldUpdateOperationsInput | string | null
     sessions?: SessionUpdateManyWithoutUserNestedInput
@@ -19273,6 +20896,17 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    studentId?: NullableStringFieldUpdateOperationsInput | string | null
+    degree?: NullableStringFieldUpdateOperationsInput | string | null
+    year?: NullableStringFieldUpdateOperationsInput | string | null
+    specialization?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: NullableStringFieldUpdateOperationsInput | string | null
+    github?: NullableStringFieldUpdateOperationsInput | string | null
+    linkedin?: NullableStringFieldUpdateOperationsInput | string | null
+    portfolio?: NullableStringFieldUpdateOperationsInput | string | null
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
     emailVerified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     image?: NullableStringFieldUpdateOperationsInput | string | null
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
@@ -19283,6 +20917,17 @@ export namespace Prisma {
     id?: string
     name?: string | null
     email?: string | null
+    password?: string | null
+    role?: string
+    studentId?: string | null
+    degree?: string | null
+    year?: string | null
+    specialization?: string | null
+    skills?: string | null
+    github?: string | null
+    linkedin?: string | null
+    portfolio?: string | null
+    bio?: string | null
     emailVerified?: Date | string | null
     image?: string | null
     accounts?: AccountCreateNestedManyWithoutUserInput
@@ -19293,6 +20938,17 @@ export namespace Prisma {
     id?: string
     name?: string | null
     email?: string | null
+    password?: string | null
+    role?: string
+    studentId?: string | null
+    degree?: string | null
+    year?: string | null
+    specialization?: string | null
+    skills?: string | null
+    github?: string | null
+    linkedin?: string | null
+    portfolio?: string | null
+    bio?: string | null
     emailVerified?: Date | string | null
     image?: string | null
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
@@ -19319,6 +20975,17 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    studentId?: NullableStringFieldUpdateOperationsInput | string | null
+    degree?: NullableStringFieldUpdateOperationsInput | string | null
+    year?: NullableStringFieldUpdateOperationsInput | string | null
+    specialization?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: NullableStringFieldUpdateOperationsInput | string | null
+    github?: NullableStringFieldUpdateOperationsInput | string | null
+    linkedin?: NullableStringFieldUpdateOperationsInput | string | null
+    portfolio?: NullableStringFieldUpdateOperationsInput | string | null
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
     emailVerified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     image?: NullableStringFieldUpdateOperationsInput | string | null
     accounts?: AccountUpdateManyWithoutUserNestedInput
@@ -19329,6 +20996,17 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    studentId?: NullableStringFieldUpdateOperationsInput | string | null
+    degree?: NullableStringFieldUpdateOperationsInput | string | null
+    year?: NullableStringFieldUpdateOperationsInput | string | null
+    specialization?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: NullableStringFieldUpdateOperationsInput | string | null
+    github?: NullableStringFieldUpdateOperationsInput | string | null
+    linkedin?: NullableStringFieldUpdateOperationsInput | string | null
+    portfolio?: NullableStringFieldUpdateOperationsInput | string | null
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
     emailVerified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     image?: NullableStringFieldUpdateOperationsInput | string | null
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
