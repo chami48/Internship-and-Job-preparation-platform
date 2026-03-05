@@ -152,8 +152,27 @@ exports.Prisma.UserScalarFieldEnum = {
   id: 'id',
   name: 'name',
   email: 'email',
+  password: 'password',
+  role: 'role',
+  studentId: 'studentId',
+  degree: 'degree',
+  year: 'year',
+  specialization: 'specialization',
+  skills: 'skills',
+  github: 'github',
+  linkedin: 'linkedin',
+  portfolio: 'portfolio',
+  bio: 'bio',
   emailVerified: 'emailVerified',
   image: 'image'
+};
+
+exports.Prisma.EmailOTPScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  otp: 'otp',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.VerificationTokenScalarFieldEnum = {
@@ -301,6 +320,7 @@ exports.Prisma.ModelName = {
   Account: 'Account',
   Session: 'Session',
   User: 'User',
+  EmailOTP: 'EmailOTP',
   VerificationToken: 'VerificationToken',
   Job: 'Job',
   Question: 'Question',
