@@ -36,6 +36,7 @@ const MAX_VIOLATIONS = 3;
 // ─────────────────────────────────────────────
 // HELPERS
 // ─────────────────────────────────────────────
+
 const formatTime = (seconds: number) => {
   const m = Math.floor(seconds / 60);
   const s = seconds % 60;
@@ -56,6 +57,19 @@ const violationLabel: Record<ViolationType, string> = {
 // MAIN COMPONENT
 // ─────────────────────────────────────────────
 export default function ExamPage() {
+
+  const [studentEmail, setStudentEmail] = useState<string | null>(null);
+
+  // ✅ ADD THIS HERE
+  useEffect(() => {
+    setStudentEmail("dilmichamya@gmail.com");
+  }, []);
+
+  const { data: verificationData } = api.verification.getByEmail.useQuery(
+    { email: studentEmail! },
+    { enabled: !!studentEmail }
+  );
+
   const router = useRouter();
   const searchParams = useSearchParams();
   const appId = searchParams.get("appId");
@@ -117,10 +131,14 @@ const questions = data as QuestionType[] | undefined;
   // ─────────────────────────────────────────────
   const startCamera = useCallback(async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "user", width: 320, height: 240 },
-        audio: false,
-      });
+     const stream = await navigator.mediaDevices.getUserMedia({
+  video: {
+    facingMode: "user",
+    width: { ideal: 640 },
+    height: { ideal: 480 },
+  },
+  audio: false,
+});
       mediaStreamRef.current = stream;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
@@ -385,6 +403,8 @@ useEffect(() => {
 // AI FACE MONITORING
 // ─────────────────────────────────────────────
 useEffect(() => {
+if (!examStarted) return;
+
   let noFaceCounter = 0;
   let multipleFaceCounter = 0;
 
@@ -394,7 +414,10 @@ useEffect(() => {
     try {
       const detections = await faceapi.detectAllFaces(
         videoRef.current,
-        new faceapi.TinyFaceDetectorOptions()
+        new faceapi.TinyFaceDetectorOptions({
+  inputSize: 320,
+  scoreThreshold: 0.3,
+})
       );
 
       // ❌ No face detected
@@ -555,9 +578,77 @@ useEffect(() => {
   // ─────────────────────────────────────────────
   // START EXAM — fullscreen starts ONLY here
   // ─────────────────────────────────────────────
+  
+  const compareFaces = async () => {
+
+  console.log("VIDEO:", videoRef.current);
+console.log("ID IMAGE:", verificationData?.idImageUrl);
+console.log("VERIFICATION DATA:", verificationData);
+
+  if (!videoRef.current || !verificationData?.idImageUrl) {
+    console.log("Missing video or ID image");
+    return false;
+  }
+
+  try {
+    console.log("Loading ID image...");
+    const img = await faceapi.fetchImage(verificationData.idImageUrl);
+
+    console.log("Detecting face in ID image...");
+    const idDetection = await faceapi
+      .detectSingleFace(
+  videoRef.current,
+  new faceapi.TinyFaceDetectorOptions({
+    inputSize: 320,
+    scoreThreshold: 0.3,
+  })
+)
+      .withFaceLandmarks()
+      .withFaceDescriptor();
+
+    if (!idDetection) {
+      console.log("❌ ID face NOT detected");
+      return false;
+    }
+
+    console.log("ID face detected");
+
+    console.log("Detecting face in LIVE camera...");
+    const liveDetection = await faceapi
+      .detectSingleFace(videoRef.current, new faceapi.TinyFaceDetectorOptions())
+      .withFaceLandmarks()
+      .withFaceDescriptor();
+
+    if (!liveDetection) {
+      console.log("❌ LIVE face NOT detected");
+      return false;
+    }
+
+    console.log("LIVE face detected");
+
+    const distance = faceapi.euclideanDistance(
+      idDetection.descriptor,
+      liveDetection.descriptor
+    );
+
+    console.log("✅ Face distance:", distance);
+
+    return distance < 0.8; // temporarily relaxed
+  } catch (err) {
+    console.error("Face compare error:", err);
+    return false;
+  }
+};
+
   const handleStartExam = async () => {
   setStartingExam(true);
   setCameraError(null);
+
+  if (!verificationData?.idImageUrl) {
+    alert("Verification data not loaded yet. Please wait.");
+    setStartingExam(false);
+    return;
+  }
 
   const camOk = await startCamera();
 
@@ -566,8 +657,46 @@ useEffect(() => {
     return;
   }
 
-  // load face detection model
-  await faceapi.nets.tinyFaceDetector.loadFromUri("/models");
+  // Wait until video fully ready
+  if (videoRef.current) {
+  const video = videoRef.current;
+
+  await new Promise<void>((resolve) => {
+    video.onloadedmetadata = () => {
+      video.play();
+    };
+
+    const checkReady = () => {
+      if (video.readyState === 4) {
+        resolve();
+      } else {
+        requestAnimationFrame(checkReady);
+      }
+    };
+
+    checkReady();
+  });
+
+  // extra delay for stable frame
+  await new Promise((r) => setTimeout(r, 1500));
+}
+
+  await Promise.all([
+    faceapi.nets.tinyFaceDetector.loadFromUri("/models"),
+    faceapi.nets.faceLandmark68Net.loadFromUri("/models"),
+    faceapi.nets.faceRecognitionNet.loadFromUri("/models"),
+  ]);
+
+  await new Promise((r) => setTimeout(r, 1000));
+  const match = await compareFaces();
+
+  if (!match) {
+    alert("Face does not match ID. Exam terminated.");
+    stopCamera();
+    setStartingExam(false);
+    router.push("/");
+    return;
+  }
 
   await enterFullscreen();
 
@@ -604,6 +733,13 @@ useEffect(() => {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
         <div className="max-w-xl w-full">
+          <video
+        ref={videoRef}
+        autoPlay
+        muted
+        playsInline
+        className="w-full h-full object-cover"
+      />
           {/* Header */}
           <div className="mb-8">
             <div className="flex items-center gap-3 mb-5">
@@ -768,13 +904,7 @@ useEffect(() => {
 
       {/* Camera for Face Detection */}
     <div className="fixed bottom-4 right-4 w-48 h-36 border rounded-lg overflow-hidden shadow-lg">
-      <video
-        ref={videoRef}
-        autoPlay
-        muted
-        playsInline
-        className="w-full h-full object-cover"
-      />
+      
     </div>
     
         <div className="text-center max-w-sm">

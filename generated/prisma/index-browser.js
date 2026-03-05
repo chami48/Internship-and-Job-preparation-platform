@@ -261,6 +261,16 @@ exports.Prisma.ExamViolationScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.ApplicantVerificationScalarFieldEnum = {
+  id: 'id',
+  fullName: 'fullName',
+  email: 'email',
+  studentIdNumber: 'studentIdNumber',
+  role: 'role',
+  idImageUrl: 'idImageUrl',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -338,7 +348,8 @@ exports.Prisma.ModelName = {
   Project: 'Project',
   ScenarioAnswer: 'ScenarioAnswer',
   ExamAnswer: 'ExamAnswer',
-  ExamViolation: 'ExamViolation'
+  ExamViolation: 'ExamViolation',
+  ApplicantVerification: 'ApplicantVerification'
 };
 
 /**

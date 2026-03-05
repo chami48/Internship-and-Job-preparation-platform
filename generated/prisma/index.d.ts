@@ -83,6 +83,11 @@ export type ExamAnswer = $Result.DefaultSelection<Prisma.$ExamAnswerPayload>
  * 
  */
 export type ExamViolation = $Result.DefaultSelection<Prisma.$ExamViolationPayload>
+/**
+ * Model ApplicantVerification
+ * 
+ */
+export type ApplicantVerification = $Result.DefaultSelection<Prisma.$ApplicantVerificationPayload>
 
 /**
  * Enums
@@ -426,6 +431,16 @@ export class PrismaClient<
     * ```
     */
   get examViolation(): Prisma.ExamViolationDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.applicantVerification`: Exposes CRUD operations for the **ApplicantVerification** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ApplicantVerifications
+    * const applicantVerifications = await prisma.applicantVerification.findMany()
+    * ```
+    */
+  get applicantVerification(): Prisma.ApplicantVerificationDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -880,7 +895,8 @@ export namespace Prisma {
     Project: 'Project',
     ScenarioAnswer: 'ScenarioAnswer',
     ExamAnswer: 'ExamAnswer',
-    ExamViolation: 'ExamViolation'
+    ExamViolation: 'ExamViolation',
+    ApplicantVerification: 'ApplicantVerification'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -899,7 +915,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "post" | "account" | "session" | "user" | "verificationToken" | "company" | "job" | "question" | "option" | "application" | "project" | "scenarioAnswer" | "examAnswer" | "examViolation"
+      modelProps: "post" | "account" | "session" | "user" | "verificationToken" | "company" | "job" | "question" | "option" | "application" | "project" | "scenarioAnswer" | "examAnswer" | "examViolation" | "applicantVerification"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1939,6 +1955,80 @@ export namespace Prisma {
           }
         }
       }
+      ApplicantVerification: {
+        payload: Prisma.$ApplicantVerificationPayload<ExtArgs>
+        fields: Prisma.ApplicantVerificationFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ApplicantVerificationFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApplicantVerificationPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ApplicantVerificationFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApplicantVerificationPayload>
+          }
+          findFirst: {
+            args: Prisma.ApplicantVerificationFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApplicantVerificationPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ApplicantVerificationFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApplicantVerificationPayload>
+          }
+          findMany: {
+            args: Prisma.ApplicantVerificationFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApplicantVerificationPayload>[]
+          }
+          create: {
+            args: Prisma.ApplicantVerificationCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApplicantVerificationPayload>
+          }
+          createMany: {
+            args: Prisma.ApplicantVerificationCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ApplicantVerificationCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApplicantVerificationPayload>[]
+          }
+          delete: {
+            args: Prisma.ApplicantVerificationDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApplicantVerificationPayload>
+          }
+          update: {
+            args: Prisma.ApplicantVerificationUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApplicantVerificationPayload>
+          }
+          deleteMany: {
+            args: Prisma.ApplicantVerificationDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ApplicantVerificationUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ApplicantVerificationUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApplicantVerificationPayload>[]
+          }
+          upsert: {
+            args: Prisma.ApplicantVerificationUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApplicantVerificationPayload>
+          }
+          aggregate: {
+            args: Prisma.ApplicantVerificationAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateApplicantVerification>
+          }
+          groupBy: {
+            args: Prisma.ApplicantVerificationGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ApplicantVerificationGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ApplicantVerificationCountArgs<ExtArgs>
+            result: $Utils.Optional<ApplicantVerificationCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -2049,6 +2139,7 @@ export namespace Prisma {
     scenarioAnswer?: ScenarioAnswerOmit
     examAnswer?: ExamAnswerOmit
     examViolation?: ExamViolationOmit
+    applicantVerification?: ApplicantVerificationOmit
   }
 
   /* Types for Logging */
@@ -17798,6 +17889,1025 @@ export namespace Prisma {
 
 
   /**
+   * Model ApplicantVerification
+   */
+
+  export type AggregateApplicantVerification = {
+    _count: ApplicantVerificationCountAggregateOutputType | null
+    _min: ApplicantVerificationMinAggregateOutputType | null
+    _max: ApplicantVerificationMaxAggregateOutputType | null
+  }
+
+  export type ApplicantVerificationMinAggregateOutputType = {
+    id: string | null
+    fullName: string | null
+    email: string | null
+    studentIdNumber: string | null
+    role: string | null
+    idImageUrl: string | null
+    createdAt: Date | null
+  }
+
+  export type ApplicantVerificationMaxAggregateOutputType = {
+    id: string | null
+    fullName: string | null
+    email: string | null
+    studentIdNumber: string | null
+    role: string | null
+    idImageUrl: string | null
+    createdAt: Date | null
+  }
+
+  export type ApplicantVerificationCountAggregateOutputType = {
+    id: number
+    fullName: number
+    email: number
+    studentIdNumber: number
+    role: number
+    idImageUrl: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type ApplicantVerificationMinAggregateInputType = {
+    id?: true
+    fullName?: true
+    email?: true
+    studentIdNumber?: true
+    role?: true
+    idImageUrl?: true
+    createdAt?: true
+  }
+
+  export type ApplicantVerificationMaxAggregateInputType = {
+    id?: true
+    fullName?: true
+    email?: true
+    studentIdNumber?: true
+    role?: true
+    idImageUrl?: true
+    createdAt?: true
+  }
+
+  export type ApplicantVerificationCountAggregateInputType = {
+    id?: true
+    fullName?: true
+    email?: true
+    studentIdNumber?: true
+    role?: true
+    idImageUrl?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type ApplicantVerificationAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ApplicantVerification to aggregate.
+     */
+    where?: ApplicantVerificationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ApplicantVerifications to fetch.
+     */
+    orderBy?: ApplicantVerificationOrderByWithRelationInput | ApplicantVerificationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ApplicantVerificationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ApplicantVerifications from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ApplicantVerifications.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ApplicantVerifications
+    **/
+    _count?: true | ApplicantVerificationCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ApplicantVerificationMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ApplicantVerificationMaxAggregateInputType
+  }
+
+  export type GetApplicantVerificationAggregateType<T extends ApplicantVerificationAggregateArgs> = {
+        [P in keyof T & keyof AggregateApplicantVerification]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateApplicantVerification[P]>
+      : GetScalarType<T[P], AggregateApplicantVerification[P]>
+  }
+
+
+
+
+  export type ApplicantVerificationGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ApplicantVerificationWhereInput
+    orderBy?: ApplicantVerificationOrderByWithAggregationInput | ApplicantVerificationOrderByWithAggregationInput[]
+    by: ApplicantVerificationScalarFieldEnum[] | ApplicantVerificationScalarFieldEnum
+    having?: ApplicantVerificationScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ApplicantVerificationCountAggregateInputType | true
+    _min?: ApplicantVerificationMinAggregateInputType
+    _max?: ApplicantVerificationMaxAggregateInputType
+  }
+
+  export type ApplicantVerificationGroupByOutputType = {
+    id: string
+    fullName: string
+    email: string
+    studentIdNumber: string
+    role: string
+    idImageUrl: string
+    createdAt: Date
+    _count: ApplicantVerificationCountAggregateOutputType | null
+    _min: ApplicantVerificationMinAggregateOutputType | null
+    _max: ApplicantVerificationMaxAggregateOutputType | null
+  }
+
+  type GetApplicantVerificationGroupByPayload<T extends ApplicantVerificationGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ApplicantVerificationGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ApplicantVerificationGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ApplicantVerificationGroupByOutputType[P]>
+            : GetScalarType<T[P], ApplicantVerificationGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ApplicantVerificationSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    fullName?: boolean
+    email?: boolean
+    studentIdNumber?: boolean
+    role?: boolean
+    idImageUrl?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["applicantVerification"]>
+
+  export type ApplicantVerificationSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    fullName?: boolean
+    email?: boolean
+    studentIdNumber?: boolean
+    role?: boolean
+    idImageUrl?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["applicantVerification"]>
+
+  export type ApplicantVerificationSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    fullName?: boolean
+    email?: boolean
+    studentIdNumber?: boolean
+    role?: boolean
+    idImageUrl?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["applicantVerification"]>
+
+  export type ApplicantVerificationSelectScalar = {
+    id?: boolean
+    fullName?: boolean
+    email?: boolean
+    studentIdNumber?: boolean
+    role?: boolean
+    idImageUrl?: boolean
+    createdAt?: boolean
+  }
+
+  export type ApplicantVerificationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "fullName" | "email" | "studentIdNumber" | "role" | "idImageUrl" | "createdAt", ExtArgs["result"]["applicantVerification"]>
+
+  export type $ApplicantVerificationPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ApplicantVerification"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      fullName: string
+      email: string
+      studentIdNumber: string
+      role: string
+      idImageUrl: string
+      createdAt: Date
+    }, ExtArgs["result"]["applicantVerification"]>
+    composites: {}
+  }
+
+  type ApplicantVerificationGetPayload<S extends boolean | null | undefined | ApplicantVerificationDefaultArgs> = $Result.GetResult<Prisma.$ApplicantVerificationPayload, S>
+
+  type ApplicantVerificationCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ApplicantVerificationFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ApplicantVerificationCountAggregateInputType | true
+    }
+
+  export interface ApplicantVerificationDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ApplicantVerification'], meta: { name: 'ApplicantVerification' } }
+    /**
+     * Find zero or one ApplicantVerification that matches the filter.
+     * @param {ApplicantVerificationFindUniqueArgs} args - Arguments to find a ApplicantVerification
+     * @example
+     * // Get one ApplicantVerification
+     * const applicantVerification = await prisma.applicantVerification.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ApplicantVerificationFindUniqueArgs>(args: SelectSubset<T, ApplicantVerificationFindUniqueArgs<ExtArgs>>): Prisma__ApplicantVerificationClient<$Result.GetResult<Prisma.$ApplicantVerificationPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ApplicantVerification that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ApplicantVerificationFindUniqueOrThrowArgs} args - Arguments to find a ApplicantVerification
+     * @example
+     * // Get one ApplicantVerification
+     * const applicantVerification = await prisma.applicantVerification.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ApplicantVerificationFindUniqueOrThrowArgs>(args: SelectSubset<T, ApplicantVerificationFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ApplicantVerificationClient<$Result.GetResult<Prisma.$ApplicantVerificationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ApplicantVerification that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ApplicantVerificationFindFirstArgs} args - Arguments to find a ApplicantVerification
+     * @example
+     * // Get one ApplicantVerification
+     * const applicantVerification = await prisma.applicantVerification.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ApplicantVerificationFindFirstArgs>(args?: SelectSubset<T, ApplicantVerificationFindFirstArgs<ExtArgs>>): Prisma__ApplicantVerificationClient<$Result.GetResult<Prisma.$ApplicantVerificationPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ApplicantVerification that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ApplicantVerificationFindFirstOrThrowArgs} args - Arguments to find a ApplicantVerification
+     * @example
+     * // Get one ApplicantVerification
+     * const applicantVerification = await prisma.applicantVerification.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ApplicantVerificationFindFirstOrThrowArgs>(args?: SelectSubset<T, ApplicantVerificationFindFirstOrThrowArgs<ExtArgs>>): Prisma__ApplicantVerificationClient<$Result.GetResult<Prisma.$ApplicantVerificationPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ApplicantVerifications that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ApplicantVerificationFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ApplicantVerifications
+     * const applicantVerifications = await prisma.applicantVerification.findMany()
+     * 
+     * // Get first 10 ApplicantVerifications
+     * const applicantVerifications = await prisma.applicantVerification.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const applicantVerificationWithIdOnly = await prisma.applicantVerification.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ApplicantVerificationFindManyArgs>(args?: SelectSubset<T, ApplicantVerificationFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ApplicantVerificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ApplicantVerification.
+     * @param {ApplicantVerificationCreateArgs} args - Arguments to create a ApplicantVerification.
+     * @example
+     * // Create one ApplicantVerification
+     * const ApplicantVerification = await prisma.applicantVerification.create({
+     *   data: {
+     *     // ... data to create a ApplicantVerification
+     *   }
+     * })
+     * 
+     */
+    create<T extends ApplicantVerificationCreateArgs>(args: SelectSubset<T, ApplicantVerificationCreateArgs<ExtArgs>>): Prisma__ApplicantVerificationClient<$Result.GetResult<Prisma.$ApplicantVerificationPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ApplicantVerifications.
+     * @param {ApplicantVerificationCreateManyArgs} args - Arguments to create many ApplicantVerifications.
+     * @example
+     * // Create many ApplicantVerifications
+     * const applicantVerification = await prisma.applicantVerification.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ApplicantVerificationCreateManyArgs>(args?: SelectSubset<T, ApplicantVerificationCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ApplicantVerifications and returns the data saved in the database.
+     * @param {ApplicantVerificationCreateManyAndReturnArgs} args - Arguments to create many ApplicantVerifications.
+     * @example
+     * // Create many ApplicantVerifications
+     * const applicantVerification = await prisma.applicantVerification.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ApplicantVerifications and only return the `id`
+     * const applicantVerificationWithIdOnly = await prisma.applicantVerification.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ApplicantVerificationCreateManyAndReturnArgs>(args?: SelectSubset<T, ApplicantVerificationCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ApplicantVerificationPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ApplicantVerification.
+     * @param {ApplicantVerificationDeleteArgs} args - Arguments to delete one ApplicantVerification.
+     * @example
+     * // Delete one ApplicantVerification
+     * const ApplicantVerification = await prisma.applicantVerification.delete({
+     *   where: {
+     *     // ... filter to delete one ApplicantVerification
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ApplicantVerificationDeleteArgs>(args: SelectSubset<T, ApplicantVerificationDeleteArgs<ExtArgs>>): Prisma__ApplicantVerificationClient<$Result.GetResult<Prisma.$ApplicantVerificationPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ApplicantVerification.
+     * @param {ApplicantVerificationUpdateArgs} args - Arguments to update one ApplicantVerification.
+     * @example
+     * // Update one ApplicantVerification
+     * const applicantVerification = await prisma.applicantVerification.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ApplicantVerificationUpdateArgs>(args: SelectSubset<T, ApplicantVerificationUpdateArgs<ExtArgs>>): Prisma__ApplicantVerificationClient<$Result.GetResult<Prisma.$ApplicantVerificationPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ApplicantVerifications.
+     * @param {ApplicantVerificationDeleteManyArgs} args - Arguments to filter ApplicantVerifications to delete.
+     * @example
+     * // Delete a few ApplicantVerifications
+     * const { count } = await prisma.applicantVerification.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ApplicantVerificationDeleteManyArgs>(args?: SelectSubset<T, ApplicantVerificationDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ApplicantVerifications.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ApplicantVerificationUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ApplicantVerifications
+     * const applicantVerification = await prisma.applicantVerification.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ApplicantVerificationUpdateManyArgs>(args: SelectSubset<T, ApplicantVerificationUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ApplicantVerifications and returns the data updated in the database.
+     * @param {ApplicantVerificationUpdateManyAndReturnArgs} args - Arguments to update many ApplicantVerifications.
+     * @example
+     * // Update many ApplicantVerifications
+     * const applicantVerification = await prisma.applicantVerification.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ApplicantVerifications and only return the `id`
+     * const applicantVerificationWithIdOnly = await prisma.applicantVerification.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ApplicantVerificationUpdateManyAndReturnArgs>(args: SelectSubset<T, ApplicantVerificationUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ApplicantVerificationPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ApplicantVerification.
+     * @param {ApplicantVerificationUpsertArgs} args - Arguments to update or create a ApplicantVerification.
+     * @example
+     * // Update or create a ApplicantVerification
+     * const applicantVerification = await prisma.applicantVerification.upsert({
+     *   create: {
+     *     // ... data to create a ApplicantVerification
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ApplicantVerification we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ApplicantVerificationUpsertArgs>(args: SelectSubset<T, ApplicantVerificationUpsertArgs<ExtArgs>>): Prisma__ApplicantVerificationClient<$Result.GetResult<Prisma.$ApplicantVerificationPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ApplicantVerifications.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ApplicantVerificationCountArgs} args - Arguments to filter ApplicantVerifications to count.
+     * @example
+     * // Count the number of ApplicantVerifications
+     * const count = await prisma.applicantVerification.count({
+     *   where: {
+     *     // ... the filter for the ApplicantVerifications we want to count
+     *   }
+     * })
+    **/
+    count<T extends ApplicantVerificationCountArgs>(
+      args?: Subset<T, ApplicantVerificationCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ApplicantVerificationCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ApplicantVerification.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ApplicantVerificationAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ApplicantVerificationAggregateArgs>(args: Subset<T, ApplicantVerificationAggregateArgs>): Prisma.PrismaPromise<GetApplicantVerificationAggregateType<T>>
+
+    /**
+     * Group by ApplicantVerification.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ApplicantVerificationGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ApplicantVerificationGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ApplicantVerificationGroupByArgs['orderBy'] }
+        : { orderBy?: ApplicantVerificationGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ApplicantVerificationGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetApplicantVerificationGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ApplicantVerification model
+   */
+  readonly fields: ApplicantVerificationFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ApplicantVerification.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ApplicantVerificationClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ApplicantVerification model
+   */
+  interface ApplicantVerificationFieldRefs {
+    readonly id: FieldRef<"ApplicantVerification", 'String'>
+    readonly fullName: FieldRef<"ApplicantVerification", 'String'>
+    readonly email: FieldRef<"ApplicantVerification", 'String'>
+    readonly studentIdNumber: FieldRef<"ApplicantVerification", 'String'>
+    readonly role: FieldRef<"ApplicantVerification", 'String'>
+    readonly idImageUrl: FieldRef<"ApplicantVerification", 'String'>
+    readonly createdAt: FieldRef<"ApplicantVerification", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ApplicantVerification findUnique
+   */
+  export type ApplicantVerificationFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApplicantVerification
+     */
+    select?: ApplicantVerificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ApplicantVerification
+     */
+    omit?: ApplicantVerificationOmit<ExtArgs> | null
+    /**
+     * Filter, which ApplicantVerification to fetch.
+     */
+    where: ApplicantVerificationWhereUniqueInput
+  }
+
+  /**
+   * ApplicantVerification findUniqueOrThrow
+   */
+  export type ApplicantVerificationFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApplicantVerification
+     */
+    select?: ApplicantVerificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ApplicantVerification
+     */
+    omit?: ApplicantVerificationOmit<ExtArgs> | null
+    /**
+     * Filter, which ApplicantVerification to fetch.
+     */
+    where: ApplicantVerificationWhereUniqueInput
+  }
+
+  /**
+   * ApplicantVerification findFirst
+   */
+  export type ApplicantVerificationFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApplicantVerification
+     */
+    select?: ApplicantVerificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ApplicantVerification
+     */
+    omit?: ApplicantVerificationOmit<ExtArgs> | null
+    /**
+     * Filter, which ApplicantVerification to fetch.
+     */
+    where?: ApplicantVerificationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ApplicantVerifications to fetch.
+     */
+    orderBy?: ApplicantVerificationOrderByWithRelationInput | ApplicantVerificationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ApplicantVerifications.
+     */
+    cursor?: ApplicantVerificationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ApplicantVerifications from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ApplicantVerifications.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ApplicantVerifications.
+     */
+    distinct?: ApplicantVerificationScalarFieldEnum | ApplicantVerificationScalarFieldEnum[]
+  }
+
+  /**
+   * ApplicantVerification findFirstOrThrow
+   */
+  export type ApplicantVerificationFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApplicantVerification
+     */
+    select?: ApplicantVerificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ApplicantVerification
+     */
+    omit?: ApplicantVerificationOmit<ExtArgs> | null
+    /**
+     * Filter, which ApplicantVerification to fetch.
+     */
+    where?: ApplicantVerificationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ApplicantVerifications to fetch.
+     */
+    orderBy?: ApplicantVerificationOrderByWithRelationInput | ApplicantVerificationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ApplicantVerifications.
+     */
+    cursor?: ApplicantVerificationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ApplicantVerifications from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ApplicantVerifications.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ApplicantVerifications.
+     */
+    distinct?: ApplicantVerificationScalarFieldEnum | ApplicantVerificationScalarFieldEnum[]
+  }
+
+  /**
+   * ApplicantVerification findMany
+   */
+  export type ApplicantVerificationFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApplicantVerification
+     */
+    select?: ApplicantVerificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ApplicantVerification
+     */
+    omit?: ApplicantVerificationOmit<ExtArgs> | null
+    /**
+     * Filter, which ApplicantVerifications to fetch.
+     */
+    where?: ApplicantVerificationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ApplicantVerifications to fetch.
+     */
+    orderBy?: ApplicantVerificationOrderByWithRelationInput | ApplicantVerificationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ApplicantVerifications.
+     */
+    cursor?: ApplicantVerificationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ApplicantVerifications from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ApplicantVerifications.
+     */
+    skip?: number
+    distinct?: ApplicantVerificationScalarFieldEnum | ApplicantVerificationScalarFieldEnum[]
+  }
+
+  /**
+   * ApplicantVerification create
+   */
+  export type ApplicantVerificationCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApplicantVerification
+     */
+    select?: ApplicantVerificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ApplicantVerification
+     */
+    omit?: ApplicantVerificationOmit<ExtArgs> | null
+    /**
+     * The data needed to create a ApplicantVerification.
+     */
+    data: XOR<ApplicantVerificationCreateInput, ApplicantVerificationUncheckedCreateInput>
+  }
+
+  /**
+   * ApplicantVerification createMany
+   */
+  export type ApplicantVerificationCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ApplicantVerifications.
+     */
+    data: ApplicantVerificationCreateManyInput | ApplicantVerificationCreateManyInput[]
+  }
+
+  /**
+   * ApplicantVerification createManyAndReturn
+   */
+  export type ApplicantVerificationCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApplicantVerification
+     */
+    select?: ApplicantVerificationSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ApplicantVerification
+     */
+    omit?: ApplicantVerificationOmit<ExtArgs> | null
+    /**
+     * The data used to create many ApplicantVerifications.
+     */
+    data: ApplicantVerificationCreateManyInput | ApplicantVerificationCreateManyInput[]
+  }
+
+  /**
+   * ApplicantVerification update
+   */
+  export type ApplicantVerificationUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApplicantVerification
+     */
+    select?: ApplicantVerificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ApplicantVerification
+     */
+    omit?: ApplicantVerificationOmit<ExtArgs> | null
+    /**
+     * The data needed to update a ApplicantVerification.
+     */
+    data: XOR<ApplicantVerificationUpdateInput, ApplicantVerificationUncheckedUpdateInput>
+    /**
+     * Choose, which ApplicantVerification to update.
+     */
+    where: ApplicantVerificationWhereUniqueInput
+  }
+
+  /**
+   * ApplicantVerification updateMany
+   */
+  export type ApplicantVerificationUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ApplicantVerifications.
+     */
+    data: XOR<ApplicantVerificationUpdateManyMutationInput, ApplicantVerificationUncheckedUpdateManyInput>
+    /**
+     * Filter which ApplicantVerifications to update
+     */
+    where?: ApplicantVerificationWhereInput
+    /**
+     * Limit how many ApplicantVerifications to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ApplicantVerification updateManyAndReturn
+   */
+  export type ApplicantVerificationUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApplicantVerification
+     */
+    select?: ApplicantVerificationSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ApplicantVerification
+     */
+    omit?: ApplicantVerificationOmit<ExtArgs> | null
+    /**
+     * The data used to update ApplicantVerifications.
+     */
+    data: XOR<ApplicantVerificationUpdateManyMutationInput, ApplicantVerificationUncheckedUpdateManyInput>
+    /**
+     * Filter which ApplicantVerifications to update
+     */
+    where?: ApplicantVerificationWhereInput
+    /**
+     * Limit how many ApplicantVerifications to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ApplicantVerification upsert
+   */
+  export type ApplicantVerificationUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApplicantVerification
+     */
+    select?: ApplicantVerificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ApplicantVerification
+     */
+    omit?: ApplicantVerificationOmit<ExtArgs> | null
+    /**
+     * The filter to search for the ApplicantVerification to update in case it exists.
+     */
+    where: ApplicantVerificationWhereUniqueInput
+    /**
+     * In case the ApplicantVerification found by the `where` argument doesn't exist, create a new ApplicantVerification with this data.
+     */
+    create: XOR<ApplicantVerificationCreateInput, ApplicantVerificationUncheckedCreateInput>
+    /**
+     * In case the ApplicantVerification was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ApplicantVerificationUpdateInput, ApplicantVerificationUncheckedUpdateInput>
+  }
+
+  /**
+   * ApplicantVerification delete
+   */
+  export type ApplicantVerificationDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApplicantVerification
+     */
+    select?: ApplicantVerificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ApplicantVerification
+     */
+    omit?: ApplicantVerificationOmit<ExtArgs> | null
+    /**
+     * Filter which ApplicantVerification to delete.
+     */
+    where: ApplicantVerificationWhereUniqueInput
+  }
+
+  /**
+   * ApplicantVerification deleteMany
+   */
+  export type ApplicantVerificationDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ApplicantVerifications to delete
+     */
+    where?: ApplicantVerificationWhereInput
+    /**
+     * Limit how many ApplicantVerifications to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ApplicantVerification without action
+   */
+  export type ApplicantVerificationDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApplicantVerification
+     */
+    select?: ApplicantVerificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ApplicantVerification
+     */
+    omit?: ApplicantVerificationOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -17991,6 +19101,19 @@ export namespace Prisma {
   };
 
   export type ExamViolationScalarFieldEnum = (typeof ExamViolationScalarFieldEnum)[keyof typeof ExamViolationScalarFieldEnum]
+
+
+  export const ApplicantVerificationScalarFieldEnum: {
+    id: 'id',
+    fullName: 'fullName',
+    email: 'email',
+    studentIdNumber: 'studentIdNumber',
+    role: 'role',
+    idImageUrl: 'idImageUrl',
+    createdAt: 'createdAt'
+  };
+
+  export type ApplicantVerificationScalarFieldEnum = (typeof ApplicantVerificationScalarFieldEnum)[keyof typeof ApplicantVerificationScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -19089,6 +20212,68 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"ExamViolation"> | Date | string
   }
 
+  export type ApplicantVerificationWhereInput = {
+    AND?: ApplicantVerificationWhereInput | ApplicantVerificationWhereInput[]
+    OR?: ApplicantVerificationWhereInput[]
+    NOT?: ApplicantVerificationWhereInput | ApplicantVerificationWhereInput[]
+    id?: StringFilter<"ApplicantVerification"> | string
+    fullName?: StringFilter<"ApplicantVerification"> | string
+    email?: StringFilter<"ApplicantVerification"> | string
+    studentIdNumber?: StringFilter<"ApplicantVerification"> | string
+    role?: StringFilter<"ApplicantVerification"> | string
+    idImageUrl?: StringFilter<"ApplicantVerification"> | string
+    createdAt?: DateTimeFilter<"ApplicantVerification"> | Date | string
+  }
+
+  export type ApplicantVerificationOrderByWithRelationInput = {
+    id?: SortOrder
+    fullName?: SortOrder
+    email?: SortOrder
+    studentIdNumber?: SortOrder
+    role?: SortOrder
+    idImageUrl?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ApplicantVerificationWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    email?: string
+    AND?: ApplicantVerificationWhereInput | ApplicantVerificationWhereInput[]
+    OR?: ApplicantVerificationWhereInput[]
+    NOT?: ApplicantVerificationWhereInput | ApplicantVerificationWhereInput[]
+    fullName?: StringFilter<"ApplicantVerification"> | string
+    studentIdNumber?: StringFilter<"ApplicantVerification"> | string
+    role?: StringFilter<"ApplicantVerification"> | string
+    idImageUrl?: StringFilter<"ApplicantVerification"> | string
+    createdAt?: DateTimeFilter<"ApplicantVerification"> | Date | string
+  }, "id" | "email">
+
+  export type ApplicantVerificationOrderByWithAggregationInput = {
+    id?: SortOrder
+    fullName?: SortOrder
+    email?: SortOrder
+    studentIdNumber?: SortOrder
+    role?: SortOrder
+    idImageUrl?: SortOrder
+    createdAt?: SortOrder
+    _count?: ApplicantVerificationCountOrderByAggregateInput
+    _max?: ApplicantVerificationMaxOrderByAggregateInput
+    _min?: ApplicantVerificationMinOrderByAggregateInput
+  }
+
+  export type ApplicantVerificationScalarWhereWithAggregatesInput = {
+    AND?: ApplicantVerificationScalarWhereWithAggregatesInput | ApplicantVerificationScalarWhereWithAggregatesInput[]
+    OR?: ApplicantVerificationScalarWhereWithAggregatesInput[]
+    NOT?: ApplicantVerificationScalarWhereWithAggregatesInput | ApplicantVerificationScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ApplicantVerification"> | string
+    fullName?: StringWithAggregatesFilter<"ApplicantVerification"> | string
+    email?: StringWithAggregatesFilter<"ApplicantVerification"> | string
+    studentIdNumber?: StringWithAggregatesFilter<"ApplicantVerification"> | string
+    role?: StringWithAggregatesFilter<"ApplicantVerification"> | string
+    idImageUrl?: StringWithAggregatesFilter<"ApplicantVerification"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"ApplicantVerification"> | Date | string
+  }
+
   export type PostCreateInput = {
     name: string
     createdAt?: Date | string
@@ -20120,6 +21305,76 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type ApplicantVerificationCreateInput = {
+    id?: string
+    fullName: string
+    email: string
+    studentIdNumber: string
+    role: string
+    idImageUrl: string
+    createdAt?: Date | string
+  }
+
+  export type ApplicantVerificationUncheckedCreateInput = {
+    id?: string
+    fullName: string
+    email: string
+    studentIdNumber: string
+    role: string
+    idImageUrl: string
+    createdAt?: Date | string
+  }
+
+  export type ApplicantVerificationUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    studentIdNumber?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    idImageUrl?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ApplicantVerificationUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    studentIdNumber?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    idImageUrl?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ApplicantVerificationCreateManyInput = {
+    id?: string
+    fullName: string
+    email: string
+    studentIdNumber: string
+    role: string
+    idImageUrl: string
+    createdAt?: Date | string
+  }
+
+  export type ApplicantVerificationUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    studentIdNumber?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    idImageUrl?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ApplicantVerificationUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    studentIdNumber?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    idImageUrl?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type IntFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[]
@@ -21026,6 +22281,36 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumViolationTypeFilter<$PrismaModel>
     _max?: NestedEnumViolationTypeFilter<$PrismaModel>
+  }
+
+  export type ApplicantVerificationCountOrderByAggregateInput = {
+    id?: SortOrder
+    fullName?: SortOrder
+    email?: SortOrder
+    studentIdNumber?: SortOrder
+    role?: SortOrder
+    idImageUrl?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ApplicantVerificationMaxOrderByAggregateInput = {
+    id?: SortOrder
+    fullName?: SortOrder
+    email?: SortOrder
+    studentIdNumber?: SortOrder
+    role?: SortOrder
+    idImageUrl?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ApplicantVerificationMinOrderByAggregateInput = {
+    id?: SortOrder
+    fullName?: SortOrder
+    email?: SortOrder
+    studentIdNumber?: SortOrder
+    role?: SortOrder
+    idImageUrl?: SortOrder
+    createdAt?: SortOrder
   }
 
   export type UserCreateNestedOneWithoutPostsInput = {
