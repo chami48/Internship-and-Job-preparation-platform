@@ -38,7 +38,7 @@ export default function JobsPage() {
               >
                 <div className="text-lg font-semibold text-white">{job.title}</div>
                 <div className="mt-1 text-sm text-white/60">
-                  {job.company} • {job.location}
+                  {job.company?.name} • {job.location}
                 </div>
 
                 <div className="mt-3 flex flex-wrap gap-2">

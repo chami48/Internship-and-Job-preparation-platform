@@ -52,11 +52,33 @@ function Counter({ to, label, suffix = "+" }: { to: number; label: string; suffi
 }
 
 /* ─── Job Card ───────────────────────────────────────────── */
+function daysLeft(deadline: Date | null | undefined): string | null {
+  if (!deadline) return null;
+  const diff = Math.ceil((new Date(deadline).getTime() - Date.now()) / 86400000);
+  if (diff < 0) return "Closed";
+  if (diff === 0) return "Closes today";
+  return `${diff}d left`;
+}
+
 function JobCard({ job, index }: {
-  job: { id: string; title: string; company: string; location: string; type: string; level: string; tags: string[]; salary?: string | null };
+  job: {
+    id: string;
+    title: string;
+    company: string;
+    location: string;
+    type: string;
+    level: string;
+    tags: string[];
+    salary?: string | null;
+    deadline?: Date | null;
+    slots?: number | null;
+  };
   index: number;
 }) {
   const isIntern = job.type?.toLowerCase().includes("intern");
+  const left = daysLeft(job.deadline);
+  const expired = left === "Closed";
+  const visibleTags = job.tags.slice(0, 3);
 
   return (
     <div
@@ -84,60 +106,71 @@ function JobCard({ job, index }: {
       }}
     >
       {/* top colour strip */}
-      <div style={{ height: 4, width: "100%", background: isIntern ? "linear-gradient(90deg, #818CF8, #A78BFA)" : "linear-gradient(90deg, #0EA5E9, #38BDF8)", flexShrink: 0 }} />
+      <div style={{ height: 4, width: "100%", background: isIntern ? "linear-gradient(90deg,#818CF8,#A78BFA)" : "linear-gradient(90deg,#0EA5E9,#38BDF8)", flexShrink: 0 }} />
 
-      <div style={{ display: "flex", flexDirection: "column", flex: 1, padding: "1.25rem" }}>
-        {/* header */}
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+      <div style={{ display: "flex", flexDirection: "column", flex: 1, padding: "1.25rem", gap: 0 }}>
+
+        {/* Row 1: icon + badges */}
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10 }}>
           <div style={{
             width: 40, height: 40, flexShrink: 0, borderRadius: 13,
             background: isIntern ? "#EEF2FF" : "#E0F2FE",
-            display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.2rem"
+            display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.2rem",
           }}>
             {isIntern ? "🎓" : "💼"}
           </div>
-          <div style={{ display: "flex", gap: 6 }}>
-            <span style={{
-              borderRadius: "100px", padding: "2px 10px", fontSize: 9,
-              fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase",
-              background: isIntern ? "#EEF2FF" : "#E0F2FE",
-              color: isIntern ? "#6366F1" : "#0369A1",
-            }}>
-              {job.type}
+          <div style={{ display: "flex", gap: 5, flexWrap: "wrap", justifyContent: "flex-end" }}>
+            <span style={{ borderRadius: "100px", padding: "2px 9px", fontSize: 9, fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase", background: isIntern ? "#EEF2FF" : "#E0F2FE", color: isIntern ? "#6366F1" : "#0369A1", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+              {job.type.replace("_", " ")}
             </span>
-            <span style={{
-              borderRadius: "100px", padding: "2px 10px", fontSize: 9,
-              fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase",
-              background: "#F1F5F9", color: "#475569",
-            }}>
+            <span style={{ borderRadius: "100px", padding: "2px 9px", fontSize: 9, fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase", background: "#F1F5F9", color: "#475569", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
               {job.level}
             </span>
           </div>
         </div>
 
+        {/* Row 2: title + company/location */}
         <div style={{ marginTop: 12 }}>
-          <h3 style={{ fontFamily: "'Clash Display', sans-serif", fontSize: "1rem", fontWeight: 600, color: "#0F172A", margin: 0, letterSpacing: "-0.01em" }}>
+          <h3 style={{ fontFamily: "'Clash Display', sans-serif", fontSize: "1rem", fontWeight: 600, color: "#0F172A", margin: 0, letterSpacing: "-0.01em", lineHeight: 1.3 }}>
             {job.title}
           </h3>
-          <p style={{ marginTop: 4, fontSize: "0.75rem", color: "#94A3B8", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-            {job.company} · {job.location}
+          <p style={{ marginTop: 4, fontSize: "0.75rem", color: "#64748B", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            {job.company} &middot; {job.location}
           </p>
         </div>
 
-        {job.tags?.length > 0 && (
-          <div style={{ marginTop: 12, display: "flex", flexWrap: "wrap", gap: 6 }}>
-            {job.tags.map((t) => <Tag key={t} text={t} />)}
+        {/* Row 3: tags */}
+        {visibleTags.length > 0 && (
+          <div style={{ marginTop: 12, display: "flex", flexWrap: "wrap", gap: 5 }}>
+            {visibleTags.map((t) => <Tag key={t} text={t} />)}
+            {job.tags.length > 3 && (
+              <span style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", background: "#F1F5F9", color: "#94A3B8", borderRadius: "100px", padding: "2px 9px", fontSize: "10px", fontWeight: 600 }}>+{job.tags.length - 3} more</span>
+            )}
           </div>
         )}
 
-        <div style={{ marginTop: "auto", display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: 20 }}>
-          <p style={{ fontSize: "0.75rem", color: "#94A3B8", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-            Salary: <span style={{ fontWeight: 600, color: "#475569" }}>{job.salary ?? "Negotiable"}</span>
+        {/* Row 4: salary + deadline */}
+        <div style={{ marginTop: 14, display: "flex", alignItems: "center", gap: 14 }}>
+          <p style={{ fontSize: "0.72rem", color: "#94A3B8", fontFamily: "'Plus Jakarta Sans', sans-serif", margin: 0 }}>
+            💰 <span style={{ fontWeight: 600, color: "#475569" }}>{job.salary ?? "Negotiable"}</span>
           </p>
+          {left && (
+            <p style={{ fontSize: "0.72rem", fontFamily: "'Plus Jakarta Sans', sans-serif", margin: 0, fontWeight: 600, color: expired ? "#EF4444" : "#0EA5E9" }}>
+              ⏰ {left}
+            </p>
+          )}
+          {!job.deadline && (
+            <p style={{ fontSize: "0.72rem", fontFamily: "'Plus Jakarta Sans', sans-serif", margin: 0, color: "#94A3B8" }}>No deadline</p>
+          )}
+        </div>
+
+        {/* Row 5: button */}
+        <div style={{ marginTop: "auto", paddingTop: 16 }}>
           <Link
             href={`/jobs/${job.id}`}
             style={{
-              borderRadius: 10, padding: "8px 16px", fontSize: "0.75rem",
+              display: "block", textAlign: "center",
+              borderRadius: 10, padding: "9px 0", fontSize: "0.75rem",
               fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase",
               color: "white", background: "#0F172A", textDecoration: "none",
               transition: "background 0.2s, box-shadow 0.2s",
@@ -152,9 +185,10 @@ function JobCard({ job, index }: {
               e.currentTarget.style.boxShadow = "none";
             }}
           >
-            View & Apply →
+            View &amp; Apply →
           </Link>
         </div>
+
       </div>
     </div>
   );
@@ -491,7 +525,7 @@ export default function HomePage() {
             {!isLoading && !error && filteredJobs.length > 0 && (
               <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                 {filteredJobs.map((j, i) => (
-                  <JobCard key={j.id} index={i} job={{ ...j, tags: Array.isArray((j as any).tags) ? ((j as any).tags as string[]) : [] }} />
+                  <JobCard key={j.id} index={i} job={{ ...j, company: j.company?.name ?? "", tags: typeof j.tags === "string" ? j.tags.split(",").map((t) => t.trim()).filter(Boolean) : [], deadline: j.deadline, slots: j.slots }} />
                 ))}
               </div>
             )}
