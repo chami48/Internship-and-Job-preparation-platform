@@ -1,8 +1,11 @@
+//smart-screening\src\app\exam\[jobId]\page.tsx
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { api } from "~/trpc/react";
 import { useEffect, useRef, useState, useCallback } from "react";
+import * as faceapi from "face-api.js";
+import { useSession } from "next-auth/react";
 
 // ─────────────────────────────────────────────
 // TYPES
@@ -19,7 +22,9 @@ type ViolationType =
   | "TAB_SWITCH"
   | "COPY_PASTE_RIGHTCLICK"
   | "SCREENSHOT_ATTEMPT"
-  | "DEV_TOOLS";
+  | "DEV_TOOLS"
+  | "FACE_NOT_DETECTED"
+  | "MULTIPLE_FACES";
 
 interface ViolationEvent {
   type: ViolationType;
@@ -32,6 +37,7 @@ const MAX_VIOLATIONS = 3;
 // ─────────────────────────────────────────────
 // HELPERS
 // ─────────────────────────────────────────────
+
 const formatTime = (seconds: number) => {
   const m = Math.floor(seconds / 60);
   const s = seconds % 60;
@@ -44,27 +50,37 @@ const violationLabel: Record<ViolationType, string> = {
   COPY_PASTE_RIGHTCLICK: "Copy / Paste / Right-click attempt",
   SCREENSHOT_ATTEMPT: "Screenshot attempt detected",
   DEV_TOOLS: "Developer tools opened",
+  FACE_NOT_DETECTED: "No face detected in camera",
+  MULTIPLE_FACES: "Multiple faces detected in camera",
 };
 
 // ─────────────────────────────────────────────
 // MAIN COMPONENT
 // ─────────────────────────────────────────────
 export default function ExamPage() {
+
+  const { data: session, status } = useSession();
+
+  const { data: verificationData, isLoading: verificationLoading } =
+  api.verification.getMyVerification.useQuery();
+
   const router = useRouter();
   const searchParams = useSearchParams();
   const appId = searchParams.get("appId");
 
   const { data, isLoading } = api.exam.getQuestions.useQuery(
   {
-    role: "SOFTWARE_ENGINEER",
     applicationId: appId!,
   },
-  { enabled: !!appId }
+  {
+    enabled: !!appId,
+  }
 );
 
 const questions = data as QuestionType[] | undefined;
 
   const submitExam = api.exam.submit.useMutation();
+  const logViolationMutation = api.exam.logViolation.useMutation();
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
@@ -83,6 +99,7 @@ const questions = data as QuestionType[] | undefined;
   const videoRef = useRef<HTMLVideoElement>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
   const alertTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const referenceDescriptorRef = useRef<Float32Array | null>(null);
   const submittedRef = useRef(false);
 
   // ─────────────────────────────────────────────
@@ -109,10 +126,14 @@ const questions = data as QuestionType[] | undefined;
   // ─────────────────────────────────────────────
   const startCamera = useCallback(async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "user", width: 320, height: 240 },
-        audio: false,
-      });
+     const stream = await navigator.mediaDevices.getUserMedia({
+  video: {
+    facingMode: "user",
+    width: { ideal: 640 },
+    height: { ideal: 480 },
+  },
+  audio: false,
+});
       mediaStreamRef.current = stream;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
@@ -131,42 +152,82 @@ const questions = data as QuestionType[] | undefined;
     mediaStreamRef.current = null;
   }, []);
 
+  
+
   // ─────────────────────────────────────────────
   // VIOLATION SYSTEM
   // ─────────────────────────────────────────────
   const triggerViolation = useCallback(
-    (type: ViolationType) => {
-      setViolations((prev) => {
-        const count = prev.length + 1;
-        const event: ViolationEvent = {
-          type,
-          message: violationLabel[type],
-          timestamp: new Date(),
-        };
-        const next = [...prev, event];
+  (type: ViolationType) => {
+    setViolations((prev) => {
+      const count = prev.length + 1;
 
-        setActiveAlert(event);
-        if (alertTimeoutRef.current) clearTimeout(alertTimeoutRef.current);
-        alertTimeoutRef.current = setTimeout(() => setActiveAlert(null), 6000);
+      const event: ViolationEvent = {
+        type,
+        message: violationLabel[type],
+        timestamp: new Date(),
+      };
 
-        if (count >= MAX_VIOLATIONS) {
-          setTerminated(true);
-          stopCamera();
-          // Exit fullscreen first, then redirect after short delay
-          setTimeout(async () => {
-            await exitFullscreen();
-            setTimeout(() => router.push("/"), 600);
-          }, 3500);
-        } else {
-          // Re-enter fullscreen without closing it
-          enterFullscreen();
-        }
+      const next = [...prev, event];
 
-        return next;
-      });
+      // 🔥 SAVE TO DATABASE
+      if (appId) {
+        logViolationMutation.mutate(
+  {
+    applicationId: appId,
+    type,
+    message: violationLabel[type],
+  },
+  {
+    onSuccess: (data) => {
+      if (data.terminated) {
+        setTerminated(true);
+      }
     },
-    [enterFullscreen, exitFullscreen, stopCamera, router]
-  );
+  }
+);
+      }
+
+      setActiveAlert(event);
+      window.focus();
+
+      if (alertTimeoutRef.current) clearTimeout(alertTimeoutRef.current);
+      alertTimeoutRef.current = setTimeout(() => setActiveAlert(null), 6000);
+
+      if (count >= MAX_VIOLATIONS) {
+        setTerminated(true);
+        stopCamera();
+
+        setTimeout(async () => {
+          await exitFullscreen();
+          setTimeout(() => router.push("/"), 600);
+        }, 3500);
+      } else {
+        if (!document.fullscreenElement) {
+        enterFullscreen();}
+      }
+
+      return next;
+    });
+  },
+  [
+    appId,
+    logViolationMutation,
+    enterFullscreen,
+    exitFullscreen,
+    stopCamera,
+    router,
+  ]
+);
+
+useEffect(() => {
+  const loadModels = async () => {
+    await faceapi.nets.tinyFaceDetector.loadFromUri("/models");
+    console.log("Face monitoring model loaded");
+  };
+
+  loadModels();
+}, []);
 
   // ─────────────────────────────────────────────
   // ANTI-CHEAT — only active during exam
@@ -218,6 +279,7 @@ const questions = data as QuestionType[] | undefined;
       if (e.key === "PrintScreen") {
         e.preventDefault();
         triggerViolation("SCREENSHOT_ATTEMPT");
+        navigator.clipboard.writeText("").catch(() => {});
       }
       if (
         (e.ctrlKey || e.metaKey) &&
@@ -256,6 +318,199 @@ const questions = data as QuestionType[] | undefined;
     return () => clearInterval(id);
   }, [examStarted, triggerViolation]);
 
+  // DEV TOOLS DETECTION
+// useEffect(() => {
+//   if (!examStarted) return;
+//   let devOpen = false;
+//   const check = () => {
+//     const w = window.outerWidth - window.innerWidth > 160;
+//     const h = window.outerHeight - window.innerHeight > 160;
+//     if ((w || h) && !devOpen) {
+//       devOpen = true;
+//       triggerViolation("DEV_TOOLS");
+//     } else if (!w && !h) {
+//       devOpen = false;
+//     }
+//   };
+//   const id = setInterval(check, 1500);
+//   return () => clearInterval(id);
+// }, [examStarted, triggerViolation]);
+
+// ─────────────────────────────────────────────
+// BLOCK PAGE REFRESH (F5 / CTRL+R)
+// ─────────────────────────────────────────────
+// ─────────────────────────────────────────────
+// BLOCK REFRESH + ESC + PRINTSCREEN
+// ─────────────────────────────────────────────
+useEffect(() => {
+  if (!examStarted) return;
+
+  const preventKeys = (e: KeyboardEvent) => {
+
+    // REFRESH BLOCK
+    if (
+      e.key === "F5" ||
+      (e.ctrlKey && e.key.toLowerCase() === "r") ||
+      (e.metaKey && e.key.toLowerCase() === "r")
+    ) {
+      e.preventDefault();
+      triggerViolation("TAB_SWITCH");
+    }
+
+    // ESC KEY BLOCK (exit fullscreen)
+    if (e.key === "Escape") {
+  e.preventDefault();
+  triggerViolation("FULLSCREEN_EXIT");
+  document.documentElement.requestFullscreen();
+}
+
+    // PRINT SCREEN BLOCK
+    if (e.key === "PrintScreen") {
+      e.preventDefault();
+      triggerViolation("SCREENSHOT_ATTEMPT");
+    }
+
+  };
+
+  document.addEventListener("keydown", preventKeys);
+
+  return () => {
+    document.removeEventListener("keydown", preventKeys);
+  };
+
+}, [examStarted, triggerViolation]);
+
+// ─────────────────────────────────────────────
+// BLOCK NEW TAB / NEW WINDOW
+// ─────────────────────────────────────────────
+useEffect(() => {
+  if (!examStarted) return;
+
+  const blockShortcuts = (e: KeyboardEvent) => {
+    if (
+      (e.ctrlKey || e.metaKey) &&
+      ["t", "n"].includes(e.key.toLowerCase())
+    ) {
+      e.preventDefault();
+      triggerViolation("TAB_SWITCH");
+    }
+  };
+
+  document.addEventListener("keydown", blockShortcuts);
+
+  return () => {
+    document.removeEventListener("keydown", blockShortcuts);
+  };
+}, [examStarted, triggerViolation]);
+
+// ─────────────────────────────────────────────
+// AI FACE MONITORING
+// ─────────────────────────────────────────────
+useEffect(() => {
+if (!examStarted) return;
+
+  let noFaceCounter = 0;
+  let multipleFaceCounter = 0;
+
+  const detectFaces = async () => {
+    if (!videoRef.current) return;
+
+    try {
+      const detections = await faceapi.detectAllFaces(
+        videoRef.current,
+        new faceapi.TinyFaceDetectorOptions({
+  inputSize: 320,
+  scoreThreshold: 0.3,
+})
+      );
+
+      // ❌ No face detected
+      if (detections.length === 0) {
+        noFaceCounter++;
+
+        if (noFaceCounter >= 3) {
+          triggerViolation("FACE_NOT_DETECTED");
+          noFaceCounter = 0;
+        }
+      } else {
+        noFaceCounter = 0;
+      }
+
+      // ❌ Multiple faces detected
+      if (detections.length > 1) {
+        multipleFaceCounter++;
+
+        if (multipleFaceCounter >= 2) {
+          triggerViolation("MULTIPLE_FACES");
+          multipleFaceCounter = 0;
+        }
+      } else {
+        multipleFaceCounter = 0;
+      }
+    } catch (err) {
+      console.error("Face detection error:", err);
+    }
+  };
+
+  const interval = setInterval(detectFaces, 4000); // check every 4 seconds
+
+  return () => clearInterval(interval);
+}, [triggerViolation]);
+
+// ─────────────────────────────────────────────
+// CONTINUOUS IDENTITY VERIFICATION
+// ─────────────────────────────────────────────
+useEffect(() => {
+
+  if (!examStarted) return;
+  if (!referenceDescriptorRef.current) return;
+
+  const verifyIdentity = async () => {
+
+    if (!videoRef.current) return;
+
+    try {
+
+      const detection = await faceapi
+        .detectSingleFace(
+          videoRef.current,
+          new faceapi.TinyFaceDetectorOptions({
+            inputSize: 320,
+            scoreThreshold: 0.3,
+          })
+        )
+        .withFaceLandmarks()
+        .withFaceDescriptor();
+
+      if (!detection) return;
+
+      if (!referenceDescriptorRef.current) return;
+
+      const distance = faceapi.euclideanDistance(
+      referenceDescriptorRef.current,
+      detection.descriptor
+);
+
+      console.log("Live identity distance:", distance);
+
+      if (distance > 0.55) {
+        console.log("⚠ Different person detected");
+
+        triggerViolation("MULTIPLE_FACES"); 
+      }
+
+    } catch (err) {
+      console.error("Identity verification error:", err);
+    }
+
+  };
+
+  const interval = setInterval(verifyIdentity, 20000); // every 20 seconds
+
+  return () => clearInterval(interval);
+
+}, [examStarted, triggerViolation]);
+
   // ─────────────────────────────────────────────
   // TOTAL TIMER
   // ─────────────────────────────────────────────
@@ -273,6 +528,56 @@ const questions = data as QuestionType[] | undefined;
     }, 1000);
     return () => clearInterval(timer);
   }, [examStarted]);
+
+  // ─────────────────────────────────────────────
+// DETECT BROWSER MINIMIZE
+// ─────────────────────────────────────────────
+useEffect(() => {
+  if (!examStarted) return;
+
+  const handleVisibility = () => {
+    if (document.hidden) {
+      triggerViolation("TAB_SWITCH");
+    }
+  };
+
+  document.addEventListener("visibilitychange", handleVisibility);
+
+  return () => {
+    document.removeEventListener("visibilitychange", handleVisibility);
+  };
+}, [examStarted, triggerViolation]);
+
+  // ─────────────────────────────────────────────
+// DETECT WINDOW RESIZE / SPLIT SCREEN
+// ─────────────────────────────────────────────
+useEffect(() => {
+  if (!examStarted) return;
+
+  let lastViolation = 0;
+
+  const detectResize = () => {
+    const widthRatio = window.innerWidth / screen.width;
+
+    if (widthRatio < 0.8) {
+
+      const now = Date.now();
+
+      if (now - lastViolation > 4000) {
+        lastViolation = now;
+        triggerViolation("TAB_SWITCH");
+      }
+
+    }
+  };
+
+  window.addEventListener("resize", detectResize);
+
+  return () => {
+    window.removeEventListener("resize", detectResize);
+  };
+
+}, [examStarted, triggerViolation]);
 
   // ─────────────────────────────────────────────
   // PER-QUESTION TIMER
@@ -332,18 +637,170 @@ const questions = data as QuestionType[] | undefined;
   // ─────────────────────────────────────────────
   // START EXAM — fullscreen starts ONLY here
   // ─────────────────────────────────────────────
-  const handleStartExam = async () => {
-    setStartingExam(true);
-    setCameraError(null);
-    const camOk = await startCamera();
-    if (!camOk) {
-      setStartingExam(false);
-      return;
+  
+  const compareFaces = async () => {
+
+  console.log("VIDEO:", videoRef.current);
+  console.log("ID IMAGE:", verificationData?.idImageUrl);
+  console.log("VERIFICATION DATA:", verificationData);
+
+  if (!videoRef.current || !verificationData?.idImageUrl) {
+    console.log("Missing video or ID image");
+    return false;
+  }
+
+  try {
+    console.log("Loading ID image...");
+    const img = await faceapi.fetchImage(verificationData.idImageUrl);
+
+    console.log("Detecting face in ID image...");
+    const idDetection = await faceapi
+      .detectSingleFace(
+        img,
+  new faceapi.TinyFaceDetectorOptions({
+  inputSize: 512,
+  scoreThreshold: 0.2,
+})
+)
+      .withFaceLandmarks()
+      .withFaceDescriptor();
+
+    if (!idDetection) {
+      console.log("❌ ID face NOT detected");
+      return false;
     }
-    await enterFullscreen(); // ← fullscreen begins here, NOT before
-    setExamStarted(true);
+
+    console.log("ID face detected");
+
+    console.log("Detecting face in LIVE camera...");
+    // wait until camera frame is ready
+await new Promise((resolve) => setTimeout(resolve, 1000));
+
+let liveDetection = null;
+
+for (let i = 0; i < 3; i++) {
+  liveDetection = await faceapi
+    .detectSingleFace(
+      videoRef.current!,
+      new faceapi.TinyFaceDetectorOptions({
+        inputSize: 320,
+        scoreThreshold: 0.2,
+      })
+    )
+    .withFaceLandmarks()
+    .withFaceDescriptor();
+
+  if (liveDetection) break;
+
+  console.log("Retrying face detection...");
+  await new Promise((r) => setTimeout(r, 800));
+}
+
+if (!liveDetection) {
+  console.log("❌ LIVE face NOT detected");
+  return false;
+}
+
+console.log("LIVE face detected");
+
+// Save descriptor for continuous monitoring
+referenceDescriptorRef.current = liveDetection.descriptor;
+console.log("Comparing faces...");
+
+    if (!referenceDescriptorRef.current) return false;
+    const distance = faceapi.euclideanDistance(
+      idDetection.descriptor,
+      liveDetection.descriptor
+    );
+
+    console.log("✅ Face distance:", distance);
+
+    return distance < 0.55; // temporarily relaxed
+  } catch (err) {
+    console.error("Face compare error:", err);
+    return false;
+  }
+};
+
+  const handleStartExam = async () => {
+
+  if (verificationLoading) {
+    alert("Checking verification. Please wait...");
+    return;
+  }
+
+  if (!verificationData || verificationData.userId !== session?.user.id) {
+    alert("You must verify your identity before taking the exam.");
+    router.push("/apply");
+    return;
+  }
+
+  if (!verificationData.idImageUrl) {
+    alert("Your ID image is missing. Please verify again.");
+    router.push("/apply");
+    return;
+  }
+
+  setStartingExam(true);
+  setCameraError(null);
+
+  const camOk = await startCamera();
+
+  if (videoRef.current) {
+  await videoRef.current.play();
+}
+
+  if (!camOk) {
     setStartingExam(false);
-  };
+    return;
+  }
+
+  // Wait until video fully ready
+  if (videoRef.current) {
+  const video = videoRef.current;
+
+  await new Promise<void>((resolve) => {
+    video.onloadedmetadata = () => {
+      video.play();
+    };
+
+    const checkReady = () => {
+      if (video.readyState === 4) {
+        resolve();
+      } else {
+        requestAnimationFrame(checkReady);
+      }
+    };
+
+    checkReady();
+  });
+
+  // extra delay for stable frame
+  await new Promise((r) => setTimeout(r, 1500));
+}
+
+  await Promise.all([
+    faceapi.nets.tinyFaceDetector.loadFromUri("/models"),
+    faceapi.nets.faceLandmark68Net.loadFromUri("/models"),
+    faceapi.nets.faceRecognitionNet.loadFromUri("/models"),
+  ]);
+
+  await new Promise((r) => setTimeout(r, 1000));
+  const match = await compareFaces();
+
+  if (!match) {
+    alert("Face does not match ID. Exam terminated.");
+    stopCamera();
+    setStartingExam(false);
+    router.push("/");
+    return;
+  }
+
+  await enterFullscreen();
+
+  setExamStarted(true);
+  setStartingExam(false);
+};
 
   // Cleanup on unmount
   useEffect(() => {
@@ -353,6 +810,64 @@ const questions = data as QuestionType[] | undefined;
     };
   }, [stopCamera]);
 
+  // ─────────────────────────────────────────────
+// AUTH GUARD
+// ─────────────────────────────────────────────
+
+if (status === "loading") {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      Checking authentication...
+    </div>
+  );
+}
+
+if (!session) {
+  router.push("/student/login");
+  return null;
+}
+
+if (session.user.role !== "STUDENT") {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      Only students can access this exam.
+    </div>
+  );
+}
+
+if (!appId) {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      Invalid exam link.
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
+// VERIFICATION GUARD
+// ─────────────────────────────────────────────
+if (!verificationLoading && !verificationData) {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="text-center">
+        <h1 className="text-xl font-semibold mb-3">
+          Verification Required
+        </h1>
+
+        <p className="text-gray-500 mb-4">
+          You must verify your identity before starting the exam.
+        </p>
+
+        <button
+          onClick={() => router.push("/verify")}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg"
+        >
+          Go to Verification
+        </button>
+      </div>
+    </div>
+  );
+}
   // ─────────────────────────────────────────────
   // LOADING
   // ─────────────────────────────────────────────
@@ -374,6 +889,13 @@ const questions = data as QuestionType[] | undefined;
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
         <div className="max-w-xl w-full">
+          <video
+        ref={videoRef}
+        autoPlay
+        muted
+        playsInline
+        className="w-full h-full object-cover"
+      />
           {/* Header */}
           <div className="mb-8">
             <div className="flex items-center gap-3 mb-5">
@@ -388,7 +910,7 @@ const questions = data as QuestionType[] | undefined;
                   Technical Assessment
                 </p>
                 <h1 className="text-xl font-bold text-slate-800 leading-tight">
-                  Software Engineer Examination
+                  Role Based Examination
                 </h1>
               </div>
             </div>
@@ -476,10 +998,15 @@ const questions = data as QuestionType[] | undefined;
             </div>
           )}
 
+          {verificationData && (
+  <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">
+    ✅ Identity verified. You can start the assessment.
+  </div>
+)}
           <button
             onClick={handleStartExam}
             disabled={startingExam}
-            className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold rounded-xl transition-colors text-sm shadow-sm flex items-center justify-center gap-2"
+            className="w-full py-3.5 bg-slate-900 hover:bg-sky-500 disabled:bg-slate-700 text-white font-semibold rounded-xl transition-colors text-sm shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
           >
             {startingExam ? (
               <>
@@ -535,6 +1062,12 @@ const questions = data as QuestionType[] | undefined;
   if (submitted) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
+
+      {/* Camera for Face Detection */}
+    <div className="fixed bottom-4 right-4 w-48 h-36 border rounded-lg overflow-hidden shadow-lg">
+      
+    </div>
+    
         <div className="text-center max-w-sm">
           <div className="w-16 h-16 bg-green-100 border border-green-200 rounded-full flex items-center justify-center mx-auto mb-5">
             <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -903,7 +1436,7 @@ const questions = data as QuestionType[] | undefined;
           </div>
           <button
             onClick={goNext}
-            className="flex items-center gap-2 px-7 py-3 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold rounded-xl transition-colors text-sm shadow-sm shadow-blue-200/60"
+            className="flex items-center gap-2 px-6 py-3 bg-slate-900 hover:bg-sky-500 text-white font-medium rounded-2xl transition-colors text-sm disabled:opacity-50"
           >
             {currentIndex < questions.length - 1 ? "Next Question →" : "Submit Exam ✓"}
           </button>

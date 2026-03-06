@@ -1,0 +1,25 @@
+[33mee09e62[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mfeature/dilmi/online-exam-and-question-management-module[m[33m)[m HEAD@{0}: commit (merge): Merged deployment into my branch while keeping local changes
+[33m52ca00c[m HEAD@{1}: reset: moving to HEAD
+[33m52ca00c[m HEAD@{2}: checkout: moving from feature/dilmi/online-exam-and-question-management-module to feature/dilmi/online-exam-and-question-management-module
+[33m52ca00c[m HEAD@{3}: commit: updated secure exam mode
+[33m41f55bf[m[33m ([m[1;31morigin/feature/dilmi/online-exam-and-question-management-module[m[33m)[m HEAD@{4}: commit: updated the secure mode
+[33m95d120b[m HEAD@{5}: commit: update home page ui
+[33m74e10b4[m HEAD@{6}: commit: add more question to question bank
+[33m884447e[m HEAD@{7}: commit: updated the job model
+[33m1747010[m HEAD@{8}: commit: Update the question bank and modify the secure mode
+[33m9167bb1[m HEAD@{9}: checkout: moving from deployment to feature/dilmi/online-exam-and-question-management-module
+[33m3c9d90c[m[33m ([m[1;32mdeployment[m[33m)[m HEAD@{10}: checkout: moving from feature/dilmi/online-exam-and-question-management-module to deployment
+[33m9167bb1[m HEAD@{11}: commit: improve secure mode exam
+[33mb0d0573[m HEAD@{12}: commit: change ui colors
+[33me3e3305[m HEAD@{13}: commit: Design Secure mode exam
+[33m9833866[m HEAD@{14}: commit: Design frontend
+[33m5c7d1b7[m HEAD@{15}: commit: Create sample Job listening page and sample question bank
+[33m4e8ff82[m HEAD@{16}: checkout: moving from deployment to feature/dilmi/online-exam-and-question-management-module
+[33m3c9d90c[m[33m ([m[1;32mdeployment[m[33m)[m HEAD@{17}: commit: initializing the home pages
+[33m4e8ff82[m HEAD@{18}: checkout: moving from feature/dilmi/online-exam-and-question-management-module to deployment
+[33m4e8ff82[m HEAD@{19}: checkout: moving from deployment to feature/dilmi/online-exam-and-question-management-module
+[33m4e8ff82[m HEAD@{20}: checkout: moving from 4e8ff824784390df0bcaebaa5d7d6e7d588f4a68 to deployment
+[33m4e8ff82[m HEAD@{21}: checkout: moving from deployment to 4e8ff824784390df0bcaebaa5d7d6e7d588f4a68
+[33m4e8ff82[m HEAD@{22}: checkout: moving from deployment to deployment
+[33m4e8ff82[m HEAD@{23}: Branch: renamed refs/heads/master to refs/heads/deployment
+[33m4e8ff82[m HEAD@{25}: commit (initial): Initial project structure with module separation

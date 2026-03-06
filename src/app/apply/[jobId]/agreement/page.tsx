@@ -1,3 +1,4 @@
+//smart-screening\src\app\apply\[jobId]\agreement\page.tsx
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
@@ -25,7 +26,7 @@ export default function AgreementPage({
       return;
     }
 
-    router.push(`/exam/${params.jobId}?appId=${appId}`);
+    router.push(`/apply?jobId=${params.jobId}&appId=${appId}`);
   };
 
   return (
@@ -69,7 +70,7 @@ export default function AgreementPage({
           onClick={handleStart}
           className="mt-8 rounded-2xl bg-slate-900 px-6 py-3 text-sm font-medium text-white hover:bg-sky-500 transition-colors disabled:opacity-50"
         >
-          Start Assessment
+          Verify Identification
         </button>
       </div>
     </main>

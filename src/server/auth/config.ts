@@ -1,32 +1,19 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import { type DefaultSession, type NextAuthConfig } from "next-auth";
+import { type NextAuthConfig } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
-
 import { db } from "~/server/db";
 
-/**
- * Extend NextAuth session types
- */
-declare module "next-auth" {
-  interface Session extends DefaultSession {
-    user: {
-      id: string;
-      role?: string;
-    } & DefaultSession["user"];
-  }
-}
-
-/**
- * NextAuth configuration
- */
-export const authConfig = {
+export const authConfig: NextAuthConfig = {
   adapter: PrismaAdapter(db),
+
+  session: {
+    strategy: "jwt",
+  },
 
   providers: [
     Credentials({
       name: "Credentials",
-
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
@@ -39,12 +26,8 @@ export const authConfig = {
           where: { email: credentials.email as string },
         });
 
-        if (!user) {
-          throw new Error("User not found");
-        }
-
-        if (!user.password) {
-          throw new Error("Password not set");
+        if (!user || !user.password) {
+          throw new Error("Invalid credentials");
         }
 
         const valid = await bcrypt.compare(
@@ -53,7 +36,7 @@ export const authConfig = {
         );
 
         if (!valid) {
-          throw new Error("Invalid password");
+          throw new Error("Invalid credentials");
         }
 
         return {
@@ -66,16 +49,20 @@ export const authConfig = {
     }),
   ],
 
-  session: {
-    strategy: "jwt",
-  },
-
   callbacks: {
     session: ({ session, token }) => {
       if (session.user) {
         session.user.id = token.sub!;
+        session.user.role = token.role as string;
       }
       return session;
+    },
+
+    jwt: ({ token, user }) => {
+      if (user) {
+        token.role = user.role;
+      }
+      return token;
     },
   },
 
@@ -84,4 +71,4 @@ export const authConfig = {
   },
 
   secret: process.env.NEXTAUTH_SECRET,
-} satisfies NextAuthConfig;
+};

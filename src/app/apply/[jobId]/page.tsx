@@ -487,18 +487,18 @@ router.push(
         .actions{
           display:flex;
           justify-content:space-between;
-          margin-top:24px;
+          margin-top:32px;
         }
 
         .btn{
-          padding:12px 20px;
-          border-radius:10px;
-          font-weight:700;
+          padding:12px 24px;
+          border-radius:16px;
+          font-weight:500;
           cursor:pointer;
           border:1px solid var(--border);
           background:#fff;
           color: var(--text);
-          transition: all 0.2s;
+          transition: background-color 0.2s;
         }
 
         .btn:hover{
@@ -507,14 +507,20 @@ router.push(
         }
 
         .btnPrimary{
-          background: var(--text);
+          background: #0f172a;
           color:#fff;
           border:none;
         }
 
         .btnPrimary:hover{
-          background: var(--accent);
+          background: #0ea5e9;
           box-shadow: 0 4px 16px rgba(14, 165, 233, 0.18);
+        }
+
+        .btnPrimary:disabled{
+          background: #334155;
+          cursor: not-allowed;
+          opacity: 0.5;
         }
 
         @media (max-width: 900px){

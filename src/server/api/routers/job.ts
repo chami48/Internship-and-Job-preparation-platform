@@ -1,3 +1,4 @@
+//smart-screening\src\server\api\routers\job.ts
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { JobRole, JobType, JobLevel } from "../../../../generated/prisma";
@@ -52,6 +53,9 @@ export const jobRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const job = await ctx.db.job.findUnique({
         where: { id: input.id },
+        include: {
+          company: true,
+        },
       });
 
       if (!job) throw new Error("Job not found");

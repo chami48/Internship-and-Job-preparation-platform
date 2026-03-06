@@ -58,12 +58,17 @@ model Session {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+enum UserRole {
+  STUDENT
+  COMPANY
+}
+
 model User {
   id            String    @id @default(cuid())
   name          String?
   email         String?   @unique
   password      String?
-  role          String    @default("STUDENT")
+  role          UserRole @default(STUDENT)
 
   studentId     String?
   degree        String?
@@ -82,6 +87,8 @@ model User {
   accounts Account[]
   sessions Session[]
   posts    Post[]
+  applications Application[]
+  verification ApplicantVerification?
 }
 
 model EmailOTP {
@@ -105,6 +112,17 @@ model VerificationToken {
 //////////////////////////////////////////////////////
 // Module 2 - Job Management
 //////////////////////////////////////////////////////
+
+model Company {
+  id          String   @id @default(cuid())
+  name        String
+  email       String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  jobs        Job[]
+}
 
 enum JobType {
   INTERNSHIP
@@ -143,6 +161,7 @@ model Job {
   location  String
   role      JobRole
   type      JobType
+  role      JobRole
   level     JobLevel
   tags      String
   salary    String?
@@ -218,7 +237,12 @@ model Option {
 model Application {
   id        String   @id @default(cuid())
   jobId     String
+  role      JobRole
   createdAt DateTime @default(now())
+
+  userId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
 
   fullName  String
   email     String
@@ -242,11 +266,13 @@ model Application {
   projects     Project[]
   scenarios    ScenarioAnswer[]
   examAnswers  ExamAnswer[]   // ✅ REQUIRED reverse relation
+  violations ExamViolation[]
 
   lockedQuestions Json?
   examSubmitted   Boolean  @default(false)
 
   @@index([jobId])
+  @@index([userId])
 }
 
 model Project {
@@ -271,8 +297,7 @@ model ExamAnswer {
   id            String   @id @default(cuid())
   questionId    String
   applicationId String
-  answer        String
-  score         Float?
+  answer        String?
   createdAt     DateTime @default(now())
 
   question     Question     @relation(fields: [questionId], references: [id], onDelete: Cascade)
@@ -280,4 +305,38 @@ model ExamAnswer {
 
   @@index([questionId])
   @@index([applicationId])
+}
+
+model ExamViolation {
+  id            String   @id @default(cuid())
+  applicationId String
+  type          ViolationType
+  message       String
+  createdAt     DateTime @default(now())
+
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@index([applicationId])
+}
+enum ViolationType {
+  FULLSCREEN_EXIT
+  TAB_SWITCH
+  COPY_PASTE_RIGHTCLICK
+  SCREENSHOT_ATTEMPT
+  DEV_TOOLS
+  FACE_NOT_DETECTED
+  MULTIPLE_FACES
+}
+
+model ApplicantVerification {
+  id              String   @id @default(cuid())
+
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  fullName        String
+  studentIdNumber String
+  role            String
+  idImageUrl      String
+  createdAt       DateTime @default(now())
 }
