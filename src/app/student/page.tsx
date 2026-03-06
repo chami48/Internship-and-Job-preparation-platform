@@ -1,4 +1,4 @@
-import { auth } from "../api/auth/[...nextauth]/route";
+import { auth } from "~/server/auth";
 import { redirect } from "next/navigation";
 
 export default async function StudentDashboard() {
