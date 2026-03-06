@@ -5,8 +5,7 @@ import { type Metadata } from "next";
 import { Geist } from "next/font/google";
 import { SessionProvider } from "next-auth/react";
 
-import Footer from "~/app/components/common/Footer";
-import Header from "~/app/components/common/Header";
+import ConditionalLayout from "~/app/components/common/ConditionalLayout";
 import { TRPCReactProvider } from "~/trpc/react";
 
 export const metadata: Metadata = {

@@ -135,6 +135,22 @@ enum JobLevel {
   SENIOR
 }
 
+model Company {
+  id          String   @id @default(cuid())
+  name        String
+  email       String   @unique
+  password    String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  isVerified Boolean @default(false)
+  otp        String?
+  otpExpiry  DateTime?
+
+  jobs        Job[]
+}
+
 model Job {
   id        String   @id @default(cuid())
   title     String
@@ -143,6 +159,7 @@ model Job {
   companyId   String
 
   location  String
+  role      JobRole
   type      JobType
   role      JobRole
   level     JobLevel
@@ -153,6 +170,9 @@ model Job {
   responsibilities String
   requirements     String
   benefits         String?
+
+  deadline  DateTime?
+  slots     Int?
 
   createdAt DateTime @default(now())
 

@@ -235,6 +235,33 @@ export default function JobsPage() {
         <div className="mb-6 text-sm text-slate-600">
           Showing {filteredJobs?.length || 0} job
           {filteredJobs?.length !== 1 ? "s" : ""}
+                <div className="text-lg font-semibold text-white">{job.title}</div>
+                <div className="mt-1 text-sm text-white/60">
+                  {job.company?.name} • {job.location}
+                </div>
+
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {tags.map((t) => (
+                    <Tag key={t} text={t} />
+                  ))}
+                </div>
+
+                <div className="mt-5 flex items-center justify-between">
+                  <div className="text-sm text-white/70">
+                    <span className="text-white/50">Type:</span> {job.type} •{" "}
+                    <span className="text-white/50">Level:</span> {job.level}
+                  </div>
+
+                  <Link
+                    href={`/jobs/${job.id}`}
+                    className="rounded-xl bg-white px-4 py-2 text-sm font-medium text-black hover:bg-white/90"
+                  >
+                    View
+                  </Link>
+                </div>
+              </div>
+            );
+          })}
         </div>
 
         {/* Loading State */}
