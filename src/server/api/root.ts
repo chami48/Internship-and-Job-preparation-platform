@@ -2,7 +2,8 @@ import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 import { postRouter } from "~/server/api/routers/post";
 
 import { companyRouter } from "~/server/api/routers/company";
-import { studentRouter } from "~/server/api/routers/student";
+import { studentRouter } from "~/server/api/routers/student";  //sandani
+import { profileRouter } from "./routers/student/profile";     //sandani
 import { examRouter } from "~/server/api/routers/exam";//dill
 import { aiRouter } from "~/server/api/routers/ai";
 import { jobRouter } from "~/server/api/routers/job";//nilumi
@@ -17,6 +18,7 @@ export const appRouter = createTRPCRouter({
   post: postRouter,        // keep existing example router
   company: companyRouter,
   student: studentRouter,
+  profile: profileRouter,
   exam: examRouter,
   ai: aiRouter,
   admin: adminRouter,
