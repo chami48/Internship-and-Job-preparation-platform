@@ -1,14 +1,13 @@
-//smart-screening\src\server\api\routers\verification.ts
 import { z } from "zod";
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
 export const verificationRouter = createTRPCRouter({
 
-  create: publicProcedure
+  // ✅ CREATE OR UPDATE VERIFICATION
+  create: protectedProcedure
     .input(
       z.object({
         fullName: z.string(),
-        email: z.string(),
         studentIdNumber: z.string(),
         role: z.string(),
         idImageUrl: z.string(),
@@ -16,23 +15,32 @@ export const verificationRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
 
-      return ctx.db.applicantVerification.create({
-        data: {
+      if (ctx.session.user.role !== "STUDENT") {
+  throw new Error("Only students can verify.");
+}
+
+      return ctx.db.applicantVerification.upsert({
+        where: { userId: ctx.session.user.id },
+        update: {
           fullName: input.fullName,
-          email: input.email,
+          studentIdNumber: input.studentIdNumber,
+          role: input.role,
+          idImageUrl: input.idImageUrl,
+        },
+        create: {
+          userId: ctx.session.user.id,
+          fullName: input.fullName,
           studentIdNumber: input.studentIdNumber,
           role: input.role,
           idImageUrl: input.idImageUrl,
         },
       });
-
     }),
 
-    getByEmail: publicProcedure
-  .input(z.object({ email: z.string() }))
-  .query(async ({ ctx, input }) => {
-    return ctx.db.applicantVerification.findFirst({
-      where: { email: input.email },
+  // ✅ GET CURRENT USER VERIFICATION
+  getMyVerification: protectedProcedure.query(async ({ ctx }) => {
+    return ctx.db.applicantVerification.findUnique({
+      where: { userId: ctx.session.user.id },
     });
   }),
 

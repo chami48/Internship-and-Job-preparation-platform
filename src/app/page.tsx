@@ -1,8 +1,10 @@
+//smart-screening\src\app\page.tsx
 "use client";
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { api } from "~/trpc/react";
+import { useSession } from "next-auth/react";
 
 /* ─── Tag chip ───────────────────────────────────────────── */
 function Tag({ text }: { text: string }) {
@@ -52,10 +54,24 @@ function Counter({ to, label, suffix = "+" }: { to: number; label: string; suffi
 }
 
 /* ─── Job Card ───────────────────────────────────────────── */
-function JobCard({ job, index }: {
-  job: { id: string; title: string; company: string; location: string; type: string; level: string; tags: string[]; salary?: string | null };
+function JobCard({
+  job,
+  index,
+  role,
+}: {
+  job: {
+    id: string;
+    title: string;
+    company: string;
+    location: string;
+    type: string;
+    level: string;
+    tags: string[];
+    salary?: string | null;
+  };
   index: number;
-}) {
+  role?: string;
+})  {
   const isIntern = job.type?.toLowerCase().includes("intern");
 
   return (
@@ -134,26 +150,54 @@ function JobCard({ job, index }: {
           <p style={{ fontSize: "0.75rem", color: "#94A3B8", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
             Salary: <span style={{ fontWeight: 600, color: "#475569" }}>{job.salary ?? "Negotiable"}</span>
           </p>
-          <Link
-            href={`/jobs/${job.id}`}
-            style={{
-              borderRadius: 10, padding: "8px 16px", fontSize: "0.75rem",
-              fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase",
-              color: "white", background: "#0F172A", textDecoration: "none",
-              transition: "background 0.2s, box-shadow 0.2s",
-              fontFamily: "'Plus Jakarta Sans', sans-serif",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = "#0EA5E9";
-              e.currentTarget.style.boxShadow = "0 4px 16px rgba(14,165,233,0.35)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = "#0F172A";
-              e.currentTarget.style.boxShadow = "none";
-            }}
-          >
-            View & Apply →
-          </Link>
+          {role === "STUDENT" ? (
+  <Link
+    href={`/apply/${job.id}`}
+    style={{
+      borderRadius: 10,
+      padding: "8px 16px",
+      fontSize: "0.75rem",
+      fontWeight: 700,
+      letterSpacing: "0.05em",
+      textTransform: "uppercase",
+      color: "white",
+      background: "#0F172A",
+      textDecoration: "none",
+    }}
+  >
+    Apply →
+  </Link>
+) : role === "COMPANY" ? (
+  <button
+    disabled
+    style={{
+      borderRadius: 10,
+      padding: "8px 16px",
+      fontSize: "0.75rem",
+      fontWeight: 700,
+      background: "#CBD5E1",
+      color: "#64748B",
+      cursor: "not-allowed",
+    }}
+  >
+    View Job Details
+  </button>
+) : (
+  <Link
+    href="/student/login"
+    style={{
+      borderRadius: 10,
+      padding: "8px 16px",
+      fontSize: "0.75rem",
+      fontWeight: 700,
+      background: "#0EA5E9",
+      color: "white",
+      textDecoration: "none",
+    }}
+  >
+    Login to Apply
+  </Link>
+)}
         </div>
       </div>
     </div>
@@ -162,6 +206,10 @@ function JobCard({ job, index }: {
 
 /* ─── Main Page ──────────────────────────────────────────── */
 export default function HomePage() {
+
+  const { data: session } = useSession();
+  const role = session?.user?.role;
+
   const { data: jobs, isLoading, error } = api.job.list.useQuery();
   const [filter, setFilter] = useState<"all" | "internship" | "fulltime">("all");
 
@@ -343,7 +391,22 @@ export default function HomePage() {
         </div>
 
         <div className="relative z-10 mx-auto max-w-6xl px-5 py-14">
-
+        
+        {session && (
+  <div
+    style={{
+      marginBottom: 20,
+      padding: "10px 16px",
+      borderRadius: 12,
+      background: "rgba(14,165,233,0.1)",
+      border: "1px solid rgba(14,165,233,0.3)",
+      fontWeight: 600,
+      color: "#0369A1",
+    }}
+  >
+    Welcome {session.user.name} (ID: {session.user.id})
+  </div>
+)}
           {/* ── HERO ── */}
           <section className="grid gap-16 md:grid-cols-[1fr_420px] md:items-center" style={{ marginBottom: 80 }}>
             {/* LEFT */}
@@ -597,6 +660,7 @@ export default function HomePage() {
                   <JobCard
                     key={j.id}
                     index={i}
+                    role={role}
                     job={{
                       ...j,
                       tags: Array.isArray((j as any).tags) ? ((j as any).tags as string[]) : [],

@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { api } from "~/trpc/react";
 import { useEffect, useRef, useState, useCallback } from "react";
 import * as faceapi from "face-api.js";
+import { useSession } from "next-auth/react";
 
 // ─────────────────────────────────────────────
 // TYPES
@@ -58,17 +59,10 @@ const violationLabel: Record<ViolationType, string> = {
 // ─────────────────────────────────────────────
 export default function ExamPage() {
 
-  const [studentEmail, setStudentEmail] = useState<string | null>(null);
+  const { data: session, status } = useSession();
 
-  // ✅ ADD THIS HERE
-  useEffect(() => {
-    setStudentEmail("dilmichamya@gmail.com");
-  }, []);
-
-  const { data: verificationData } = api.verification.getByEmail.useQuery(
-    { email: studentEmail! },
-    { enabled: !!studentEmail }
-  );
+  const { data: verificationData, isLoading: verificationLoading } =
+  api.verification.getMyVerification.useQuery();
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -582,8 +576,8 @@ useEffect(() => {
   const compareFaces = async () => {
 
   console.log("VIDEO:", videoRef.current);
-console.log("ID IMAGE:", verificationData?.idImageUrl);
-console.log("VERIFICATION DATA:", verificationData);
+  console.log("ID IMAGE:", verificationData?.idImageUrl);
+  console.log("VERIFICATION DATA:", verificationData);
 
   if (!videoRef.current || !verificationData?.idImageUrl) {
     console.log("Missing video or ID image");
@@ -597,7 +591,7 @@ console.log("VERIFICATION DATA:", verificationData);
     console.log("Detecting face in ID image...");
     const idDetection = await faceapi
       .detectSingleFace(
-  videoRef.current,
+        img,
   new faceapi.TinyFaceDetectorOptions({
     inputSize: 320,
     scoreThreshold: 0.3,
@@ -614,17 +608,35 @@ console.log("VERIFICATION DATA:", verificationData);
     console.log("ID face detected");
 
     console.log("Detecting face in LIVE camera...");
-    const liveDetection = await faceapi
-      .detectSingleFace(videoRef.current, new faceapi.TinyFaceDetectorOptions())
-      .withFaceLandmarks()
-      .withFaceDescriptor();
+    // wait until camera frame is ready
+await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    if (!liveDetection) {
-      console.log("❌ LIVE face NOT detected");
-      return false;
-    }
+let liveDetection = null;
 
-    console.log("LIVE face detected");
+for (let i = 0; i < 3; i++) {
+  liveDetection = await faceapi
+    .detectSingleFace(
+      videoRef.current!,
+      new faceapi.TinyFaceDetectorOptions({
+        inputSize: 320,
+        scoreThreshold: 0.2,
+      })
+    )
+    .withFaceLandmarks()
+    .withFaceDescriptor();
+
+  if (liveDetection) break;
+
+  console.log("Retrying face detection...");
+  await new Promise((r) => setTimeout(r, 800));
+}
+
+if (!liveDetection) {
+  console.log("❌ LIVE face NOT detected");
+  return false;
+}
+
+console.log("LIVE face detected");
 
     const distance = faceapi.euclideanDistance(
       idDetection.descriptor,
@@ -633,7 +645,7 @@ console.log("VERIFICATION DATA:", verificationData);
 
     console.log("✅ Face distance:", distance);
 
-    return distance < 0.8; // temporarily relaxed
+    return distance < 0.9; // temporarily relaxed
   } catch (err) {
     console.error("Face compare error:", err);
     return false;
@@ -641,16 +653,32 @@ console.log("VERIFICATION DATA:", verificationData);
 };
 
   const handleStartExam = async () => {
-  setStartingExam(true);
-  setCameraError(null);
 
-  if (!verificationData?.idImageUrl) {
-    alert("Verification data not loaded yet. Please wait.");
-    setStartingExam(false);
+  if (verificationLoading) {
+    alert("Checking verification. Please wait...");
     return;
   }
 
+  if (!verificationData) {
+    alert("You must verify your identity before taking the exam.");
+    router.push("/verify");
+    return;
+  }
+
+  if (!verificationData.idImageUrl) {
+    alert("Your ID image is missing. Please verify again.");
+    router.push("/verify");
+    return;
+  }
+
+  setStartingExam(true);
+  setCameraError(null);
+
   const camOk = await startCamera();
+
+  if (videoRef.current) {
+  await videoRef.current.play();
+}
 
   if (!camOk) {
     setStartingExam(false);
@@ -712,6 +740,64 @@ console.log("VERIFICATION DATA:", verificationData);
     };
   }, [stopCamera]);
 
+  // ─────────────────────────────────────────────
+// AUTH GUARD
+// ─────────────────────────────────────────────
+
+if (status === "loading") {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      Checking authentication...
+    </div>
+  );
+}
+
+if (!session) {
+  router.push("/student/login");
+  return null;
+}
+
+if (session.user.role !== "STUDENT") {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      Only students can access this exam.
+    </div>
+  );
+}
+
+if (!appId) {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      Invalid exam link.
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
+// VERIFICATION GUARD
+// ─────────────────────────────────────────────
+if (!verificationLoading && !verificationData) {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="text-center">
+        <h1 className="text-xl font-semibold mb-3">
+          Verification Required
+        </h1>
+
+        <p className="text-gray-500 mb-4">
+          You must verify your identity before starting the exam.
+        </p>
+
+        <button
+          onClick={() => router.push("/verify")}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg"
+        >
+          Go to Verification
+        </button>
+      </div>
+    </div>
+  );
+}
   // ─────────────────────────────────────────────
   // LOADING
   // ─────────────────────────────────────────────
@@ -842,6 +928,11 @@ console.log("VERIFICATION DATA:", verificationData);
             </div>
           )}
 
+          {verificationData && (
+  <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">
+    ✅ Identity verified. You can start the assessment.
+  </div>
+)}
           <button
             onClick={handleStartExam}
             disabled={startingExam}

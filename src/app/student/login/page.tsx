@@ -1,3 +1,4 @@
+//smart-screening\src\app\student\login\page.tsx
 "use client";
 
 import { useState } from "react";
@@ -9,8 +10,17 @@ export default function StudentLoginPage() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
+  if (!email || !password) {
+    alert("Please enter email and password");
+    return;
+  }
+
+  try {
+    setLoading(true);
+
     const result = await signIn("credentials", {
       email,
       password,
@@ -19,11 +29,21 @@ export default function StudentLoginPage() {
 
     if (result?.error) {
       alert("Invalid email or password");
+      setLoading(false);
       return;
     }
 
-    router.push("/student");
-  };
+    // ✅ Always go to home page
+    router.push("/");
+    router.refresh();
+
+  } catch (error) {
+    console.error("Login error:", error);
+    alert("Something went wrong. Try again.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100">
@@ -48,9 +68,10 @@ export default function StudentLoginPage() {
 
         <button
           onClick={handleLogin}
-          className="w-full rounded bg-blue-600 py-2 text-white hover:bg-blue-700"
+          disabled={loading}
+          className="w-full rounded bg-blue-600 py-2 text-white hover:bg-blue-700 disabled:bg-gray-400"
         >
-          Login
+          {loading ? "Logging in..." : "Login"}
         </button>
       </div>
     </div>

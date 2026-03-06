@@ -1,9 +1,9 @@
 //smart-screening\src\server\api\routers\application.ts
 import { z } from "zod";
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
 export const applicationRouter = createTRPCRouter({
-  create: publicProcedure
+  create: protectedProcedure
     .input(
       z.object({
         jobId: z.string(),
@@ -37,6 +37,17 @@ export const applicationRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
 
+      const userId = ctx.session.user.id;
+
+      // Fetch user to check their role
+      const user = await ctx.db.user.findUnique({
+        where: { id: userId },
+      });
+
+      if (!user || user.role !== "STUDENT") {
+        throw new Error("Only students can apply.");
+      }
+
       // ✅ 1. Find the job first
       const job = await ctx.db.job.findUnique({
         where: { id: input.jobId },
@@ -49,6 +60,7 @@ export const applicationRouter = createTRPCRouter({
       // ✅ 2. Create application with role from job
       return ctx.db.application.create({
         data: {
+          userId: userId, 
           jobId: input.jobId,
           role: job.role, // ⭐ IMPORTANT FIX
 

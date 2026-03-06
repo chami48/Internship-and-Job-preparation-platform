@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
 // Fisher–Yates shuffle
 function shuffle<T>(array: T[]): T[] {
@@ -21,7 +21,7 @@ export const examRouter = createTRPCRouter({
   // =====================================
   // GET QUESTIONS (LOCKED PER APPLICATION)
   // =====================================
-  getQuestions: publicProcedure
+  getQuestions: protectedProcedure
   .input(
     z.object({
       applicationId: z.string(),
@@ -33,11 +33,13 @@ export const examRouter = createTRPCRouter({
       where: { id: input.applicationId },
       include: { job: true },
     });
-
     if (!app) {
-      throw new Error("Application not found");
-    }
+  throw new Error("Application not found");
+}
 
+if (app.userId !== ctx.session.user.id) {
+  throw new Error("Unauthorized access to this exam.");
+}
     // 🔒 If already locked
     if (app.lockedQuestions) {
       return app.lockedQuestions;
@@ -74,7 +76,7 @@ export const examRouter = createTRPCRouter({
 // =====================================
 // LOG VIOLATION (DEDUPLICATED)
 // =====================================
-logViolation: publicProcedure
+logViolation: protectedProcedure
   .input(
     z.object({
       applicationId: z.string(),
@@ -141,7 +143,7 @@ logViolation: publicProcedure
   // =====================================
   // SUBMIT (PREVENT DOUBLE SUBMIT)
   // =====================================
-  submit: publicProcedure
+  submit: protectedProcedure
   .input(
     z.object({
       applicationId: z.string(),

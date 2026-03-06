@@ -1,7 +1,9 @@
+//smart-screening\src\app\layout.tsx
 import "~/styles/globals.css";
 
 import { type Metadata } from "next";
 import { Geist } from "next/font/google";
+import { SessionProvider } from "next-auth/react";
 
 import Footer from "~/app/components/common/Footer";
 import Header from "~/app/components/common/Header";
@@ -24,11 +26,13 @@ export default function RootLayout({
   return (
     <html lang="en" className={geist.variable}>
       <body>
-        <TRPCReactProvider>
-          <Header />
-          {children}
-          <Footer />
-        </TRPCReactProvider>
+        <SessionProvider>
+          <TRPCReactProvider>
+            <Header />
+            {children}
+            <Footer />
+          </TRPCReactProvider>
+        </SessionProvider>
       </body>
     </html>
   );
