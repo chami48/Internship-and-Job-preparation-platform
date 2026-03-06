@@ -645,7 +645,7 @@ console.log("LIVE face detected");
 
     console.log("✅ Face distance:", distance);
 
-    return distance < 0.9; // temporarily relaxed
+    return distance < 0.4; // temporarily relaxed
   } catch (err) {
     console.error("Face compare error:", err);
     return false;

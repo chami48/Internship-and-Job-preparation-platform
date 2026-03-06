@@ -78,12 +78,6 @@ export default function ApplyPage() {
     );
   }
 
-useEffect(() => {
-  if (existingVerification && jobId && appId) {
-    router.push(`/exam/${jobId}?appId=${appId}`);
-  }
-}, [existingVerification, jobId, appId, router]);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
