@@ -99,6 +99,7 @@ const questions = data as QuestionType[] | undefined;
   const videoRef = useRef<HTMLVideoElement>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
   const alertTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const referenceDescriptorRef = useRef<Float32Array | null>(null);
   const submittedRef = useRef(false);
 
   // ─────────────────────────────────────────────
@@ -219,6 +220,15 @@ const questions = data as QuestionType[] | undefined;
   ]
 );
 
+useEffect(() => {
+  const loadModels = async () => {
+    await faceapi.nets.tinyFaceDetector.loadFromUri("/models");
+    console.log("Face monitoring model loaded");
+  };
+
+  loadModels();
+}, []);
+
   // ─────────────────────────────────────────────
   // ANTI-CHEAT — only active during exam
   // ─────────────────────────────────────────────
@@ -309,22 +319,22 @@ const questions = data as QuestionType[] | undefined;
   }, [examStarted, triggerViolation]);
 
   // DEV TOOLS DETECTION
-useEffect(() => {
-  if (!examStarted) return;
-  let devOpen = false;
-  const check = () => {
-    const w = window.outerWidth - window.innerWidth > 160;
-    const h = window.outerHeight - window.innerHeight > 160;
-    if ((w || h) && !devOpen) {
-      devOpen = true;
-      triggerViolation("DEV_TOOLS");
-    } else if (!w && !h) {
-      devOpen = false;
-    }
-  };
-  const id = setInterval(check, 1500);
-  return () => clearInterval(id);
-}, [examStarted, triggerViolation]);
+// useEffect(() => {
+//   if (!examStarted) return;
+//   let devOpen = false;
+//   const check = () => {
+//     const w = window.outerWidth - window.innerWidth > 160;
+//     const h = window.outerHeight - window.innerHeight > 160;
+//     if ((w || h) && !devOpen) {
+//       devOpen = true;
+//       triggerViolation("DEV_TOOLS");
+//     } else if (!w && !h) {
+//       devOpen = false;
+//     }
+//   };
+//   const id = setInterval(check, 1500);
+//   return () => clearInterval(id);
+// }, [examStarted, triggerViolation]);
 
 // ─────────────────────────────────────────────
 // BLOCK PAGE REFRESH (F5 / CTRL+R)
@@ -446,6 +456,61 @@ if (!examStarted) return;
 
   return () => clearInterval(interval);
 }, [triggerViolation]);
+
+// ─────────────────────────────────────────────
+// CONTINUOUS IDENTITY VERIFICATION
+// ─────────────────────────────────────────────
+useEffect(() => {
+
+  if (!examStarted) return;
+  if (!referenceDescriptorRef.current) return;
+
+  const verifyIdentity = async () => {
+
+    if (!videoRef.current) return;
+
+    try {
+
+      const detection = await faceapi
+        .detectSingleFace(
+          videoRef.current,
+          new faceapi.TinyFaceDetectorOptions({
+            inputSize: 320,
+            scoreThreshold: 0.3,
+          })
+        )
+        .withFaceLandmarks()
+        .withFaceDescriptor();
+
+      if (!detection) return;
+
+      if (!referenceDescriptorRef.current) return;
+
+      const distance = faceapi.euclideanDistance(
+      referenceDescriptorRef.current,
+      detection.descriptor
+);
+
+      console.log("Live identity distance:", distance);
+
+      if (distance > 0.55) {
+        console.log("⚠ Different person detected");
+
+        triggerViolation("MULTIPLE_FACES"); 
+      }
+
+    } catch (err) {
+      console.error("Identity verification error:", err);
+    }
+
+  };
+
+  const interval = setInterval(verifyIdentity, 20000); // every 20 seconds
+
+  return () => clearInterval(interval);
+
+}, [examStarted, triggerViolation]);
+
   // ─────────────────────────────────────────────
   // TOTAL TIMER
   // ─────────────────────────────────────────────
@@ -593,9 +658,9 @@ useEffect(() => {
       .detectSingleFace(
         img,
   new faceapi.TinyFaceDetectorOptions({
-    inputSize: 320,
-    scoreThreshold: 0.3,
-  })
+  inputSize: 512,
+  scoreThreshold: 0.2,
+})
 )
       .withFaceLandmarks()
       .withFaceDescriptor();
@@ -638,6 +703,11 @@ if (!liveDetection) {
 
 console.log("LIVE face detected");
 
+// Save descriptor for continuous monitoring
+referenceDescriptorRef.current = liveDetection.descriptor;
+console.log("Comparing faces...");
+
+    if (!referenceDescriptorRef.current) return false;
     const distance = faceapi.euclideanDistance(
       idDetection.descriptor,
       liveDetection.descriptor
@@ -645,7 +715,7 @@ console.log("LIVE face detected");
 
     console.log("✅ Face distance:", distance);
 
-    return distance < 0.4; // temporarily relaxed
+    return distance < 0.55; // temporarily relaxed
   } catch (err) {
     console.error("Face compare error:", err);
     return false;
@@ -659,15 +729,15 @@ console.log("LIVE face detected");
     return;
   }
 
-  if (!verificationData) {
+  if (!verificationData || verificationData.userId !== session?.user.id) {
     alert("You must verify your identity before taking the exam.");
-    router.push("/verify");
+    router.push("/apply");
     return;
   }
 
   if (!verificationData.idImageUrl) {
     alert("Your ID image is missing. Please verify again.");
-    router.push("/verify");
+    router.push("/apply");
     return;
   }
 
