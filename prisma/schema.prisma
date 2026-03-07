@@ -259,9 +259,10 @@ model Application {
 
   lockedQuestions Json?
   examSubmitted   Boolean  @default(false)
+  terminationReason String?
 
-  @@index([jobId])
-  @@index([userId])
+  @@unique([userId, jobId])
+  
 }
 
 model Project {

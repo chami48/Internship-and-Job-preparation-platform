@@ -1,8 +1,14 @@
-//smart-screening\src\server\api\routers\application.ts
+// smart-screening/src/server/api/routers/application.ts
+
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
 export const applicationRouter = createTRPCRouter({
+
+  // ============================
+  // CREATE APPLICATION
+  // ============================
+
   create: protectedProcedure
     .input(
       z.object({
@@ -21,12 +27,14 @@ export const applicationRouter = createTRPCRouter({
         programmingLanguages: z.string(),
         frameworks: z.string().optional(),
         softwareProficiency: z.string().optional(),
+
         projects: z.array(
           z.object({
             name: z.string(),
             details: z.string(),
           })
         ),
+
         scenarios: z.array(
           z.object({
             questionKey: z.string(),
@@ -35,11 +43,12 @@ export const applicationRouter = createTRPCRouter({
         ),
       })
     )
+
     .mutation(async ({ ctx, input }) => {
 
       const userId = ctx.session.user.id;
 
-      // Fetch user to check their role
+      // Check user role
       const user = await ctx.db.user.findUnique({
         where: { id: userId },
       });
@@ -48,7 +57,7 @@ export const applicationRouter = createTRPCRouter({
         throw new Error("Only students can apply.");
       }
 
-      // ✅ 1. Find the job first
+      // Find job
       const job = await ctx.db.job.findUnique({
         where: { id: input.jobId },
       });
@@ -57,12 +66,12 @@ export const applicationRouter = createTRPCRouter({
         throw new Error("Job not found");
       }
 
-      // ✅ 2. Create application with role from job
+      // Create application
       return ctx.db.application.create({
         data: {
-          userId: userId, 
+          userId: userId,
           jobId: input.jobId,
-          role: job.role, // ⭐ IMPORTANT FIX
+          role: job.role,
 
           fullName: input.fullName,
           email: input.email,
@@ -84,10 +93,36 @@ export const applicationRouter = createTRPCRouter({
           projects: {
             create: input.projects,
           },
+
           scenarios: {
             create: input.scenarios,
           },
         },
       });
     }),
+
+
+  // ============================
+  // TERMINATE APPLICATION (FACE MISMATCH / CHEATING)
+  // ============================
+
+  terminate: protectedProcedure
+    .input(
+      z.object({
+        applicationId: z.string(),
+        reason: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+
+      return ctx.db.application.update({
+        where: { id: input.applicationId },
+        data: {
+          terminationReason: input.reason,
+          examSubmitted: false,
+        },
+      });
+
+    }),
+
 });

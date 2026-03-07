@@ -131,13 +131,24 @@ logViolation: protectedProcedure
     });
 
     const count = await ctx.db.examViolation.count({
-      where: { applicationId: input.applicationId },
-    });
+  where: { applicationId: input.applicationId },
+});
 
-    return {
-      totalViolations: count,
-      terminated: count >= 3,
-    };
+// 🔥 If violations reach 3 → terminate exam
+if (count >= 3) {
+  await ctx.db.application.update({
+    where: { id: input.applicationId },
+    data: {
+      examSubmitted: true,
+      terminationReason: "VIOLATION",
+    },
+  });
+}
+
+return {
+  totalViolations: count,
+  terminated: count >= 3,
+};
   }),
   
   // =====================================

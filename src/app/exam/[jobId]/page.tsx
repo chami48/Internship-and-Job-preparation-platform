@@ -67,6 +67,7 @@ export default function ExamPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const appId = searchParams.get("appId");
+  const terminateApplication = api.application.terminate.useMutation();
 
   const { data, isLoading } = api.exam.getQuestions.useQuery(
   {
@@ -173,19 +174,19 @@ const questions = data as QuestionType[] | undefined;
       // 🔥 SAVE TO DATABASE
       if (appId) {
         logViolationMutation.mutate(
-  {
-    applicationId: appId,
-    type,
-    message: violationLabel[type],
+{
+  applicationId: appId,
+  type,
+  message: violationLabel[type],
+},
+{
+  onSuccess: (data) => {
+    console.log("Violation saved:", data);
   },
-  {
-    onSuccess: (data) => {
-      if (data.terminated) {
-        setTerminated(true);
-      }
-    },
+  onError: (err) => {
+    console.log("Violation error:", err);
   }
-);
+});
       }
 
       setActiveAlert(event);
@@ -410,52 +411,67 @@ useEffect(() => {
 if (!examStarted) return;
 
   let noFaceCounter = 0;
-  let multipleFaceCounter = 0;
+let multipleFaceCounter = 0;
 
-  const detectFaces = async () => {
-    if (!videoRef.current) return;
+const detectFaces = async () => {
+  if (!videoRef.current) return;
 
-    try {
-      const detections = await faceapi.detectAllFaces(
-        videoRef.current,
-        new faceapi.TinyFaceDetectorOptions({
-  inputSize: 320,
-  scoreThreshold: 0.3,
-})
-      );
+  try {
 
-      // ❌ No face detected
-      if (detections.length === 0) {
-        noFaceCounter++;
+    const detections = await faceapi.detectAllFaces(
+      videoRef.current,
+      new faceapi.TinyFaceDetectorOptions({
+        inputSize: 320,
+        scoreThreshold: 0.3,
+      })
+    );
 
-        if (noFaceCounter >= 3) {
-          triggerViolation("FACE_NOT_DETECTED");
-          noFaceCounter = 0;
-        }
-      } else {
+    console.log("Faces detected:", detections.length);
+
+    // ❌ No face detected
+    if (detections.length === 0) {
+      noFaceCounter++;
+
+      console.log("No face counter:", noFaceCounter);
+
+      if (noFaceCounter >= 2) {
+        triggerViolation("FACE_NOT_DETECTED");
         noFaceCounter = 0;
       }
 
-      // ❌ Multiple faces detected
-      if (detections.length > 1) {
-        multipleFaceCounter++;
+    } else {
 
-        if (multipleFaceCounter >= 2) {
-          triggerViolation("MULTIPLE_FACES");
-          multipleFaceCounter = 0;
-        }
-      } else {
+      // reduce slowly instead of reset
+      noFaceCounter = Math.max(0, noFaceCounter - 1);
+
+    }
+
+    // ❌ Multiple faces detected
+    if (detections.length > 1) {
+      multipleFaceCounter++;
+
+      console.log("Multiple face counter:", multipleFaceCounter);
+
+      if (multipleFaceCounter >= 2) {
+        triggerViolation("MULTIPLE_FACES");
         multipleFaceCounter = 0;
       }
-    } catch (err) {
-      console.error("Face detection error:", err);
+
+    } else {
+
+      multipleFaceCounter = Math.max(0, multipleFaceCounter - 1);
+
     }
+
+  } catch (err) {
+    console.error("Face detection error:", err);
+  }
   };
 
-  const interval = setInterval(detectFaces, 4000); // check every 4 seconds
+  const interval = setInterval(detectFaces, 2000); // check every 4 seconds
 
   return () => clearInterval(interval);
-}, [triggerViolation]);
+}, [examStarted, triggerViolation]);
 
 // ─────────────────────────────────────────────
 // CONTINUOUS IDENTITY VERIFICATION
@@ -494,10 +510,17 @@ useEffect(() => {
       console.log("Live identity distance:", distance);
 
       if (distance > 0.55) {
-        console.log("⚠ Different person detected");
+  console.log("⚠ Identity verification failed");
 
-        triggerViolation("MULTIPLE_FACES"); 
-      }
+  await terminateApplication.mutateAsync({
+    applicationId: searchParams.get("appId")!,
+    reason: "FACE_MISMATCH",
+  });
+
+  alert("Face does not match ID. Verification failed.");
+
+  router.push("/");
+}
 
     } catch (err) {
       console.error("Identity verification error:", err);

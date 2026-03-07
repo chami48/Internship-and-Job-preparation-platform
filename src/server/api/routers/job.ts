@@ -1,6 +1,6 @@
 //smart-screening\src\server\api\routers\job.ts
 import { z } from "zod";
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import { createTRPCRouter, publicProcedure, protectedProcedure } from "~/server/api/trpc";
 import { JobRole, JobType, JobLevel } from "../../../../generated/prisma";
 
 export const jobRouter = createTRPCRouter({
@@ -32,21 +32,37 @@ export const jobRouter = createTRPCRouter({
       });
     }),
 
-  list: publicProcedure.query(async ({ ctx }) => {
-    return ctx.db.job.findMany({
-      include: { company: true },
-      orderBy: { createdAt: "desc" },
-    });
-  }),
+  list: protectedProcedure.query(async ({ ctx }) => {
+  const jobs = await ctx.db.job.findMany({
+    include: {
+      company: true,
+      applications: {
+  where: {
+    userId: ctx.session.user.id,
+  },
+  select: {
+    id: true,
+    examSubmitted: true,
+    terminationReason: true,
+  },
+},
+    },
+    orderBy: { createdAt: "desc" },
+  });
 
-  listByCompany: publicProcedure
-    .input(z.object({ companyId: z.string() }))
-    .query(async ({ ctx, input }) => {
-      return ctx.db.job.findMany({
-        where: { companyId: input.companyId },
-        orderBy: { createdAt: "desc" },
-      });
-    }),
+  return jobs.map((job) => {
+  const app = job.applications[0];
+
+  return {
+    ...job,
+    applied: !!app,
+    examSubmitted: app?.examSubmitted ?? false,
+    terminated: app?.terminationReason === "VIOLATION",
+    terminationReason: app?.terminationReason ?? null,
+    applicationId: app?.id ?? null,
+  };
+});
+}),
 
   byId: publicProcedure
     .input(z.object({ id: z.string() }))
