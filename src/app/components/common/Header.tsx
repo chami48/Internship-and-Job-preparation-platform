@@ -165,7 +165,7 @@ export default function Header() {
                   Log in
                 </Link>
 
-                <Link href="/student" className="btn-primary">
+                <Link href="/student/register" className="btn-primary">
                   Get Started
                 </Link>
               </>
