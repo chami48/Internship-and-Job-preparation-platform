@@ -227,7 +227,7 @@ function JobCard({
     </Link>
   ) : (
     <Link
-      href={`/apply/${job.id}`}
+     href={`/jobs/${job.id}`}
       style={{
         borderRadius: 10,
         padding: "8px 16px",

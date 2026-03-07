@@ -32,38 +32,41 @@ export const jobRouter = createTRPCRouter({
       });
     }),
 
-  list: protectedProcedure.query(async ({ ctx }) => {
+ list: publicProcedure.query(async ({ ctx }) => {
+  const userId = ctx.session?.user?.id;
+
   const jobs = await ctx.db.job.findMany({
     include: {
       company: true,
-      applications: {
-  where: {
-    userId: ctx.session.user.id,
-  },
-  select: {
-    id: true,
-    examSubmitted: true,
-    terminationReason: true,
-  },
-},
+      applications: userId
+        ? {
+            where: {
+              userId,
+            },
+            select: {
+              id: true,
+              examSubmitted: true,
+              terminationReason: true,
+            },
+          }
+        : false,
     },
     orderBy: { createdAt: "desc" },
   });
 
   return jobs.map((job) => {
-  const app = job.applications[0];
+    const app = job.applications?.[0];
 
-  return {
-    ...job,
-    applied: !!app,
-    examSubmitted: app?.examSubmitted ?? false,
-    terminated: app?.terminationReason === "VIOLATION",
-    terminationReason: app?.terminationReason ?? null,
-    applicationId: app?.id ?? null,
-  };
-});
+    return {
+      ...job,
+      applied: !!app,
+      examSubmitted: app?.examSubmitted ?? false,
+      terminated: app?.terminationReason === "VIOLATION",
+      terminationReason: app?.terminationReason ?? null,
+      applicationId: app?.id ?? null,
+    };
+  });
 }),
-
   byId: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {

@@ -1,3 +1,4 @@
+//smart-screening\src\app\jobs\[id]\page.tsx
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { db } from "~/server/db";
