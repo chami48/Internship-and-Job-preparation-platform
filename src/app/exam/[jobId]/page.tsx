@@ -69,6 +69,9 @@ export default function ExamPage() {
   const appId = searchParams.get("appId");
   const terminateApplication = api.application.terminate.useMutation();
 
+  const identityFailCountRef = useRef(0);
+  const previousFacePositionRef = useRef<number | null>(null);
+
   const { data, isLoading } = api.exam.getQuestions.useQuery(
   {
     applicationId: appId!,
@@ -96,6 +99,7 @@ const questions = data as QuestionType[] | undefined;
 
   const [totalTimeLeft, setTotalTimeLeft] = useState(25 * 60);
   const [questionTimeLeft, setQuestionTimeLeft] = useState(0);
+  const lookingAwayCounterRef = useRef(0);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
@@ -414,19 +418,61 @@ if (!examStarted) return;
 let multipleFaceCounter = 0;
 
 const detectFaces = async () => {
+
+  if (noFaceCounter >= 2) {
+        triggerViolation("FACE_NOT_DETECTED");
+        noFaceCounter = 0;
+      }
+
   if (!videoRef.current) return;
 
   try {
 
-    const detections = await faceapi.detectAllFaces(
-      videoRef.current,
-      new faceapi.TinyFaceDetectorOptions({
-        inputSize: 320,
-        scoreThreshold: 0.3,
-      })
-    );
+    const detections = await faceapi
+    .detectAllFaces(
+    videoRef.current,
+    new faceapi.TinyFaceDetectorOptions({
+      inputSize: 320,
+      scoreThreshold: 0.3,
+    })
+  )
+  .withFaceLandmarks();
 
     console.log("Faces detected:", detections.length);
+
+    if (detections.length === 1) {
+      
+
+  if (!document.fullscreenElement) {
+    await document.documentElement.requestFullscreen().catch(() => {});
+  }
+
+  const landmarks = detections[0]!.landmarks;
+  const nose = landmarks.getNose();
+  const jaw = landmarks.getJawOutline();
+
+  const noseX = nose[3]!.x;
+  const jawLeft = jaw[0]!.x;
+  const jawRight = jaw[16]!.x;
+
+const faceCenter = (jawLeft + jawRight) / 2;
+
+const deviation = Math.abs(noseX - faceCenter);
+
+if (deviation > 35) {
+  lookingAwayCounterRef.current += 1;
+
+  console.log("⚠ Looking away detected:", lookingAwayCounterRef.current);
+
+  if (lookingAwayCounterRef.current >= 3) {
+    triggerViolation("FACE_NOT_DETECTED");
+    lookingAwayCounterRef.current = 0;
+  }
+
+} else {
+  lookingAwayCounterRef.current = 0;
+}
+}
 
     // ❌ No face detected
     if (detections.length === 0) {
@@ -434,10 +480,7 @@ const detectFaces = async () => {
 
       console.log("No face counter:", noFaceCounter);
 
-      if (noFaceCounter >= 2) {
-        triggerViolation("FACE_NOT_DETECTED");
-        noFaceCounter = 0;
-      }
+      
 
     } else {
 
@@ -498,6 +541,8 @@ useEffect(() => {
         .withFaceLandmarks()
         .withFaceDescriptor();
 
+      
+
       if (!detection) return;
 
       if (!referenceDescriptorRef.current) return;
@@ -510,14 +555,24 @@ useEffect(() => {
       console.log("Live identity distance:", distance);
 
       if (distance > 0.55) {
-  console.log("⚠ Identity verification failed");
+
+  identityFailCountRef.current += 1;
+
+  console.log("⚠ Identity verification failed attempt:", identityFailCountRef.current);
+
+  if (identityFailCountRef.current < 3) {
+    alert(`Face verification failed. Attempt ${identityFailCountRef.current}/3. Please look at the camera properly.`);
+    return;
+  }
+
+  console.log("❌ Identity verification failed 3 times. Terminating exam.");
 
   await terminateApplication.mutateAsync({
     applicationId: searchParams.get("appId")!,
     reason: "FACE_MISMATCH",
   });
 
-  alert("Face does not match ID. Verification failed.");
+  alert("Face verification failed 3 times. Exam terminated.");
 
   router.push("/");
 }
@@ -681,17 +736,48 @@ useEffect(() => {
       .detectSingleFace(
         img,
   new faceapi.TinyFaceDetectorOptions({
-  inputSize: 512,
-  scoreThreshold: 0.2,
+  inputSize:320,
+  scoreThreshold: 0.3,
 })
 )
       .withFaceLandmarks()
       .withFaceDescriptor();
 
+
     if (!idDetection) {
       console.log("❌ ID face NOT detected");
       return false;
     }
+
+    // HEAD MOVEMENT CHECK (anti-photo spoof)
+const currentX = idDetection.detection.box.x;
+
+if (previousFacePositionRef.current !== null) {
+
+  const movement = Math.abs(currentX - previousFacePositionRef.current);
+
+  if (movement < 2) {
+    console.log("⚠ Face not moving — possible photo or screen");
+  }
+
+}
+
+previousFacePositionRef.current = currentX;
+
+      // LIVENESS CHECK — detect blinking
+    const leftEye = idDetection?.landmarks.getLeftEye();
+    const rightEye = idDetection?.landmarks.getRightEye();
+
+if (leftEye && rightEye) {
+  const leftEyeOpen = Math.abs(leftEye[1]!.y - leftEye[5]!.y);
+const rightEyeOpen = Math.abs(rightEye[1]!.y - rightEye[5]!.y);
+
+  if (leftEyeOpen < 2 || rightEyeOpen < 2) {
+    console.log("👁 Blink detected (real person)");
+  }
+}
+
+    
 
     console.log("ID face detected");
 

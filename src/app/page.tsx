@@ -189,7 +189,7 @@ function JobCard({
         cursor: "not-allowed",
       }}
     >
-      ✕ Exam Terminated
+      ✕ you exceeded the violation limit
     </button>
   ) : job.examSubmitted ? (
     <button
