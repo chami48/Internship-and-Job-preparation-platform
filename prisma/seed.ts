@@ -5,8 +5,8 @@ const prisma = new PrismaClient();
 
 async function main() {
   // Clear old (safe for dev)
-  await prisma.option.deleteMany();
-  await prisma.question.deleteMany();
+  //await prisma.option.deleteMany();
+  //await prisma.question.deleteMany();
 
   // Helper to create MCQ
   const mcq = async (data: {

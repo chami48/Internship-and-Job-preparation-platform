@@ -113,17 +113,6 @@ model VerificationToken {
 // Module 2 - Job Management
 //////////////////////////////////////////////////////
 
-model Company {
-  id          String   @id @default(cuid())
-  name        String
-  email       String   @unique
-  description String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  jobs        Job[]
-}
-
 enum JobType {
   INTERNSHIP
   FULL_TIME
@@ -161,7 +150,6 @@ model Job {
   location  String
   role      JobRole
   type      JobType
-  role      JobRole
   level     JobLevel
   tags      String
   salary    String?
@@ -178,6 +166,7 @@ model Job {
 
   applications Application[]
 }
+
 
 //////////////////////////////////////////////////////
 // Module 3 - Question Bank
@@ -270,9 +259,10 @@ model Application {
 
   lockedQuestions Json?
   examSubmitted   Boolean  @default(false)
+  terminationReason String?
 
-  @@index([jobId])
-  @@index([userId])
+  @@unique([userId, jobId])
+  
 }
 
 model Project {

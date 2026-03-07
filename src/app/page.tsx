@@ -68,6 +68,12 @@ function JobCard({
     level: string;
     tags: string[];
     salary?: string | null;
+    
+    applied?: boolean;
+    examSubmitted?: boolean;
+    terminated?: boolean;
+    terminationReason?: string | null;
+    applicationId?: string | null;
   };
   index: number;
   role?: string;
@@ -150,23 +156,93 @@ function JobCard({
           <p style={{ fontSize: "0.75rem", color: "#94A3B8", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
             Salary: <span style={{ fontWeight: 600, color: "#475569" }}>{job.salary ?? "Negotiable"}</span>
           </p>
-          {role === "STUDENT" ? (
-  <Link
-    href={`/apply/${job.id}`}
-    style={{
-      borderRadius: 10,
-      padding: "8px 16px",
-      fontSize: "0.75rem",
-      fontWeight: 700,
-      letterSpacing: "0.05em",
-      textTransform: "uppercase",
-      color: "white",
-      background: "#0F172A",
-      textDecoration: "none",
-    }}
-  >
-    Apply →
-  </Link>
+  {role === "STUDENT" ? (
+  job.terminationReason === "FACE_MISMATCH" ? (
+    <Link
+      href={`/exam/${job.id}?appId=${job.applicationId}`}
+      style={{
+        borderRadius: 10,
+        padding: "8px 16px",
+        fontSize: "0.75rem",
+        fontWeight: 700,
+        letterSpacing: "0.05em",
+        textTransform: "uppercase",
+        background: "#FEF3C7",
+        color: "#92400E",
+        textDecoration: "none",
+      }}
+    >
+      Retry Verification
+    </Link>
+  ) : job.terminated ? (
+    <button
+      disabled
+      style={{
+        borderRadius: 10,
+        padding: "8px 16px",
+        fontSize: "0.75rem",
+        fontWeight: 700,
+        letterSpacing: "0.05em",
+        textTransform: "uppercase",
+        background: "#FEE2E2",
+        color: "#B91C1C",
+        cursor: "not-allowed",
+      }}
+    >
+      ✕ you exceeded the violation limit
+    </button>
+  ) : job.examSubmitted ? (
+    <button
+      disabled
+      style={{
+        borderRadius: 10,
+        padding: "8px 16px",
+        fontSize: "0.75rem",
+        fontWeight: 700,
+        letterSpacing: "0.05em",
+        textTransform: "uppercase",
+        background: "#DCFCE7",
+        color: "#15803D",
+        cursor: "not-allowed",
+      }}
+    >
+      ✓ Exam Completed
+    </button>
+  ) : job.applied ? (
+    <Link
+      href={`/exam/${job.id}?appId=${job.applicationId}`}
+      style={{
+        borderRadius: 10,
+        padding: "8px 16px",
+        fontSize: "0.75rem",
+        fontWeight: 700,
+        letterSpacing: "0.05em",
+        textTransform: "uppercase",
+        color: "white",
+        background: "#0EA5E9",
+        textDecoration: "none",
+      }}
+    >
+      Start Exam
+    </Link>
+  ) : (
+    <Link
+     href={`/jobs/${job.id}`}
+      style={{
+        borderRadius: 10,
+        padding: "8px 16px",
+        fontSize: "0.75rem",
+        fontWeight: 700,
+        letterSpacing: "0.05em",
+        textTransform: "uppercase",
+        color: "white",
+        background: "#0F172A",
+        textDecoration: "none",
+      }}
+    >
+      Apply →
+    </Link>
+  )
 ) : role === "COMPANY" ? (
   <button
     disabled
@@ -391,22 +467,7 @@ export default function HomePage() {
         </div>
 
         <div className="relative z-10 mx-auto max-w-6xl px-5 py-14">
-        
-        {session && (
-  <div
-    style={{
-      marginBottom: 20,
-      padding: "10px 16px",
-      borderRadius: 12,
-      background: "rgba(14,165,233,0.1)",
-      border: "1px solid rgba(14,165,233,0.3)",
-      fontWeight: 600,
-      color: "#0369A1",
-    }}
-  >
-    Welcome {session.user.name} (ID: {session.user.id})
-  </div>
-)}
+      
           {/* ── HERO ── */}
           <section className="grid gap-16 md:grid-cols-[1fr_420px] md:items-center" style={{ marginBottom: 80 }}>
             {/* LEFT */}

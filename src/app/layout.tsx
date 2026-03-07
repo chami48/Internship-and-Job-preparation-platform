@@ -7,6 +7,8 @@ import { SessionProvider } from "next-auth/react";
 
 import ConditionalLayout from "~/app/components/common/ConditionalLayout";
 import { TRPCReactProvider } from "~/trpc/react";
+import Header from "~/app/components/common/Header";   // ✅ add this
+import Footer from "~/app/components/common/Footer";   // ✅ add this
 
 export const metadata: Metadata = {
   title: "Internship & Job Preparation Platform",

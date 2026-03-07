@@ -22,7 +22,6 @@ CREATE TABLE "Account" (
     "scope" TEXT,
     "id_token" TEXT,
     "session_state" TEXT,
-    "refresh_token_expires_in" INTEGER,
     CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
@@ -40,8 +39,28 @@ CREATE TABLE "User" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "name" TEXT,
     "email" TEXT,
+    "password" TEXT,
+    "role" TEXT NOT NULL DEFAULT 'STUDENT',
+    "studentId" TEXT,
+    "degree" TEXT,
+    "year" TEXT,
+    "specialization" TEXT,
+    "skills" TEXT,
+    "github" TEXT,
+    "linkedin" TEXT,
+    "portfolio" TEXT,
+    "bio" TEXT,
     "emailVerified" DATETIME,
     "image" TEXT
+);
+
+-- CreateTable
+CREATE TABLE "EmailOTP" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "email" TEXT NOT NULL,
+    "otp" TEXT NOT NULL,
+    "expiresAt" DATETIME NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 -- CreateTable
@@ -52,11 +71,26 @@ CREATE TABLE "VerificationToken" (
 );
 
 -- CreateTable
+CREATE TABLE "Company" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "name" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "password" TEXT NOT NULL,
+    "description" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    "isVerified" BOOLEAN NOT NULL DEFAULT false,
+    "otp" TEXT,
+    "otpExpiry" DATETIME
+);
+
+-- CreateTable
 CREATE TABLE "Job" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "title" TEXT NOT NULL,
-    "company" TEXT NOT NULL,
+    "companyId" TEXT NOT NULL,
     "location" TEXT NOT NULL,
+    "role" TEXT NOT NULL,
     "type" TEXT NOT NULL,
     "level" TEXT NOT NULL,
     "tags" TEXT NOT NULL,
@@ -65,7 +99,10 @@ CREATE TABLE "Job" (
     "responsibilities" TEXT NOT NULL,
     "requirements" TEXT NOT NULL,
     "benefits" TEXT,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    "deadline" DATETIME,
+    "slots" INTEGER,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "Job_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -95,7 +132,9 @@ CREATE TABLE "Option" (
 CREATE TABLE "Application" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "jobId" TEXT NOT NULL,
+    "role" TEXT NOT NULL,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "userId" TEXT NOT NULL,
     "fullName" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "mobile" TEXT,
@@ -110,6 +149,9 @@ CREATE TABLE "Application" (
     "programmingLanguages" TEXT NOT NULL,
     "frameworks" TEXT,
     "softwareProficiency" TEXT,
+    "lockedQuestions" JSONB,
+    "examSubmitted" BOOLEAN NOT NULL DEFAULT false,
+    CONSTRAINT "Application_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT "Application_jobId_fkey" FOREIGN KEY ("jobId") REFERENCES "Job" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
@@ -135,12 +177,33 @@ CREATE TABLE "ScenarioAnswer" (
 CREATE TABLE "ExamAnswer" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "questionId" TEXT NOT NULL,
-    "userId" TEXT NOT NULL,
-    "answer" TEXT NOT NULL,
-    "score" REAL,
+    "applicationId" TEXT NOT NULL,
+    "answer" TEXT,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "ExamAnswer_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "Question" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT "ExamAnswer_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT "ExamAnswer_applicationId_fkey" FOREIGN KEY ("applicationId") REFERENCES "Application" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "ExamViolation" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "applicationId" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
+    "message" TEXT NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "ExamViolation_applicationId_fkey" FOREIGN KEY ("applicationId") REFERENCES "Application" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "ApplicantVerification" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "userId" TEXT NOT NULL,
+    "fullName" TEXT NOT NULL,
+    "studentIdNumber" TEXT NOT NULL,
+    "role" TEXT NOT NULL,
+    "idImageUrl" TEXT NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "ApplicantVerification_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateIndex
@@ -156,10 +219,16 @@ CREATE UNIQUE INDEX "Session_sessionToken_key" ON "Session"("sessionToken");
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
+CREATE INDEX "EmailOTP_email_idx" ON "EmailOTP"("email");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "VerificationToken_token_key" ON "VerificationToken"("token");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "VerificationToken_identifier_token_key" ON "VerificationToken"("identifier", "token");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Company_email_key" ON "Company"("email");
 
 -- CreateIndex
 CREATE INDEX "Question_role_difficulty_topic_idx" ON "Question"("role", "difficulty", "topic");
@@ -171,7 +240,16 @@ CREATE UNIQUE INDEX "Option_questionId_key_key" ON "Option"("questionId", "key")
 CREATE INDEX "Application_jobId_idx" ON "Application"("jobId");
 
 -- CreateIndex
+CREATE INDEX "Application_userId_idx" ON "Application"("userId");
+
+-- CreateIndex
 CREATE INDEX "ExamAnswer_questionId_idx" ON "ExamAnswer"("questionId");
 
 -- CreateIndex
-CREATE INDEX "ExamAnswer_userId_idx" ON "ExamAnswer"("userId");
+CREATE INDEX "ExamAnswer_applicationId_idx" ON "ExamAnswer"("applicationId");
+
+-- CreateIndex
+CREATE INDEX "ExamViolation_applicationId_idx" ON "ExamViolation"("applicationId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ApplicantVerification_userId_key" ON "ApplicantVerification"("userId");

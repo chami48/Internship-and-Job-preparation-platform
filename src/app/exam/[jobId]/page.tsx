@@ -67,6 +67,10 @@ export default function ExamPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const appId = searchParams.get("appId");
+  const terminateApplication = api.application.terminate.useMutation();
+
+  const identityFailCountRef = useRef(0);
+  const previousFacePositionRef = useRef<number | null>(null);
 
   const { data, isLoading } = api.exam.getQuestions.useQuery(
   {
@@ -95,6 +99,7 @@ const questions = data as QuestionType[] | undefined;
 
   const [totalTimeLeft, setTotalTimeLeft] = useState(25 * 60);
   const [questionTimeLeft, setQuestionTimeLeft] = useState(0);
+  const lookingAwayCounterRef = useRef(0);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
@@ -173,19 +178,19 @@ const questions = data as QuestionType[] | undefined;
       // 🔥 SAVE TO DATABASE
       if (appId) {
         logViolationMutation.mutate(
-  {
-    applicationId: appId,
-    type,
-    message: violationLabel[type],
+{
+  applicationId: appId,
+  type,
+  message: violationLabel[type],
+},
+{
+  onSuccess: (data) => {
+    console.log("Violation saved:", data);
   },
-  {
-    onSuccess: (data) => {
-      if (data.terminated) {
-        setTerminated(true);
-      }
-    },
+  onError: (err) => {
+    console.log("Violation error:", err);
   }
-);
+});
       }
 
       setActiveAlert(event);
@@ -410,52 +415,106 @@ useEffect(() => {
 if (!examStarted) return;
 
   let noFaceCounter = 0;
-  let multipleFaceCounter = 0;
+let multipleFaceCounter = 0;
 
-  const detectFaces = async () => {
-    if (!videoRef.current) return;
+const detectFaces = async () => {
 
-    try {
-      const detections = await faceapi.detectAllFaces(
-        videoRef.current,
-        new faceapi.TinyFaceDetectorOptions({
-  inputSize: 320,
-  scoreThreshold: 0.3,
-})
-      );
-
-      // ❌ No face detected
-      if (detections.length === 0) {
-        noFaceCounter++;
-
-        if (noFaceCounter >= 3) {
-          triggerViolation("FACE_NOT_DETECTED");
-          noFaceCounter = 0;
-        }
-      } else {
+  if (noFaceCounter >= 2) {
+        triggerViolation("FACE_NOT_DETECTED");
         noFaceCounter = 0;
       }
 
-      // ❌ Multiple faces detected
-      if (detections.length > 1) {
-        multipleFaceCounter++;
+  if (!videoRef.current) return;
 
-        if (multipleFaceCounter >= 2) {
-          triggerViolation("MULTIPLE_FACES");
-          multipleFaceCounter = 0;
-        }
-      } else {
+  try {
+
+    const detections = await faceapi
+    .detectAllFaces(
+    videoRef.current,
+    new faceapi.TinyFaceDetectorOptions({
+      inputSize: 320,
+      scoreThreshold: 0.3,
+    })
+  )
+  .withFaceLandmarks();
+
+    console.log("Faces detected:", detections.length);
+
+    if (detections.length === 1) {
+      
+
+  if (!document.fullscreenElement) {
+    await document.documentElement.requestFullscreen().catch(() => {});
+  }
+
+  const landmarks = detections[0]!.landmarks;
+  const nose = landmarks.getNose();
+  const jaw = landmarks.getJawOutline();
+
+  const noseX = nose[3]!.x;
+  const jawLeft = jaw[0]!.x;
+  const jawRight = jaw[16]!.x;
+
+const faceCenter = (jawLeft + jawRight) / 2;
+
+const deviation = Math.abs(noseX - faceCenter);
+
+if (deviation > 35) {
+  lookingAwayCounterRef.current += 1;
+
+  console.log("⚠ Looking away detected:", lookingAwayCounterRef.current);
+
+  if (lookingAwayCounterRef.current >= 3) {
+    triggerViolation("FACE_NOT_DETECTED");
+    lookingAwayCounterRef.current = 0;
+  }
+
+} else {
+  lookingAwayCounterRef.current = 0;
+}
+}
+
+    // ❌ No face detected
+    if (detections.length === 0) {
+      noFaceCounter++;
+
+      console.log("No face counter:", noFaceCounter);
+
+      
+
+    } else {
+
+      // reduce slowly instead of reset
+      noFaceCounter = Math.max(0, noFaceCounter - 1);
+
+    }
+
+    // ❌ Multiple faces detected
+    if (detections.length > 1) {
+      multipleFaceCounter++;
+
+      console.log("Multiple face counter:", multipleFaceCounter);
+
+      if (multipleFaceCounter >= 2) {
+        triggerViolation("MULTIPLE_FACES");
         multipleFaceCounter = 0;
       }
-    } catch (err) {
-      console.error("Face detection error:", err);
+
+    } else {
+
+      multipleFaceCounter = Math.max(0, multipleFaceCounter - 1);
+
     }
+
+  } catch (err) {
+    console.error("Face detection error:", err);
+  }
   };
 
-  const interval = setInterval(detectFaces, 4000); // check every 4 seconds
+  const interval = setInterval(detectFaces, 2000); // check every 4 seconds
 
   return () => clearInterval(interval);
-}, [triggerViolation]);
+}, [examStarted, triggerViolation]);
 
 // ─────────────────────────────────────────────
 // CONTINUOUS IDENTITY VERIFICATION
@@ -482,6 +541,8 @@ useEffect(() => {
         .withFaceLandmarks()
         .withFaceDescriptor();
 
+      
+
       if (!detection) return;
 
       if (!referenceDescriptorRef.current) return;
@@ -494,10 +555,27 @@ useEffect(() => {
       console.log("Live identity distance:", distance);
 
       if (distance > 0.55) {
-        console.log("⚠ Different person detected");
 
-        triggerViolation("MULTIPLE_FACES"); 
-      }
+  identityFailCountRef.current += 1;
+
+  console.log("⚠ Identity verification failed attempt:", identityFailCountRef.current);
+
+  if (identityFailCountRef.current < 3) {
+    alert(`Face verification failed. Attempt ${identityFailCountRef.current}/3. Please look at the camera properly.`);
+    return;
+  }
+
+  console.log("❌ Identity verification failed 3 times. Terminating exam.");
+
+  await terminateApplication.mutateAsync({
+    applicationId: searchParams.get("appId")!,
+    reason: "FACE_MISMATCH",
+  });
+
+  alert("Face verification failed 3 times. Exam terminated.");
+
+  router.push("/");
+}
 
     } catch (err) {
       console.error("Identity verification error:", err);
@@ -658,17 +736,48 @@ useEffect(() => {
       .detectSingleFace(
         img,
   new faceapi.TinyFaceDetectorOptions({
-  inputSize: 512,
-  scoreThreshold: 0.2,
+  inputSize:320,
+  scoreThreshold: 0.3,
 })
 )
       .withFaceLandmarks()
       .withFaceDescriptor();
 
+
     if (!idDetection) {
       console.log("❌ ID face NOT detected");
       return false;
     }
+
+    // HEAD MOVEMENT CHECK (anti-photo spoof)
+const currentX = idDetection.detection.box.x;
+
+if (previousFacePositionRef.current !== null) {
+
+  const movement = Math.abs(currentX - previousFacePositionRef.current);
+
+  if (movement < 2) {
+    console.log("⚠ Face not moving — possible photo or screen");
+  }
+
+}
+
+previousFacePositionRef.current = currentX;
+
+      // LIVENESS CHECK — detect blinking
+    const leftEye = idDetection?.landmarks.getLeftEye();
+    const rightEye = idDetection?.landmarks.getRightEye();
+
+if (leftEye && rightEye) {
+  const leftEyeOpen = Math.abs(leftEye[1]!.y - leftEye[5]!.y);
+const rightEyeOpen = Math.abs(rightEye[1]!.y - rightEye[5]!.y);
+
+  if (leftEyeOpen < 2 || rightEyeOpen < 2) {
+    console.log("👁 Blink detected (real person)");
+  }
+}
+
+    
 
     console.log("ID face detected");
 
