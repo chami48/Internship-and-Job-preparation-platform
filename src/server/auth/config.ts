@@ -60,6 +60,7 @@ export const authConfig = {
           id: user.id,
           name: user.name,
           email: user.email,
+          image: user.image,
           role: user.role,
         };
       },
@@ -71,9 +72,26 @@ export const authConfig = {
   },
 
   callbacks: {
-    session: ({ session, token }) => {
+    session: async ({ session, token }) => {
       if (session.user) {
         session.user.id = token.sub!;
+
+        const latestUser = await db.user.findUnique({
+          where: { id: token.sub! },
+          select: {
+            name: true,
+            email: true,
+            image: true,
+            role: true,
+          },
+        });
+
+        if (latestUser) {
+          session.user.name = latestUser.name;
+          session.user.email = latestUser.email;
+          session.user.image = latestUser.image;
+          session.user.role = latestUser.role;
+        }
       }
       return session;
     },
