@@ -491,7 +491,20 @@ export default function HomePage() {
             {!isLoading && !error && filteredJobs.length > 0 && (
               <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                 {filteredJobs.map((j, i) => (
-                  <JobCard key={j.id} index={i} job={{ ...j, tags: Array.isArray((j as any).tags) ? ((j as any).tags as string[]) : [] }} />
+                  <JobCard
+                    key={j.id}
+                    index={i}
+                    job={{
+                      id: j.id,
+                      title: j.title,
+                      company: typeof j.company === "string" ? j.company : j.company?.name ?? "Unknown company",
+                      location: j.location,
+                      type: j.type,
+                      level: j.level,
+                      tags: Array.isArray((j as any).tags) ? ((j as any).tags as string[]) : [],
+                      salary: j.salary,
+                    }}
+                  />
                 ))}
               </div>
             )}
