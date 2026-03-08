@@ -108,7 +108,7 @@ export default function StudentRegisterPage() {
         year,
         otp,
       });
-      router.push("/home");
+      router.push("/");
     } catch (error: unknown) {
       console.error(error);
       setOtpError(error instanceof Error ? error.message : "Registration failed.");

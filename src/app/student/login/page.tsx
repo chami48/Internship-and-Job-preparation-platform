@@ -50,7 +50,7 @@ export default function StudentLoginPage() {
       return;
     }
 
-    router.push("/home");
+    router.push("/");
   };
 
   const inputStyle: React.CSSProperties = {
