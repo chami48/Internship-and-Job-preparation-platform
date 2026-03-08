@@ -1,19 +1,32 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import { type NextAuthConfig } from "next-auth";
+import { type DefaultSession, type NextAuthConfig } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
+
 import { db } from "~/server/db";
 
-export const authConfig: NextAuthConfig = {
-  adapter: PrismaAdapter(db),
+/**
+ * Extend NextAuth session types
+ */
+declare module "next-auth" {
+  interface Session extends DefaultSession {
+    user: {
+      id: string;
+      role?: string;
+    } & DefaultSession["user"];
+  }
+}
 
-  session: {
-    strategy: "jwt",
-  },
+/**
+ * NextAuth configuration
+ */
+export const authConfig = {
+  adapter: PrismaAdapter(db),
 
   providers: [
     Credentials({
       name: "Credentials",
+
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
@@ -26,8 +39,12 @@ export const authConfig: NextAuthConfig = {
           where: { email: credentials.email as string },
         });
 
-        if (!user || !user.password) {
-          throw new Error("Invalid credentials");
+        if (!user) {
+          throw new Error("User not found");
+        }
+
+        if (!user.password) {
+          throw new Error("Password not set");
         }
 
         const valid = await bcrypt.compare(
@@ -36,33 +53,47 @@ export const authConfig: NextAuthConfig = {
         );
 
         if (!valid) {
-          throw new Error("Invalid credentials");
+          throw new Error("Invalid password");
         }
 
         return {
           id: user.id,
           name: user.name,
           email: user.email,
+          image: user.image,
           role: user.role,
         };
       },
     }),
   ],
 
+  session: {
+    strategy: "jwt",
+  },
+
   callbacks: {
-    session: ({ session, token }) => {
+    session: async ({ session, token }) => {
       if (session.user) {
         session.user.id = token.sub!;
-        session.user.role = token.role as string;
+
+        const latestUser = await db.user.findUnique({
+          where: { id: token.sub! },
+          select: {
+            name: true,
+            email: true,
+            image: true,
+            role: true,
+          },
+        });
+
+        if (latestUser) {
+          session.user.name = latestUser.name;
+          session.user.email = latestUser.email;
+          session.user.image = latestUser.image;
+          session.user.role = latestUser.role;
+        }
       }
       return session;
-    },
-
-    jwt: ({ token, user }) => {
-      if (user) {
-        token.role = user.role;
-      }
-      return token;
     },
   },
 
@@ -71,4 +102,4 @@ export const authConfig: NextAuthConfig = {
   },
 
   secret: process.env.NEXTAUTH_SECRET,
-};
+} satisfies NextAuthConfig;
