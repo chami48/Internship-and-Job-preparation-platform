@@ -12,7 +12,11 @@
 /prisma/db.sqlite
 /prisma/db.sqlite-journal
 db.sqlite
-generated/prisma
+
+generated/prisma/
+*.tmp
+*.tmp*
+query_engine-*
 
 # next.js
 /.next/
