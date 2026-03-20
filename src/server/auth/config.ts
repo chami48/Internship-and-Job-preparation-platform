@@ -88,7 +88,7 @@ export const authConfig = {
 
         if (latestUser) {
           session.user.name = latestUser.name;
-          session.user.email = latestUser.email;
+          session.user.email = latestUser.email ?? "";
           session.user.image = latestUser.image;
           session.user.role = latestUser.role;
         }
