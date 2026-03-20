@@ -72,7 +72,7 @@ model User {
 
   studentId     String?
   degree        String?
-  year          String?   // ✅ ADD THIS
+  year          String?   
 
   specialization String?
   skills        String?
@@ -335,7 +335,6 @@ model ApplicantVerification {
 
   fullName        String
   studentIdNumber String
-  role            String
   idImageUrl      String
   createdAt       DateTime @default(now())
 }

@@ -57,4 +57,12 @@ export const verificationRouter = createTRPCRouter({
     });
   }),
 
+  getStudentId: protectedProcedure.query(async ({ ctx }) => {
+  const user = await ctx.db.user.findUnique({
+    where: { id: ctx.session.user.id },
+    select: { studentId: true },
+  });
+  return user?.studentId ?? null;
+}),
+
 });

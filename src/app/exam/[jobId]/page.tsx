@@ -70,6 +70,8 @@ export default function ExamPage() {
 
   const jobId = params.jobId;
   const appId = searchParams.get("appId") ?? "";
+  const verificationPath =
+    jobId && appId ? `/apply?jobId=${jobId}&appId=${appId}` : "/apply";
 
   const terminateApplication = api.application.terminate.useMutation();
 
@@ -843,13 +845,13 @@ await terminateApplication.mutateAsync({
 
     if (!verificationData || verificationData.userId !== session?.user.id) {
       alert("You must verify your identity before taking the exam.");
-      router.push("/apply");
+      router.push(verificationPath);
       return;
     }
 
     if (!verificationData.idImageUrl) {
       alert("Your ID image is missing. Please verify again.");
-      router.push("/apply");
+      router.push(verificationPath);
       return;
     }
 
@@ -971,20 +973,89 @@ await terminateApplication.mutateAsync({
   // ─────────────────────────────────────────────
   if (!verificationLoading && !verificationData) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <h1 className="mb-3 text-xl font-semibold">Verification Required</h1>
+      <div className="min-h-screen bg-slate-50 px-6 py-10 text-slate-900">
+        <div className="mx-auto flex min-h-[calc(100vh-5rem)] max-w-6xl items-center">
+          <div className="grid w-full gap-8 lg:grid-cols-[1.15fr_0.85fr]">
+            <section className="relative overflow-hidden rounded-[32px] border border-slate-200 bg-white p-8 shadow-xl shadow-slate-200/70 md:p-10">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(59,130,246,0.12),_transparent_42%),radial-gradient(circle_at_bottom_right,_rgba(14,165,233,0.10),_transparent_38%)]" />
 
-          <p className="mb-4 text-gray-500">
-            You must verify your identity before starting the exam.
-          </p>
+              <div className="relative">
+                <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-4 py-2 text-xs font-semibold tracking-[0.24em] text-sky-700 uppercase">
+                  <span className="h-2 w-2 rounded-full bg-sky-500" />
+                  Identity Check Pending
+                </div>
 
-          <button
-            onClick={() => router.push("/verify")}
-            className="rounded-lg bg-blue-600 px-4 py-2 text-white"
-          >
-            Go to Verification
-          </button>
+                <h1 className="max-w-2xl text-4xl font-semibold tracking-tight text-slate-900 md:text-5xl">
+                  Complete verification before accessing the assessment.
+                </h1>
+
+                <p className="mt-5 max-w-xl text-base leading-7 text-slate-600 md:text-lg">
+                  Your exam session is locked until your identity verification is
+                  completed. This protects exam integrity and ensures your
+                  assessment can be submitted without interruption.
+                </p>
+
+                <div className="mt-8 flex flex-wrap gap-4">
+                  <button
+                    onClick={() => router.push(verificationPath)}
+                    className="inline-flex items-center gap-2 rounded-2xl bg-sky-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-sky-500"
+                  >
+                    Go to Verification
+                    <span aria-hidden="true">→</span>
+                  </button>
+
+                  <div className="inline-flex items-center rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-500">
+                    Estimated time: 2-3 minutes
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <aside className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-lg shadow-slate-200/70">
+              <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-sky-600">
+                <svg
+                  className="h-7 w-7"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.8}
+                    d="M12 11c1.657 0 3-1.567 3-3.5S13.657 4 12 4 9 5.567 9 7.5 10.343 11 12 11Zm-5 9a5 5 0 0110 0M19 10v6m3-3h-6"
+                  />
+                </svg>
+              </div>
+
+              <h2 className="text-xl font-semibold text-slate-900">
+                Before you continue
+              </h2>
+
+              <div className="mt-6 space-y-3">
+                {[
+                  "Use the same account and device you plan to use for the exam.",
+                  "Keep a clear photo ID and a well-lit camera view ready.",
+                  "Return here after verification to unlock the exam session.",
+                ].map((item) => (
+                  <div
+                    key={item}
+                    className="flex items-start gap-3 rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3"
+                  >
+                    <div className="mt-1 h-2.5 w-2.5 rounded-full bg-sky-400" />
+                    <p className="text-sm leading-6 text-slate-600">{item}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3">
+                <p className="text-sm font-medium text-amber-700">
+                  Access to the assessment becomes available immediately after
+                  successful verification.
+                </p>
+              </div>
+            </aside>
+          </div>
         </div>
       </div>
     );

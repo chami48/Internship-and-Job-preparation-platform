@@ -762,12 +762,16 @@ export default function ApplyPage({ params }: { params: { jobId: string } }) {
                     <div>
                       <div className="label">CGPA</div>
                       <input
-                        className="input"
-                        name="cgpa"
-                        value={form.cgpa}
-                        placeholder="e.g. 3.45 / 4.00"
-                        onChange={handleChange}
-                      />
+  className="input"
+  name="cgpa"
+  type="number"
+  step="0.01"
+  min="0"
+  max="4"
+  value={form.cgpa}
+  placeholder="e.g. 3.75"
+  onChange={handleChange}
+/>
                     </div>
 
                     <div>
