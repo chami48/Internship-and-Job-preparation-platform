@@ -1,4 +1,3 @@
-//smart-screening\src\app\apply\[jobId]\agreement\page.tsx
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
@@ -26,7 +25,8 @@ export default function AgreementPage({
       return;
     }
 
-    router.push(`/apply?jobId=${params.jobId}&appId=${appId}`);
+    // ✅ FIXED HERE
+    router.push(`/exam/${params.jobId}?appId=${appId}`);
   };
 
   return (
@@ -41,18 +41,16 @@ export default function AgreementPage({
           Please read carefully before starting your assessment.
         </p>
 
-        {/* Rules */}
         <div className="mt-6 rounded-2xl border border-sky-200 bg-sky-50 p-6">
           <ul className="list-disc space-y-3 pl-5 text-sm text-slate-700">
             <li>Fullscreen mode is mandatory.</li>
             <li>Tab switching is not allowed.</li>
             <li>Copy / Paste is disabled.</li>
             <li>3 violations will terminate the exam.</li>
-            <li>Time limit: 30 minutes.</li>
+            <li>Time limit: 25 minutes.</li>
           </ul>
         </div>
 
-        {/* Checkbox */}
         <div className="mt-6 flex items-center gap-3">
           <input
             type="checkbox"
@@ -65,7 +63,6 @@ export default function AgreementPage({
           </span>
         </div>
 
-        {/* Button */}
         <button
           onClick={handleStart}
           className="mt-8 rounded-2xl bg-slate-900 px-6 py-3 text-sm font-medium text-white hover:bg-sky-500 transition-colors disabled:opacity-50"

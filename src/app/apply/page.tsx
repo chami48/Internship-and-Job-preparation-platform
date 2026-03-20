@@ -3,15 +3,17 @@
 import { useState, useEffect } from "react";
 import { api } from "~/trpc/react";
 import { useSession } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, useParams } from "next/navigation";
 import Tesseract from "tesseract.js";
 import * as faceapi from "face-api.js";
 
 export default function ApplyPage() {
 
+  const params = useParams();
   const searchParams = useSearchParams();
+
+  const jobId = params.jobId as string;
   const appId = searchParams.get("appId");
-  const jobId = searchParams.get("jobId");
 
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -140,10 +142,20 @@ export default function ApplyPage() {
 
     e.preventDefault();
 
-    if (!idImage) {
-      alert("Please upload ID image");
-      return;
-    }
+    if (!fullName.trim()) {
+  alert("Please enter your full name");
+  return;
+}
+
+if (!idImage) {
+  alert("Please upload ID image");
+  return;
+}
+
+if (!detectedStudentId) {
+  alert("Could not detect IT number from ID card.");
+  return;
+}
 
     if (!detectedStudentId) {
       alert("Could not detect IT number from ID card.");
@@ -168,9 +180,9 @@ export default function ApplyPage() {
       alert("Verification successful. You can start the assessment.");
 
       if (jobId && appId) {
-        router.push(`/exam/${jobId}?appId=${appId}`);
+        router.push(`/apply/${jobId}/agreement?appId=${appId}`);
       } else {
-        router.push("/");
+        router.push("/home");
       }
     };
 

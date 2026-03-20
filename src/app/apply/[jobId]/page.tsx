@@ -18,19 +18,19 @@ const SCENARIO_QUESTIONS = [
     id: "q1",
     tag: "System Design",
     question:
-      "You’re optimizing a backend service handling 10,000 req/sec, but CPU is ~80%. Explain your step-by-step diagnostic and resolution plan.",
+      "You are working on a project, and a feature you developed is not working as expected. What steps would you take to identify and fix the issue?",
   },
   {
     id: "q2",
     tag: "Crisis Management",
     question:
-      "A critical production bug appears 30 minutes before launch. Fix requires a database migration. What do you do and why?",
+      "You have multiple assignment deadlines and a project to complete, but you are running out of time. How would you manage your tasks?",
   },
   {
     id: "q3",
     tag: "Collaboration",
     question:
-      "You disagree with your team lead’s architectural decision and believe it will cause technical debt. How do you handle it professionally?",
+      "You are working in a group project, but one team member is not contributing properly. How would you handle this situation?",
   },
 ] as const;
 
@@ -68,6 +68,12 @@ type FormState = {
   q2: string;
   q3: string;
 };
+type Specialization =
+  | "SE"
+  | "DS"
+  | "CYBER_SECURITY"
+  | "NETWORKING"
+  | "AI";
 
 export default function ApplyPage({ params }: { params: { jobId: string } }) {
   const createApplication = api.application.create.useMutation();
@@ -87,9 +93,9 @@ export default function ApplyPage({ params }: { params: { jobId: string } }) {
     github: "",
     portfolio: "",
 
-    university: "",
-    degree: "",
-    specialization: "",
+    university: "SLIIT",
+    degree: "BSc (Honors) Information Technology",
+    specialization: "" as Specialization | "",
     cgpa: "",
     awards: "",
 
@@ -109,7 +115,9 @@ export default function ApplyPage({ params }: { params: { jobId: string } }) {
   }, [completedSections.size]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
   ) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name as keyof FormState]: value }));
@@ -167,58 +175,61 @@ export default function ApplyPage({ params }: { params: { jobId: string } }) {
   };
 
   const handleNext = async () => {
-  if (!validateCurrentStep()) {
-    alert("Please fill the required fields before continuing.");
-    return;
-  }
+    if (!validateCurrentStep()) {
+      alert("Please fill the required fields before continuing.");
+      return;
+    }
 
-  setCompletedSections((prev) => new Set([...prev, activeSection]));
+    setCompletedSections((prev) => new Set([...prev, activeSection]));
 
-  if (activeSection < SECTIONS.length - 1) {
-    setActiveSection((s) => s + 1);
-    return;
-  }
+    if (activeSection < SECTIONS.length - 1) {
+      setActiveSection((s) => s + 1);
+      return;
+    }
 
-  // FINAL STEP — SAVE TO DATABASE
-  try {
-   const created = await createApplication.mutateAsync({
-  jobId: params.jobId,
+    if (!form.specialization) {
+  alert("Please select your specialization");
+  return;
+}
 
-  fullName: form.fullName,
-  email: form.email,
-  mobile: form.mobile,
-  linkedin: form.linkedin,
-  github: form.github,
-  portfolio: form.portfolio,
+    // FINAL STEP — SAVE TO DATABASE
+    try {
+      const created = await createApplication.mutateAsync({
+        jobId: params.jobId,
 
-  university: form.university,
-  degree: form.degree,
-  specialization: form.specialization,
-  cgpa: form.cgpa,
-  awards: form.awards,
+        fullName: form.fullName,
+        email: form.email,
+        mobile: form.mobile,
+        linkedin: form.linkedin,
+        github: form.github,
+        portfolio: form.portfolio,
 
-  programmingLanguages: form.programmingLanguages,
-  frameworks: form.frameworks,
-  softwareProficiency: form.softwareProficiency,
+        university: form.university,
+        degree: form.degree,
+        specialization: form.specialization as Specialization,
+        cgpa: form.cgpa,
+        awards: form.awards,
 
-  projects: form.projects,
+        programmingLanguages: form.programmingLanguages,
+        frameworks: form.frameworks,
+        softwareProficiency: form.softwareProficiency,
 
-  scenarios: [
-    { questionKey: "q1", answer: form.q1 },
-    { questionKey: "q2", answer: form.q2 },
-    { questionKey: "q3", answer: form.q3 },
-  ],
-});
+        projects: form.projects,
 
-// 🔥 PASS APPLICATION ID
-router.push(
-  `/apply/${params.jobId}/agreement?appId=${created.id}`
-);
-  } catch (error) {
-    console.error(error);
-    alert("Failed to submit application.");
-  }
-};
+        scenarios: [
+          { questionKey: "q1", answer: form.q1 },
+          { questionKey: "q2", answer: form.q2 },
+          { questionKey: "q3", answer: form.q3 },
+        ],
+      });
+
+      // 🔥 PASS APPLICATION ID
+      router.push(`/apply/${params.jobId}/agreement?appId=${created.id}`);
+    } catch (error) {
+      console.error(error);
+      alert("Failed to submit application.");
+    }
+  };
 
   const handleBack = () => {
     if (activeSection > 0) setActiveSection((s) => s - 1);
@@ -539,12 +550,17 @@ router.push(
           <aside className="sidebar">
             <div className="brand">
               <div className="brandTag">◈ HireSmart • Application</div>
-              <div className="brandTitle">
-  HireSmart
-</div>
-<div style={{ marginTop: 6, fontSize: 12, color: "var(--muted)", fontWeight: 600 }}>
-  Smart Screening Platform
-</div>
+              <div className="brandTitle">HireSmart</div>
+              <div
+                style={{
+                  marginTop: 6,
+                  fontSize: 12,
+                  color: "var(--muted)",
+                  fontWeight: 600,
+                }}
+              >
+                Smart Screening Platform
+              </div>
             </div>
 
             <div className="progressWrap">
@@ -587,7 +603,8 @@ router.push(
                   <span className="highlight">Information</span>
                 </h1>
                 <p className="desc">
-                  No CV upload. We collect structured information for fair screening.
+                  No CV upload. We collect structured information for fair
+                  screening.
                 </p>
 
                 <div className="card">
@@ -695,6 +712,7 @@ router.push(
                         value={form.university}
                         placeholder="e.g. SLIIT / University of Moratuwa"
                         onChange={handleChange}
+                        disabled
                       />
                     </div>
 
@@ -703,21 +721,42 @@ router.push(
                       <input
                         className="input"
                         name="degree"
-                        value={form.degree}
-                        placeholder="e.g. BSc (Hons) in IT"
+                        value= {form.degree}
                         onChange={handleChange}
+                        disabled
                       />
                     </div>
 
                     <div>
                       <div className="label">Specialization</div>
-                      <input
+                      <select
                         className="input"
                         name="specialization"
                         value={form.specialization}
-                        placeholder="e.g. Software Engineering"
                         onChange={handleChange}
-                      />
+                      >
+                        <option value="">Select Specialization</option>
+
+                        <option value="INFORMATION_TECHNOLOGY">
+                          Information Technology
+                        </option>
+
+                        <option value="SOFTWARE_ENGINEERING">
+                          Software Engineering
+                        </option>
+
+                        <option value="CYBER_SECURITY">Cyber Security</option>
+
+                        <option value="DATA_SCIENCE">Data Science</option>
+
+                        <option value="COMPUTER_SCIENCE_NETWORK_ENGINEERING">
+                          Computer Science & Network Engineering
+                        </option>
+
+                        <option value="INTERACTIVE_MEDIA">
+                          Interactive Media
+                        </option>
+                      </select>
                     </div>
 
                     <div>
@@ -763,12 +802,22 @@ router.push(
                 <div className="card">
                   <div className="projectTop">
                     <div className="projectTitle">Academic Projects</div>
-                    <button type="button" className="miniBtn" onClick={addProject}>
+                    <button
+                      type="button"
+                      className="miniBtn"
+                      onClick={addProject}
+                    >
                       + Add Project
                     </button>
                   </div>
 
-                  <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 14,
+                    }}
+                  >
                     {form.projects.map((p, idx) => (
                       <div key={idx} className="projectBlock">
                         <div className="projectTop">
@@ -807,7 +856,11 @@ Stack: Next.js, Prisma, PostgreSQL
 Impact: Reduced booking conflicts by 70%
 GitHub: github.com/you/project`}
                               onChange={(e) =>
-                                handleProjectChange(idx, "details", e.target.value)
+                                handleProjectChange(
+                                  idx,
+                                  "details",
+                                  e.target.value,
+                                )
                               }
                             />
                           </div>
@@ -832,7 +885,8 @@ GitHub: github.com/you/project`}
                   <span className="highlight">Tool Skills</span>
                 </h1>
                 <p className="desc">
-                  Skills must be specific. This helps generate a role-based assessment.
+                  Skills must be specific. This helps generate a role-based
+                  assessment.
                 </p>
 
                 <div className="card">
@@ -846,7 +900,9 @@ GitHub: github.com/you/project`}
                         placeholder="TypeScript, Java, Python, SQL..."
                         onChange={handleChange}
                       />
-                      <div className="hint">Comma separated (order by skill)</div>
+                      <div className="hint">
+                        Comma separated (order by skill)
+                      </div>
                     </div>
 
                     <div className="span2">
@@ -914,12 +970,18 @@ GitHub: github.com/you/project`}
                 className="btn"
                 type="button"
                 onClick={handleBack}
-                style={{ visibility: activeSection === 0 ? "hidden" : "visible" }}
+                style={{
+                  visibility: activeSection === 0 ? "hidden" : "visible",
+                }}
               >
                 ← Back
               </button>
 
-              <button className="btn btnPrimary" type="button" onClick={handleNext}>
+              <button
+                className="btn btnPrimary"
+                type="button"
+                onClick={handleNext}
+              >
                 {activeSection === SECTIONS.length - 1
                   ? "Continue to Agreement ✓"
                   : "Continue →"}

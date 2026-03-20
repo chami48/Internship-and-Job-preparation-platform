@@ -223,6 +223,15 @@ model Option {
 // Module 3 - Application System
 //////////////////////////////////////////////////////
 
+enum Specialization {
+  INFORMATION_TECHNOLOGY
+  SOFTWARE_ENGINEERING
+  CYBER_SECURITY
+  DATA_SCIENCE
+  COMPUTER_SCIENCE_NETWORK_ENGINEERING
+  INTERACTIVE_MEDIA
+}
+
 model Application {
   id        String   @id @default(cuid())
   jobId     String
@@ -242,7 +251,7 @@ model Application {
 
   university     String
   degree         String
-  specialization String?
+  specialization Specialization
   cgpa           String?
   awards         String?
 
