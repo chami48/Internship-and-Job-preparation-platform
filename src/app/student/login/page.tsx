@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 
 function EyeIcon({ open }: { open: boolean }) {
   return open ? (
@@ -21,6 +21,7 @@ function EyeIcon({ open }: { open: boolean }) {
 
 export default function StudentLoginPage() {
   const router = useRouter();
+  const { update } = useSession();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -50,6 +51,7 @@ export default function StudentLoginPage() {
       return;
     }
 
+    await update();
     router.push("/home");
   };
 

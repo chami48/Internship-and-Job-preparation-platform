@@ -6,7 +6,7 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200 bg-white">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-        <a href="http://localhost:3000/home" className="flex items-center gap-3">
+        <a href="http://localhost:3000/landing" className="flex items-center gap-3">
           <div className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-slate-900 text-white font-bold text-xs relative">
             HS
             <div className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-sky-400 opacity-60"></div>
