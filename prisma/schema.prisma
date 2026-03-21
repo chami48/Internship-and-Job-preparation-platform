@@ -326,7 +326,6 @@ model ApplicantVerification {
 
   fullName        String
   studentIdNumber String
-  role            String
   idImageUrl      String
   createdAt       DateTime @default(now())
 }

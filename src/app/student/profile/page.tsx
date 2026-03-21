@@ -4,10 +4,10 @@ import Link from "next/link";
 export default async function StudentProfilePage() {
   const profile = await api.profile.getProfile();
 
-  const skills = profile?.skills
+  const skills: string[] = profile?.skills
     ? profile.skills
         .split(",")
-        .map((skill) => skill.trim())
+        .map((skill: string) => skill.trim())
         .filter(Boolean)
     : [];
 
@@ -32,7 +32,7 @@ export default async function StudentProfilePage() {
     .split(" ")
     .filter(Boolean)
     .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() ?? "")
+    .map((part: string) => part[0]?.toUpperCase() ?? "")
     .join("") || "ST";
 
   const completionItems = [
@@ -194,7 +194,7 @@ export default async function StudentProfilePage() {
               <p className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">Skills</p>
               {skills.length > 0 ? (
                 <div className="mt-3 flex flex-wrap gap-2">
-                  {skills.map((skill) => (
+                  {skills.map((skill: string) => (
                     <span
                       key={skill}
                       className="rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.06em] text-sky-700"
