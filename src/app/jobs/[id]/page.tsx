@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { db } from "~/server/db";
+import { auth } from "~/server/auth";
 import {
   ArrowLeft,
   MapPin,
@@ -119,6 +120,7 @@ function InfoRow({ icon, label, value }: { icon: React.ReactNode; label: string;
 }
 
 export default async function JobDetailsPage({ params }: { params: { id: string } }) {
+  const session = await auth();
   const job = await db.job.findUnique({
     where: { id: params.id },
     include: { company: true },
@@ -130,6 +132,18 @@ export default async function JobDetailsPage({ params }: { params: { id: string 
   const tags = job.tags
     ? job.tags.split(",").map((t) => t.trim()).filter(Boolean)
     : [];
+
+  const application = session?.user?.id
+    ? await db.application.findFirst({
+        where: {
+          userId: session.user.id,
+          jobId: job.id,
+        },
+        select: { examSubmitted: true, terminationReason: true },
+      })
+    : null;
+  const examSubmitted = application?.examSubmitted ?? false;
+  const terminated = Boolean(application?.terminationReason);
 
   const levelInfo = LEVEL_STYLE[job.level] ?? { bg: "#F1F5F9", color: "#475569", label: job.level };
   const typeInfo  = TYPE_STYLE[job.type]   ?? { bg: "#F1F5F9", color: "#475569" };
@@ -593,13 +607,41 @@ export default async function JobDetailsPage({ params }: { params: { id: string 
                 <ArrowLeft size={14} />
                 Back to Jobs
               </Link>
-              {!exp && (
+              {!exp && !examSubmitted && !terminated && (
                 <Link href={`/apply/${job.id}`} className="jd-btn-apply">
                   Apply Now
                   <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                    <path d="M5 12h14M12 5l7 7-7 7" />
                   </svg>
                 </Link>
+              )}
+              {!exp && examSubmitted && (
+                <button
+                  type="button"
+                  disabled
+                  className="jd-btn-apply"
+                  style={{
+                    opacity: 0.55,
+                    cursor: "not-allowed",
+                    boxShadow: "none",
+                  }}
+                >
+                  Exam Submitted
+                </button>
+              )}
+              {!exp && terminated && !examSubmitted && (
+                <button
+                  type="button"
+                  disabled
+                  className="jd-btn-apply"
+                  style={{
+                    opacity: 0.55,
+                    cursor: "not-allowed",
+                    boxShadow: "none",
+                  }}
+                >
+                  Terminated
+                </button>
               )}
             </div>
           </div>

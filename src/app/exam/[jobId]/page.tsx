@@ -77,6 +77,7 @@ export default function ExamPage() {
 
   const identityFailCountRef = useRef(0);
   const previousFacePositionRef = useRef<number | null>(null);
+  const terminationTriggeredRef = useRef(false);
 
   const { data, isLoading } = api.exam.getQuestions.useQuery(
   { applicationId: appId },
@@ -170,8 +171,30 @@ export default function ExamPage() {
   // ─────────────────────────────────────────────
   // VIOLATION SYSTEM
   // ─────────────────────────────────────────────
+  const terminateNow = useCallback(async () => {
+    if (terminationTriggeredRef.current) return;
+    terminationTriggeredRef.current = true;
+
+    setTerminated(true);
+    stopCamera();
+
+    if (appId) {
+      await terminateApplication.mutateAsync({
+        applicationId: appId,
+        reason: "VIOLATION",
+      });
+    }
+
+    await exitFullscreen();
+    router.push("/home");
+  }, [appId, terminateApplication, exitFullscreen, router, stopCamera]);
+
   const triggerViolation = useCallback(
     (type: ViolationType) => {
+      if (type === "FULLSCREEN_EXIT") {
+        void terminateNow();
+      }
+
       setViolations((prev) => {
         const count = prev.length + 1;
 
@@ -232,6 +255,7 @@ export default function ExamPage() {
       exitFullscreen,
       stopCamera,
       router,
+      terminateNow,
     ],
   );
 
@@ -251,11 +275,8 @@ export default function ExamPage() {
     if (!examStarted) return;
     const handler = () => {
       if (!document.fullscreenElement) {
-  triggerViolation("FULLSCREEN_EXIT");
-
-  // 🔥 FORCE BACK FULLSCREEN
-  document.documentElement.requestFullscreen().catch(() => {});
-}
+        triggerViolation("FULLSCREEN_EXIT");
+      }
     };
     document.addEventListener("fullscreenchange", handler);
     return () => document.removeEventListener("fullscreenchange", handler);
@@ -384,7 +405,6 @@ export default function ExamPage() {
       if (e.key === "Escape") {
         e.preventDefault();
         triggerViolation("FULLSCREEN_EXIT");
-        document.documentElement.requestFullscreen();
       }
 
       // PRINT SCREEN BLOCK
@@ -455,10 +475,6 @@ export default function ExamPage() {
         console.log("Faces detected:", detections.length);
 
         if (detections.length === 1) {
-          if (!document.fullscreenElement) {
-            await document.documentElement.requestFullscreen().catch(() => {});
-          }
-
           const landmarks = detections[0]!.landmarks;
           const nose = landmarks.getNose();
           const jaw = landmarks.getJawOutline();
