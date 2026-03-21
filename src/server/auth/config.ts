@@ -69,7 +69,12 @@ export const authConfig = {
 
   session: {
     strategy: "jwt",
+    maxAge:60 * 1,
   },
+
+  jwt: {
+  maxAge: 60 * 1,
+},
 
   callbacks: {
     session: async ({ session, token }) => {
@@ -88,7 +93,7 @@ export const authConfig = {
 
         if (latestUser) {
           session.user.name = latestUser.name;
-          session.user.email = latestUser.email;
+          session.user.email = latestUser.email ?? "";
           session.user.image = latestUser.image;
           session.user.role = latestUser.role;
         }

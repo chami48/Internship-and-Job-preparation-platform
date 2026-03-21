@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { api } from "~/trpc/react";
+import InactivityCheck from "~/app/components/InactivityCheck";
 
 /* ─── Tag chip ───────────────────────────────────────────── */
 function Tag({ text }: { text: string }) {
@@ -175,6 +176,7 @@ export default function HomePage() {
 
   return (
     <>
+     <InactivityCheck />
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Clash+Display:wght@500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap');
 
