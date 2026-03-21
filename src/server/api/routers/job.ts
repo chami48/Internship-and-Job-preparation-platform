@@ -67,6 +67,21 @@ export const jobRouter = createTRPCRouter({
     };
   });
 }),
+
+listByCompany: publicProcedure 
+  .input(z.object({ companyId: z.string() }))
+  .query(async ({ ctx, input }) => {
+    return ctx.db.job.findMany({
+      where: {
+        companyId: input.companyId,
+      },
+      include: {
+        company: true,
+      },
+      orderBy: { createdAt: "desc" },
+    });
+  }),
+  
   byId: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {

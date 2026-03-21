@@ -106,16 +106,21 @@ export default function LandingPage() {
             </span>
 
             <h1 className="display-font hero-pop mt-5 text-4xl font-bold leading-tight text-slate-900 md:text-6xl">
-              Launch your
-              <span className="block text-sky-600">career with confidence</span>
+              Connecting Skilled Students 
+              <span className="block text-sky-600">With Smart Companies</span>
             </h1>
 
             <p
               className="stagger-in mt-5 max-w-xl text-base leading-7 text-slate-600 md:text-lg"
               style={{ animationDelay: "120ms" }}
             >
-              HireSmart helps students move from preparation to placement with structured exams, AI interview
-              practice, and internship opportunities in one focused platform.
+              HireSmart connects preparation, skill evaluation, and recruitment into one focused platform for students and companies.
+            </p>
+            <p
+              className="stagger-in mt-5 max-w-xl text-base leading-7 text-slate-600 md:text-lg"
+              style={{ animationDelay: "120ms" }}
+            >
+             Begin Your Journey by Registering Today,
             </p>
 
             <div className="stagger-in mt-8 flex flex-wrap items-center gap-3" style={{ animationDelay: "220ms" }}>
@@ -123,13 +128,13 @@ export default function LandingPage() {
                 href="/student/register"
                 className="rounded-xl bg-slate-900 px-6 py-3 text-sm font-bold uppercase tracking-[0.12em] text-white transition-colors hover:bg-sky-600"
               >
-                Get Started
+                Student
               </Link>
               <Link
-                href="/student/login"
+                href="/company/register"
                 className="rounded-xl border border-slate-300 bg-white px-6 py-3 text-sm font-bold uppercase tracking-[0.12em] text-slate-700 transition-colors hover:border-sky-400 hover:text-sky-700"
               >
-                Log In
+                Company
               </Link>
             </div>
           </div>
