@@ -55,7 +55,7 @@ export default function ProfileMenu({ isLoggedIn, name, email, image }: ProfileM
         type="button"
         onClick={() => {
           window.alert("Please log in to open your profile.");
-          router.push("/api/auth/signin?callbackUrl=/home");
+          router.push("/api/auth/signin?callbackUrl=/landing");
         }}
         className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 text-slate-700 transition-colors hover:border-sky-400 hover:text-sky-500"
         aria-label="Profile"

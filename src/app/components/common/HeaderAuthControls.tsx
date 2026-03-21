@@ -23,7 +23,7 @@ export default function HeaderAuthControls() {
       {!isLoggedIn && !isLoading && (
         <>
           <Link
-            href="/api/auth/signin?callbackUrl=/home"
+            href="/api/auth/signin?callbackUrl=/landing"
             className="rounded-lg border-1.5 border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-900 transition-colors hover:border-sky-400 hover:text-sky-400"
           >
             Log in
