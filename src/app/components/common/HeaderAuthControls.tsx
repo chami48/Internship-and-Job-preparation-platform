@@ -1,3 +1,4 @@
+//C:\SLIIT\Y3S1\ITPM\Y3S1Project\smart-screening\src\app\components\common\HeaderAuthControls.tsx
 "use client";
 
 import Link from "next/link";
