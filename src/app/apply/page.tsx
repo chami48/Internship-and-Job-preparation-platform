@@ -192,7 +192,6 @@ export default function ApplyPage() {
       const createdVerification = await verification.mutateAsync({
         fullName,
         detectedStudentId,
-        role,
         idImageUrl: base64,
       });
       utils.verification.getMyVerification.setData(
