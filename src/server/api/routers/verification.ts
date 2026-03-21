@@ -9,7 +9,6 @@ export const verificationRouter = createTRPCRouter({
       z.object({
         fullName: z.string(),
         detectedStudentId: z.string(),
-        role: z.string(),
         idImageUrl: z.string(),
       })
     )
@@ -37,14 +36,12 @@ export const verificationRouter = createTRPCRouter({
         update: {
           fullName: input.fullName,
           studentIdNumber: input.detectedStudentId,
-          role: input.role,
           idImageUrl: input.idImageUrl,
         },
         create: {
           userId: ctx.session.user.id,
           fullName: input.fullName,
           studentIdNumber: input.detectedStudentId,
-          role: input.role,
           idImageUrl: input.idImageUrl,
         },
       });
@@ -56,5 +53,13 @@ export const verificationRouter = createTRPCRouter({
       where: { userId: ctx.session.user.id },
     });
   }),
+
+  getStudentId: protectedProcedure.query(async ({ ctx }) => {
+  const user = await ctx.db.user.findUnique({
+    where: { id: ctx.session.user.id },
+    select: { studentId: true },
+  });
+  return user?.studentId ?? null;
+}),
 
 });

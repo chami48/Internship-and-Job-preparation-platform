@@ -1,11 +1,12 @@
 //smart-screening\src\app\exam\[jobId]\page.tsx
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, useParams } from "next/navigation";
 import { api } from "~/trpc/react";
 import { useEffect, useRef, useState, useCallback } from "react";
 import * as faceapi from "face-api.js";
 import { useSession } from "next-auth/react";
+
 
 // ─────────────────────────────────────────────
 // TYPES
@@ -58,30 +59,31 @@ const violationLabel: Record<ViolationType, string> = {
 // MAIN COMPONENT
 // ─────────────────────────────────────────────
 export default function ExamPage() {
-
   const { data: session, status } = useSession();
 
   const { data: verificationData, isLoading: verificationLoading } =
-  api.verification.getMyVerification.useQuery();
+    api.verification.getMyVerification.useQuery();
 
   const router = useRouter();
+  const params = useParams<{ jobId: string }>();
   const searchParams = useSearchParams();
-  const appId = searchParams.get("appId");
+
+  const jobId = params.jobId;
+  const appId = searchParams.get("appId") ?? "";
+  const verificationPath =
+    jobId && appId ? `/apply?jobId=${jobId}&appId=${appId}` : "/apply";
+
   const terminateApplication = api.application.terminate.useMutation();
 
   const identityFailCountRef = useRef(0);
   const previousFacePositionRef = useRef<number | null>(null);
 
   const { data, isLoading } = api.exam.getQuestions.useQuery(
-  {
-    applicationId: appId!,
-  },
-  {
-    enabled: !!appId,
-  }
+  { applicationId: appId },
+  { enabled: appId.length > 0 }
 );
 
-const questions = data as QuestionType[] | undefined;
+  const questions = data as QuestionType[] | undefined;
 
   const submitExam = api.exam.submit.useMutation();
   const logViolationMutation = api.exam.logViolation.useMutation();
@@ -113,9 +115,13 @@ const questions = data as QuestionType[] | undefined;
   const enterFullscreen = useCallback(async () => {
     try {
       if (!document.fullscreenElement) {
-        await document.documentElement.requestFullscreen({ navigationUI: "hide" });
+        await document.documentElement.requestFullscreen({
+          navigationUI: "hide",
+        });
       }
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }, []);
 
   const exitFullscreen = useCallback(async () => {
@@ -123,7 +129,9 @@ const questions = data as QuestionType[] | undefined;
       if (document.fullscreenElement) {
         await document.exitFullscreen();
       }
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }, []);
 
   // ─────────────────────────────────────────────
@@ -131,14 +139,14 @@ const questions = data as QuestionType[] | undefined;
   // ─────────────────────────────────────────────
   const startCamera = useCallback(async () => {
     try {
-     const stream = await navigator.mediaDevices.getUserMedia({
-  video: {
-    facingMode: "user",
-    width: { ideal: 640 },
-    height: { ideal: 480 },
-  },
-  audio: false,
-});
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: "user",
+          width: { ideal: 640 },
+          height: { ideal: 480 },
+        },
+        audio: false,
+      });
       mediaStreamRef.current = stream;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
@@ -146,7 +154,9 @@ const questions = data as QuestionType[] | undefined;
       setCameraAllowed(true);
       return true;
     } catch {
-      setCameraError("Camera access is required to take this exam. Please allow camera access and try again.");
+      setCameraError(
+        "Camera access is required to take this exam. Please allow camera access and try again.",
+      );
       setCameraAllowed(false);
       return false;
     }
@@ -157,82 +167,82 @@ const questions = data as QuestionType[] | undefined;
     mediaStreamRef.current = null;
   }, []);
 
-  
-
   // ─────────────────────────────────────────────
   // VIOLATION SYSTEM
   // ─────────────────────────────────────────────
   const triggerViolation = useCallback(
-  (type: ViolationType) => {
-    setViolations((prev) => {
-      const count = prev.length + 1;
+    (type: ViolationType) => {
+      setViolations((prev) => {
+        const count = prev.length + 1;
 
-      const event: ViolationEvent = {
-        type,
-        message: violationLabel[type],
-        timestamp: new Date(),
-      };
+        const event: ViolationEvent = {
+          type,
+          message: violationLabel[type],
+          timestamp: new Date(),
+        };
 
-      const next = [...prev, event];
+        const next = [...prev, event];
 
-      // 🔥 SAVE TO DATABASE
-      if (appId) {
-        logViolationMutation.mutate(
-{
-  applicationId: appId,
-  type,
-  message: violationLabel[type],
-},
-{
-  onSuccess: (data) => {
-    console.log("Violation saved:", data);
-  },
-  onError: (err) => {
-    console.log("Violation error:", err);
-  }
-});
-      }
+        // 🔥 SAVE TO DATABASE
+        if (appId) {
+          logViolationMutation.mutate(
+            {
+              applicationId: appId,
+              type,
+              message: violationLabel[type],
+            },
+            {
+              onSuccess: (data) => {
+                console.log("Violation saved:", data);
+              },
+              onError: (err) => {
+                console.log("Violation error:", err);
+              },
+            },
+          );
+        }
 
-      setActiveAlert(event);
-      window.focus();
+        setActiveAlert(event);
+        window.focus();
 
-      if (alertTimeoutRef.current) clearTimeout(alertTimeoutRef.current);
-      alertTimeoutRef.current = setTimeout(() => setActiveAlert(null), 6000);
+        if (alertTimeoutRef.current) clearTimeout(alertTimeoutRef.current);
+        alertTimeoutRef.current = setTimeout(() => setActiveAlert(null), 6000);
 
-      if (count >= MAX_VIOLATIONS) {
-        setTerminated(true);
-        stopCamera();
+        if (count >= MAX_VIOLATIONS) {
+          setTerminated(true);
+          stopCamera();
 
-        setTimeout(async () => {
-          await exitFullscreen();
-          setTimeout(() => router.push("/home"), 600);
-        }, 3500);
-      } else {
-        if (!document.fullscreenElement) {
-        enterFullscreen();}
-      }
+          setTimeout(async () => {
+            await exitFullscreen();
+            setTimeout(() => router.push("/home"), 600);
+          }, 3500);
+        } else {
+          if (!document.fullscreenElement) {
+            enterFullscreen();
+          }
+        }
 
-      return next;
-    });
-  },
-  [
-    appId,
-    logViolationMutation,
-    enterFullscreen,
-    exitFullscreen,
-    stopCamera,
-    router,
-  ]
-);
+        return next;
+      });
+    },
+    [
+      appId,
+      logViolationMutation,
+      enterFullscreen,
+      exitFullscreen,
+      stopCamera,
+      router,
+    ],
+  );
 
-useEffect(() => {
-  const loadModels = async () => {
-    await faceapi.nets.tinyFaceDetector.loadFromUri("/models");
-    console.log("Face monitoring model loaded");
-  };
+  useEffect(() => {
+    const loadModels = async () => {
+      await faceapi.nets.tinyFaceDetector.loadFromUri("/models");
+      console.log("Face monitoring model loaded");
+    };
 
-  loadModels();
-}, []);
+    loadModels();
+  }, []);
 
   // ─────────────────────────────────────────────
   // ANTI-CHEAT — only active during exam
@@ -240,7 +250,12 @@ useEffect(() => {
   useEffect(() => {
     if (!examStarted) return;
     const handler = () => {
-      if (!document.fullscreenElement) triggerViolation("FULLSCREEN_EXIT");
+      if (!document.fullscreenElement) {
+  triggerViolation("FULLSCREEN_EXIT");
+
+  // 🔥 FORCE BACK FULLSCREEN
+  document.documentElement.requestFullscreen().catch(() => {});
+}
     };
     document.addEventListener("fullscreenchange", handler);
     return () => document.removeEventListener("fullscreenchange", handler);
@@ -288,7 +303,9 @@ useEffect(() => {
       }
       if (
         (e.ctrlKey || e.metaKey) &&
-        ["s", "p", "u", "i", "j", "c", "v", "x", "a"].includes(e.key.toLowerCase())
+        ["s", "p", "u", "i", "j", "c", "v", "x", "a"].includes(
+          e.key.toLowerCase(),
+        )
       ) {
         e.preventDefault();
         if (["c", "v", "x"].includes(e.key.toLowerCase()))
@@ -296,7 +313,9 @@ useEffect(() => {
       }
       if (
         e.key === "F12" ||
-        (e.ctrlKey && e.shiftKey && ["i", "j", "c"].includes(e.key.toLowerCase()))
+        (e.ctrlKey &&
+          e.shiftKey &&
+          ["i", "j", "c"].includes(e.key.toLowerCase()))
       ) {
         e.preventDefault();
         triggerViolation("DEV_TOOLS");
@@ -324,270 +343,256 @@ useEffect(() => {
   }, [examStarted, triggerViolation]);
 
   // DEV TOOLS DETECTION
-// useEffect(() => {
-//   if (!examStarted) return;
-//   let devOpen = false;
-//   const check = () => {
-//     const w = window.outerWidth - window.innerWidth > 160;
-//     const h = window.outerHeight - window.innerHeight > 160;
-//     if ((w || h) && !devOpen) {
-//       devOpen = true;
-//       triggerViolation("DEV_TOOLS");
-//     } else if (!w && !h) {
-//       devOpen = false;
-//     }
-//   };
-//   const id = setInterval(check, 1500);
-//   return () => clearInterval(id);
-// }, [examStarted, triggerViolation]);
+  // useEffect(() => {
+  //   if (!examStarted) return;
+  //   let devOpen = false;
+  //   const check = () => {
+  //     const w = window.outerWidth - window.innerWidth > 160;
+  //     const h = window.outerHeight - window.innerHeight > 160;
+  //     if ((w || h) && !devOpen) {
+  //       devOpen = true;
+  //       triggerViolation("DEV_TOOLS");
+  //     } else if (!w && !h) {
+  //       devOpen = false;
+  //     }
+  //   };
+  //   const id = setInterval(check, 1500);
+  //   return () => clearInterval(id);
+  // }, [examStarted, triggerViolation]);
 
-// ─────────────────────────────────────────────
-// BLOCK PAGE REFRESH (F5 / CTRL+R)
-// ─────────────────────────────────────────────
-// ─────────────────────────────────────────────
-// BLOCK REFRESH + ESC + PRINTSCREEN
-// ─────────────────────────────────────────────
-useEffect(() => {
-  if (!examStarted) return;
+  // ─────────────────────────────────────────────
+  // BLOCK PAGE REFRESH (F5 / CTRL+R)
+  // ─────────────────────────────────────────────
+  // ─────────────────────────────────────────────
+  // BLOCK REFRESH + ESC + PRINTSCREEN
+  // ─────────────────────────────────────────────
+  useEffect(() => {
+    if (!examStarted) return;
 
-  const preventKeys = (e: KeyboardEvent) => {
+    const preventKeys = (e: KeyboardEvent) => {
+      // REFRESH BLOCK
+      if (
+        e.key === "F5" ||
+        (e.ctrlKey && e.key.toLowerCase() === "r") ||
+        (e.metaKey && e.key.toLowerCase() === "r")
+      ) {
+        e.preventDefault();
+        triggerViolation("TAB_SWITCH");
+      }
 
-    // REFRESH BLOCK
-    if (
-      e.key === "F5" ||
-      (e.ctrlKey && e.key.toLowerCase() === "r") ||
-      (e.metaKey && e.key.toLowerCase() === "r")
-    ) {
-      e.preventDefault();
-      triggerViolation("TAB_SWITCH");
-    }
+      // ESC KEY BLOCK (exit fullscreen)
+      if (e.key === "Escape") {
+        e.preventDefault();
+        triggerViolation("FULLSCREEN_EXIT");
+        document.documentElement.requestFullscreen();
+      }
 
-    // ESC KEY BLOCK (exit fullscreen)
-    if (e.key === "Escape") {
-  e.preventDefault();
-  triggerViolation("FULLSCREEN_EXIT");
-  document.documentElement.requestFullscreen();
-}
+      // PRINT SCREEN BLOCK
+      if (e.key === "PrintScreen") {
+        e.preventDefault();
+        triggerViolation("SCREENSHOT_ATTEMPT");
+      }
+    };
 
-    // PRINT SCREEN BLOCK
-    if (e.key === "PrintScreen") {
-      e.preventDefault();
-      triggerViolation("SCREENSHOT_ATTEMPT");
-    }
+    document.addEventListener("keydown", preventKeys);
 
-  };
+    return () => {
+      document.removeEventListener("keydown", preventKeys);
+    };
+  }, [examStarted, triggerViolation]);
 
-  document.addEventListener("keydown", preventKeys);
+  // ─────────────────────────────────────────────
+  // BLOCK NEW TAB / NEW WINDOW
+  // ─────────────────────────────────────────────
+  useEffect(() => {
+    if (!examStarted) return;
 
-  return () => {
-    document.removeEventListener("keydown", preventKeys);
-  };
+    const blockShortcuts = (e: KeyboardEvent) => {
+      if (
+        (e.ctrlKey || e.metaKey) &&
+        ["t", "n"].includes(e.key.toLowerCase())
+      ) {
+        e.preventDefault();
+        triggerViolation("TAB_SWITCH");
+      }
+    };
 
-}, [examStarted, triggerViolation]);
+    document.addEventListener("keydown", blockShortcuts);
 
-// ─────────────────────────────────────────────
-// BLOCK NEW TAB / NEW WINDOW
-// ─────────────────────────────────────────────
-useEffect(() => {
-  if (!examStarted) return;
+    return () => {
+      document.removeEventListener("keydown", blockShortcuts);
+    };
+  }, [examStarted, triggerViolation]);
 
-  const blockShortcuts = (e: KeyboardEvent) => {
-    if (
-      (e.ctrlKey || e.metaKey) &&
-      ["t", "n"].includes(e.key.toLowerCase())
-    ) {
-      e.preventDefault();
-      triggerViolation("TAB_SWITCH");
-    }
-  };
+  // ─────────────────────────────────────────────
+  // AI FACE MONITORING
+  // ─────────────────────────────────────────────
+  useEffect(() => {
+    if (!examStarted) return;
 
-  document.addEventListener("keydown", blockShortcuts);
+    let noFaceCounter = 0;
+    let multipleFaceCounter = 0;
 
-  return () => {
-    document.removeEventListener("keydown", blockShortcuts);
-  };
-}, [examStarted, triggerViolation]);
-
-// ─────────────────────────────────────────────
-// AI FACE MONITORING
-// ─────────────────────────────────────────────
-useEffect(() => {
-if (!examStarted) return;
-
-  let noFaceCounter = 0;
-let multipleFaceCounter = 0;
-
-const detectFaces = async () => {
-
-  if (noFaceCounter >= 2) {
+    const detectFaces = async () => {
+      if (noFaceCounter >= 2) {
         triggerViolation("FACE_NOT_DETECTED");
         noFaceCounter = 0;
       }
 
-  if (!videoRef.current) return;
+      if (!videoRef.current) return;
 
-  try {
+      try {
+        const detections = await faceapi
+          .detectAllFaces(
+            videoRef.current,
+            new faceapi.TinyFaceDetectorOptions({
+              inputSize: 320,
+              scoreThreshold: 0.3,
+            }),
+          )
+          .withFaceLandmarks();
 
-    const detections = await faceapi
-    .detectAllFaces(
-    videoRef.current,
-    new faceapi.TinyFaceDetectorOptions({
-      inputSize: 320,
-      scoreThreshold: 0.3,
-    })
-  )
-  .withFaceLandmarks();
+        console.log("Faces detected:", detections.length);
 
-    console.log("Faces detected:", detections.length);
+        if (detections.length === 1) {
+          if (!document.fullscreenElement) {
+            await document.documentElement.requestFullscreen().catch(() => {});
+          }
 
-    if (detections.length === 1) {
-      
+          const landmarks = detections[0]!.landmarks;
+          const nose = landmarks.getNose();
+          const jaw = landmarks.getJawOutline();
 
-  if (!document.fullscreenElement) {
-    await document.documentElement.requestFullscreen().catch(() => {});
-  }
+          const noseX = nose[3]!.x;
+          const jawLeft = jaw[0]!.x;
+          const jawRight = jaw[16]!.x;
 
-  const landmarks = detections[0]!.landmarks;
-  const nose = landmarks.getNose();
-  const jaw = landmarks.getJawOutline();
+          const faceCenter = (jawLeft + jawRight) / 2;
 
-  const noseX = nose[3]!.x;
-  const jawLeft = jaw[0]!.x;
-  const jawRight = jaw[16]!.x;
+          const deviation = Math.abs(noseX - faceCenter);
 
-const faceCenter = (jawLeft + jawRight) / 2;
+          if (deviation > 35) {
+            lookingAwayCounterRef.current += 1;
 
-const deviation = Math.abs(noseX - faceCenter);
+            console.log(
+              "⚠ Looking away detected:",
+              lookingAwayCounterRef.current,
+            );
 
-if (deviation > 35) {
-  lookingAwayCounterRef.current += 1;
+            if (lookingAwayCounterRef.current >= 3) {
+              triggerViolation("FACE_NOT_DETECTED");
+              lookingAwayCounterRef.current = 0;
+            }
+          } else {
+            lookingAwayCounterRef.current = 0;
+          }
+        }
 
-  console.log("⚠ Looking away detected:", lookingAwayCounterRef.current);
+        // ❌ No face detected
+        if (detections.length === 0) {
+          noFaceCounter++;
 
-  if (lookingAwayCounterRef.current >= 3) {
-    triggerViolation("FACE_NOT_DETECTED");
-    lookingAwayCounterRef.current = 0;
-  }
+          console.log("No face counter:", noFaceCounter);
+        } else {
+          // reduce slowly instead of reset
+          noFaceCounter = Math.max(0, noFaceCounter - 1);
+        }
 
-} else {
-  lookingAwayCounterRef.current = 0;
-}
-}
+        // ❌ Multiple faces detected
+        if (detections.length > 1) {
+          multipleFaceCounter++;
 
-    // ❌ No face detected
-    if (detections.length === 0) {
-      noFaceCounter++;
+          console.log("Multiple face counter:", multipleFaceCounter);
 
-      console.log("No face counter:", noFaceCounter);
-
-      
-
-    } else {
-
-      // reduce slowly instead of reset
-      noFaceCounter = Math.max(0, noFaceCounter - 1);
-
-    }
-
-    // ❌ Multiple faces detected
-    if (detections.length > 1) {
-      multipleFaceCounter++;
-
-      console.log("Multiple face counter:", multipleFaceCounter);
-
-      if (multipleFaceCounter >= 2) {
-        triggerViolation("MULTIPLE_FACES");
-        multipleFaceCounter = 0;
+          if (multipleFaceCounter >= 2) {
+            triggerViolation("MULTIPLE_FACES");
+            multipleFaceCounter = 0;
+          }
+        } else {
+          multipleFaceCounter = Math.max(0, multipleFaceCounter - 1);
+        }
+      } catch (err) {
+        console.error("Face detection error:", err);
       }
+    };
 
-    } else {
+    const interval = setInterval(detectFaces, 2000); // check every 4 seconds
 
-      multipleFaceCounter = Math.max(0, multipleFaceCounter - 1);
+    return () => clearInterval(interval);
+  }, [examStarted, triggerViolation]);
 
-    }
+  // ─────────────────────────────────────────────
+  // CONTINUOUS IDENTITY VERIFICATION
+  // ─────────────────────────────────────────────
+  useEffect(() => {
+    if (!examStarted) return;
+    if (!referenceDescriptorRef.current) return;
 
-  } catch (err) {
-    console.error("Face detection error:", err);
-  }
-  };
+    const verifyIdentity = async () => {
+      if (!videoRef.current) return;
 
-  const interval = setInterval(detectFaces, 2000); // check every 4 seconds
+      try {
+        const detection = await faceapi
+          .detectSingleFace(
+            videoRef.current,
+            new faceapi.TinyFaceDetectorOptions({
+              inputSize: 320,
+              scoreThreshold: 0.3,
+            }),
+          )
+          .withFaceLandmarks()
+          .withFaceDescriptor();
 
-  return () => clearInterval(interval);
-}, [examStarted, triggerViolation]);
+        if (!detection) return;
 
-// ─────────────────────────────────────────────
-// CONTINUOUS IDENTITY VERIFICATION
-// ─────────────────────────────────────────────
-useEffect(() => {
+        if (!referenceDescriptorRef.current) return;
 
-  if (!examStarted) return;
-  if (!referenceDescriptorRef.current) return;
+        const distance = faceapi.euclideanDistance(
+          referenceDescriptorRef.current,
+          detection.descriptor,
+        );
 
-  const verifyIdentity = async () => {
+        console.log("Live identity distance:", distance);
 
-    if (!videoRef.current) return;
+        if (distance > 0.55) {
+          identityFailCountRef.current += 1;
 
-    try {
+          console.log(
+            "⚠ Identity verification failed attempt:",
+            identityFailCountRef.current,
+          );
 
-      const detection = await faceapi
-        .detectSingleFace(
-          videoRef.current,
-          new faceapi.TinyFaceDetectorOptions({
-            inputSize: 320,
-            scoreThreshold: 0.3,
-          })
-        )
-        .withFaceLandmarks()
-        .withFaceDescriptor();
+          if (identityFailCountRef.current < 3) {
+            alert(
+              `Face verification failed. Attempt ${identityFailCountRef.current}/3. Please look at the camera properly.`,
+            );
+            return;
+          }
 
-      
+          console.log(
+            "❌ Identity verification failed 3 times. Terminating exam.",
+          );
 
-      if (!detection) return;
+          if (!appId) return;
 
-      if (!referenceDescriptorRef.current) return;
+await terminateApplication.mutateAsync({
+  applicationId: appId,
+  reason: "FACE_MISMATCH",
+});
 
-      const distance = faceapi.euclideanDistance(
-      referenceDescriptorRef.current,
-      detection.descriptor
-);
+          alert("Face verification failed 3 times. Exam terminated.");
 
-      console.log("Live identity distance:", distance);
+          router.push("/home");
+        }
+      } catch (err) {
+        console.error("Identity verification error:", err);
+      }
+    };
 
-      if (distance > 0.55) {
+    const interval = setInterval(verifyIdentity, 20000); // every 20 seconds
 
-  identityFailCountRef.current += 1;
-
-  console.log("⚠ Identity verification failed attempt:", identityFailCountRef.current);
-
-  if (identityFailCountRef.current < 3) {
-    alert(`Face verification failed. Attempt ${identityFailCountRef.current}/3. Please look at the camera properly.`);
-    return;
-  }
-
-  console.log("❌ Identity verification failed 3 times. Terminating exam.");
-
-  await terminateApplication.mutateAsync({
-    applicationId: searchParams.get("appId")!,
-    reason: "FACE_MISMATCH",
-  });
-
-  alert("Face verification failed 3 times. Exam terminated.");
-
-  router.push("/home");
-}
-
-    } catch (err) {
-      console.error("Identity verification error:", err);
-    }
-
-  };
-
-  const interval = setInterval(verifyIdentity, 20000); // every 20 seconds
-
-  return () => clearInterval(interval);
-
-}, [examStarted, triggerViolation]);
+    return () => clearInterval(interval);
+  }, [examStarted, triggerViolation, terminateApplication, router, appId]);
 
   // ─────────────────────────────────────────────
   // TOTAL TIMER
@@ -608,54 +613,51 @@ useEffect(() => {
   }, [examStarted]);
 
   // ─────────────────────────────────────────────
-// DETECT BROWSER MINIMIZE
-// ─────────────────────────────────────────────
-useEffect(() => {
-  if (!examStarted) return;
-
-  const handleVisibility = () => {
-    if (document.hidden) {
-      triggerViolation("TAB_SWITCH");
-    }
-  };
-
-  document.addEventListener("visibilitychange", handleVisibility);
-
-  return () => {
-    document.removeEventListener("visibilitychange", handleVisibility);
-  };
-}, [examStarted, triggerViolation]);
-
+  // DETECT BROWSER MINIMIZE
   // ─────────────────────────────────────────────
-// DETECT WINDOW RESIZE / SPLIT SCREEN
-// ─────────────────────────────────────────────
-useEffect(() => {
-  if (!examStarted) return;
+  useEffect(() => {
+    if (!examStarted) return;
 
-  let lastViolation = 0;
-
-  const detectResize = () => {
-    const widthRatio = window.innerWidth / screen.width;
-
-    if (widthRatio < 0.8) {
-
-      const now = Date.now();
-
-      if (now - lastViolation > 4000) {
-        lastViolation = now;
+    const handleVisibility = () => {
+      if (document.hidden) {
         triggerViolation("TAB_SWITCH");
       }
+    };
 
-    }
-  };
+    document.addEventListener("visibilitychange", handleVisibility);
 
-  window.addEventListener("resize", detectResize);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
+  }, [examStarted, triggerViolation]);
 
-  return () => {
-    window.removeEventListener("resize", detectResize);
-  };
+  // ─────────────────────────────────────────────
+  // DETECT WINDOW RESIZE / SPLIT SCREEN
+  // ─────────────────────────────────────────────
+  useEffect(() => {
+    if (!examStarted) return;
 
-}, [examStarted, triggerViolation]);
+    let lastViolation = 0;
+
+    const detectResize = () => {
+      const widthRatio = window.innerWidth / screen.width;
+
+      if (widthRatio < 0.8) {
+        const now = Date.now();
+
+        if (now - lastViolation > 4000) {
+          lastViolation = now;
+          triggerViolation("TAB_SWITCH");
+        }
+      }
+    };
+
+    window.addEventListener("resize", detectResize);
+
+    return () => {
+      window.removeEventListener("resize", detectResize);
+    };
+  }, [examStarted, triggerViolation]);
 
   // ─────────────────────────────────────────────
   // PER-QUESTION TIMER
@@ -695,221 +697,235 @@ useEffect(() => {
   // SUBMIT
   // ─────────────────────────────────────────────
   const handleAutoSubmit = useCallback(async () => {
-    if (submittedRef.current || !appId) return;
-    submittedRef.current = true;
-    setSubmitted(true);
-    stopCamera();
+  if (submittedRef.current || !appId) return;
 
-    const formatted = Object.entries(answers).map(([questionId, answer]) => ({
-      questionId,
-      answer,
-    }));
-    try {
-      await submitExam.mutateAsync({ applicationId: appId, answers: formatted });
-    } finally {
-      await exitFullscreen(); // ← exit fullscreen before redirect
-      setTimeout(() => router.push("/?submitted=true"), 600);
-    }
-  }, [appId, answers, submitExam, stopCamera, exitFullscreen, router]);
+  if (Object.keys(answers).length === 0) {
+    alert("You must answer at least one question before submitting.");
+    return;
+  }
+
+  submittedRef.current = true;
+  setSubmitted(true);
+  stopCamera();
+
+  const formatted = Object.entries(answers).map(([questionId, answer]) => ({
+    questionId: questionId as string,
+    answer: answer as string,
+  }));
+
+  try {
+    await submitExam.mutateAsync({
+      applicationId: appId,
+      answers: formatted,
+    });
+  } finally {
+    await exitFullscreen(); // exit fullscreen before redirect
+    setTimeout(() => router.push("/home?submitted=true"), 600);
+  }
+}, [appId, answers, submitExam, stopCamera, exitFullscreen, router]);
 
   // ─────────────────────────────────────────────
   // START EXAM — fullscreen starts ONLY here
   // ─────────────────────────────────────────────
-  
+
   const compareFaces = async () => {
+    console.log("VIDEO:", videoRef.current);
+    console.log("ID IMAGE:", verificationData?.idImageUrl);
+    console.log("VERIFICATION DATA:", verificationData);
 
-  console.log("VIDEO:", videoRef.current);
-  console.log("ID IMAGE:", verificationData?.idImageUrl);
-  console.log("VERIFICATION DATA:", verificationData);
-
-  if (!videoRef.current || !verificationData?.idImageUrl) {
-    console.log("Missing video or ID image");
-    return false;
-  }
-
-  try {
-    console.log("Loading ID image...");
-    const img = await faceapi.fetchImage(verificationData.idImageUrl);
-
-    console.log("Detecting face in ID image...");
-    const idDetection = await faceapi
-      .detectSingleFace(
-        img,
-  new faceapi.TinyFaceDetectorOptions({
-  inputSize:320,
-  scoreThreshold: 0.3,
-})
-)
-      .withFaceLandmarks()
-      .withFaceDescriptor();
-
-
-    if (!idDetection) {
-      console.log("❌ ID face NOT detected");
+    if (!videoRef.current || !verificationData?.idImageUrl) {
+      console.log("Missing video or ID image");
       return false;
     }
 
-    // HEAD MOVEMENT CHECK (anti-photo spoof)
-const currentX = idDetection.detection.box.x;
+    try {
+      console.log("Loading ID image...");
+      const img = await faceapi.fetchImage(verificationData.idImageUrl);
 
-if (previousFacePositionRef.current !== null) {
+      console.log("Detecting face in ID image...");
+      const idDetection = await faceapi
+        .detectSingleFace(
+          img,
+          new faceapi.TinyFaceDetectorOptions({
+            inputSize: 320,
+            scoreThreshold: 0.3,
+          }),
+        )
+        .withFaceLandmarks()
+        .withFaceDescriptor();
 
-  const movement = Math.abs(currentX - previousFacePositionRef.current);
+      if (!idDetection) {
+        console.log("❌ ID face NOT detected");
+        return false;
+      }
 
-  if (movement < 2) {
-    console.log("⚠ Face not moving — possible photo or screen");
-  }
+      // HEAD MOVEMENT CHECK (anti-photo spoof)
+      const currentX = idDetection.detection.box.x;
 
-}
+      if (previousFacePositionRef.current !== null) {
+        const movement = Math.abs(currentX - previousFacePositionRef.current);
 
-previousFacePositionRef.current = currentX;
+        if (movement < 2) {
+          console.log("⚠ Face not moving — possible photo or screen");
+        }
+      }
+
+      previousFacePositionRef.current = currentX;
 
       // LIVENESS CHECK — detect blinking
-    const leftEye = idDetection?.landmarks.getLeftEye();
-    const rightEye = idDetection?.landmarks.getRightEye();
+      const leftEye = idDetection?.landmarks.getLeftEye();
+      const rightEye = idDetection?.landmarks.getRightEye();
 
-if (leftEye && rightEye) {
-  const leftEyeOpen = Math.abs(leftEye[1]!.y - leftEye[5]!.y);
-const rightEyeOpen = Math.abs(rightEye[1]!.y - rightEye[5]!.y);
+      if (leftEye && rightEye) {
+        const leftEyeOpen = Math.abs(leftEye[1]!.y - leftEye[5]!.y);
+        const rightEyeOpen = Math.abs(rightEye[1]!.y - rightEye[5]!.y);
 
-  if (leftEyeOpen < 2 || rightEyeOpen < 2) {
-    console.log("👁 Blink detected (real person)");
-  }
-}
+        if (leftEyeOpen < 2 || rightEyeOpen < 2) {
+          console.log("👁 Blink detected (real person)");
+        }
+      }
 
-    
+      console.log("ID face detected");
 
-    console.log("ID face detected");
+      console.log("Detecting face in LIVE camera...");
+      // wait until camera frame is ready
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    console.log("Detecting face in LIVE camera...");
-    // wait until camera frame is ready
-await new Promise((resolve) => setTimeout(resolve, 1000));
+      let liveDetection = null;
 
-let liveDetection = null;
+      for (let i = 0; i < 3; i++) {
+        liveDetection = await faceapi
+          .detectSingleFace(
+            videoRef.current!,
+            new faceapi.TinyFaceDetectorOptions({
+              inputSize: 320,
+              scoreThreshold: 0.2,
+            }),
+          )
+          .withFaceLandmarks()
+          .withFaceDescriptor();
 
-for (let i = 0; i < 3; i++) {
-  liveDetection = await faceapi
-    .detectSingleFace(
-      videoRef.current!,
-      new faceapi.TinyFaceDetectorOptions({
-        inputSize: 320,
-        scoreThreshold: 0.2,
-      })
-    )
-    .withFaceLandmarks()
-    .withFaceDescriptor();
+        if (liveDetection) break;
 
-  if (liveDetection) break;
+        console.log("Retrying face detection...");
+        await new Promise((r) => setTimeout(r, 800));
+      }
 
-  console.log("Retrying face detection...");
-  await new Promise((r) => setTimeout(r, 800));
-}
+      if (!liveDetection) {
+        console.log("❌ LIVE face NOT detected");
+        return false;
+      }
 
-if (!liveDetection) {
-  console.log("❌ LIVE face NOT detected");
-  return false;
-}
+      console.log("LIVE face detected");
 
-console.log("LIVE face detected");
+      // Save descriptor for continuous monitoring
+      referenceDescriptorRef.current = liveDetection.descriptor;
+      console.log("Comparing faces...");
 
-// Save descriptor for continuous monitoring
-referenceDescriptorRef.current = liveDetection.descriptor;
-console.log("Comparing faces...");
+      if (!referenceDescriptorRef.current) return false;
+      const distance = faceapi.euclideanDistance(
+        idDetection.descriptor,
+        liveDetection.descriptor,
+      );
 
-    if (!referenceDescriptorRef.current) return false;
-    const distance = faceapi.euclideanDistance(
-      idDetection.descriptor,
-      liveDetection.descriptor
-    );
+      console.log("✅ Face distance:", distance);
 
-    console.log("✅ Face distance:", distance);
-
-    return distance < 0.55; // temporarily relaxed
-  } catch (err) {
-    console.error("Face compare error:", err);
-    return false;
-  }
-};
+      return distance < 0.55; // temporarily relaxed
+    } catch (err) {
+      console.error("Face compare error:", err);
+      return false;
+    }
+  };
 
   const handleStartExam = async () => {
+    if (verificationLoading) {
+      alert("Checking verification. Please wait...");
+      return;
+    }
 
-  if (verificationLoading) {
-    alert("Checking verification. Please wait...");
-    return;
-  }
+    if (!verificationData || verificationData.userId !== session?.user.id) {
+      alert("You must verify your identity before taking the exam.");
+      router.push(verificationPath);
+      return;
+    }
 
-  if (!verificationData || verificationData.userId !== session?.user.id) {
-    alert("You must verify your identity before taking the exam.");
-    router.push("/apply");
-    return;
-  }
+    if (!verificationData.idImageUrl) {
+      alert("Your ID image is missing. Please verify again.");
+      router.push(verificationPath);
+      return;
+    }
 
-  if (!verificationData.idImageUrl) {
-    alert("Your ID image is missing. Please verify again.");
-    router.push("/apply");
-    return;
-  }
+    setStartingExam(true);
+    setCameraError(null);
 
-  setStartingExam(true);
-  setCameraError(null);
-
-  const camOk = await startCamera();
-
-  if (videoRef.current) {
-  await videoRef.current.play();
-}
-
-  if (!camOk) {
-    setStartingExam(false);
-    return;
-  }
-
-  // Wait until video fully ready
-  if (videoRef.current) {
-  const video = videoRef.current;
-
-  await new Promise<void>((resolve) => {
-    video.onloadedmetadata = () => {
-      video.play();
-    };
-
-    const checkReady = () => {
-      if (video.readyState === 4) {
-        resolve();
-      } else {
-        requestAnimationFrame(checkReady);
+    // ✅ 1. ENTER FULLSCREEN FIRST (must be inside click)
+    try {
+      if (!document.fullscreenElement) {
+        await document.documentElement.requestFullscreen();
       }
-    };
+    } catch {
+      alert("Fullscreen is required to start the exam.");
+      setStartingExam(false);
+      return;
+    }
 
-    checkReady();
-  });
+    // ✅ 2. THEN start camera
+    const camOk = await startCamera();
 
-  // extra delay for stable frame
-  await new Promise((r) => setTimeout(r, 1500));
-}
+    if (videoRef.current) {
+      await videoRef.current.play();
+    }
 
-  await Promise.all([
-    faceapi.nets.tinyFaceDetector.loadFromUri("/models"),
-    faceapi.nets.faceLandmark68Net.loadFromUri("/models"),
-    faceapi.nets.faceRecognitionNet.loadFromUri("/models"),
-  ]);
+    if (!camOk) {
+      await document.exitFullscreen(); // 🔥 exit fullscreen if camera fails
+      setStartingExam(false);
+      return;
+    }
 
-  await new Promise((r) => setTimeout(r, 1000));
-  const match = await compareFaces();
+    // Wait until video fully ready
+    if (videoRef.current) {
+      const video = videoRef.current;
 
-  if (!match) {
-    alert("Face does not match ID. Exam terminated.");
-    stopCamera();
+      await new Promise<void>((resolve) => {
+        video.onloadedmetadata = () => {
+          video.play();
+        };
+
+        const checkReady = () => {
+          if (video.readyState === 4) {
+            resolve();
+          } else {
+            requestAnimationFrame(checkReady);
+          }
+        };
+
+        checkReady();
+      });
+
+      // extra delay for stable frame
+      await new Promise((r) => setTimeout(r, 1500));
+    }
+
+    await Promise.all([
+      faceapi.nets.tinyFaceDetector.loadFromUri("/models"),
+      faceapi.nets.faceLandmark68Net.loadFromUri("/models"),
+      faceapi.nets.faceRecognitionNet.loadFromUri("/models"),
+    ]);
+
+    await new Promise((r) => setTimeout(r, 1000));
+    const match = await compareFaces();
+
+    if (!match) {
+      alert("Face does not match ID. Exam terminated.");
+      stopCamera();
+      setStartingExam(false);
+      router.push("/home");
+      return;
+    }
+
+    setExamStarted(true);
     setStartingExam(false);
-    router.push("/home");
-    return;
-  }
-
-  await enterFullscreen();
-
-  setExamStarted(true);
-  setStartingExam(false);
-};
+  };
 
   // Cleanup on unmount
   useEffect(() => {
@@ -920,72 +936,141 @@ console.log("Comparing faces...");
   }, [stopCamera]);
 
   // ─────────────────────────────────────────────
-// AUTH GUARD
-// ─────────────────────────────────────────────
+  // AUTH GUARD
+  // ─────────────────────────────────────────────
 
-if (status === "loading") {
-  return (
-    <div className="min-h-screen flex items-center justify-center">
-      Checking authentication...
-    </div>
-  );
-}
-
-if (!session) {
-  router.push("/student/login");
-  return null;
-}
-
-if (session.user.role !== "STUDENT") {
-  return (
-    <div className="min-h-screen flex items-center justify-center">
-      Only students can access this exam.
-    </div>
-  );
-}
-
-if (!appId) {
-  return (
-    <div className="min-h-screen flex items-center justify-center">
-      Invalid exam link.
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────
-// VERIFICATION GUARD
-// ─────────────────────────────────────────────
-if (!verificationLoading && !verificationData) {
-  return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="text-center">
-        <h1 className="text-xl font-semibold mb-3">
-          Verification Required
-        </h1>
-
-        <p className="text-gray-500 mb-4">
-          You must verify your identity before starting the exam.
-        </p>
-
-        <button
-          onClick={() => router.push("/verify")}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg"
-        >
-          Go to Verification
-        </button>
+  if (status === "loading") {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        Checking authentication...
       </div>
-    </div>
-  );
-}
+    );
+  }
+
+  if (!session) {
+    router.push("/student/login");
+    return null;
+  }
+
+  if (session.user.role !== "STUDENT") {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        Only students can access this exam.
+      </div>
+    );
+  }
+
+  if (!appId) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        Invalid exam link.
+      </div>
+    );
+  }
+
+  // ─────────────────────────────────────────────
+  // VERIFICATION GUARD
+  // ─────────────────────────────────────────────
+  if (!verificationLoading && !verificationData) {
+    return (
+      <div className="min-h-screen bg-slate-50 px-6 py-10 text-slate-900">
+        <div className="mx-auto flex min-h-[calc(100vh-5rem)] max-w-6xl items-center">
+          <div className="grid w-full gap-8 lg:grid-cols-[1.15fr_0.85fr]">
+            <section className="relative overflow-hidden rounded-[32px] border border-slate-200 bg-white p-8 shadow-xl shadow-slate-200/70 md:p-10">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(59,130,246,0.12),_transparent_42%),radial-gradient(circle_at_bottom_right,_rgba(14,165,233,0.10),_transparent_38%)]" />
+
+              <div className="relative">
+                <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-4 py-2 text-xs font-semibold tracking-[0.24em] text-sky-700 uppercase">
+                  <span className="h-2 w-2 rounded-full bg-sky-500" />
+                  Identity Check Pending
+                </div>
+
+                <h1 className="max-w-2xl text-4xl font-semibold tracking-tight text-slate-900 md:text-5xl">
+                  Complete verification before accessing the assessment.
+                </h1>
+
+                <p className="mt-5 max-w-xl text-base leading-7 text-slate-600 md:text-lg">
+                  Your exam session is locked until your identity verification is
+                  completed. This protects exam integrity and ensures your
+                  assessment can be submitted without interruption.
+                </p>
+
+                <div className="mt-8 flex flex-wrap gap-4">
+                  <button
+                    onClick={() => router.push(verificationPath)}
+                    className="inline-flex items-center gap-2 rounded-2xl bg-sky-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-sky-500"
+                  >
+                    Go to Verification
+                    <span aria-hidden="true">→</span>
+                  </button>
+
+                  <div className="inline-flex items-center rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-500">
+                    Estimated time: 2-3 minutes
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <aside className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-lg shadow-slate-200/70">
+              <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-sky-600">
+                <svg
+                  className="h-7 w-7"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.8}
+                    d="M12 11c1.657 0 3-1.567 3-3.5S13.657 4 12 4 9 5.567 9 7.5 10.343 11 12 11Zm-5 9a5 5 0 0110 0M19 10v6m3-3h-6"
+                  />
+                </svg>
+              </div>
+
+              <h2 className="text-xl font-semibold text-slate-900">
+                Before you continue
+              </h2>
+
+              <div className="mt-6 space-y-3">
+                {[
+                  "Use the same account and device you plan to use for the exam.",
+                  "Keep a clear photo ID and a well-lit camera view ready.",
+                  "Return here after verification to unlock the exam session.",
+                ].map((item) => (
+                  <div
+                    key={item}
+                    className="flex items-start gap-3 rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3"
+                  >
+                    <div className="mt-1 h-2.5 w-2.5 rounded-full bg-sky-400" />
+                    <p className="text-sm leading-6 text-slate-600">{item}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3">
+                <p className="text-sm font-medium text-amber-700">
+                  Access to the assessment becomes available immediately after
+                  successful verification.
+                </p>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </div>
+    );
+  }
   // ─────────────────────────────────────────────
   // LOADING
   // ─────────────────────────────────────────────
   if (isLoading || !questions) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-slate-50">
         <div className="text-center">
-          <div className="w-10 h-10 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-slate-500 text-sm font-medium">Loading assessment...</p>
+          <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
+          <p className="text-sm font-medium text-slate-500">
+            Loading assessment...
+          </p>
         </div>
       </div>
     );
@@ -996,46 +1081,66 @@ if (!verificationLoading && !verificationData) {
   // ─────────────────────────────────────────────
   if (!examStarted) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
-        <div className="max-w-xl w-full">
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 p-6">
+        <div className="w-full max-w-xl">
           <video
-        ref={videoRef}
-        autoPlay
-        muted
-        playsInline
-        className="w-full h-full object-cover"
-      />
+            ref={videoRef}
+            autoPlay
+            muted
+            playsInline
+            className="h-full w-full object-cover"
+          />
           {/* Header */}
           <div className="mb-8">
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-sm">
-                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            <div className="mb-5 flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 shadow-sm">
+                <svg
+                  className="h-5 w-5 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                  />
                 </svg>
               </div>
               <div>
-                <p className="text-xs font-semibold text-blue-600 tracking-widest uppercase mb-0.5">
+                <p className="mb-0.5 text-xs font-semibold tracking-widest text-blue-600 uppercase">
                   Technical Assessment
                 </p>
-                <h1 className="text-xl font-bold text-slate-800 leading-tight">
+                <h1 className="text-xl leading-tight font-bold text-slate-800">
                   Role Based Examination
                 </h1>
               </div>
             </div>
-            <p className="text-slate-500 text-sm leading-relaxed">
-              This is a proctored online assessment. Please review all requirements
-              carefully before starting. Once begun, the exam cannot be paused.
+            <p className="text-sm leading-relaxed text-slate-500">
+              This is a proctored online assessment. Please review all
+              requirements carefully before starting. Once begun, the exam
+              cannot be paused.
             </p>
           </div>
 
           {/* Rules card */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm divide-y divide-slate-100 mb-5">
+          <div className="mb-5 divide-y divide-slate-100 rounded-2xl border border-slate-200 bg-white shadow-sm">
             {[
               {
                 icon: (
-                  <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  <svg
+                    className="h-4 w-4 text-slate-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
                   </svg>
                 ),
                 label: "Total duration",
@@ -1043,17 +1148,38 @@ if (!verificationLoading && !verificationData) {
               },
               {
                 icon: (
-                  <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2" />
+                  <svg
+                    className="h-4 w-4 text-slate-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2"
+                    />
                   </svg>
                 ),
                 label: "Question timing",
-                value: "Multiple choice: 2 min each · Essay / Scenario: 5 min each",
+                value:
+                  "Multiple choice: 2 min each · Essay / Scenario: 5 min each",
               },
               {
                 icon: (
-                  <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.069A1 1 0 0121 8.867v6.266a1 1 0 01-1.447.894L15 14M3 8a2 2 0 00-2 2v4a2 2 0 002 2h9a2 2 0 002-2V10a2 2 0 00-2-2H3z" />
+                  <svg
+                    className="h-4 w-4 text-slate-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 10l4.553-2.069A1 1 0 0121 8.867v6.266a1 1 0 01-1.447.894L15 14M3 8a2 2 0 00-2 2v4a2 2 0 002 2h9a2 2 0 002-2V10a2 2 0 00-2-2H3z"
+                    />
                   </svg>
                 ),
                 label: "Camera monitoring",
@@ -1061,26 +1187,58 @@ if (!verificationLoading && !verificationData) {
               },
               {
                 icon: (
-                  <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  <svg
+                    className="h-4 w-4 text-slate-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                    />
                   </svg>
                 ),
                 label: "Fullscreen required",
-                value: "Exam runs in fullscreen — exiting counts as a violation",
+                value:
+                  "Exam runs in fullscreen — exiting counts as a violation",
               },
               {
                 icon: (
-                  <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                  <svg
+                    className="h-4 w-4 text-slate-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
+                    />
                   </svg>
                 ),
                 label: "Restricted actions",
-                value: "No copy, paste, screenshots, tab switching, or dev tools",
+                value:
+                  "No copy, paste, screenshots, tab switching, or dev tools",
               },
               {
                 icon: (
-                  <svg className="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  <svg
+                    className="h-4 w-4 text-amber-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                    />
                   </svg>
                 ),
                 label: "Violation policy",
@@ -1088,46 +1246,64 @@ if (!verificationLoading && !verificationData) {
                 highlight: true,
               },
             ].map((r, i) => (
-              <div key={i} className={`flex items-start gap-4 px-5 py-4 ${r.highlight ? "bg-amber-50/60" : ""}`}>
+              <div
+                key={i}
+                className={`flex items-start gap-4 px-5 py-4 ${r.highlight ? "bg-amber-50/60" : ""}`}
+              >
                 <div className="mt-0.5 flex-shrink-0">{r.icon}</div>
                 <div>
-                  <p className="text-sm font-semibold text-slate-700">{r.label}</p>
-                  <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">{r.value}</p>
+                  <p className="text-sm font-semibold text-slate-700">
+                    {r.label}
+                  </p>
+                  <p className="mt-0.5 text-xs leading-relaxed text-slate-500">
+                    {r.value}
+                  </p>
                 </div>
               </div>
             ))}
           </div>
 
           {cameraError && (
-            <div className="mb-4 flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
-              <svg className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <div className="mb-4 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4">
+              <svg
+                className="mt-0.5 h-4 w-4 flex-shrink-0 text-red-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
               </svg>
               <p className="text-sm text-red-600">{cameraError}</p>
             </div>
           )}
 
           {verificationData && (
-  <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">
-    ✅ Identity verified. You can start the assessment.
-  </div>
-)}
+            <div className="mb-4 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-700">
+              ✅ Identity verified. You can start the assessment.
+            </div>
+          )}
           <button
             onClick={handleStartExam}
-            disabled={startingExam}
-            className="w-full py-3.5 bg-slate-900 hover:bg-sky-500 disabled:bg-slate-700 text-white font-semibold rounded-xl transition-colors text-sm shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+            disabled={startingExam || !verificationData}
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 py-3.5 text-sm font-semibold text-white shadow-lg transition-colors hover:bg-sky-500 hover:shadow-xl disabled:bg-slate-700"
           >
             {startingExam ? (
               <>
-                <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
                 Preparing exam...
               </>
             ) : (
               "Begin Assessment →"
             )}
           </button>
-          <p className="text-center text-xs text-slate-400 mt-3">
-            By starting, you agree to the proctoring and monitoring requirements above.
+          <p className="mt-3 text-center text-xs text-slate-400">
+            By starting, you agree to the proctoring and monitoring requirements
+            above.
           </p>
         </div>
       </div>
@@ -1139,23 +1315,35 @@ if (!verificationLoading && !verificationData) {
   // ─────────────────────────────────────────────
   if (terminated) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
-        <div className="text-center max-w-sm">
-          <div className="w-16 h-16 bg-red-100 border border-red-200 rounded-full flex items-center justify-center mx-auto mb-5">
-            <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 p-6">
+        <div className="max-w-sm text-center">
+          <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full border border-red-200 bg-red-100">
+            <svg
+              className="h-8 w-8 text-red-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold text-slate-800 mb-2">Exam Terminated</h1>
-          <p className="text-slate-500 text-sm mb-1">
+          <h1 className="mb-2 text-2xl font-bold text-slate-800">
+            Exam Terminated
+          </h1>
+          <p className="mb-1 text-sm text-slate-500">
             You reached the maximum number of violations.
           </p>
-          <p className="text-slate-400 text-xs">Redirecting to home page...</p>
+          <p className="text-xs text-slate-400">Redirecting to home page...</p>
           <div className="mt-5 flex justify-center gap-1.5">
             {[0, 1, 2].map((i) => (
               <div
                 key={i}
-                className="w-1.5 h-1.5 bg-red-400 rounded-full animate-bounce"
+                className="h-1.5 w-1.5 animate-bounce rounded-full bg-red-400"
                 style={{ animationDelay: `${i * 0.15}s` }}
               />
             ))}
@@ -1170,21 +1358,32 @@ if (!verificationLoading && !verificationData) {
   // ─────────────────────────────────────────────
   if (submitted) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 p-6">
+        {/* Camera for Face Detection */}
+        <div className="fixed right-4 bottom-4 h-36 w-48 overflow-hidden rounded-lg border shadow-lg"></div>
 
-      {/* Camera for Face Detection */}
-    <div className="fixed bottom-4 right-4 w-48 h-36 border rounded-lg overflow-hidden shadow-lg">
-      
-    </div>
-    
-        <div className="text-center max-w-sm">
-          <div className="w-16 h-16 bg-green-100 border border-green-200 rounded-full flex items-center justify-center mx-auto mb-5">
-            <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+        <div className="max-w-sm text-center">
+          <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full border border-green-200 bg-green-100">
+            <svg
+              className="h-8 w-8 text-green-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M5 13l4 4L19 7"
+              />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold text-slate-800 mb-2">Submitted Successfully</h1>
-          <p className="text-slate-500 text-sm">Your answers have been recorded. Redirecting...</p>
+          <h1 className="mb-2 text-2xl font-bold text-slate-800">
+            Submitted Successfully
+          </h1>
+          <p className="text-sm text-slate-500">
+            Your answers have been recorded. Redirecting...
+          </p>
         </div>
       </div>
     );
@@ -1210,28 +1409,28 @@ if (!verificationLoading && !verificationData) {
     >
       {/* ── VIOLATION ALERT BANNER ── */}
       {activeAlert && (
-        <div className="fixed inset-x-0 top-0 z-50 flex justify-center pt-4 px-4 pointer-events-none">
+        <div className="pointer-events-none fixed inset-x-0 top-0 z-50 flex justify-center px-4 pt-4">
           <div
-            className="w-full max-w-2xl bg-white border-2 border-red-400 rounded-2xl px-6 py-4 shadow-xl shadow-red-100/60"
+            className="w-full max-w-2xl rounded-2xl border-2 border-red-400 bg-white px-6 py-4 shadow-xl shadow-red-100/60"
             style={{ animation: "slideDown 0.25s ease" }}
           >
             <div className="flex items-start gap-4">
               <div
-                className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl ${
                   violationCount === 1
                     ? "bg-amber-100"
                     : violationCount === 2
-                    ? "bg-orange-100"
-                    : "bg-red-100"
+                      ? "bg-orange-100"
+                      : "bg-red-100"
                 }`}
               >
                 <svg
-                  className={`w-5 h-5 ${
+                  className={`h-5 w-5 ${
                     violationCount === 1
                       ? "text-amber-500"
                       : violationCount === 2
-                      ? "text-orange-500"
-                      : "text-red-500"
+                        ? "text-orange-500"
+                        : "text-red-500"
                   }`}
                   fill="none"
                   stroke="currentColor"
@@ -1245,29 +1444,30 @@ if (!verificationLoading && !verificationData) {
                   />
                 </svg>
               </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap mb-1">
-                  <span className="font-bold text-slate-800 text-sm">
-                    Violation Detected — Attempt {violationCount} of {MAX_VIOLATIONS}
+              <div className="min-w-0 flex-1">
+                <div className="mb-1 flex flex-wrap items-center gap-2">
+                  <span className="text-sm font-bold text-slate-800">
+                    Violation Detected — Attempt {violationCount} of{" "}
+                    {MAX_VIOLATIONS}
                   </span>
                   <span
-                    className={`text-xs px-2.5 py-0.5 rounded-full font-semibold ${
+                    className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
                       violationCount === 1
                         ? "bg-amber-100 text-amber-700"
                         : violationCount === 2
-                        ? "bg-orange-100 text-orange-700"
-                        : "bg-red-100 text-red-700"
+                          ? "bg-orange-100 text-orange-700"
+                          : "bg-red-100 text-red-700"
                     }`}
                   >
                     {violationCount === 1
                       ? "WARNING"
                       : violationCount === 2
-                      ? "FINAL WARNING"
-                      : "TERMINATED"}
+                        ? "FINAL WARNING"
+                        : "TERMINATED"}
                   </span>
                 </div>
-                <p className="text-slate-600 text-sm">{activeAlert.message}</p>
-                <p className="text-slate-400 text-xs mt-0.5">
+                <p className="text-sm text-slate-600">{activeAlert.message}</p>
+                <p className="mt-0.5 text-xs text-slate-400">
                   {violationCount < MAX_VIOLATIONS
                     ? `You have ${MAX_VIOLATIONS - violationCount} attempt${
                         MAX_VIOLATIONS - violationCount > 1 ? "s" : ""
@@ -1277,7 +1477,7 @@ if (!verificationLoading && !verificationData) {
               </div>
             </div>
             {/* Attempt progress bar */}
-            <div className="flex gap-1.5 mt-3 ml-14">
+            <div className="mt-3 ml-14 flex gap-1.5">
               {Array.from({ length: MAX_VIOLATIONS }).map((_, i) => (
                 <div
                   key={i}
@@ -1292,37 +1492,45 @@ if (!verificationLoading && !verificationData) {
       )}
 
       {/* ── TOP HEADER ── */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-slate-200 px-6 py-3">
-        <div className="max-w-5xl mx-auto flex items-center justify-between gap-4">
-
+      <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 px-6 py-3 backdrop-blur">
+        <div className="mx-auto flex max-w-5xl items-center justify-between gap-4">
           {/* Left: branding + progress */}
-          <div className="flex items-center gap-4 min-w-0">
-            <div className="hidden sm:flex items-center gap-2 flex-shrink-0">
-              <div className="w-7 h-7 bg-blue-600 rounded-lg flex items-center justify-center">
-                <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          <div className="flex min-w-0 items-center gap-4">
+            <div className="hidden flex-shrink-0 items-center gap-2 sm:flex">
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-600">
+                <svg
+                  className="h-3.5 w-3.5 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                  />
                 </svg>
               </div>
-              <span className="text-sm font-semibold text-slate-700 whitespace-nowrap">
+              <span className="text-sm font-semibold whitespace-nowrap text-slate-700">
                 Technical Assessment
               </span>
             </div>
-            <div className="hidden sm:block h-4 w-px bg-slate-200" />
+            <div className="hidden h-4 w-px bg-slate-200 sm:block" />
             <div className="flex items-center gap-1.5">
               {questions.map((_, i) => (
                 <div
                   key={i}
                   className={`rounded-full transition-all duration-200 ${
                     i < currentIndex
-                      ? "w-2 h-2 bg-green-500"
+                      ? "h-2 w-2 bg-green-500"
                       : i === currentIndex
-                      ? "w-3 h-2 bg-blue-600"
-                      : "w-2 h-2 bg-slate-300"
+                        ? "h-2 w-3 bg-blue-600"
+                        : "h-2 w-2 bg-slate-300"
                   }`}
                 />
               ))}
-              <span className="text-xs text-slate-400 font-medium ml-1">
+              <span className="ml-1 text-xs font-medium text-slate-400">
                 {currentIndex + 1}/{questions.length}
               </span>
             </div>
@@ -1330,32 +1538,52 @@ if (!verificationLoading && !verificationData) {
 
           {/* Center: total time ring */}
           <div className="flex items-center gap-2.5">
-            <div className="relative w-11 h-11">
-              <svg className="w-11 h-11 -rotate-90" viewBox="0 0 44 44">
-                <circle cx="22" cy="22" r="18" fill="none" stroke="#e2e8f0" strokeWidth="3.5" />
+            <div className="relative h-11 w-11">
+              <svg className="h-11 w-11 -rotate-90" viewBox="0 0 44 44">
                 <circle
-                  cx="22" cy="22" r="18" fill="none"
-                  stroke={totalLow ? "#ef4444" : totalMid ? "#f97316" : "#2563eb"}
+                  cx="22"
+                  cy="22"
+                  r="18"
+                  fill="none"
+                  stroke="#e2e8f0"
+                  strokeWidth="3.5"
+                />
+                <circle
+                  cx="22"
+                  cy="22"
+                  r="18"
+                  fill="none"
+                  stroke={
+                    totalLow ? "#ef4444" : totalMid ? "#f97316" : "#2563eb"
+                  }
                   strokeWidth="3.5"
                   strokeDasharray={`${2 * Math.PI * 18}`}
                   strokeDashoffset={`${2 * Math.PI * 18 * (1 - totalPercent / 100)}`}
                   strokeLinecap="round"
-                  style={{ transition: "stroke-dashoffset 1s linear, stroke 0.5s" }}
+                  style={{
+                    transition: "stroke-dashoffset 1s linear, stroke 0.5s",
+                  }}
                 />
               </svg>
               <span
-                className={`absolute inset-0 flex items-center justify-center text-[9px] font-bold font-mono ${
-                  totalLow ? "text-red-600" : totalMid ? "text-orange-600" : "text-slate-700"
+                className={`absolute inset-0 flex items-center justify-center font-mono text-[9px] font-bold ${
+                  totalLow
+                    ? "text-red-600"
+                    : totalMid
+                      ? "text-orange-600"
+                      : "text-slate-700"
                 }`}
               >
                 {formatTime(totalTimeLeft)}
               </span>
             </div>
             <div className="hidden sm:block">
-              <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider leading-none">
+              <p className="text-[10px] leading-none font-semibold tracking-wider text-slate-400 uppercase">
                 Total Time
               </p>
-              <p className={`text-xs font-semibold mt-0.5 ${totalLow ? "text-red-600" : "text-slate-600"}`}>
+              <p
+                className={`mt-0.5 text-xs font-semibold ${totalLow ? "text-red-600" : "text-slate-600"}`}
+              >
                 {totalLow ? "⚠ Low time" : "Remaining"}
               </p>
             </div>
@@ -1364,16 +1592,16 @@ if (!verificationLoading && !verificationData) {
           {/* Right: violations + camera */}
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1.5">
-              <span className="hidden sm:block text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+              <span className="hidden text-[10px] font-semibold tracking-wider text-slate-400 uppercase sm:block">
                 Violations
               </span>
               {Array.from({ length: MAX_VIOLATIONS }).map((_, i) => (
                 <div
                   key={i}
-                  className={`w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-bold border-2 transition-all ${
+                  className={`flex h-5 w-5 items-center justify-center rounded-md border-2 text-[10px] font-bold transition-all ${
                     i < violationCount
-                      ? "bg-red-500 border-red-500 text-white"
-                      : "bg-white border-slate-300 text-slate-400"
+                      ? "border-red-500 bg-red-500 text-white"
+                      : "border-slate-300 bg-white text-slate-400"
                   }`}
                 >
                   {i + 1}
@@ -1381,29 +1609,38 @@ if (!verificationLoading && !verificationData) {
               ))}
             </div>
 
-            <div className="w-px h-6 bg-slate-200" />
+            <div className="h-6 w-px bg-slate-200" />
 
             {/* Camera feed */}
             <div className="relative">
-              <div className="w-16 h-12 rounded-lg overflow-hidden border border-slate-300 bg-slate-100 shadow-sm">
+              <div className="h-12 w-16 overflow-hidden rounded-lg border border-slate-300 bg-slate-100 shadow-sm">
                 <video
                   ref={videoRef}
                   autoPlay
                   muted
                   playsInline
-                  className="w-full h-full object-cover scale-x-[-1]"
+                  className="h-full w-full scale-x-[-1] object-cover"
                 />
                 {!cameraAllowed && (
                   <div className="absolute inset-0 flex items-center justify-center bg-slate-100">
-                    <svg className="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                        d="M15 10l4.553-2.069A1 1 0 0121 8.867v6.266a1 1 0 01-1.447.894L15 14M3 8a2 2 0 00-2 2v4a2 2 0 002 2h9a2 2 0 002-2V10a2 2 0 00-2-2H3z" />
+                    <svg
+                      className="h-5 w-5 text-red-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 10l4.553-2.069A1 1 0 0121 8.867v6.266a1 1 0 01-1.447.894L15 14M3 8a2 2 0 00-2 2v4a2 2 0 002 2h9a2 2 0 002-2V10a2 2 0 00-2-2H3z"
+                      />
                     </svg>
                   </div>
                 )}
               </div>
               <div
-                className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-white ${
+                className={`absolute -right-1 -bottom-1 h-3 w-3 rounded-full border-2 border-white ${
                   cameraAllowed ? "bg-green-500" : "bg-red-500"
                 }`}
               />
@@ -1413,28 +1650,29 @@ if (!verificationLoading && !verificationData) {
       </header>
 
       {/* ── QUESTION AREA ── */}
-      <div className="max-w-3xl mx-auto px-6 py-8">
-
+      <div className="mx-auto max-w-3xl px-6 py-8">
         {/* Question meta */}
-        <div className="flex items-center justify-between mb-5">
+        <div className="mb-5 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <span
-              className={`px-3 py-1 rounded-lg text-xs font-semibold tracking-wide uppercase border ${
+              className={`rounded-lg border px-3 py-1 text-xs font-semibold tracking-wide uppercase ${
                 currentQ?.type === "MCQ"
-                  ? "bg-blue-50 text-blue-700 border-blue-200"
-                  : "bg-violet-50 text-violet-700 border-violet-200"
+                  ? "border-blue-200 bg-blue-50 text-blue-700"
+                  : "border-violet-200 bg-violet-50 text-violet-700"
               }`}
             >
-              {currentQ?.type === "MCQ" ? "Multiple Choice" : "Scenario / Essay"}
+              {currentQ?.type === "MCQ"
+                ? "Multiple Choice"
+                : "Scenario / Essay"}
             </span>
-            <span className="text-slate-400 text-sm">
+            <span className="text-sm text-slate-400">
               Question {currentIndex + 1} of {questions.length}
             </span>
           </div>
 
           {/* Per-question timer */}
           <div className="flex items-center gap-2">
-            <div className="w-28 bg-slate-200 rounded-full h-1.5 overflow-hidden">
+            <div className="h-1.5 w-28 overflow-hidden rounded-full bg-slate-200">
               <div
                 className={`h-full rounded-full transition-all duration-1000 ${
                   qLow ? "bg-red-500" : qMid ? "bg-orange-400" : "bg-blue-500"
@@ -1443,8 +1681,12 @@ if (!verificationLoading && !verificationData) {
               />
             </div>
             <span
-              className={`text-sm font-bold font-mono tabular-nums w-10 ${
-                qLow ? "text-red-600" : qMid ? "text-orange-500" : "text-slate-600"
+              className={`w-10 font-mono text-sm font-bold tabular-nums ${
+                qLow
+                  ? "text-red-600"
+                  : qMid
+                    ? "text-orange-500"
+                    : "text-slate-600"
               }`}
             >
               {formatTime(questionTimeLeft)}
@@ -1453,59 +1695,68 @@ if (!verificationLoading && !verificationData) {
         </div>
 
         {/* Question card */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 mb-5">
-          <p className="text-slate-800 text-base leading-relaxed font-medium mb-7">
+        <div className="mb-5 rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+          <p className="mb-7 text-base leading-relaxed font-medium text-slate-800">
             {currentQ?.prompt}
           </p>
 
           {/* MCQ options */}
           {currentQ?.type === "MCQ" && (
             <div className="space-y-2.5">
-              {currentQ.options.map((opt: { id: string; key: string; text: string }) => {
-                const sel = answers[currentQ.id] === opt.key;
-                return (
-                  <label
-                    key={opt.id}
-                    className={`flex items-center gap-4 px-5 py-3.5 rounded-xl border cursor-pointer transition-all duration-150 group ${
-                      sel
-                        ? "border-blue-500 bg-blue-50 shadow-sm"
-                        : "border-slate-200 bg-slate-50/40 hover:border-blue-300 hover:bg-blue-50/30"
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name={currentQ.id}
-                      value={opt.key}
-                      checked={sel}
-                      onChange={(e) =>
-                        setAnswers((prev) => ({ ...prev, [currentQ.id]: e.target.value }))
-                      }
-                      className="sr-only"
-                    />
-                    <div
-                      className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${
+              {currentQ.options.map(
+                (opt: { id: string; key: string; text: string }) => {
+                  const sel = answers[currentQ.id] === opt.key;
+                  return (
+                    <label
+                      key={opt.id}
+                      className={`group flex cursor-pointer items-center gap-4 rounded-xl border px-5 py-3.5 transition-all duration-150 ${
                         sel
-                          ? "border-blue-600 bg-blue-600"
-                          : "border-slate-300 group-hover:border-blue-400"
+                          ? "border-blue-500 bg-blue-50 shadow-sm"
+                          : "border-slate-200 bg-slate-50/40 hover:border-blue-300 hover:bg-blue-50/30"
                       }`}
                     >
-                      {sel && <div className="w-2 h-2 rounded-full bg-white" />}
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span
-                        className={`text-xs font-bold w-5 text-center tabular-nums ${
-                          sel ? "text-blue-600" : "text-slate-400"
+                      <input
+                        type="radio"
+                        name={currentQ.id}
+                        value={opt.key}
+                        checked={sel}
+                        onChange={(e) =>
+                          setAnswers((prev) => ({
+                            ...prev,
+                            [currentQ.id]: e.target.value,
+                          }))
+                        }
+                        className="sr-only"
+                      />
+                      <div
+                        className={`flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border-2 transition-all ${
+                          sel
+                            ? "border-blue-600 bg-blue-600"
+                            : "border-slate-300 group-hover:border-blue-400"
                         }`}
                       >
-                        {opt.key}
-                      </span>
-                      <span className={`text-sm ${sel ? "text-blue-800 font-medium" : "text-slate-700"}`}>
-                        {opt.text}
-                      </span>
-                    </div>
-                  </label>
-                );
-              })}
+                        {sel && (
+                          <div className="h-2 w-2 rounded-full bg-white" />
+                        )}
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span
+                          className={`w-5 text-center text-xs font-bold tabular-nums ${
+                            sel ? "text-blue-600" : "text-slate-400"
+                          }`}
+                        >
+                          {opt.key}
+                        </span>
+                        <span
+                          className={`text-sm ${sel ? "font-medium text-blue-800" : "text-slate-700"}`}
+                        >
+                          {opt.text}
+                        </span>
+                      </div>
+                    </label>
+                  );
+                },
+              )}
             </div>
           )}
 
@@ -1513,16 +1764,19 @@ if (!verificationLoading && !verificationData) {
           {currentQ?.type === "SCENARIO" && (
             <div>
               <textarea
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-slate-700 text-sm leading-relaxed resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder-slate-400"
+                className="w-full resize-none rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm leading-relaxed text-slate-700 placeholder-slate-400 transition-all focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 rows={9}
                 placeholder="Write your detailed response here. Cover edge cases, trade-offs, and engineering best practices..."
                 value={answers[currentQ.id] ?? ""}
                 onChange={(e) =>
-                  setAnswers((prev) => ({ ...prev, [currentQ.id]: e.target.value }))
+                  setAnswers((prev) => ({
+                    ...prev,
+                    [currentQ.id]: e.target.value,
+                  }))
                 }
                 style={{ WebkitUserSelect: "text", userSelect: "text" }}
               />
-              <div className="flex justify-between mt-2">
+              <div className="mt-2 flex justify-between">
                 <p className="text-xs text-slate-400">
                   Explain your reasoning clearly. Quality over quantity.
                 </p>
@@ -1538,27 +1792,40 @@ if (!verificationLoading && !verificationData) {
         <div className="flex items-center justify-between">
           <div>
             {violationCount > 0 && (
-              <p className="text-xs text-red-500 font-medium">
-                ⚠ {violationCount} violation{violationCount > 1 ? "s" : ""} recorded
+              <p className="text-xs font-medium text-red-500">
+                ⚠ {violationCount} violation{violationCount > 1 ? "s" : ""}{" "}
+                recorded
               </p>
             )}
           </div>
           <button
             onClick={goNext}
-            className="flex items-center gap-2 px-6 py-3 bg-slate-900 hover:bg-sky-500 text-white font-medium rounded-2xl transition-colors text-sm disabled:opacity-50"
+            className="flex items-center gap-2 rounded-2xl bg-slate-900 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-sky-500 disabled:opacity-50"
           >
-            {currentIndex < questions.length - 1 ? "Next Question →" : "Submit Exam ✓"}
+            {currentIndex < questions.length - 1
+              ? "Next Question →"
+              : "Submit Exam ✓"}
           </button>
         </div>
       </div>
 
       <style jsx global>{`
         @keyframes slideDown {
-          from { opacity: 0; transform: translateY(-12px); }
-          to   { opacity: 1; transform: translateY(0); }
+          from {
+            opacity: 0;
+            transform: translateY(-12px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
         }
-        ::selection { background: transparent; }
-        * { -webkit-tap-highlight-color: transparent; }
+        ::selection {
+          background: transparent;
+        }
+        * {
+          -webkit-tap-highlight-color: transparent;
+        }
       `}</style>
     </main>
   );

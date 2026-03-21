@@ -3,6 +3,7 @@ import Link from "next/link";
 
 export default async function StudentProfilePage() {
   const profile = await api.profile.getProfile();
+  const jobs = await api.job.list();
 
   const skills = profile?.skills
     ? profile.skills
@@ -48,26 +49,28 @@ export default async function StudentProfilePage() {
     },
   ];
 
-  const recentActivities = [
-    {
-      title: "Applied for Software Engineer Intern",
-      subtitle: "Application submitted successfully",
-      time: "2 hours ago",
-      tone: "sky",
-    },
-    {
-      title: "Completed Java Quiz",
-      subtitle: "Scored 82% in technical assessment",
-      time: "Yesterday",
-      tone: "emerald",
-    },
-    {
-      title: "Finished Mock Interview",
-      subtitle: "AI feedback generated for improvement",
-      time: "2 days ago",
-      tone: "indigo",
-    },
-  ] as const;
+  const recentActivities: Array<{
+    title: string;
+    subtitle: string;
+    time: string;
+    tone: "sky" | "emerald" | "indigo";
+    status: "applied" | "interview" | "selected" | "rejected";
+  }> = (jobs ?? [])
+    .filter((job) => job.applied)
+    .slice(0, 3)
+    .map((job) => {
+      const status = job.examSubmitted ? "interview" : "applied";
+
+      return {
+        title: job.title ?? "Job Application",
+        subtitle: job.examSubmitted
+          ? "Exam completed. Interview pending."
+          : "Application submitted successfully",
+        time: job.createdAt ? new Date(job.createdAt).toLocaleDateString() : "Recently",
+        tone: job.examSubmitted ? "emerald" : "sky",
+        status,
+      };
+    });
 
   const finishedSteps = completionItems.filter((item) => item.done).length;
 
@@ -357,6 +360,43 @@ export default async function StudentProfilePage() {
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-semibold text-slate-900">{activity.title}</p>
                       <p className="mt-1 text-xs text-slate-500">{activity.subtitle}</p>
+                      <div className="mt-3">
+                        <div className="grid grid-cols-3 gap-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-400">
+                          <span className="text-center">Applied</span>
+                          <span className="text-center">Interview</span>
+                          <span className="text-center">Decision</span>
+                        </div>
+                        <div className="mt-2 grid grid-cols-3 gap-2">
+                          <div
+                            className={`h-2 rounded-full ${
+                              activity.status === "applied" ||
+                              activity.status === "interview" ||
+                              activity.status === "selected" ||
+                              activity.status === "rejected"
+                                ? "bg-sky-500"
+                                : "bg-slate-200"
+                            }`}
+                          />
+                          <div
+                            className={`h-2 rounded-full ${
+                              activity.status === "interview" ||
+                              activity.status === "selected" ||
+                              activity.status === "rejected"
+                                ? "bg-amber-400"
+                                : "bg-slate-200"
+                            }`}
+                          />
+                          <div
+                            className={`h-2 rounded-full ${
+                              activity.status === "selected"
+                                ? "bg-emerald-500"
+                                : activity.status === "rejected"
+                                ? "bg-rose-500"
+                                : "bg-slate-200"
+                            }`}
+                          />
+                        </div>
+                      </div>
                       <p className="mt-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-400">
                         {activity.time}
                       </p>

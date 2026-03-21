@@ -1,4 +1,3 @@
-// smart-screening\src\app\components\common\Footer.tsx
 "use client";
 import Link from "next/link";
 
@@ -6,229 +5,334 @@ export default function Footer() {
   return (
     <>
       <style>{`
-        .footer-wrapper {
-          background: linear-gradient(135deg, #0F172A 0%, rgba(14, 165, 233, 0.05) 100%);
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+        .hs-footer {
+          background: #0F172A;
           position: relative;
           overflow: hidden;
+          font-family: 'Space Grotesk', sans-serif;
+          border-top: 1px solid rgba(14,165,233,0.15);
         }
 
-        .footer-glow {
+        /* subtle grid overlay */
+        .hs-footer-grid {
           position: absolute;
+          inset: 0;
+          background-image:
+            linear-gradient(rgba(14,165,233,0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(14,165,233,0.03) 1px, transparent 1px);
+          background-size: 48px 48px;
           pointer-events: none;
         }
 
-        .footer-glow-1 {
-          top: -20%;
-          right: -10%;
-          width: 600px;
-          height: 600px;
-          background: radial-gradient(ellipse, rgba(14, 165, 233, 0.1) 0%, transparent 70%);
-          border-radius: 50%;
-          filter: blur(80px);
-          animation: float 15s ease-in-out infinite;
+        /* top accent line */
+        .hs-footer-accent {
+          position: absolute;
+          top: 0;
+          left: 10%;
+          right: 10%;
+          height: 1px;
+          background: linear-gradient(90deg, transparent, rgba(14,165,233,0.5), transparent);
+          pointer-events: none;
         }
 
-        .footer-glow-2 {
-          bottom: -10%;
-          left: -15%;
+        /* ambient glow */
+        .hs-footer-glow {
+          position: absolute;
+          pointer-events: none;
+          border-radius: 50%;
+          filter: blur(80px);
+        }
+        .hs-footer-glow-1 {
+          top: -20%;
+          right: -8%;
           width: 500px;
           height: 500px;
-          background: radial-gradient(ellipse, rgba(14, 165, 233, 0.08) 0%, transparent 70%);
-          border-radius: 50%;
-          filter: blur(80px);
-          animation: float 18s ease-in-out infinite reverse;
+          background: radial-gradient(circle, rgba(14,165,233,0.07) 0%, transparent 70%);
+          animation: hs-float 18s ease-in-out infinite;
+        }
+        .hs-footer-glow-2 {
+          bottom: -15%;
+          left: -10%;
+          width: 400px;
+          height: 400px;
+          background: radial-gradient(circle, rgba(14,165,233,0.05) 0%, transparent 70%);
+          animation: hs-float 22s ease-in-out infinite reverse;
+        }
+        @keyframes hs-float {
+          0%,100% { transform: translateY(0); }
+          50% { transform: translateY(24px); }
         }
 
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(30px); }
-        }
-
-        .footer-content {
+        .hs-footer-inner {
           position: relative;
           z-index: 10;
+          max-width: 1120px;
+          margin: 0 auto;
+          padding: 72px 32px 40px;
         }
 
-        .footer-logo {
-          display: inline-flex;
+        /* ── BRAND BLOCK ── */
+        .hs-f-logo {
+          display: flex;
           align-items: center;
-          gap: 12px;
-          margin-bottom: 16px;
+          gap: 10px;
+          text-decoration: none;
+          margin-bottom: 20px;
         }
-
-        .footer-logo-icon {
-          display: inline-flex;
+        .hs-f-logo-badge {
+          width: 36px;
+          height: 36px;
+          border-radius: 10px;
+          background: linear-gradient(135deg, #0EA5E9, #38BDF8);
+          display: flex;
           align-items: center;
           justify-content: center;
-          width: 40px;
-          height: 40px;
-          border-radius: 12px;
-          background: linear-gradient(135deg, #0EA5E9, #38BDF8);
+          flex-shrink: 0;
+          box-shadow: 0 4px 16px rgba(14,165,233,0.3);
+        }
+        .hs-f-logo-badge span {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 15px;
+          font-weight: 700;
           color: white;
-          font-weight: bold;
-          font-size: 14px;
-          box-shadow: 0 4px 16px rgba(14, 165, 233, 0.3);
+          letter-spacing: 0.04em;
+        }
+        .hs-f-logo-name {
+          font-family: 'Space Grotesk', sans-serif;
+          font-size: 1rem;
+          font-weight: 700;
+          color: white;
+          letter-spacing: -0.02em;
+          line-height: 1;
+        }
+        .hs-f-logo-sub {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 0.55rem;
+          font-weight: 500;
+          color: #0EA5E9;
+          letter-spacing: 0.14em;
+          text-transform: uppercase;
+          margin-top: 2px;
+        }
+        .hs-f-desc {
+          font-size: 0.875rem;
+          color: rgba(255,255,255,0.4);
+          line-height: 1.75;
+          max-width: 280px;
+          margin-bottom: 28px;
         }
 
-        .footer-logo-text {
-          font-size: 1.2rem;
-          font-weight: bold;
-          color: white;
-          transition: color 0.3s;
+        /* ── STATUS PILL ── */
+        .hs-f-status {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          border: 1px solid rgba(14,165,233,0.25);
+          border-radius: 999px;
+          padding: 6px 14px;
+          background: rgba(14,165,233,0.07);
         }
-
-        .footer-logo:hover .footer-logo-text {
+        .hs-f-status-dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: #0EA5E9;
+          animation: hs-blink 1.4s ease-in-out infinite;
+        }
+        @keyframes hs-blink {
+          0%,100% { opacity: 1; } 50% { opacity: 0.2; }
+        }
+        .hs-f-status span {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 0.65rem;
+          font-weight: 600;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
           color: #38BDF8;
         }
 
-        .footer-col h4 {
-          font-size: 0.8rem;
+        /* ── COLUMNS ── */
+        .hs-f-col-label {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 0.62rem;
           font-weight: 700;
-          letter-spacing: 0.12em;
+          letter-spacing: 0.14em;
           text-transform: uppercase;
-          color: rgba(255, 255, 255, 0.7);
-          margin-bottom: 14px;
+          color: rgba(255,255,255,0.35);
+          margin-bottom: 18px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
         }
-
-        .footer-col ul {
+        .hs-f-col-label::before {
+          content: '';
+          display: block;
+          width: 16px;
+          height: 1px;
+          background: rgba(14,165,233,0.5);
+          flex-shrink: 0;
+        }
+        .hs-f-col ul {
           list-style: none;
           padding: 0;
           margin: 0;
-        }
-
-        .footer-col li {
-          margin-bottom: 10px;
-        }
-
-        .footer-link {
-          color: rgba(255, 255, 255, 0.5);
-          text-decoration: none;
-          font-size: 0.9rem;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          position: relative;
-          display: inline-block;
-        }
-
-        .footer-link::after {
-          content: '';
-          position: absolute;
-          bottom: -2px;
-          left: 0;
-          width: 0;
-          height: 1px;
-          background: linear-gradient(90deg, #0EA5E9, #38BDF8);
-          transition: width 0.3s ease;
-        }
-
-        .footer-link:hover {
-          color: #38BDF8;
-        }
-
-        .footer-link:hover::after {
-          width: 100%;
-        }
-
-        .footer-divider {
-          height: 1px;
-          background: linear-gradient(90deg, rgba(14, 165, 233, 0.3), transparent);
-          margin: 32px 0;
-        }
-
-        .footer-bottom {
           display: flex;
           flex-direction: column;
-          gap: 14px;
+          gap: 10px;
+        }
+        .hs-f-link {
+          font-family: 'Space Grotesk', sans-serif;
+          font-size: 0.875rem;
+          font-weight: 400;
+          color: rgba(255,255,255,0.45);
+          text-decoration: none;
+          display: inline-flex;
           align-items: center;
-          text-align: center;
-          color: rgba(255, 255, 255, 0.4);
-          font-size: 0.85rem;
+          gap: 6px;
+          transition: color 0.2s, gap 0.2s;
+          letter-spacing: -0.01em;
         }
-
-        @media (min-width: 768px) {
-          .footer-bottom {
-            flex-direction: row;
-            justify-content: space-between;
-            align-items: center;
-            text-align: left;
-          }
-        }
-
-        .footer-heart {
+        .hs-f-link::before {
+          content: '→';
+          font-size: 0.7rem;
+          opacity: 0;
+          transform: translateX(-4px);
+          transition: opacity 0.2s, transform 0.2s;
           color: #0EA5E9;
-          animation: heartbeat 1.5s ease-in-out infinite;
+        }
+        .hs-f-link:hover {
+          color: white;
+          gap: 10px;
+        }
+        .hs-f-link:hover::before {
+          opacity: 1;
+          transform: translateX(0);
         }
 
-        @keyframes heartbeat {
-          0%, 100% { transform: scale(1); }
-          50% { transform: scale(1.2); }
+        /* ── DIVIDER ── */
+        .hs-f-divider {
+          height: 1px;
+          background: linear-gradient(90deg, rgba(14,165,233,0.25), rgba(14,165,233,0.05) 60%, transparent);
+          margin: 48px 0 32px;
+        }
+
+        /* ── BOTTOM ── */
+        .hs-f-bottom {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          flex-wrap: wrap;
+          gap: 12px;
+        }
+        .hs-f-copy {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 0.65rem;
+          font-weight: 500;
+          color: rgba(255,255,255,0.25);
+          letter-spacing: 0.06em;
+        }
+        .hs-f-tagline {
+          font-family: 'Space Grotesk', sans-serif;
+          font-size: 0.8rem;
+          color: rgba(255,255,255,0.25);
+        }
+        .hs-f-tagline-heart {
+          color: #0EA5E9;
+          animation: hs-heartbeat 1.6s ease-in-out infinite;
+          display: inline-block;
+        }
+        @keyframes hs-heartbeat {
+          0%,100% { transform: scale(1); }
+          50% { transform: scale(1.25); }
+        }
+
+        /* ── GRID LAYOUT ── */
+        .hs-f-grid {
+          display: grid;
+          grid-template-columns: 2fr 1fr 1fr 1fr;
+          gap: 48px;
+          margin-bottom: 0;
+        }
+        @media (max-width: 900px) {
+          .hs-f-grid { grid-template-columns: 1fr 1fr; gap: 36px; }
+        }
+        @media (max-width: 560px) {
+          .hs-f-grid { grid-template-columns: 1fr; gap: 28px; }
+          .hs-footer-inner { padding: 48px 20px 32px; }
+          .hs-f-bottom { flex-direction: column; align-items: flex-start; }
         }
       `}</style>
 
-      <footer className="footer-wrapper">
-        {/* Animated glows */}
-        <div className="footer-glow footer-glow-1"></div>
-        <div className="footer-glow footer-glow-2"></div>
+      <footer className="hs-footer">
+        <div className="hs-footer-grid" />
+        <div className="hs-footer-accent" />
+        <div className="hs-footer-glow hs-footer-glow-1" />
+        <div className="hs-footer-glow hs-footer-glow-2" />
 
-        <div className="footer-content mx-auto max-w-6xl px-5 py-16">
-          {/* Main Footer Grid */}
-          <div className="grid gap-12 md:grid-cols-5 mb-8">
-            {/* Brand Section */}
-            <div className="md:col-span-2">
-              <div className="footer-logo">
-                <div className="footer-logo-icon">HS</div>
-                <div>
-                  <div className="footer-logo-text">HireSmart</div>
-                  <div className="text-xs font-semibold text-sky-400 tracking-widest">Innovation 2050</div>
+        <div className="hs-footer-inner">
+          <div className="hs-f-grid">
+
+            {/* ── Brand ── */}
+            <div>
+              <a href="/" className="hs-f-logo">
+                <div className="hs-f-logo-badge">
+                  <span>HS</span>
                 </div>
-              </div>
-              <p className="text-sm text-white/50 leading-relaxed max-w-xs mt-4">
-                Future-ready screening platform where ambitious students prove their skills and unlock opportunities with leading enterprises.
+                <div>
+                  <div className="hs-f-logo-name">HireSmart</div>
+                  <div className="hs-f-logo-sub">Innovation 2050</div>
+                </div>
+              </a>
+              <p className="hs-f-desc">
+                Future-ready screening platform where ambitious candidates prove their skills and unlock opportunities with leading enterprises.
               </p>
+              <div className="hs-f-status">
+                <span className="hs-f-status-dot" />
+                <span>All systems operational</span>
+              </div>
             </div>
 
-            {/* Platform Links */}
-            <div className="footer-col">
-              <h4>Platform</h4>
+            {/* ── Platform ── */}
+            <div className="hs-f-col">
+              <div className="hs-f-col-label">Platform</div>
               <ul>
-                <li><a href="#" className="footer-link">Roadmaps</a></li>
-                <li><a href="#" className="footer-link">Mock Exams</a></li>
-                <li><a href="#" className="footer-link">Resume Builder</a></li>
-                <li><a href="#" className="footer-link">Company Guides</a></li>
-                <li><a href="#" className="footer-link">Courses</a></li>
+                {["Roadmaps", "Mock Exams", "Resume Builder", "Company Guides", "Courses"].map(item => (
+                  <li key={item}><a href="#" className="hs-f-link">{item}</a></li>
+                ))}
               </ul>
             </div>
 
-            {/* Company Links */}
-            <div className="footer-col">
-              <h4>Company</h4>
+            {/* ── Company ── */}
+            <div className="hs-f-col">
+              <div className="hs-f-col-label">Company</div>
               <ul>
-                <li><a href="#" className="footer-link">About</a></li>
-                <li><a href="#" className="footer-link">Blog</a></li>
-                <li><a href="#" className="footer-link">Careers</a></li>
-                <li><a href="#" className="footer-link">Contact</a></li>
-                <li><a href="#" className="footer-link">Newsroom</a></li>
+                {["About", "Blog", "Careers", "Contact", "Newsroom"].map(item => (
+                  <li key={item}><a href="#" className="hs-f-link">{item}</a></li>
+                ))}
               </ul>
             </div>
 
-            {/* Legal Links */}
-            <div className="footer-col">
-              <h4>Legal</h4>
+            {/* ── Legal ── */}
+            <div className="hs-f-col">
+              <div className="hs-f-col-label">Legal</div>
               <ul>
-                <li><a href="#" className="footer-link">Privacy</a></li>
-                <li><a href="#" className="footer-link">Terms</a></li>
-                <li><a href="#" className="footer-link">Cookies</a></li>
-                <li><a href="#" className="footer-link">Security</a></li>
+                {["Privacy", "Terms", "Cookies", "Security"].map(item => (
+                  <li key={item}><a href="#" className="hs-f-link">{item}</a></li>
+                ))}
               </ul>
             </div>
+
           </div>
 
-          {/* Divider */}
-          <div className="footer-divider"></div>
+          <div className="hs-f-divider" />
 
-          {/* Bottom Section */}
-          <div className="footer-bottom">
-            <p>© {new Date().getFullYear()} HireSmart. All rights reserved.</p>
-            <p>Built with <span className="footer-heart">♥</span> for the next generation of innovators</p>
+          <div className="hs-f-bottom">
+            <span className="hs-f-copy">© {new Date().getFullYear()} HireSmart. All rights reserved.</span>
+            <span className="hs-f-tagline">
+              Built with <span className="hs-f-tagline-heart">♥</span> for the next generation of innovators
+            </span>
           </div>
         </div>
       </footer>
