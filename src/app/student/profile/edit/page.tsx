@@ -3,13 +3,16 @@
 import { api } from "~/trpc/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 
 export default function EditProfilePage() {
   const router = useRouter();
+  const { update: updateSession } = useSession();
   const { data: profile } = api.profile.getProfile.useQuery();
 
   const updateProfile = api.profile.updateProfile.useMutation({
-    onSuccess: () => {
+    onSuccess: async () => {
+      await updateSession();
       alert("Profile updated successfully");
       router.push("/student/profile");
     },

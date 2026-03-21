@@ -1,4 +1,3 @@
-//smart-screening\src\app\layout.tsx
 import "~/styles/globals.css";
 
 import { type Metadata } from "next";
@@ -7,8 +6,9 @@ import { SessionProvider } from "next-auth/react";
 
 import ConditionalLayout from "~/app/components/common/ConditionalLayout";
 import { TRPCReactProvider } from "~/trpc/react";
-import Header from "~/app/components/common/Header";   // ✅ add this
-import Footer from "~/app/components/common/Footer";   // ✅ add this
+import Header from "~/app/components/common/Header";
+import Footer from "~/app/components/common/Footer";
+import ActivityTracker from "~/app/components/ActivityTracker";
 
 export const metadata: Metadata = {
   title: "Internship & Job Preparation Platform",
@@ -29,6 +29,7 @@ export default function RootLayout({
       <body>
         <SessionProvider>
           <TRPCReactProvider>
+            <ActivityTracker />   {/* ✅ moved to top */}
             <Header />
             {children}
             <Footer />
