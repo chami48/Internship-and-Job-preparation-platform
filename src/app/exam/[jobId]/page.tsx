@@ -205,7 +205,7 @@ const questions = data as QuestionType[] | undefined;
 
         setTimeout(async () => {
           await exitFullscreen();
-          setTimeout(() => router.push("/"), 600);
+          setTimeout(() => router.push("/home"), 600);
         }, 3500);
       } else {
         if (!document.fullscreenElement) {
@@ -574,7 +574,7 @@ useEffect(() => {
 
   alert("Face verification failed 3 times. Exam terminated.");
 
-  router.push("/");
+  router.push("/home");
 }
 
     } catch (err) {
@@ -901,7 +901,7 @@ console.log("Comparing faces...");
     alert("Face does not match ID. Exam terminated.");
     stopCamera();
     setStartingExam(false);
-    router.push("/");
+    router.push("/home");
     return;
   }
 
