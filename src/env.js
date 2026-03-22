@@ -14,6 +14,9 @@ export const env = createEnv({
     // ✅ Discord is OPTIONAL (so no error if you don't use it now)
     AUTH_DISCORD_ID: z.string().optional(),
     AUTH_DISCORD_SECRET: z.string().optional(),
+
+    // ✅ Gemini API key for AI evaluation features
+    GEMINI_API_KEY: z.string().min(1),
   },
 
   client: {},
@@ -26,5 +29,7 @@ export const env = createEnv({
 
     AUTH_DISCORD_ID: process.env.AUTH_DISCORD_ID,
     AUTH_DISCORD_SECRET: process.env.AUTH_DISCORD_SECRET,
+
+    GEMINI_API_KEY: process.env.GEMINI_API_KEY,
   },
 });
