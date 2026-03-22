@@ -1,0 +1,225 @@
+export default function PrivacyPolicyPage() {
+  return (
+    <main className="pp-root">
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap');
+
+        .pp-root {
+          font-family: 'Manrope', sans-serif;
+          color: #0F172A;
+          background:
+            radial-gradient(circle at 12% 10%, rgba(14,165,233,0.1), transparent 36%),
+            radial-gradient(circle at 85% 0%, rgba(15,23,42,0.06), transparent 30%),
+            linear-gradient(#f9fbff, #f2f6ff);
+        }
+
+        .pp-hero {
+          padding: 90px 24px 40px;
+          text-align: center;
+        }
+
+        .pp-hero h1 {
+          font-family: 'Space Grotesk', sans-serif;
+          font-size: clamp(2.2rem, 5vw, 3.6rem);
+          font-weight: 700;
+          margin: 0;
+        }
+
+        .pp-hero p {
+          margin: 16px auto 0;
+          max-width: 640px;
+          font-size: 1.05rem;
+          line-height: 1.8;
+          color: #475569;
+        }
+
+        .pp-card {
+          max-width: 980px;
+          margin: 0 auto 80px;
+          background: linear-gradient(180deg, #ffffff, #f7f9fd);
+          border: 1px solid rgba(15,23,42,0.08);
+          border-radius: 20px;
+          padding: 32px;
+          box-shadow: 0 16px 40px rgba(15,23,42,0.06);
+        }
+
+        .pp-card-grid {
+          display: grid;
+          gap: 28px;
+        }
+
+        @media (min-width: 900px) {
+          .pp-card-grid { grid-template-columns: 220px 1fr; }
+        }
+
+        .pp-aside {
+          border-right: 1px solid rgba(15,23,42,0.08);
+          padding-right: 20px;
+        }
+
+        @media (max-width: 899px) {
+          .pp-aside {
+            border-right: none;
+            border-bottom: 1px solid rgba(15,23,42,0.08);
+            padding-right: 0;
+            padding-bottom: 16px;
+          }
+        }
+
+        .pp-aside h3 {
+          margin: 0 0 12px;
+          font-size: 0.95rem;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.12em;
+          color: #0F172A;
+        }
+
+        .pp-aside ul {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+          display: grid;
+          gap: 10px;
+        }
+
+        .pp-aside a {
+          color: #475569;
+          text-decoration: none;
+          font-size: 0.95rem;
+        }
+
+        .pp-aside a:hover {
+          color: #0EA5E9;
+        }
+
+        .pp-main {
+          padding-left: 4px;
+        }
+
+        .pp-section + .pp-section {
+          margin-top: 28px;
+          padding-top: 28px;
+          border-top: 1px solid rgba(15,23,42,0.08);
+        }
+
+        .pp-section h2 {
+          font-family: 'Space Grotesk', sans-serif;
+          font-size: 1.4rem;
+          margin: 0 0 12px;
+        }
+
+        .pp-lead {
+          margin: 0 0 14px;
+          padding-left: 12px;
+          border-left: 2px solid rgba(14,165,233,0.35);
+          line-height: 1.7;
+          color: #475569;
+        }
+
+        .pp-list {
+          display: grid;
+          gap: 10px;
+          color: #475569;
+        }
+
+        .pp-list span {
+          display: block;
+          padding: 10px 12px;
+          border-radius: 12px;
+          background: #f8fafc;
+          border: 1px solid rgba(15,23,42,0.06);
+        }
+
+        .pp-meta {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          border-radius: 999px;
+          padding: 6px 14px;
+          border: 1px solid rgba(14,165,233,0.3);
+          background: rgba(14,165,233,0.08);
+          font-size: 0.72rem;
+          font-weight: 700;
+          letter-spacing: 0.16em;
+          text-transform: uppercase;
+          color: #0F172A;
+          margin-bottom: 14px;
+        }
+      `}</style>
+
+      <section className="pp-hero">
+        <div className="pp-meta">Privacy Policy</div>
+        <h1>Privacy Policy</h1>
+        <p>
+          This policy explains how HireSmart collects, uses, and protects your information
+          when you use our platform.
+        </p>
+      </section>
+
+      <section className="pp-card">
+        <div className="pp-card-grid">
+          <aside className="pp-aside">
+            <h3>On this page</h3>
+            <ul>
+              <li><a href="#information">Information we collect</a></li>
+              <li><a href="#usage">How we use information</a></li>
+              <li><a href="#sharing">Data sharing</a></li>
+              <li><a href="#choices">Your choices</a></li>
+              <li><a href="#contact">Contact us</a></li>
+            </ul>
+          </aside>
+
+          <div className="pp-main">
+        <div className="pp-section" id="information">
+          <h2>Information We Collect</h2>
+          <div className="pp-lead">We collect information you provide directly and data generated by your use of the platform.</div>
+          <div className="pp-list">
+            <span>Account details such as name, email, and role.</span>
+            <span>Profile information including education, skills, and projects.</span>
+            <span>Assessment results and interview practice data.</span>
+            <span>Technical data like device, browser, and usage analytics.</span>
+          </div>
+        </div>
+
+        <div className="pp-section" id="usage">
+          <h2>How We Use Information</h2>
+          <div className="pp-lead">Your data is used to deliver, improve, and secure the HireSmart experience.</div>
+          <div className="pp-list">
+            <span>Match candidates with relevant opportunities.</span>
+            <span>Verify assessment integrity and identity checks.</span>
+            <span>Provide employers with readiness insights.</span>
+            <span>Maintain platform security and performance.</span>
+          </div>
+        </div>
+
+        <div className="pp-section" id="sharing">
+          <h2>Data Sharing</h2>
+          <div className="pp-lead">We do not sell personal data. Sharing happens only when required to deliver the service.</div>
+          <div className="pp-list">
+            <span>Employers receive candidate profiles and verified results when applications are made.</span>
+            <span>Service providers may access data for hosting, analytics, and support.</span>
+            <span>Legal requests are honored when required by law.</span>
+          </div>
+        </div>
+
+        <div className="pp-section" id="choices">
+          <h2>Your Choices</h2>
+          <div className="pp-lead">You can control your data through your account settings.</div>
+          <div className="pp-list">
+            <span>Edit or update your profile information anytime.</span>
+            <span>Request data export or deletion through support.</span>
+            <span>Opt out of marketing communications.</span>
+          </div>
+        </div>
+
+        <div className="pp-section" id="contact">
+          <h2>Contact Us</h2>
+          <div className="pp-lead">Questions about privacy? Reach us at  hiresmart31@gmail.com</div>
+        </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  );
+}

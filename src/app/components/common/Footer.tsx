@@ -8,258 +8,192 @@ export default function Footer() {
         @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
         .hs-footer {
-          background: #0F172A;
+          --hs-bg: #0F172A;
+          --hs-accent: #0EA5E9;
+          --hs-text: rgba(255,255,255,0.85);
+          --hs-muted: rgba(255,255,255,0.55);
+          --hs-dim: rgba(255,255,255,0.35);
+
+          background: radial-gradient(1200px 420px at 10% 0%, rgba(14,165,233,0.12), transparent 55%),
+                      radial-gradient(900px 380px at 90% 10%, rgba(14,165,233,0.08), transparent 60%),
+                      var(--hs-bg);
           position: relative;
           overflow: hidden;
           font-family: 'Space Grotesk', sans-serif;
-          border-top: 1px solid rgba(14,165,233,0.15);
+          border-top: 1px solid rgba(14,165,233,0.2);
         }
 
-        /* subtle grid overlay */
+        /* Subtle grid overlay */
         .hs-footer-grid {
           position: absolute;
           inset: 0;
           background-image:
-            linear-gradient(rgba(14,165,233,0.03) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(14,165,233,0.03) 1px, transparent 1px);
-          background-size: 48px 48px;
+            linear-gradient(rgba(14,165,233,0.04) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(14,165,233,0.04) 1px, transparent 1px);
+          background-size: 56px 56px;
+          opacity: 0.7;
           pointer-events: none;
         }
 
-        /* top accent line */
         .hs-footer-accent {
           position: absolute;
           top: 0;
-          left: 10%;
-          right: 10%;
+          left: 8%;
+          right: 8%;
           height: 1px;
-          background: linear-gradient(90deg, transparent, rgba(14,165,233,0.5), transparent);
-          pointer-events: none;
+          background: linear-gradient(90deg, transparent, rgba(14,165,233,0.65), transparent);
         }
 
-        /* ambient glow */
-        .hs-footer-glow {
+        .hs-footer-orb {
           position: absolute;
+          width: 320px;
+          height: 320px;
+          border-radius: 999px;
+          background: radial-gradient(circle, rgba(14,165,233,0.18), transparent 70%);
+          filter: blur(2px);
           pointer-events: none;
-          border-radius: 50%;
-          filter: blur(80px);
-        }
-        .hs-footer-glow-1 {
-          top: -20%;
-          right: -8%;
-          width: 500px;
-          height: 500px;
-          background: radial-gradient(circle, rgba(14,165,233,0.07) 0%, transparent 70%);
-          animation: hs-float 18s ease-in-out infinite;
-        }
-        .hs-footer-glow-2 {
-          bottom: -15%;
-          left: -10%;
-          width: 400px;
-          height: 400px;
-          background: radial-gradient(circle, rgba(14,165,233,0.05) 0%, transparent 70%);
-          animation: hs-float 22s ease-in-out infinite reverse;
-        }
-        @keyframes hs-float {
-          0%,100% { transform: translateY(0); }
-          50% { transform: translateY(24px); }
         }
 
+        .hs-footer-orb.left { top: -120px; left: -80px; }
+        .hs-footer-orb.right { bottom: -140px; right: -60px; }
+
+        /* ── INNER ── */
         .hs-footer-inner {
           position: relative;
           z-index: 10;
           max-width: 1120px;
           margin: 0 auto;
-          padding: 72px 32px 40px;
+          padding: 72px 32px 36px;
         }
 
-        /* ── BRAND BLOCK ── */
+        /* ── BRAND ── */
         .hs-f-logo {
-          display: flex;
+          display: inline-flex;
           align-items: center;
-          gap: 10px;
+          gap: 12px;
           text-decoration: none;
-          margin-bottom: 20px;
+          margin-bottom: 18px;
         }
-        .hs-f-logo-badge {
-          width: 36px;
-          height: 36px;
-          border-radius: 10px;
-          background: linear-gradient(135deg, #0EA5E9, #38BDF8);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-shrink: 0;
-          box-shadow: 0 4px 16px rgba(14,165,233,0.3);
+
+        .hs-f-logo-mark {
+          width: 12px;
+          height: 12px;
+          border-radius: 3px;
+          background: linear-gradient(135deg, rgba(14,165,233,0.95), rgba(255,255,255,0.9));
+          box-shadow: 0 0 14px rgba(14,165,233,0.45);
         }
-        .hs-f-logo-badge span {
-          font-family: 'JetBrains Mono', monospace;
-          font-size: 15px;
-          font-weight: 700;
-          color: white;
-          letter-spacing: 0.04em;
-        }
+
         .hs-f-logo-name {
-          font-family: 'Space Grotesk', sans-serif;
-          font-size: 1rem;
+          font-size: 1.60rem;
           font-weight: 700;
           color: white;
           letter-spacing: -0.02em;
-          line-height: 1;
         }
+
         .hs-f-logo-sub {
           font-family: 'JetBrains Mono', monospace;
-          font-size: 0.55rem;
-          font-weight: 500;
-          color: #0EA5E9;
-          letter-spacing: 0.14em;
-          text-transform: uppercase;
-          margin-top: 2px;
-        }
-        .hs-f-desc {
-          font-size: 0.875rem;
-          color: rgba(255,255,255,0.4);
-          line-height: 1.75;
-          max-width: 280px;
-          margin-bottom: 28px;
-        }
-
-        /* ── STATUS PILL ── */
-        .hs-f-status {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          border: 1px solid rgba(14,165,233,0.25);
-          border-radius: 999px;
-          padding: 6px 14px;
-          background: rgba(14,165,233,0.07);
-        }
-        .hs-f-status-dot {
-          width: 6px;
-          height: 6px;
-          border-radius: 50%;
-          background: #0EA5E9;
-          animation: hs-blink 1.4s ease-in-out infinite;
-        }
-        @keyframes hs-blink {
-          0%,100% { opacity: 1; } 50% { opacity: 0.2; }
-        }
-        .hs-f-status span {
-          font-family: 'JetBrains Mono', monospace;
-          font-size: 0.65rem;
+          font-size: 0.66rem;
           font-weight: 600;
-          letter-spacing: 0.1em;
+          color: var(--hs-accent);
+          letter-spacing: 0.16em;
           text-transform: uppercase;
-          color: #38BDF8;
         }
 
-        /* ── COLUMNS ── */
+        .hs-f-desc {
+          font-size: 0.95rem;
+          color: var(--hs-muted);
+          line-height: 1.8;
+          max-width: 320px;
+          margin-bottom: 26px;
+        }
+
+        /* ── COLUMN LABEL ── */
         .hs-f-col-label {
           font-family: 'JetBrains Mono', monospace;
-          font-size: 0.62rem;
+          font-size: 0.72rem;
           font-weight: 700;
-          letter-spacing: 0.14em;
+          letter-spacing: 0.16em;
           text-transform: uppercase;
-          color: rgba(255,255,255,0.35);
-          margin-bottom: 18px;
-          display: flex;
-          align-items: center;
-          gap: 8px;
+          color: rgba(255,255,255,0.45);
+          margin-bottom: 16px;
         }
-        .hs-f-col-label::before {
-          content: '';
-          display: block;
-          width: 16px;
-          height: 1px;
-          background: rgba(14,165,233,0.5);
-          flex-shrink: 0;
-        }
-        .hs-f-col ul {
+
+        /* ── LINKS ── */
+        .hs-f-list {
           list-style: none;
           padding: 0;
           margin: 0;
-          display: flex;
-          flex-direction: column;
+          display: grid;
           gap: 10px;
-        }
-        .hs-f-link {
-          font-family: 'Space Grotesk', sans-serif;
-          font-size: 0.875rem;
-          font-weight: 400;
-          color: rgba(255,255,255,0.45);
-          text-decoration: none;
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          transition: color 0.2s, gap 0.2s;
-          letter-spacing: -0.01em;
-        }
-        .hs-f-link::before {
-          content: '→';
-          font-size: 0.7rem;
-          opacity: 0;
-          transform: translateX(-4px);
-          transition: opacity 0.2s, transform 0.2s;
-          color: #0EA5E9;
-        }
-        .hs-f-link:hover {
-          color: white;
-          gap: 10px;
-        }
-        .hs-f-link:hover::before {
-          opacity: 1;
-          transform: translateX(0);
         }
 
-        /* ── DIVIDER ── */
-        .hs-f-divider {
+        .hs-f-link {
+          font-size: 0.95rem;
+          color: var(--hs-muted);
+          text-decoration: none;
+          position: relative;
+          transition: color 0.2s, transform 0.2s;
+        }
+
+        .hs-f-link::after {
+          content: "";
+          position: absolute;
+          left: 0;
+          bottom: -4px;
+          width: 0;
           height: 1px;
-          background: linear-gradient(90deg, rgba(14,165,233,0.25), rgba(14,165,233,0.05) 60%, transparent);
-          margin: 48px 0 32px;
+          background: rgba(14,165,233,0.7);
+          transition: width 0.2s ease;
+        }
+
+        .hs-f-link:hover {
+          color: white;
+          transform: translateX(2px);
+        }
+
+        .hs-f-link:hover::after {
+          width: 20px;
         }
 
         /* ── BOTTOM ── */
+        .hs-f-divider {
+          height: 1px;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+          margin: 36px 0 20px;
+        }
+
         .hs-f-bottom {
           display: flex;
           align-items: center;
           justify-content: space-between;
+          gap: 16px;
           flex-wrap: wrap;
-          gap: 12px;
-        }
-        .hs-f-copy {
-          font-family: 'JetBrains Mono', monospace;
-          font-size: 0.65rem;
-          font-weight: 500;
-          color: rgba(255,255,255,0.25);
-          letter-spacing: 0.06em;
-        }
-        .hs-f-tagline {
-          font-family: 'Space Grotesk', sans-serif;
-          font-size: 0.8rem;
-          color: rgba(255,255,255,0.25);
-        }
-        .hs-f-tagline-heart {
-          color: #0EA5E9;
-          animation: hs-heartbeat 1.6s ease-in-out infinite;
-          display: inline-block;
-        }
-        @keyframes hs-heartbeat {
-          0%,100% { transform: scale(1); }
-          50% { transform: scale(1.25); }
         }
 
-        /* ── GRID LAYOUT ── */
+        .hs-f-copy {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 0.75rem;
+          color: var(--hs-dim);
+        }
+
+        .hs-f-tagline {
+          font-size: 0.9rem;
+          color: var(--hs-dim);
+        }
+
+        /* ── GRID ── */
         .hs-f-grid {
           display: grid;
-          grid-template-columns: 2fr 1fr 1fr 1fr;
-          gap: 48px;
-          margin-bottom: 0;
+          grid-template-columns: 2fr 1fr 1fr;
+          gap: 56px;
         }
+
         @media (max-width: 900px) {
-          .hs-f-grid { grid-template-columns: 1fr 1fr; gap: 36px; }
+          .hs-f-grid { grid-template-columns: 1fr 1fr; gap: 40px; }
         }
+
         @media (max-width: 560px) {
-          .hs-f-grid { grid-template-columns: 1fr; gap: 28px; }
+          .hs-f-grid { grid-template-columns: 1fr; }
           .hs-footer-inner { padding: 48px 20px 32px; }
           .hs-f-bottom { flex-direction: column; align-items: flex-start; }
         }
@@ -268,59 +202,45 @@ export default function Footer() {
       <footer className="hs-footer">
         <div className="hs-footer-grid" />
         <div className="hs-footer-accent" />
-        <div className="hs-footer-glow hs-footer-glow-1" />
-        <div className="hs-footer-glow hs-footer-glow-2" />
+        <div className="hs-footer-orb left" />
+        <div className="hs-footer-orb right" />
 
         <div className="hs-footer-inner">
           <div className="hs-f-grid">
 
-            {/* ── Brand ── */}
+            {/* Brand */}
             <div>
               <a href="/" className="hs-f-logo">
-                <div className="hs-f-logo-badge">
-                  <span>HS</span>
-                </div>
+                <span className="hs-f-logo-mark" aria-hidden="true" />
                 <div>
                   <div className="hs-f-logo-name">HireSmart</div>
-                  <div className="hs-f-logo-sub">Innovation 2050</div>
+                  <div className="hs-f-logo-sub">Innovation 2026</div>
                 </div>
               </a>
+
               <p className="hs-f-desc">
-                Future-ready screening platform where ambitious candidates prove their skills and unlock opportunities with leading enterprises.
+                Future-ready screening platform where candidates prove their
+                skills and unlock real career opportunities.
               </p>
-              <div className="hs-f-status">
-                <span className="hs-f-status-dot" />
-                <span>All systems operational</span>
-              </div>
             </div>
 
-            {/* ── Platform ── */}
-            <div className="hs-f-col">
+            {/* Platform */}
+            <div>
               <div className="hs-f-col-label">Platform</div>
-              <ul>
-                {["Roadmaps", "Mock Exams", "Resume Builder", "Company Guides", "Courses"].map(item => (
-                  <li key={item}><a href="#" className="hs-f-link">{item}</a></li>
-                ))}
+              <ul className="hs-f-list">
+                <li><Link href="/about" className="hs-f-link">About HireSmart</Link></li>
+                <li><Link href="/how-it-works" className="hs-f-link">How It Works</Link></li>
+                <li><Link href="/contact" className="hs-f-link">Contact</Link></li>
+                <li><Link href="/#" className="hs-f-link">Help Center</Link></li>
               </ul>
             </div>
 
-            {/* ── Company ── */}
-            <div className="hs-f-col">
-              <div className="hs-f-col-label">Company</div>
-              <ul>
-                {["About", "Blog", "Careers", "Contact", "Newsroom"].map(item => (
-                  <li key={item}><a href="#" className="hs-f-link">{item}</a></li>
-                ))}
-              </ul>
-            </div>
-
-            {/* ── Legal ── */}
-            <div className="hs-f-col">
+            {/* Legal */}
+            <div>
               <div className="hs-f-col-label">Legal</div>
-              <ul>
-                {["Privacy", "Terms", "Cookies", "Security"].map(item => (
-                  <li key={item}><a href="#" className="hs-f-link">{item}</a></li>
-                ))}
+              <ul className="hs-f-list">
+                <li><Link href="/privacy-policy" className="hs-f-link">Privacy Policy</Link></li>
+                <li><Link href="/terms-and-conditions" className="hs-f-link">Terms & Conditions</Link></li>
               </ul>
             </div>
 
@@ -331,7 +251,7 @@ export default function Footer() {
           <div className="hs-f-bottom">
             <span className="hs-f-copy">© {new Date().getFullYear()} HireSmart. All rights reserved.</span>
             <span className="hs-f-tagline">
-              Built with <span className="hs-f-tagline-heart">♥</span> for the next generation of innovators
+              Built for the next generation of innovators
             </span>
           </div>
         </div>
