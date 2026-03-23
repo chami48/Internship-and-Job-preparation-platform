@@ -70,13 +70,19 @@ type FormState = {
   q3: string;
 };
 type Specialization =
-  | "SE"
-  | "DS"
+  | "INFORMATION_TECHNOLOGY"
+  | "SOFTWARE_ENGINEERING"
   | "CYBER_SECURITY"
-  | "NETWORKING"
-  | "AI";
+  | "DATA_SCIENCE"
+  | "COMPUTER_SCIENCE_NETWORK_ENGINEERING"
+  | "INTERACTIVE_MEDIA";
 
-export default function ApplyPage({ params }: { params: { jobId: string } }) {
+export default function ApplyPage({
+  params,
+}: {
+  params: Promise<{ jobId: string }>;
+}) {
+  const { jobId } = React.use(params);
   const createApplication = api.application.create.useMutation();
   const router = useRouter();
 
@@ -345,7 +351,7 @@ export default function ApplyPage({ params }: { params: { jobId: string } }) {
     // FINAL STEP — SAVE TO DATABASE
     try {
       const created = await createApplication.mutateAsync({
-        jobId: params.jobId,
+        jobId,
 
         fullName: form.fullName,
         email: form.email,
@@ -374,7 +380,7 @@ export default function ApplyPage({ params }: { params: { jobId: string } }) {
       });
 
       // 🔥 PASS APPLICATION ID
-      router.push(`/apply/${params.jobId}/agreement?appId=${created.id}`);
+      router.push(`/apply/${jobId}/agreement?appId=${created.id}`);
     } catch (error) {
       console.error(error);
       void showAlert({
