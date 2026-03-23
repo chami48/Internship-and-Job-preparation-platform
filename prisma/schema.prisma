@@ -68,7 +68,7 @@ model User {
   name          String?
   email         String?   @unique
   password      String?
-  role          UserRole @default(STUDENT)
+  role          UserRole @default(STUDENT)     
 
   studentId     String?
   degree        String?
@@ -162,6 +162,7 @@ model Job {
 
   deadline  DateTime?
   slots     Int?
+  cutoff    Float     @default(60)   // pass threshold as percentage (e.g. 60 = 60%)
 
   createdAt DateTime @default(now())
 
@@ -203,8 +204,10 @@ model Question {
   options    Option[]
   correctKey String?
   rubric     String?
+  maxMarks   Float    @default(10)   // points available for this question
 
-  examAnswers ExamAnswer[]
+  examAnswers    ExamAnswer[]
+  questionEvals  QuestionEvaluation[]
 
   @@index([role, difficulty, topic])
 }
@@ -264,15 +267,17 @@ model Application {
 
   projects     Project[]
   scenarios    ScenarioAnswer[]
-  examAnswers  ExamAnswer[]   // ✅ REQUIRED reverse relation
+  examAnswers  ExamAnswer[]   
   violations ExamViolation[]
 
   lockedQuestions Json?
   examSubmitted   Boolean  @default(false)
   terminationReason String?
 
+  evaluationResult  EvaluationResult?
+
   @@unique([userId, jobId])
-  
+
 }
 
 model Project {
@@ -398,4 +403,55 @@ model PrepQuizAnswer {
 
   attempt  PrepQuizAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
   question PrepQuizQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+//////////////////////////////////////////////////////
+// Module 4 - AI Evaluation & Candidate Filtering
+//////////////////////////////////////////////////////
+
+enum EvalStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+model EvaluationResult {
+  id              String      @id @default(cuid())
+  applicationId   String      @unique
+  application     Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  totalScore      Float
+  maxScore        Float
+  percentage      Float
+  cutoff          Float
+  passed          Boolean
+  aiFeedback      String
+  cvUploadGranted Boolean     @default(false)
+
+  status          EvalStatus  @default(PENDING)
+  evaluatedAt     DateTime    @default(now())
+
+  questionEvals   QuestionEvaluation[]
+
+  @@index([applicationId])
+}
+
+model QuestionEvaluation {
+  id                  String           @id @default(cuid())
+  evaluationResultId  String
+  evaluationResult    EvaluationResult @relation(fields: [evaluationResultId], references: [id], onDelete: Cascade)
+
+  questionId          String
+  question            Question         @relation(fields: [questionId], references: [id])
+
+  applicationId       String
+  studentAnswer       String?
+  expectedAnswer      String?
+  scoreAwarded        Float
+  maxMarks            Float
+  aiFeedback          String
+
+  createdAt           DateTime         @default(now())
+
+  @@index([evaluationResultId])
+  @@index([applicationId])
 }

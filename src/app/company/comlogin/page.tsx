@@ -51,7 +51,6 @@ export default function LoginCompany() {
     border: "1.5px solid #E2E8F0",
     borderRadius: 10,
     fontSize: "0.875rem",
-    fontFamily: "'Plus Jakarta Sans', sans-serif",
     color: "#0F172A",
     background: "#F8FAFF",
     outline: "none",
@@ -67,13 +66,11 @@ export default function LoginCompany() {
     textTransform: "uppercase",
     color: "#64748B",
     marginBottom: 6,
-    fontFamily: "'Plus Jakarta Sans', sans-serif",
   };
 
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
         .reg-input:focus { border-color: #0EA5E9 !important; box-shadow: 0 0 0 3px rgba(14,165,233,0.12) !important; background: #fff !important; }
         .reg-input::placeholder { color: #CBD5E1; }
         .reg-btn:hover:not(:disabled) { background: #0284C7 !important; box-shadow: 0 6px 20px rgba(14,165,233,0.35) !important; transform: translateY(-1px); }
@@ -84,7 +81,6 @@ export default function LoginCompany() {
       <div style={{
         minHeight: "100vh",
         background: "#F8FAFF",
-        fontFamily: "'Plus Jakarta Sans', sans-serif",
         display: "flex",
         alignItems: "stretch",
       }}>
@@ -119,7 +115,6 @@ export default function LoginCompany() {
                 Employer Portal
               </div>
               <h1 style={{
-                fontFamily: "'Plus Jakarta Sans', sans-serif",
                 fontSize: "2rem", fontWeight: 800,
                 color: "white", margin: 0, lineHeight: 1.2,
                 letterSpacing: "-0.03em",
@@ -172,7 +167,6 @@ export default function LoginCompany() {
 
             <div style={{ marginBottom: "2rem" }}>
               <h2 style={{
-                fontFamily: "'Plus Jakarta Sans', sans-serif",
                 fontSize: "1.6rem", fontWeight: 800, color: "#0F172A",
                 margin: 0, letterSpacing: "-0.025em",
               }}>Sign in to your account</h2>
@@ -247,7 +241,6 @@ export default function LoginCompany() {
                   fontWeight: 700,
                   letterSpacing: "0.04em",
                   cursor: "pointer",
-                  fontFamily: "'Plus Jakarta Sans', sans-serif",
                 }}
               >
                 {login.isPending ? "Signing in…" : "Sign In →"}

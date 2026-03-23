@@ -1,6 +1,5 @@
 "use client";
 
-import { usePathname } from "next/navigation";
 import Header from "./Header";
 import Footer from "./Footer";
 
@@ -9,13 +8,14 @@ export default function ConditionalLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const pathname = usePathname();
-  void pathname;
+  const mainClass = "min-h-screen";
 
   return (
     <>
       <Header />
-      {children}
+      <main className={mainClass}>
+        {children}
+      </main>
       <Footer />
     </>
   );

@@ -4,6 +4,7 @@ import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Save } from "lucide-react";
 import { api } from "~/trpc/react";
+import { showAlert } from "~/app/components/common/alert";
 
 const JOB_ROLES = ["SOFTWARE_ENGINEER", "UX_ENGINEER", "PROJECT_MANAGER"] as const;
 const JOB_TYPES = ["INTERNSHIP", "FULL_TIME"] as const;
@@ -94,7 +95,12 @@ export default function EditJobPage({ params }: { params: Promise<{ jobId: strin
           await utils.job.listByCompany.invalidate();
           router.push(`/company/my-jobs/${jobId}`);
         },
-        onError: (err) => alert(err.message),
+        onError: (err) => {
+          void showAlert({
+            icon: "error",
+            text: err.message,
+          });
+        },
       },
     );
   };

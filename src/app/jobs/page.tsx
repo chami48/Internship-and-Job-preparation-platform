@@ -325,19 +325,15 @@ export default function JobsPage() {
       </div>
 
       <style jsx global>{`
-        @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap');
-
         :root {
-          --jobs-heading: 'Sora', sans-serif;
+          --jobs-heading: 'Space Grotesk', sans-serif;
           --jobs-body: 'Manrope', sans-serif;
         }
 
         main {
-          font-family: var(--jobs-body);
         }
 
         h1, h2, h3 {
-          font-family: var(--jobs-heading);
         }
       `}</style>
     </main>

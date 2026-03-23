@@ -54,7 +54,6 @@ function Section({ title, children }: { title: string; children: React.ReactNode
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
         <span style={{ width: 3, height: 20, background: "#0EA5E9", borderRadius: 2, flexShrink: 0 }} />
         <h3 style={{
-          fontFamily: "'Space Grotesk', sans-serif",
           fontSize: "0.95rem",
           fontWeight: 700,
           color: "#0F172A",
@@ -81,12 +80,12 @@ function TextBlock({ text }: { text?: string | null }) {
               marginTop: 6, width: 6, height: 6, borderRadius: "50%",
               background: "#0EA5E9", flexShrink: 0,
             }} />
-            <span style={{ fontSize: "0.9rem", color: "#475569", lineHeight: 1.7, fontFamily: "'Space Grotesk', sans-serif" }}>
+            <span style={{ fontSize: "0.9rem", color: "#475569", lineHeight: 1.7}}>
               {line.slice(1).trim()}
             </span>
           </div>
         ) : (
-          <p key={i} style={{ fontSize: "0.9rem", color: "#475569", lineHeight: 1.75, fontFamily: "'Space Grotesk', sans-serif", margin: 0 }}>
+          <p key={i} style={{ fontSize: "0.9rem", color: "#475569", lineHeight: "1.75", margin: 0 }}>
             {line}
           </p>
         )
@@ -112,8 +111,8 @@ function InfoRow({ icon, label, value }: { icon: React.ReactNode; label: string;
         {icon}
       </div>
       <div>
-        <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "0.6rem", fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "#94A3B8", margin: 0 }}>{label}</p>
-        <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.875rem", fontWeight: 600, color: "#0F172A", margin: 0, marginTop: 1 }}>{value}</p>
+        <p style={{ fontSize: "0.6rem", fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "#94A3B8", margin: 0 }}>{label}</p>
+        <p style={{ fontSize: "0.875rem", fontWeight: 600, color: "#0F172A", margin: 0, marginTop: 1 }}>{value}</p>
       </div>
     </div>
   );
@@ -151,14 +150,11 @@ export default async function JobDetailsPage({ params }: { params: { id: string 
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
-
         * { box-sizing: border-box; }
 
         .jd-main {
           min-height: 100vh;
           background: #F0F6FF;
-          font-family: 'Space Grotesk', sans-serif;
           padding: 40px 20px 80px;
         }
 
@@ -205,7 +201,6 @@ export default async function JobDetailsPage({ params }: { params: { id: string 
           gap: 4px;
           border-radius: 999px;
           padding: 4px 12px;
-          font-family: 'JetBrains Mono', monospace;
           font-size: 0.65rem;
           font-weight: 700;
           letter-spacing: 0.08em;
@@ -238,7 +233,6 @@ export default async function JobDetailsPage({ params }: { params: { id: string 
           color: #0369A1;
           border-radius: 8px;
           padding: 5px 12px;
-          font-family: 'JetBrains Mono', monospace;
           font-size: 0.7rem;
           font-weight: 600;
           letter-spacing: 0.06em;
@@ -292,7 +286,6 @@ export default async function JobDetailsPage({ params }: { params: { id: string 
           border: 1px solid rgba(255,255,255,0.12);
           background: rgba(255,255,255,0.05);
           color: rgba(255,255,255,0.7);
-          font-family: 'Space Grotesk', sans-serif;
           font-size: 0.875rem;
           font-weight: 500;
           text-decoration: none;
@@ -313,7 +306,6 @@ export default async function JobDetailsPage({ params }: { params: { id: string 
           border-radius: 12px;
           background: linear-gradient(135deg, #0EA5E9, #38BDF8);
           color: white;
-          font-family: 'Space Grotesk', sans-serif;
           font-size: 0.9rem;
           font-weight: 700;
           text-decoration: none;
@@ -348,7 +340,6 @@ export default async function JobDetailsPage({ params }: { params: { id: string 
           align-items: center;
           gap: 8px;
           margin-bottom: 20px;
-          font-family: 'Space Grotesk', sans-serif;
           font-size: 0.85rem;
           font-weight: 500;
           color: #64748B;
@@ -394,7 +385,6 @@ export default async function JobDetailsPage({ params }: { params: { id: string 
               {/* Title block */}
               <div>
                 <h1 style={{
-                  fontFamily: "'Space Grotesk', sans-serif",
                   fontSize: "clamp(1.4rem, 2.5vw, 1.9rem)",
                   fontWeight: 700,
                   color: "#0F172A",
@@ -404,7 +394,6 @@ export default async function JobDetailsPage({ params }: { params: { id: string 
                   {job.title}
                 </h1>
                 <p style={{
-                  fontFamily: "'Space Grotesk', sans-serif",
                   fontSize: "0.9rem",
                   color: "#64748B",
                   margin: "0 0 14px",
@@ -451,10 +440,10 @@ export default async function JobDetailsPage({ params }: { params: { id: string 
                   background: "#F8FAFF", border: "1px solid #E2E8F0",
                   borderRadius: 14, padding: "14px 18px", minWidth: 160,
                 }}>
-                  <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#94A3B8", margin: "0 0 4px" }}>
+                  <p style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#94A3B8", margin: "0 0 4px" }}>
                     Deadline
                   </p>
-                  <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.875rem", fontWeight: 700, color: exp ? "#EF4444" : "#0F172A", margin: 0 }}>
+                  <p style={{ fontSize: "0.875rem", fontWeight: 700, color: exp ? "#EF4444" : "#0F172A", margin: 0 }}>
                     {fmtDate(job.deadline)}
                   </p>
                   <div className="jd-deadline-bar" style={{ marginTop: 8 }}>
@@ -498,10 +487,10 @@ export default async function JobDetailsPage({ params }: { params: { id: string 
               {/* Job Info card */}
               <div className="jd-sidebar-card">
                 <div className="jd-sidebar-header">
-                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.6)" }}>
+                  <span style={{ fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.6)" }}>
                     Job Details
                   </span>
-                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "0.6rem", fontWeight: 600, color: "#0EA5E9", letterSpacing: "0.08em" }}>
+                  <span style={{ fontSize: "0.6rem", fontWeight: 600, color: "#0EA5E9", letterSpacing: "0.08em" }}>
                     #{job.id.slice(-6).toUpperCase()}
                   </span>
                 </div>
@@ -529,25 +518,24 @@ export default async function JobDetailsPage({ params }: { params: { id: string 
                 background: "white", border: "1px solid #E2E8F0", borderRadius: 20,
                 padding: "20px", boxShadow: "0 2px 12px rgba(15,23,42,0.04)",
               }}>
-                <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#94A3B8", marginBottom: 14 }}>
+                <p style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#94A3B8", marginBottom: 14 }}>
                   Company
                 </p>
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                   <div style={{
                     width: 44, height: 44, borderRadius: 12,
                     background: "linear-gradient(135deg, #0EA5E9, #38BDF8)",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: "0.8rem",
+                    display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: "0.8rem",
                     color: "white", flexShrink: 0,
                     boxShadow: "0 4px 12px rgba(14,165,233,0.25)",
                   }}>
                     {job.company.name.slice(0, 2).toUpperCase()}
                   </div>
                   <div>
-                    <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: "0.95rem", color: "#0F172A", margin: 0 }}>
+                    <p style={{ fontWeight: 700, fontSize: "0.95rem", color: "#0F172A", margin: 0 }}>
                       {job.company.name}
                     </p>
-                    <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.78rem", color: "#94A3B8", margin: 0, marginTop: 2 }}>
+                    <p style={{ fontSize: "0.78rem", color: "#94A3B8", margin: 0, marginTop: 2 }}>
                       {job.location}
                     </p>
                   </div>
@@ -562,7 +550,7 @@ export default async function JobDetailsPage({ params }: { params: { id: string 
                 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
                     <Tag size={13} color="#0EA5E9" />
-                    <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#94A3B8", margin: 0 }}>
+                    <p style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#94A3B8", margin: 0 }}>
                       Required Skills
                     </p>
                   </div>
@@ -583,19 +571,19 @@ export default async function JobDetailsPage({ params }: { params: { id: string 
             <div style={{ position: "relative", zIndex: 1 }}>
               {!exp ? (
                 <>
-                  <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: "1.15rem", color: "white", margin: "0 0 4px", letterSpacing: "-0.02em" }}>
+                  <p style={{ fontWeight: 700, fontSize: "1.15rem", color: "white", margin: "0 0 4px", letterSpacing: "-0.02em" }}>
                     Ready to apply?
                   </p>
-                  <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.875rem", color: "rgba(255,255,255,0.45)", margin: 0 }}>
+                  <p style={{ fontSize: "0.875rem", color: "rgba(255,255,255,0.45)", margin: 0 }}>
                     Submit your CV details and complete the skill assessment to proceed.
                   </p>
                 </>
               ) : (
                 <>
-                  <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: "1rem", color: "rgba(255,255,255,0.5)", margin: "0 0 4px" }}>
+                  <p style={{ fontWeight: 700, fontSize: "1rem", color: "rgba(255,255,255,0.5)", margin: "0 0 4px" }}>
                     Applications Closed
                   </p>
-                  <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.875rem", color: "rgba(255,255,255,0.3)", margin: 0 }}>
+                  <p style={{ fontSize: "0.875rem", color: "rgba(255,255,255,0.3)", margin: 0 }}>
                     This job posting has passed its deadline.
                   </p>
                 </>
