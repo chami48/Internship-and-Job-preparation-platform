@@ -1,15 +1,16 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import React, { useState } from "react";
 import { showAlert } from "~/app/components/common/alert";
 
 export default function AgreementPage({
   params,
 }: {
-  params: { jobId: string };
+  params: Promise<{ jobId: string }>;
 }) {
   const router = useRouter();
+  const { jobId } = React.use(params);
   const searchParams = useSearchParams();
   const appId = searchParams.get("appId");
 
@@ -33,7 +34,7 @@ export default function AgreementPage({
     }
 
     // ✅ FIXED HERE
-    router.push(`/exam/${params.jobId}?appId=${appId}`);
+    router.push(`/exam/${jobId}?appId=${appId}`);
   };
 
   return (
