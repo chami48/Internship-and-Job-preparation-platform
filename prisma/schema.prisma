@@ -89,6 +89,7 @@ model User {
   posts    Post[]
   applications Application[]
   verification ApplicantVerification?
+  prepQuizAttempts PrepQuizAttempt[]
 }
 
 model EmailOTP {
@@ -337,4 +338,64 @@ model ApplicantVerification {
   studentIdNumber String
   idImageUrl      String
   createdAt       DateTime @default(now())
+}
+
+enum PrepQuizRole {
+  SOFTWARE_ENGINEER
+  FRONTEND_DEVELOPER
+  BACKEND_DEVELOPER
+  FULLSTACK_DEVELOPER
+  QA_ENGINEER
+  DEVOPS_ENGINEER
+  DATA_ANALYST
+  UI_UX_DESIGNER
+  PROJECT_MANAGER
+  BUSINESS_ANALYST
+}
+
+model PrepQuizQuestion {
+  id          String          @id @default(cuid())
+  role        PrepQuizRole
+  question    String
+  type        String          // MCQ or SHORT
+  explanation String?
+  createdAt   DateTime        @default(now())
+
+  options     PrepQuizOption[]
+  answers     PrepQuizAnswer[]
+}
+
+model PrepQuizOption {
+  id         String   @id @default(cuid())
+  questionId String
+  key        String
+  text       String
+  isCorrect  Boolean
+
+  question PrepQuizQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([questionId, key])
+}
+
+model PrepQuizAttempt {
+  id        String   @id @default(cuid())
+  userId    String
+  role      PrepQuizRole
+  score     Int
+  createdAt DateTime @default(now())
+
+  answers PrepQuizAnswer[]
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model PrepQuizAnswer {
+  id          String   @id @default(cuid())
+  attemptId   String
+  questionId  String
+  selectedKey String
+  isCorrect   Boolean
+
+  attempt  PrepQuizAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question PrepQuizQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
 }
