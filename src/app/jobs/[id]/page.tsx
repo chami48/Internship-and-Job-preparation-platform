@@ -138,11 +138,12 @@ export default async function JobDetailsPage({ params }: { params: { id: string 
           userId: session.user.id,
           jobId: job.id,
         },
-        select: { examSubmitted: true, terminationReason: true },
+        select: { id: true, examSubmitted: true, terminationReason: true },
       })
     : null;
   const examSubmitted = application?.examSubmitted ?? false;
   const terminated = Boolean(application?.terminationReason);
+  const hasApplication = Boolean(application?.id);
 
   const levelInfo = LEVEL_STYLE[job.level] ?? { bg: "#F1F5F9", color: "#475569", label: job.level };
   const typeInfo  = TYPE_STYLE[job.type]   ?? { bg: "#F1F5F9", color: "#475569" };
@@ -596,7 +597,14 @@ export default async function JobDetailsPage({ params }: { params: { id: string 
                 Back to Jobs
               </Link>
               {!exp && !examSubmitted && !terminated && (
-                <Link href={`/apply/${job.id}`} className="jd-btn-apply">
+                <Link
+                  href={
+                    hasApplication && application?.id
+                      ? `/exam/${job.id}?appId=${application.id}`
+                      : `/apply/${job.id}`
+                  }
+                  className="jd-btn-apply"
+                >
                   Apply Now
                   <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                     <path d="M5 12h14M12 5l7 7-7 7" />
