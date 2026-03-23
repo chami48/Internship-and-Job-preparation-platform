@@ -36,6 +36,23 @@ interface ViolationEvent {
 
 const MAX_VIOLATIONS = 3;
 
+const exitFullscreenNow = async () => {
+  try {
+    if (document.fullscreenElement) {
+      await document.exitFullscreen();
+    }
+  } catch {
+    // ignore
+  }
+  if (document.fullscreenElement) {
+    setTimeout(() => {
+      if (document.fullscreenElement) {
+        document.exitFullscreen().catch(() => undefined);
+      }
+    }, 150);
+  }
+};
+
 // ─────────────────────────────────────────────
 // HELPERS
 // ─────────────────────────────────────────────
@@ -576,7 +593,23 @@ export default function ExamPage() {
           .withFaceLandmarks()
           .withFaceDescriptor();
 
-        if (!detection) return;
+        if (!detection) {
+          if (!appId) return;
+          setExamStarted(false);
+          setStartingExam(false);
+          stopCamera();
+          await terminateApplication.mutateAsync({
+            applicationId: appId,
+            reason: "FACE_NOT_DETECTED",
+          });
+          await exitFullscreenNow();
+          void showAlert({
+            icon: "error",
+            text: "Face not detected. Exam terminated.",
+          });
+          setTimeout(() => router.push("/home"), 100);
+          return;
+        }
 
         if (!referenceDescriptorRef.current) return;
 
@@ -588,38 +621,20 @@ export default function ExamPage() {
         console.log("Live identity distance:", distance);
 
         if (distance > 0.55) {
-          identityFailCountRef.current += 1;
-
-          console.log(
-            "⚠ Identity verification failed attempt:",
-            identityFailCountRef.current,
-          );
-
-          if (identityFailCountRef.current < 3) {
-            void showAlert({
-              icon: "warning",
-              text: `Face verification failed. Attempt ${identityFailCountRef.current}/3. Please look at the camera properly.`,
-            });
-            return;
-          }
-
-          console.log(
-            "❌ Identity verification failed 3 times. Terminating exam.",
-          );
-
           if (!appId) return;
-
-await terminateApplication.mutateAsync({
-  applicationId: appId,
-  reason: "FACE_MISMATCH",
-});
-
+          setExamStarted(false);
+          setStartingExam(false);
+          stopCamera();
+          await terminateApplication.mutateAsync({
+            applicationId: appId,
+            reason: "FACE_MISMATCH",
+          });
+          await exitFullscreenNow();
           void showAlert({
             icon: "error",
-            text: "Face verification failed 3 times. Exam terminated.",
+            text: "Face does not match ID. Exam terminated.",
           });
-
-          router.push("/home");
+          setTimeout(() => router.push("/home"), 100);
         }
       } catch (err) {
         console.error("Identity verification error:", err);
@@ -629,7 +644,7 @@ await terminateApplication.mutateAsync({
     const interval = setInterval(verifyIdentity, 20000); // every 20 seconds
 
     return () => clearInterval(interval);
-  }, [examStarted, triggerViolation, terminateApplication, router, appId]);
+  }, [examStarted, triggerViolation, terminateApplication, router, appId, exitFullscreen, stopCamera]);
 
   // ─────────────────────────────────────────────
   // TOTAL TIMER
@@ -968,13 +983,21 @@ await terminateApplication.mutateAsync({
     const match = await compareFaces();
 
     if (!match) {
+      if (appId) {
+        await terminateApplication.mutateAsync({
+          applicationId: appId,
+          reason: "FACE_MISMATCH",
+        });
+      }
+      setExamStarted(false);
+      await exitFullscreenNow();
       void showAlert({
         icon: "error",
         text: "Face does not match ID. Exam terminated.",
       });
       stopCamera();
       setStartingExam(false);
-      router.push("/home");
+      setTimeout(() => router.push("/home"), 100);
       return;
     }
 
