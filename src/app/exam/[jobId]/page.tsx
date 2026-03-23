@@ -6,6 +6,7 @@ import { api } from "~/trpc/react";
 import { useEffect, useRef, useState, useCallback } from "react";
 import * as faceapi from "face-api.js";
 import { useSession } from "next-auth/react";
+import { showAlert } from "~/app/components/common/alert";
 
 
 // ─────────────────────────────────────────────
@@ -595,9 +596,10 @@ export default function ExamPage() {
           );
 
           if (identityFailCountRef.current < 3) {
-            alert(
-              `Face verification failed. Attempt ${identityFailCountRef.current}/3. Please look at the camera properly.`,
-            );
+            void showAlert({
+              icon: "warning",
+              text: `Face verification failed. Attempt ${identityFailCountRef.current}/3. Please look at the camera properly.`,
+            });
             return;
           }
 
@@ -612,7 +614,10 @@ await terminateApplication.mutateAsync({
   reason: "FACE_MISMATCH",
 });
 
-          alert("Face verification failed 3 times. Exam terminated.");
+          void showAlert({
+            icon: "error",
+            text: "Face verification failed 3 times. Exam terminated.",
+          });
 
           router.push("/home");
         }
@@ -732,7 +737,10 @@ await terminateApplication.mutateAsync({
   if (submittedRef.current || !appId) return;
 
   if (Object.keys(answers).length === 0) {
-    alert("You must answer at least one question before submitting.");
+    void showAlert({
+      icon: "warning",
+      text: "You must answer at least one question before submitting.",
+    });
     return;
   }
 
@@ -871,18 +879,27 @@ await terminateApplication.mutateAsync({
 
   const handleStartExam = async () => {
     if (verificationLoading) {
-      alert("Checking verification. Please wait...");
+      void showAlert({
+        icon: "info",
+        text: "Checking verification. Please wait...",
+      });
       return;
     }
 
     if (!verificationData || verificationData.userId !== session?.user.id) {
-      alert("You must verify your identity before taking the exam.");
+      void showAlert({
+        icon: "warning",
+        text: "You must verify your identity before taking the exam.",
+      });
       router.push(verificationPath);
       return;
     }
 
     if (!verificationData.idImageUrl) {
-      alert("Your ID image is missing. Please verify again.");
+      void showAlert({
+        icon: "warning",
+        text: "Your ID image is missing. Please verify again.",
+      });
       router.push(verificationPath);
       return;
     }
@@ -896,7 +913,10 @@ await terminateApplication.mutateAsync({
         await document.documentElement.requestFullscreen();
       }
     } catch {
-      alert("Fullscreen is required to start the exam.");
+      void showAlert({
+        icon: "warning",
+        text: "Fullscreen is required to start the exam.",
+      });
       setStartingExam(false);
       return;
     }
@@ -948,7 +968,10 @@ await terminateApplication.mutateAsync({
     const match = await compareFaces();
 
     if (!match) {
-      alert("Face does not match ID. Exam terminated.");
+      void showAlert({
+        icon: "error",
+        text: "Face does not match ID. Exam terminated.",
+      });
       stopCamera();
       setStartingExam(false);
       router.push("/home");

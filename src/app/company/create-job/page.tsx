@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
+import { showAlert } from "~/app/components/common/alert";
 
 const JOB_ROLES = ["SOFTWARE_ENGINEER", "UX_ENGINEER", "PROJECT_MANAGER"] as const;
 const JOB_TYPES = ["INTERNSHIP", "FULL_TIME"] as const;
@@ -38,7 +39,10 @@ export default function CreateJobPage() {
     e.preventDefault();
     const companyId = localStorage.getItem("companyId");
     if (!companyId) {
-      alert("Not logged in. Please log in first.");
+      void showAlert({
+        icon: "warning",
+        text: "Not logged in. Please log in first.",
+      });
       router.push("/company/comlogin");
       return;
     }
@@ -62,11 +66,17 @@ export default function CreateJobPage() {
       },
       {
         onSuccess: () => {
-          alert("Job post created successfully!");
+          void showAlert({
+            icon: "success",
+            text: "Job post created successfully!",
+          });
           router.push("/company/dashboard");
         },
         onError: (err) => {
-          alert(err.message);
+          void showAlert({
+            icon: "error",
+            text: err.message,
+          });
         },
       },
     );

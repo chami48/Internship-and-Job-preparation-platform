@@ -4,6 +4,7 @@
 import React, { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
+import { showAlert } from "~/app/components/common/alert";
 
 const SECTIONS = [
   { id: "personal", label: "Personal", short: "01", icon: "◈" },
@@ -327,7 +328,10 @@ export default function ApplyPage({ params }: { params: { jobId: string } }) {
 
   const handleNext = async () => {
     if (!validateCurrentStep()) {
-      alert("Please fill the required fields before continuing.");
+      void showAlert({
+        icon: "warning",
+        text: "Please fill the required fields before continuing.",
+      });
       return;
     }
 
@@ -373,7 +377,10 @@ export default function ApplyPage({ params }: { params: { jobId: string } }) {
       router.push(`/apply/${params.jobId}/agreement?appId=${created.id}`);
     } catch (error) {
       console.error(error);
-      alert("Failed to submit application.");
+      void showAlert({
+        icon: "error",
+        text: "Failed to submit application.",
+      });
     }
   };
 

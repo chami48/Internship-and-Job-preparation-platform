@@ -41,3 +41,38 @@ html[data-exam-mode="active"] main,
 body[data-exam-mode="active"] main {
   padding-top: 0 !important;
 }
+
+.hs-toast {
+  width: 320px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid #E2E8F0;
+  background: #FFFFFF;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
+}
+
+.hs-toast-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #0F172A;
+}
+
+.hs-toast-text {
+  font-size: 0.85rem;
+  color: #475569;
+  margin: 0;
+}
+
+.hs-toast-icon {
+  width: 28px;
+  height: 28px;
+  margin: 0 10px 0 0;
+}
+
+.hs-toast-close {
+  color: #94A3B8;
+}
+
+.hs-toast-progress {
+  background: linear-gradient(90deg, #60A5FA, #22D3EE);
+}

@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
+import { showAlert } from "~/app/components/common/alert";
 
 export default function AgreementPage({
   params,
@@ -16,12 +17,18 @@ export default function AgreementPage({
 
   const handleStart = () => {
     if (!checked) {
-      alert("You must agree before continuing.");
+      void showAlert({
+        icon: "warning",
+        text: "You must agree before continuing.",
+      });
       return;
     }
 
     if (!appId) {
-      alert("Application ID missing. Please re-apply.");
+      void showAlert({
+        icon: "error",
+        text: "Application ID missing. Please re-apply.",
+      });
       return;
     }
 
