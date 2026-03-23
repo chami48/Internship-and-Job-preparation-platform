@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { type FormEvent, useState } from "react";
-import { api } from "~/trpc/react";
 import { useRouter } from "next/navigation";
+import Swal from "sweetalert2";
+import { api } from "~/trpc/react";
 
 function EyeIcon({ open }: { open: boolean }) {
   return open ? (
@@ -40,6 +41,23 @@ export default function StudentRegisterPage() {
   const router = useRouter();
   const sendOtp = api.student.auth.sendOtp.useMutation();
   const register = api.student.auth.register.useMutation();
+
+  const toast = Swal.mixin({
+    toast: true,
+    position: "top-end",
+    showConfirmButton: false,
+    showCloseButton: true,
+    timer: 2200,
+    timerProgressBar: true,
+    background: "#F8FBFF",
+    color: "#0F172A",
+    customClass: {
+      popup: "hs-toast",
+      title: "text-[13px] font-semibold leading-tight",
+      closeButton: "text-red-500 hover:text-red-600",
+      icon: "border-2 border-[#DCEAF6] scale-75",
+    },
+  });
 
   const [name, setName] = useState("");
   const [studentId, setStudentId] = useState("");
@@ -108,7 +126,13 @@ export default function StudentRegisterPage() {
         year,
         otp,
       });
-      router.push("/home");
+      toast
+        .fire({
+          icon: "success",
+          iconColor: "#16A34A",
+          title: "Registration successful!",
+        })
+        .then(() => router.push("/home"));
     } catch (error: unknown) {
       console.error(error);
       setOtpError(error instanceof Error ? error.message : "Registration failed.");

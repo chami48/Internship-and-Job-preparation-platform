@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Swal from "sweetalert2";
 import { signIn } from "next-auth/react";
 
 function EyeIcon({ open }: { open: boolean }) {
@@ -21,6 +22,23 @@ function EyeIcon({ open }: { open: boolean }) {
 
 export default function StudentLoginPage() {
   const router = useRouter();
+
+  const toast = Swal.mixin({
+    toast: true,
+    position: "top-end",
+    showConfirmButton: false,
+    showCloseButton: true,
+    timer: 2200,
+    timerProgressBar: true,
+    background: "#F8FBFF",
+    color: "#0F172A",
+    customClass: {
+      popup: "hs-toast",
+      title: "text-[13px] font-semibold leading-tight",
+      closeButton: "text-red-500 hover:text-red-600",
+      icon: "border-2 border-[#DCEAF6] scale-75",
+    },
+  });
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -49,8 +67,12 @@ export default function StudentLoginPage() {
       setError("Invalid email or password.");
       return;
     }
-
-    router.push("/home");
+    toast.fire({
+      icon: "success",
+      iconColor: "#16A34A",
+      title: "Login successful!",
+    });
+    setTimeout(() => router.push("/home"), 2200);
   };
 
   const inputStyle: React.CSSProperties = {

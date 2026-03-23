@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Swal from "sweetalert2";
 import { api } from "~/trpc/react";
 
 /* ── tiny Eye icons ────────────────────────────────────── */
@@ -41,6 +42,23 @@ export default function RegisterCompany() {
   const router = useRouter();
   const createCompany = api.company.create.useMutation();
   const verifyOtp = api.company.verifyOtp.useMutation();
+
+  const toast = Swal.mixin({
+    toast: true,
+    position: "top-end",
+    showConfirmButton: false,
+    showCloseButton: true,
+    timer: 2200,
+    timerProgressBar: true,
+    background: "#F8FBFF",
+    color: "#0F172A",
+    customClass: {
+      popup: "hs-toast",
+      title: "text-[13px] font-semibold leading-tight",
+      closeButton: "text-red-500 hover:text-red-600",
+      icon: "border-2 border-[#DCEAF6] scale-75",
+    },
+  });
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -84,7 +102,15 @@ export default function RegisterCompany() {
     verifyOtp.mutate(
       { email, otp },
       {
-        onSuccess: () => router.push("/company/comlogin"),
+        onSuccess: () => {
+          toast
+            .fire({
+              icon: "success",
+              iconColor: "#16A34A",
+              title: "Registration successful! Please log in.",
+            })
+            .then(() => router.push("/company/comlogin"));
+        },
         onError: (err) => setOtpError(err.message),
       },
     );
@@ -211,9 +237,10 @@ export default function RegisterCompany() {
         <div style={{
           flex: 1,
           display: "flex",
-          alignItems: "center",
+          alignItems: "flex-start",
           justifyContent: "center",
           padding: "3rem 2rem",
+          paddingTop: "5rem",
           overflowY: "auto",
         }}>
           <div style={{ width: "100%", maxWidth: 480 }}>

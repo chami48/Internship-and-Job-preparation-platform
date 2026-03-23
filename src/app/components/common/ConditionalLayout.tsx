@@ -10,11 +10,23 @@ export default function ConditionalLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  void pathname;
+
+  // Pages where header should be hidden
+  const hideHeader =
+    pathname === "/company/register" ||
+    pathname === "/company/comlogin" ||
+    pathname === "/company/dashboard" ||
+    pathname === "/company/my-jobs" ||
+    pathname === "/company/selected-candidates" ||
+    pathname === "/company/interviews" ||
+    pathname === "/company/profile" ||
+    pathname?.startsWith("/company/my-jobs/") ||
+    pathname?.startsWith("/company/selected/") ||
+    pathname?.startsWith("/company/create-job");
 
   return (
     <>
-      <Header />
+      {!hideHeader && <Header />}
       {children}
       <Footer />
     </>
