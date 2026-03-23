@@ -403,6 +403,7 @@ model PrepQuizAnswer {
 
   attempt  PrepQuizAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
   question PrepQuizQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+}
 //////////////////////////////////////////////////////
 // Module 4 - AI Evaluation & Candidate Filtering
 //////////////////////////////////////////////////////
