@@ -605,7 +605,7 @@ export default function ExamPage() {
           await exitFullscreenNow();
           void showAlert({
             icon: "error",
-            text: "Face not detected. Exam terminated.",
+            text: "Face not detected. Retry.",
           });
           setTimeout(() => router.push("/home"), 100);
           return;
@@ -632,7 +632,7 @@ export default function ExamPage() {
           await exitFullscreenNow();
           void showAlert({
             icon: "error",
-            text: "Face does not match ID. Exam terminated.",
+            text: "Face does not match ID. Please make sure to face the owner of the ID.",
           });
           setTimeout(() => router.push("/home"), 100);
         }
@@ -868,6 +868,10 @@ export default function ExamPage() {
 
       if (!liveDetection) {
         console.log("❌ LIVE face NOT detected");
+        void showAlert({
+          icon: "error",
+          text: "Live face not detected. Please look at the camera.",
+        });
         return false;
       }
 
@@ -993,7 +997,7 @@ export default function ExamPage() {
       await exitFullscreenNow();
       void showAlert({
         icon: "error",
-        text: "Face does not match ID. Exam terminated.",
+        text: "Face does not match ID. Face verification failed. Please make sure to face the owner of the ID.",
       });
       stopCamera();
       setStartingExam(false);
