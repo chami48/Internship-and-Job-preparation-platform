@@ -5,8 +5,6 @@ export default function Footer() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
-
         .hs-footer {
           --hs-bg: #0F172A;
           --hs-accent: #0EA5E9;
@@ -19,7 +17,6 @@ export default function Footer() {
                       var(--hs-bg);
           position: relative;
           overflow: hidden;
-          font-family: 'Space Grotesk', sans-serif;
           border-top: 1px solid rgba(14,165,233,0.2);
         }
 
@@ -91,7 +88,6 @@ export default function Footer() {
         }
 
         .hs-f-logo-sub {
-          font-family: 'JetBrains Mono', monospace;
           font-size: 0.66rem;
           font-weight: 600;
           color: var(--hs-accent);
@@ -109,7 +105,6 @@ export default function Footer() {
 
         /* ── COLUMN LABEL ── */
         .hs-f-col-label {
-          font-family: 'JetBrains Mono', monospace;
           font-size: 0.72rem;
           font-weight: 700;
           letter-spacing: 0.16em;
@@ -171,7 +166,6 @@ export default function Footer() {
         }
 
         .hs-f-copy {
-          font-family: 'JetBrains Mono', monospace;
           font-size: 0.75rem;
           color: var(--hs-dim);
         }
@@ -199,7 +193,7 @@ export default function Footer() {
         }
       `}</style>
 
-      <footer className="hs-footer">
+      <footer data-app-footer className="hs-footer">
         <div className="hs-footer-grid" />
         <div className="hs-footer-accent" />
         <div className="hs-footer-orb left" />

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 import { useSession } from "next-auth/react";
 
@@ -10,7 +11,6 @@ function Tag({ text }: { text: string }) {
   return (
     <span
       style={{
-        fontFamily: "'Plus Jakarta Sans', sans-serif",
         background: "#E0F2FE",
         border: "1px solid rgba(14,165,233,0.3)",
         color: "#0369A1",
@@ -42,7 +42,7 @@ function Counter({ to, label, suffix = "+" }: { to: number; label: string; suffi
 
   return (
     <div className="flex flex-col items-start">
-      <span style={{ fontFamily: "'Clash Display', sans-serif", fontSize: "2.4rem", fontWeight: 700, color: "white", lineHeight: 1 }}>
+      <span style={{ fontSize: "2.4rem", fontWeight: 700, color: "white", lineHeight: 1 }}>
         {val.toLocaleString()}<span style={{ color: "#0EA5E9" }}>{suffix}</span>
       </span>
       <span style={{ fontSize: "0.72rem", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)", marginTop: 5 }}>
@@ -53,6 +53,21 @@ function Counter({ to, label, suffix = "+" }: { to: number; label: string; suffi
 }
 
 /* ─── Job Card ───────────────────────────────────────────── */
+function formatSalary(value?: string | null) {
+  if (!value) return "Negotiable";
+  const numeric = value.replace(/[^0-9.]/g, "");
+  if (numeric && !/[a-zA-Z]/.test(value)) return `LKR ${numeric}`;
+  return value;
+}
+
+function formatJobType(value?: string) {
+  const t = (value ?? "").toLowerCase();
+  if (t.includes("intern")) return "Internship";
+  if (t.includes("part")) return "Part Time";
+  if (t.includes("full")) return "Full Time";
+  return value ?? "";
+}
+
 function JobCard({
   job,
   index,
@@ -67,6 +82,7 @@ function JobCard({
     level: string;
     tags: string[];
     salary?: string | null;
+    createdAt?: string | Date | null;
     applied?: boolean;
     examSubmitted?: boolean;
     terminated?: boolean;
@@ -76,112 +92,117 @@ function JobCard({
   index: number;
   role?: string;
 }) {
-  const isIntern = job.type?.toLowerCase().includes("intern");
+  const router = useRouter();
+  const shareText = `Check this job: ${job.title}`;
+  const shareUrl = typeof window !== "undefined" ? window.location.origin + `/jobs/${job.id}` : "";
+  const postedDate = job.createdAt
+    ? new Date(job.createdAt).toLocaleDateString("en-GB")
+    : "";
 
   return (
     <div
       className="job-card"
+      onClick={() => router.push(`/jobs/${job.id}`)}
       style={{
         animationDelay: `${index * 60}ms`,
         background: "white",
-        border: "1px solid #E2E8F0",
-        borderRadius: 18,
+        border: "1px solid #E5EAF1",
+        borderRadius: 16,
         display: "flex",
         flexDirection: "column",
         overflow: "hidden",
-        boxShadow: "0 4px 24px rgba(15,23,42,0.06)",
+        boxShadow: "0 2px 10px rgba(15,23,42,0.05)",
         transition: "border-color 0.25s, box-shadow 0.25s, transform 0.25s",
-      }}
-      onMouseEnter={(e) => {
-        (e.currentTarget as HTMLElement).style.borderColor = "rgba(14,165,233,0.35)";
-        (e.currentTarget as HTMLElement).style.transform = "translateY(-4px)";
-        (e.currentTarget as HTMLElement).style.boxShadow = "0 12px 40px rgba(14,165,233,0.12)";
-      }}
-      onMouseLeave={(e) => {
-        (e.currentTarget as HTMLElement).style.borderColor = "#E2E8F0";
-        (e.currentTarget as HTMLElement).style.transform = "translateY(0)";
-        (e.currentTarget as HTMLElement).style.boxShadow = "0 4px 24px rgba(15,23,42,0.06)";
+        cursor: "pointer",
       }}
     >
-      {/* top colour strip */}
-      <div style={{ height: 4, width: "100%", background: isIntern ? "linear-gradient(90deg, #818CF8, #A78BFA)" : "linear-gradient(90deg, #0EA5E9, #38BDF8)", flexShrink: 0 }} />
-
-      <div style={{ display: "flex", flexDirection: "column", flex: 1, padding: "1.25rem" }}>
-        {/* header */}
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
-          <div style={{
-            width: 40, height: 40, flexShrink: 0, borderRadius: 13,
-            background: isIntern ? "#EEF2FF" : "#E0F2FE",
-            display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.2rem"
-          }}>
-            {isIntern ? "🎓" : "💼"}
-          </div>
-          <div style={{ display: "flex", gap: 6 }}>
-            <span style={{
-              borderRadius: "100px", padding: "2px 10px", fontSize: 9,
-              fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase",
-              background: isIntern ? "#EEF2FF" : "#E0F2FE",
-              color: isIntern ? "#6366F1" : "#0369A1",
-            }}>
-              {job.type}
-            </span>
-            <span style={{
-              borderRadius: "100px", padding: "2px 10px", fontSize: 9,
-              fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase",
-              background: "#F1F5F9", color: "#475569",
-            }}>
-              {job.level}
-            </span>
-          </div>
+      <div style={{ display: "flex", flexDirection: "column", flex: 1, padding: "1.1rem 1.2rem" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+          <span style={{ fontSize: "0.7rem", color: "#94A3B8", fontWeight: 600 }}>
+            {postedDate ? `Posted ${postedDate}` : ""}
+          </span>
+          <a
+            href={shareUrl ? `https://wa.me/?text=${encodeURIComponent(`${shareText} ${shareUrl}`)}` : "#"}
+            style={{
+              width: 26,
+              height: 26,
+              borderRadius: 999,
+              border: "1px solid #E2E8F0",
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#64748B",
+              textDecoration: "none",
+            }}
+            aria-label="Share job"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M4 12v7a1 1 0 001 1h14a1 1 0 001-1v-7" />
+              <path d="M16 6l-4-4-4 4" />
+              <path d="M12 2v14" />
+            </svg>
+          </a>
         </div>
 
-        <div style={{ marginTop: 12 }}>
-          <h3 style={{ fontFamily: "'Clash Display', sans-serif", fontSize: "1rem", fontWeight: 600, color: "#0F172A", margin: 0, letterSpacing: "-0.01em" }}>
+        <div style={{ marginTop: 10 }}>
+          <h3 style={{ fontSize: "0.98rem", fontWeight: 700, color: "#0F172A", margin: 0 }}>
             {job.title}
           </h3>
-          <p style={{ marginTop: 4, fontSize: "0.75rem", color: "#94A3B8", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-            {job.company} · {job.location}
-          </p>
+          <p style={{ marginTop: 4, fontSize: "0.78rem", color: "#94A3B8" }}>{job.company}</p>
         </div>
 
-        {job.tags?.length > 0 && (
-          <div style={{ marginTop: 12, display: "flex", flexWrap: "wrap", gap: 6 }}>
-            {job.tags.map((t) => <Tag key={t} text={t} />)}
-          </div>
-        )}
+        <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", color: "#64748B", fontSize: "0.75rem" }}>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M12 22s7-7 7-12a7 7 0 10-14 0c0 5 7 12 7 12z" />
+              <circle cx="12" cy="10" r="3" />
+            </svg>
+            {job.location}
+          </span>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M12 1v22" />
+              <path d="M17 5H9.5a3.5 3.5 0 000 7H14a3.5 3.5 0 010 7H6" />
+            </svg>
+            {formatSalary(job.salary)}
+          </span>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M3 7h18" />
+              <path d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2" />
+              <rect x="3" y="7" width="18" height="13" rx="2" />
+            </svg>
+            {formatJobType(job.type)}
+          </span>
+        </div>
 
-        <div style={{ marginTop: "auto", display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: 20 }}>
-          <p style={{ fontSize: "0.75rem", color: "#94A3B8", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-            Salary: <span style={{ fontWeight: 600, color: "#475569" }}>{job.salary ?? "Negotiable"}</span>
-          </p>
+        <div style={{ marginTop: 14, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <span style={{ fontSize: "0.72rem", color: "#94A3B8", fontWeight: 600, letterSpacing: "0.08em" }}>
+            {job.level?.toUpperCase()}
+          </span>
           {role === "STUDENT" ? (
             job.terminationReason === "FACE_MISMATCH" ? (
-              <Link href={`/exam/${job.id}?appId=${job.applicationId}`} style={{ borderRadius: 10, padding: "8px 16px", fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", background: "#FEF3C7", color: "#92400E", textDecoration: "none" }}>
+              <Link href={`/exam/${job.id}?appId=${job.applicationId}`} onClick={(e) => e.stopPropagation()} style={{ fontSize: "0.75rem", fontWeight: 700, color: "#B45309", textDecoration: "none" }}>
                 Retry Verification
               </Link>
             ) : job.terminated ? (
-              <button disabled style={{ borderRadius: 10, padding: "8px 16px", fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", background: "#FEE2E2", color: "#B91C1C", cursor: "not-allowed" }}>
-                ✕ you exceeded the violation limit
-              </button>
+              <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#DC2626" }}>Limit Exceeded</span>
             ) : job.examSubmitted ? (
-              <button disabled style={{ borderRadius: 10, padding: "8px 16px", fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", background: "#DCFCE7", color: "#15803D", cursor: "not-allowed" }}>
-                ✓ Exam Completed
-              </button>
+              <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#15803D" }}>Exam Done ✓</span>
             ) : job.applied ? (
-              <Link href={`/exam/${job.id}?appId=${job.applicationId}`} style={{ borderRadius: 10, padding: "8px 16px", fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", color: "white", background: "#0EA5E9", textDecoration: "none" }}>
-                Start Exam
+              <Link href={`/exam/${job.id}?appId=${job.applicationId}`} onClick={(e) => e.stopPropagation()} style={{ borderRadius: 8, padding: "6px 14px", fontSize: "0.75rem", fontWeight: 700, color: "white", background: "#38BDF8", textDecoration: "none" }}>
+                Start Exam →
               </Link>
             ) : (
-              <Link href={`/jobs/${job.id}`} style={{ borderRadius: 10, padding: "8px 16px", fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", color: "white", background: "#1E3A5F", textDecoration: "none" }}>
-                Apply →
+              <Link href={`/jobs/${job.id}`} onClick={(e) => e.stopPropagation()} style={{ borderRadius: 8, padding: "6px 14px", fontSize: "0.75rem", fontWeight: 700, color: "white", background: "#0F2544", textDecoration: "none" }}>
+                Apply Now →
               </Link>
             )
           ) : role === "COMPANY" ? (
-            <button disabled style={{ borderRadius: 10, padding: "8px 16px", fontSize: "0.75rem", fontWeight: 700, background: "#CBD5E1", color: "#64748B", cursor: "not-allowed" }}>
-              View Job Details
-            </button>
+            <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#94A3B8" }}>View Job Details</span>
           ) : (
-            <Link href="/student/login" style={{ borderRadius: 10, padding: "8px 16px", fontSize: "0.75rem", fontWeight: 700, background: "#0EA5E9", color: "white", textDecoration: "none" }}>
+            <Link href="/student/login" style={{ borderRadius: 8, padding: "6px 14px", fontSize: "0.75rem", fontWeight: 700, color: "white", background: "#0F2544", textDecoration: "none" }}>
               Login to Apply
             </Link>
           )}
@@ -199,6 +220,27 @@ export default function HomePage() {
   const { data: jobs, isLoading, error } = api.job.list.useQuery();
   const [filter, setFilter] = useState<"all" | "internship" | "fulltime">("all");
 
+  const allJobs = (jobs ?? []).map((j) => ({
+    ...j,
+    company:
+      typeof (j as any).company === "object"
+        ? (j as any).company?.name ?? "Unknown Company"
+        : (j as any).company ?? "Unknown Company",
+  }));
+
+  const appliedCount = allJobs.filter((j) => j.applied).length;
+  const examDoneCount = allJobs.filter((j) => j.examSubmitted).length;
+  const openCount = allJobs.filter((j) => !j.applied && !j.terminated).length;
+  const totalCount = allJobs.length;
+
+  const recentRoles = [...allJobs]
+    .sort((a, b) => {
+      const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return bTime - aTime;
+    })
+    .slice(0, 4);
+
   const filteredJobs = (jobs ?? []).filter((j) => {
     if (filter === "all") return true;
     const t = (j.type ?? "").toLowerCase();
@@ -210,14 +252,18 @@ export default function HomePage() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Clash+Display:wght@500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
-
         * { box-sizing: border-box; }
 
         .job-card { animation: fadeUp 0.45s ease both; }
         @keyframes fadeUp {
           from { opacity: 0; transform: translateY(14px); }
           to   { opacity: 1; transform: translateY(0); }
+        }
+        
+        .job-card:hover {
+          border-color: rgba(14,165,233,0.4);
+          box-shadow: 0 20px 48px rgba(14,165,233,0.12);
+          transform: translateY(-6px);
         }
 
         .hero-word { animation: wordIn 0.55s cubic-bezier(0.16,1,0.3,1) both; }
@@ -252,7 +298,6 @@ export default function HomePage() {
           gap: 14px;
           border-radius: 10px;
           padding: 11px 14px;
-          font-family: 'Plus Jakarta Sans', sans-serif;
           font-size: 0.88rem;
           font-weight: 500;
           color: #334155;
@@ -283,7 +328,6 @@ export default function HomePage() {
           border-radius: 999px;
           padding: 7px 18px;
           font-size: 11px;
-          font-family: 'Plus Jakarta Sans', sans-serif;
           font-weight: 700;
           letter-spacing: 0.07em;
           text-transform: uppercase;
@@ -319,7 +363,7 @@ export default function HomePage() {
         }
       `}</style>
 
-      <main style={{ minHeight: "100vh", background: "#EEF6FF", fontFamily: "'Plus Jakarta Sans', sans-serif", position: "relative", overflow: "hidden" }}>
+      <main style={{ minHeight: "100vh", background: "#EEF6FF", position: "relative", overflow: "hidden" }}>
 
         {/* Subtle gradient orbs */}
         <div style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none" }}>
@@ -361,7 +405,6 @@ export default function HomePage() {
               {/* Main headline — large like Screenshot 1 */}
               <h1 style={{ margin: 0, letterSpacing: "-0.03em", lineHeight: 1.02 }}>
                 <span className="hero-word block" style={{
-                  fontFamily: "'Clash Display', sans-serif",
                   fontSize: "clamp(3.5rem, 6vw, 6.5rem)",
                   fontWeight: 700,
                   color: "#0F172A",
@@ -370,7 +413,6 @@ export default function HomePage() {
                   Beyond Skills,
                 </span>
                 <span className="hero-word block" style={{
-                  fontFamily: "'Clash Display', sans-serif",
                   fontSize: "clamp(2.4rem, 5vw, 4.2rem)",
                   fontWeight: 700,
                   color: "#1a2e4a",
@@ -382,7 +424,7 @@ export default function HomePage() {
                 </span>
               </h1>
 
-              <p style={{ marginTop: 24, maxWidth: 520, fontSize: "1.05rem", lineHeight: 1.8, color: "#4A6580", fontWeight: 400, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+              <p style={{ marginTop: 24, maxWidth: 520, fontSize: "1.05rem", lineHeight: 1.8, color: "#4A6580", fontWeight: 400}}>
                 The future-ready screening platform where candidates prove capabilities through intelligent, secure assessments. Your potential unlock starts here.
               </p>
 
@@ -392,9 +434,7 @@ export default function HomePage() {
                   display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 10,
                   padding: "16px 36px", borderRadius: 12,
                   background: "#1a2e4a",
-                  color: "white",
-                  fontFamily: "'Plus Jakarta Sans', sans-serif",
-                  fontWeight: 700, fontSize: "0.9rem",
+                  color: "white", fontWeight: 700, fontSize: "0.9rem",
                   letterSpacing: "0.06em", textTransform: "uppercase",
                   textDecoration: "none",
                   boxShadow: "0 8px 24px rgba(26,46,74,0.25)",
@@ -419,9 +459,7 @@ export default function HomePage() {
                   padding: "16px 36px", borderRadius: 12,
                   border: "1.5px solid #CBD5E1",
                   background: "rgba(255,255,255,0.8)",
-                  color: "#334155",
-                  fontFamily: "'Plus Jakarta Sans', sans-serif",
-                  fontWeight: 700, fontSize: "0.9rem",
+                  color: "#334155", fontWeight: 700, fontSize: "0.9rem",
                   letterSpacing: "0.06em", textTransform: "uppercase",
                   textDecoration: "none",
                   transition: "all 0.25s",
@@ -457,7 +495,7 @@ export default function HomePage() {
             </div>
 
             {/* RIGHT — dark card  */}
-            <div style={{ position: "relative", height: 450 }}>
+            <div style={{ position: "relative", height: 520 , width: 500 }}>
               {/* Shadow card behind */}
               <div style={{
                 position: "absolute",
@@ -470,71 +508,84 @@ export default function HomePage() {
 
               {/* Main dark card */}
               <div className="live-card">
-                {/* Header */}
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
-                  <span style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase", color: "#071d3b" }}>
-                    LIVE OPENINGS
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
+                  <span style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase", color: "#071d3b" }}>
+                    {role === "STUDENT" ? "YOUR OPPORTUNITIES" : "OPPORTUNITIES OVERVIEW"}
                   </span>
-                  <span style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(14,165,233,0.08)", border: "1px solid rgba(14,165,233,0.25)", borderRadius: 100, padding: "4px 12px", fontSize: "0.65rem", fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "#0EA5E9" }}>
-                    <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#0EA5E9", display: "inline-block", animation: "blink 1.4s infinite" }} />
-                    ACTIVE
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6, borderRadius: 999, padding: "4px 12px", fontSize: "0.65rem", fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", background: "rgba(14,165,233,0.08)", border: "1px solid rgba(14,165,233,0.25)", color: "#0EA5E9" }}>
+                    <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#0EA5E9", display: "inline-block" }} />
+                    {openCount} OPEN
                   </span>
                 </div>
 
-                {/* Job rows */}
-                <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 8, marginBottom: 12 }}>
                   {[
-                    { label: "AI Engineer", badge: "FULL-TIME", color: "#0EA5E9" },
-                    { label: "ML Specialist", badge: "FULL-TIME", color: "#818CF8" },
-                    { label: "Data Scientist", badge: "HYBRID", color: "#38BDF8" },
-                    { label: "Tech Internship", badge: "INTERNSHIP", color: "#34D399" },
-                    { label: "Cloud Architect", badge: "REMOTE", color: "#FB923C" },
-                  ].map((r) => (
-                    <div key={r.label} className="live-row">
-                      <span style={{ width: 8, height: 8, borderRadius: "50%", background: r.color, flexShrink: 0 }} />
-                      {r.label}
-                      <span className="live-row-label">
-                        {r.badge}
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18l6-6-6-6" /></svg>
-                      </span>
+                    { label: "Applied", value: appliedCount },
+                    { label: "Exam Done", value: examDoneCount },
+                    { label: "Open", value: openCount },
+                    { label: "Total", value: totalCount },
+                  ].map((item) => (
+                    <div key={item.label} style={{ borderRadius: 12, border: "1px solid #E2E8F0", background: "#F8FAFC", padding: "8px 10px", textAlign: "center" }}>
+                      <p style={{ margin: 0, fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#94A3B8" }}>
+                        {item.label}
+                      </p>
+                      <p style={{ margin: "6px 0 0", fontSize: "0.95rem", fontWeight: 700, color: "#0F172A" }}>
+                        {item.value}
+                      </p>
                     </div>
                   ))}
                 </div>
 
-                {/* Divider */}
-                <div style={{ height: 1, background: "#F1F5F9", margin: "18px 0" }} />
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  {recentRoles.length === 0 ? (
+                    <div style={{ borderRadius: 14, border: "1px dashed #E2E8F0", padding: "18px", textAlign: "center", color: "#94A3B8", fontSize: "0.85rem" }}>
+                      No roles available yet.
+                    </div>
+                  ) : (
+                    recentRoles.map((job) => (
+                      <div key={job.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderRadius: 12, border: "1px solid #E2E8F0", background: "#FFFFFF", padding: "8px 12px" }}>
+                        <div>
+                          <p style={{ margin: 0, fontSize: "0.84rem", fontWeight: 700, color: "#0F172A" }}>
+                            {job.title}
+                          </p>
+                          <p style={{ marginTop: 3, marginBottom: 0, fontSize: "0.7rem", color: "#94A3B8" }}>
+                            {job.company}
+                          </p>
+                        </div>
+                        <div style={{ textAlign: "right" }}>
+                          <span style={{ display: "inline-flex", alignItems: "center", borderRadius: 999, padding: "3px 8px", fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", background: "rgba(14,165,233,0.08)", color: "#0EA5E9" }}>
+                            {formatJobType(job.type) || "Role"}
+                          </span>
+                          <p style={{ marginTop: 4, marginBottom: 0, fontSize: "0.65rem", color: "#94A3B8" }}>
+                            {job.createdAt ? new Date(job.createdAt).toLocaleDateString("en-GB") : "Recently posted"}
+                          </p>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
 
-                {/* Screening flow */}
-                <div>
-                  <p style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: "0.65rem", fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase", color: "#94A3B8", marginBottom: 12 }}>
-                    SMART SCREENING FLOW
-                  </p>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                    {[
-                      { text: "CV Entry & Exam", active: true },
-                      { text: "→", arrow: true },
-                      { text: "CV Upload", active: false },
-                      { text: "→", arrow: true },
-                      { text: "Interview", active: false },
-                    ].map((step, i) =>
-                      step.arrow ? (
-                        <span key={i} style={{ color: "#CBD5E1", fontWeight: 700 }}>→</span>
-                      ) : (
-                        <span key={i} style={{
-                          fontFamily: "'Plus Jakarta Sans', sans-serif",
-                          fontSize: "0.72rem",
-                          fontWeight: 600,
-                          padding: "5px 12px",
-                          borderRadius: 7,
-                          background: step.active ? "#E0F2FE" : "#F8FAFC",
-                          color: step.active ? "#0369A1" : "#94A3B8",
-                          border: step.active ? "1px solid rgba(14,165,233,0.3)" : "1px solid #E2E8F0",
-                        }}>
-                          {step.text}
-                        </span>
-                      )
-                    )}
-                  </div>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 16 }}>
+                  <span style={{ fontSize: "0.75rem", color: "#94A3B8" }}>
+                    {role === "STUDENT" ? "Track your progress and apply faster." : "Overview of current roles."}
+                  </span>
+                  <Link
+                    href="#jobs"
+                    style={{
+                      borderRadius: 10,
+                      padding: "10px 16px",
+                      fontSize: "0.75rem",
+                      fontWeight: 800,
+                      letterSpacing: "0.08em",
+                      textTransform: "uppercase",
+                      border: "none",
+                      background: "#0F172A",
+                      color: "white",
+                      textDecoration: "none",
+                    }}
+                  >
+                    View Roles →
+                  </Link>
                 </div>
               </div>
             </div>
@@ -574,7 +625,7 @@ export default function HomePage() {
                 <span style={{ width: 20, height: 2, background: "#0EA5E9", borderRadius: 2 }} />
                 Why HireSmart
               </div>
-              <h2 style={{ fontFamily: "'Clash Display', sans-serif", fontSize: "clamp(2rem,3.5vw,2.8rem)", fontWeight: 700, color: "#0F172A", letterSpacing: "-0.02em", margin: 0 }}>
+              <h2 style={{ fontSize: "clamp(2rem,3.5vw,2.8rem)", fontWeight: 700, color: "#0F172A", letterSpacing: "-0.02em", margin: 0 }}>
                 Next-generation talent screening
               </h2>
             </div>
@@ -588,7 +639,7 @@ export default function HomePage() {
                   <div style={{ width: 56, height: 56, borderRadius: 16, background: "#E0F2FE", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "2rem", marginBottom: 20 }}>
                     {f.icon}
                   </div>
-                  <h3 style={{ fontFamily: "'Clash Display', sans-serif", fontWeight: 700, fontSize: "1.15rem", color: "#0F172A", marginBottom: 10 }}>
+                  <h3 style={{ fontWeight: 700, fontSize: "1.15rem", color: "#0F172A", marginBottom: 10 }}>
                     {f.label}
                   </h3>
                   <p style={{ color: "#94A3B8", fontSize: "0.9rem", lineHeight: 1.7, margin: 0 }}>{f.desc}</p>
@@ -604,7 +655,7 @@ export default function HomePage() {
                 <p style={{ fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", color: "#0EA5E9", marginBottom: 8 }}>
                   📊 Database Powered by Prisma & SQLite
                 </p>
-                <h2 style={{ fontFamily: "'Clash Display', sans-serif", fontSize: "clamp(1.8rem,3vw,2.6rem)", fontWeight: 700, color: "#0F172A", letterSpacing: "-0.02em", margin: 0 }}>
+                <h2 style={{ fontSize: "clamp(1.8rem,3vw,2.6rem)", fontWeight: 700, color: "#0F172A", letterSpacing: "-0.02em", margin: 0 }}>
                   Opportunities Awaiting
                 </h2>
               </div>

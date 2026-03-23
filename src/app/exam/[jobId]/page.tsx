@@ -110,6 +110,22 @@ export default function ExamPage() {
   const referenceDescriptorRef = useRef<Float32Array | null>(null);
   const submittedRef = useRef(false);
 
+  useEffect(() => {
+    const root = document.documentElement;
+    const body = document.body;
+    if (examStarted || startingExam) {
+      root.dataset.examMode = "active";
+      body.dataset.examMode = "active";
+    } else {
+      delete root.dataset.examMode;
+      delete body.dataset.examMode;
+    }
+    return () => {
+      delete root.dataset.examMode;
+      delete body.dataset.examMode;
+    };
+  }, [examStarted, startingExam]);
+
   // ─────────────────────────────────────────────
   // FULLSCREEN HELPERS
   // ─────────────────────────────────────────────
@@ -1420,7 +1436,7 @@ await terminateApplication.mutateAsync({
 
   return (
     <main
-      className="min-h-screen bg-slate-50 text-slate-800"
+      className="flex min-h-screen flex-col bg-gradient-to-b from-sky-50 via-white to-sky-100 text-slate-800 pt-6 md:pt-8"
       style={{ userSelect: "none", WebkitUserSelect: "none" }}
     >
       {/* ── VIOLATION ALERT BANNER ── */}
@@ -1508,14 +1524,14 @@ await terminateApplication.mutateAsync({
       )}
 
       {/* ── TOP HEADER ── */}
-      <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 px-6 py-3 backdrop-blur">
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-4">
+      <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 px-6 py-4 backdrop-blur">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4">
           {/* Left: branding + progress */}
           <div className="flex min-w-0 items-center gap-4">
-            <div className="hidden flex-shrink-0 items-center gap-2 sm:flex">
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-600">
+            <div className="hidden flex-shrink-0 items-center gap-3 sm:flex">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600">
                 <svg
-                  className="h-3.5 w-3.5 text-white"
+                  className="h-4 w-4 text-white"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -1528,7 +1544,7 @@ await terminateApplication.mutateAsync({
                   />
                 </svg>
               </div>
-              <span className="text-sm font-semibold whitespace-nowrap text-slate-700">
+              <span className="text-lg font-semibold whitespace-nowrap text-slate-700">
                 Technical Assessment
               </span>
             </div>
@@ -1546,14 +1562,14 @@ await terminateApplication.mutateAsync({
                   }`}
                 />
               ))}
-              <span className="ml-1 text-xs font-medium text-slate-400">
+              <span className="ml-1 text-sm font-medium text-slate-500">
                 {currentIndex + 1}/{questions.length}
               </span>
             </div>
           </div>
 
           {/* Center: total time ring */}
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-3">
             <div className="relative h-11 w-11">
               <svg className="h-11 w-11 -rotate-90" viewBox="0 0 44 44">
                 <circle
@@ -1594,11 +1610,11 @@ await terminateApplication.mutateAsync({
               </span>
             </div>
             <div className="hidden sm:block">
-              <p className="text-[10px] leading-none font-semibold tracking-wider text-slate-400 uppercase">
+              <p className="text-xs leading-none font-semibold tracking-wider text-slate-400 uppercase">
                 Total Time
               </p>
               <p
-                className={`mt-0.5 text-xs font-semibold ${totalLow ? "text-red-600" : "text-slate-600"}`}
+                className={`mt-0.5 text-sm font-semibold ${totalLow ? "text-red-600" : "text-slate-600"}`}
               >
                 {totalLow ? "⚠ Low time" : "Remaining"}
               </p>
@@ -1607,8 +1623,8 @@ await terminateApplication.mutateAsync({
 
           {/* Right: violations + camera */}
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5">
-              <span className="hidden text-[10px] font-semibold tracking-wider text-slate-400 uppercase sm:block">
+            <div className="flex items-center gap-2">
+              <span className="hidden text-xs font-semibold tracking-wider text-slate-400 uppercase sm:block">
                 Violations
               </span>
               {Array.from({ length: MAX_VIOLATIONS }).map((_, i) => (
@@ -1666,7 +1682,7 @@ await terminateApplication.mutateAsync({
       </header>
 
       {/* ── QUESTION AREA ── */}
-      <div className="mx-auto max-w-3xl px-6 py-8">
+      <div className="mx-auto w-full max-w-4xl px-6 py-10">
         {/* Question meta */}
         <div className="mb-5 flex items-center justify-between">
           <div className="flex items-center gap-2.5">

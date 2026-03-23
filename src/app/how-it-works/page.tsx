@@ -124,10 +124,7 @@ export default function HowItWorksPage() {
   return (
     <main className="hiw-root">
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Clash+Display:wght@500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
-
         .hiw-root {
-          font-family: 'Plus Jakarta Sans', sans-serif;
           color: #0F172A;
           background: #EEF6FF;
           overflow-x: hidden;
@@ -198,7 +195,6 @@ export default function HowItWorksPage() {
         @keyframes hiw-blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
 
         .hiw-hero-title {
-          font-family: 'Clash Display', sans-serif;
           font-size: clamp(2.8rem, 6.5vw, 5.2rem);
           font-weight: 700;
           line-height: 1.05;
@@ -208,7 +204,6 @@ export default function HowItWorksPage() {
         }
 
         .hiw-hero-title-accent {
-          font-family: 'Clash Display', sans-serif;
           font-size: clamp(2rem, 4.5vw, 3.6rem);
           font-weight: 700;
           line-height: 1.1;
@@ -320,7 +315,6 @@ export default function HowItWorksPage() {
         .hiw-stat:last-child { border-right: none; }
 
         .hiw-stat-value {
-          font-family: 'Clash Display', sans-serif;
           font-size: 2.2rem;
           font-weight: 700;
           letter-spacing: -0.02em;
@@ -366,7 +360,6 @@ export default function HowItWorksPage() {
         }
 
         .hiw-section-title {
-          font-family: 'Clash Display', sans-serif;
           font-size: clamp(1.9rem, 4vw, 2.8rem);
           font-weight: 700;
           letter-spacing: -0.02em;
@@ -463,7 +456,6 @@ export default function HowItWorksPage() {
         }
 
         .hiw-step-title {
-          font-family: 'Clash Display', sans-serif;
           font-size: 1.05rem;
           font-weight: 600;
           color: #0F172A;
@@ -526,7 +518,6 @@ export default function HowItWorksPage() {
           border-radius: 50%;
           background: linear-gradient(135deg, #1a2e4a, #0c2040);
           color: white;
-          font-family: 'Clash Display', sans-serif;
           font-size: 1rem;
           font-weight: 700;
           display: flex;
@@ -622,7 +613,6 @@ export default function HowItWorksPage() {
         }
 
         .hiw-track-title {
-          font-family: 'Clash Display', sans-serif;
           font-size: 1.2rem;
           font-weight: 600;
           color: white;
@@ -705,7 +695,6 @@ export default function HowItWorksPage() {
         }
 
         .hiw-pillar-label {
-          font-family: 'Clash Display', sans-serif;
           font-size: 1.1rem;
           font-weight: 600;
           color: #0F172A;
@@ -781,7 +770,6 @@ export default function HowItWorksPage() {
         }
 
         .hiw-cta-title {
-          font-family: 'Clash Display', sans-serif;
           font-size: clamp(1.8rem, 4vw, 2.6rem);
           font-weight: 700;
           letter-spacing: -0.025em;

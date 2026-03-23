@@ -2,10 +2,7 @@ export default function PrivacyPolicyPage() {
   return (
     <main className="pp-root">
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap');
-
         .pp-root {
-          font-family: 'Manrope', sans-serif;
           color: #0F172A;
           background:
             radial-gradient(circle at 12% 10%, rgba(14,165,233,0.1), transparent 36%),
@@ -19,7 +16,6 @@ export default function PrivacyPolicyPage() {
         }
 
         .pp-hero h1 {
-          font-family: 'Space Grotesk', sans-serif;
           font-size: clamp(2.2rem, 5vw, 3.6rem);
           font-weight: 700;
           margin: 0;
@@ -104,7 +100,6 @@ export default function PrivacyPolicyPage() {
         }
 
         .pp-section h2 {
-          font-family: 'Space Grotesk', sans-serif;
           font-size: 1.4rem;
           margin: 0 0 12px;
         }

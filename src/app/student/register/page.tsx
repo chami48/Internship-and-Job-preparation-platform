@@ -121,7 +121,6 @@ export default function StudentRegisterPage() {
     border: "1.5px solid #E2E8F0",
     borderRadius: 10,
     fontSize: "0.875rem",
-    fontFamily: "'Plus Jakarta Sans', sans-serif",
     color: "#0F172A",
     background: "#F8FAFF",
     outline: "none",
@@ -137,13 +136,11 @@ export default function StudentRegisterPage() {
     textTransform: "uppercase",
     color: "#64748B",
     marginBottom: 6,
-    fontFamily: "'Plus Jakarta Sans', sans-serif",
   };
 
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
         .reg-input:focus { border-color: #0EA5E9 !important; box-shadow: 0 0 0 3px rgba(14,165,233,0.12) !important; background: #fff !important; }
         .reg-input::placeholder { color: #CBD5E1; }
         .reg-btn:hover:not(:disabled) { background: #0284C7 !important; box-shadow: 0 6px 20px rgba(14,165,233,0.35) !important; transform: translateY(-1px); }
@@ -155,7 +152,6 @@ export default function StudentRegisterPage() {
         style={{
           minHeight: "100vh",
           background: "#F8FAFF",
-          fontFamily: "'Plus Jakarta Sans', sans-serif",
           display: "flex",
           alignItems: "stretch",
         }}
@@ -197,7 +193,6 @@ export default function StudentRegisterPage() {
             </div>
 
             <h1 style={{
-              fontFamily: "'Plus Jakarta Sans', sans-serif",
               fontSize: "2rem",
               fontWeight: 800,
               color: "white",
@@ -241,7 +236,7 @@ export default function StudentRegisterPage() {
             {!otpSent ? (
               <>
                 <div style={{ marginBottom: "2rem" }}>
-                  <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: "1.6rem", fontWeight: 800, color: "#0F172A", margin: 0, letterSpacing: "-0.025em" }}>
+                  <h2 style={{ fontSize: "1.6rem", fontWeight: 800, color: "#0F172A", margin: 0, letterSpacing: "-0.025em" }}>
                     Create your student account
                   </h2>
                   <p style={{ marginTop: 6, fontSize: "0.82rem", color: "#94A3B8", fontWeight: 400 }}>
@@ -411,7 +406,6 @@ export default function StudentRegisterPage() {
                       fontWeight: 700,
                       letterSpacing: "0.04em",
                       cursor: "pointer",
-                      fontFamily: "'Plus Jakarta Sans', sans-serif",
                     }}
                   >
                     {sendOtp.isPending ? "Sending OTP..." : "Create Account & Get OTP →"}
@@ -444,7 +438,7 @@ export default function StudentRegisterPage() {
                   >
                     ✉️
                   </div>
-                  <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: "1.5rem", fontWeight: 800, color: "#0F172A", margin: 0, letterSpacing: "-0.025em" }}>
+                  <h2 style={{ fontSize: "1.5rem", fontWeight: 800, color: "#0F172A", margin: 0, letterSpacing: "-0.025em" }}>
                     Verify your email
                   </h2>
                   <p style={{ marginTop: 8, fontSize: "0.82rem", color: "#94A3B8", lineHeight: 1.6 }}>
@@ -486,9 +480,7 @@ export default function StudentRegisterPage() {
                       fontSize: "0.875rem",
                       fontWeight: 700,
                       letterSpacing: "0.04em",
-                      cursor: "pointer",
-                      fontFamily: "'Plus Jakarta Sans', sans-serif",
-                    }}
+                      cursor: "pointer"}}
                   >
                     {register.isPending ? "Verifying..." : "Verify OTP & Register →"}
                   </button>
@@ -503,7 +495,6 @@ export default function StudentRegisterPage() {
                       fontSize: "0.78rem",
                       color: "#94A3B8",
                       fontWeight: 600,
-                      fontFamily: "'Plus Jakarta Sans', sans-serif",
                       textDecoration: "underline",
                       textUnderlineOffset: 3,
                     }}

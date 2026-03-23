@@ -1,6 +1,43 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif,
+  --font-sans: var(--font-plus-jakarta), ui-sans-serif, system-ui, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-display: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+html[data-exam-mode="active"] [data-app-header],
+html[data-exam-mode="active"] [data-app-footer],
+body[data-exam-mode="active"] [data-app-header],
+body[data-exam-mode="active"] [data-app-footer] {
+  display: none !important;
+}
+
+/* ─── Job card entrance animation ───────────────────────── */
+@keyframes jobCardIn {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.job-card {
+  opacity: 0;
+  animation: jobCardIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.job-card:hover {
+  border-color: rgba(15, 23, 42, 0.2) !important;
+  transform: translateY(-4px) scale(1.01) !important;
+  box-shadow: 0 16px 32px rgba(15, 23, 42, 0.1) !important;
+}
+
+html[data-exam-mode="active"] main,
+body[data-exam-mode="active"] main {
+  padding-top: 0 !important;
 }

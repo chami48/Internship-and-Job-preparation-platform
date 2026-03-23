@@ -65,10 +65,7 @@ export default function AboutPage() {
 	return (
 		<main className="ab-root">
 			<style>{`
-				@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap');
-
 				.ab-root {
-					font-family: 'Manrope', sans-serif;
 					background: #F8FAFC;
 					color: #0F172A;
 					overflow-x: hidden;
@@ -133,12 +130,10 @@ export default function AboutPage() {
 				}
 
 				.ab-display {
-					font-family: 'Space Grotesk', sans-serif;
 					letter-spacing: -0.03em;
 				}
 
 				.ab-hero-h1 {
-					font-family: 'Space Grotesk', sans-serif;
 					letter-spacing: -0.03em;
 					font-size: clamp(2.4rem, 6vw, 4.2rem);
 					font-weight: 700;
@@ -265,7 +260,6 @@ export default function AboutPage() {
 				}
 
 				.ab-stat-val {
-					font-family: 'Space Grotesk', sans-serif;
 					font-size: 1.6rem;
 					font-weight: 700;
 					letter-spacing: -0.02em;
@@ -300,7 +294,6 @@ export default function AboutPage() {
 				}
 
 				.ab-section-h2 {
-					font-family: 'Space Grotesk', sans-serif;
 					letter-spacing: -0.03em;
 					font-size: clamp(1.8rem, 4vw, 2.8rem);
 					font-weight: 700;
@@ -361,7 +354,6 @@ export default function AboutPage() {
 				}
 
 				.ab-feat-title {
-					font-family: 'Space Grotesk', sans-serif;
 					font-size: 1.05rem;
 					font-weight: 600;
 					color: #0F172A;
@@ -482,7 +474,6 @@ export default function AboutPage() {
 				}
 
 				.ab-vp-big {
-					font-family: 'Space Grotesk', sans-serif;
 					font-size: 3.5rem;
 					font-weight: 700;
 					letter-spacing: -0.04em;
@@ -551,7 +542,6 @@ export default function AboutPage() {
 				}
 
 				.ab-tl-title {
-					font-family: 'Space Grotesk', sans-serif;
 					font-size: 1rem;
 					font-weight: 600;
 					color: #0F172A;
@@ -631,7 +621,6 @@ export default function AboutPage() {
 				}
 
 				.ab-team-placeholder-initials {
-					font-family: 'Space Grotesk', sans-serif;
 					font-size: 2.2rem;
 					font-weight: 700;
 					color: white;
@@ -653,7 +642,6 @@ export default function AboutPage() {
 				}
 
 				.ab-team-name {
-					font-family: 'Space Grotesk', sans-serif;
 					font-size: 0.95rem;
 					font-weight: 600;
 					color: #0F172A;
@@ -702,7 +690,6 @@ export default function AboutPage() {
 				}
 
 				.ab-cta-h2 {
-					font-family: 'Space Grotesk', sans-serif;
 					letter-spacing: -0.03em;
 					font-size: clamp(1.8rem, 4vw, 2.6rem);
 					font-weight: 700;

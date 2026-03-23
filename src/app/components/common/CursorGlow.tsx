@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 
 export default function CursorGlow() {
   const pathname = usePathname();
-  const allowedPaths = new Set([
+  const allowedPaths = [
     "/",
     "/home",
     "/about",
@@ -14,8 +14,10 @@ export default function CursorGlow() {
     "/help-center",
     "/privacy-policy",
     "/terms-and-conditions",
-  ]);
-  const isEnabled = allowedPaths.has(pathname ?? "");
+  ];
+  const isEnabled = (pathname ?? "") === "/"
+    ? allowedPaths.includes("/")
+    : allowedPaths.some((path) => (pathname ?? "") === path || (pathname ?? "").startsWith(`${path}/`));
 
   useEffect(() => {
     if (!isEnabled) {
@@ -66,13 +68,14 @@ export default function CursorGlow() {
           position: fixed;
           inset: 0;
           pointer-events: none;
-          z-index: 0;
+          z-index: 1;
           background: radial-gradient(
             360px circle at var(--cursor-x) var(--cursor-y),
             rgba(14,165,233,0.14),
             transparent 55%
           );
           transition: background 0.1s linear;
+          mix-blend-mode: multiply;
         }
 
         @media (pointer: coarse) {

@@ -59,12 +59,9 @@ export default function TermsAndConditionsPage() {
   return (
     <main className="tc-root">
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap');
-
         *, *::before, *::after { box-sizing: border-box; }
 
         .tc-root {
-          font-family: 'Manrope', sans-serif;
           color: #0F172A;
           background:
             radial-gradient(circle at 15% 8%, rgba(14,165,233,0.11), transparent 38%),
@@ -130,7 +127,6 @@ export default function TermsAndConditionsPage() {
         }
 
         .tc-hero h1 {
-          font-family: 'Space Grotesk', sans-serif;
           font-size: clamp(2.4rem, 5.5vw, 4rem);
           font-weight: 700;
           line-height: 1.1;
@@ -165,7 +161,6 @@ export default function TermsAndConditionsPage() {
           border-radius: 12px;
           background: #0F172A;
           color: white;
-          font-family: 'Manrope', sans-serif;
           font-size: 0.85rem;
           font-weight: 700;
           letter-spacing: 0.08em;
@@ -189,7 +184,6 @@ export default function TermsAndConditionsPage() {
           background: white;
           border: 1px solid rgba(15,23,42,0.14);
           color: #334155;
-          font-family: 'Manrope', sans-serif;
           font-size: 0.85rem;
           font-weight: 700;
           letter-spacing: 0.08em;
@@ -337,14 +331,12 @@ export default function TermsAndConditionsPage() {
           display: flex;
           align-items: center;
           justify-content: center;
-          font-family: 'Space Grotesk', sans-serif;
           font-size: 0.9rem;
           font-weight: 700;
           color: #0EA5E9;
         }
 
         .tc-card-index {
-          font-family: 'Space Grotesk', sans-serif;
           font-size: 2.8rem;
           font-weight: 700;
           color: rgba(15,23,42,0.05);
@@ -354,7 +346,6 @@ export default function TermsAndConditionsPage() {
         }
 
         .tc-card h2 {
-          font-family: 'Space Grotesk', sans-serif;
           font-size: 1.05rem;
           font-weight: 700;
           color: #0F172A;
@@ -417,7 +408,6 @@ export default function TermsAndConditionsPage() {
         }
 
         .tc-cta-text h3 {
-          font-family: 'Space Grotesk', sans-serif;
           font-size: 1.35rem;
           font-weight: 700;
           color: white;
@@ -440,7 +430,6 @@ export default function TermsAndConditionsPage() {
           border-radius: 12px;
           background: white;
           color: #0F172A;
-          font-family: 'Manrope', sans-serif;
           font-size: 0.85rem;
           font-weight: 700;
           letter-spacing: 0.06em;

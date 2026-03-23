@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { signOut } from "next-auth/react";
+import { Bell, CheckCircle2, ClipboardCheck } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { api, type RouterOutputs } from "~/trpc/react";
 
 type ProfileMenuProps = {
   isLoggedIn: boolean;
@@ -13,11 +13,10 @@ type ProfileMenuProps = {
 };
 
 export default function ProfileMenu({ isLoggedIn, name, email, image }: ProfileMenuProps) {
-  const [open, setOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
-  const router = useRouter();
-
+  type NotificationItem = RouterOutputs["application"]["notifications"][number];
   const displayName = name ?? email ?? "User";
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
   const initials = useMemo(() => {
     const parts = displayName.trim().split(/\s+/).filter(Boolean);
     if (parts.length === 0) return "U";
@@ -25,67 +24,140 @@ export default function ProfileMenu({ isLoggedIn, name, email, image }: ProfileM
     return `${parts[0]!.slice(0, 1)}${parts[1]!.slice(0, 1)}`.toUpperCase();
   }, [displayName]);
 
+  const { data: notifications = [] } = api.application.notifications.useQuery(
+    undefined,
+    { enabled: isLoggedIn },
+  );
+
+  const displayNotifications = useMemo(() => {
+    return [...notifications].sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
+  }, [notifications]);
+
   useEffect(() => {
-    if (!open) return;
-
-    const onDocumentClick = (event: MouseEvent) => {
-      if (!menuRef.current?.contains(event.target as Node)) {
-        setOpen(false);
-      }
+    if (!menuOpen) return;
+    const handleOutside = (event: MouseEvent) => {
+      if (!menuRef.current) return;
+      if (menuRef.current.contains(event.target as Node)) return;
+      setMenuOpen(false);
     };
+    document.addEventListener("mousedown", handleOutside);
+    return () => document.removeEventListener("mousedown", handleOutside);
+  }, [menuOpen]);
 
-    const onEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", onDocumentClick);
-    document.addEventListener("keydown", onEscape);
-
-    return () => {
-      document.removeEventListener("mousedown", onDocumentClick);
-      document.removeEventListener("keydown", onEscape);
-    };
-  }, [open]);
+  const formatTime = (value: Date) => {
+    const date = new Date(value);
+    return date.toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
 
   if (!isLoggedIn) {
-    return (
-      <button
-        type="button"
-        onClick={() => {
-          window.alert("Please log in to open your profile.");
-          router.push("/api/auth/signin?callbackUrl=/landing");
-        }}
-        className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 text-slate-700 transition-colors hover:border-sky-400 hover:text-sky-500"
-        aria-label="Profile"
-        title="Please log in to view your profile"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.8"
-          className="h-5 w-5"
-        >
-          <circle cx="12" cy="8" r="3.5" />
-          <path d="M5 19a7 7 0 0 1 14 0" />
-        </svg>
-      </button>
-    );
+    return null;
   }
 
   return (
-    <div ref={menuRef} className="relative">
+    <div className="relative flex items-center gap-4 text-slate-800" ref={menuRef}>
       <button
         type="button"
-        onClick={() => setOpen((prev) => !prev)}
-        className="flex items-center gap-2 rounded-full border border-slate-200 px-2 py-1 transition-colors hover:border-sky-400"
-        aria-haspopup="menu"
-        aria-expanded={open}
+        onClick={() => setMenuOpen((open) => !open)}
+        aria-label="Notifications"
+        aria-expanded={menuOpen}
+        className="relative inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-slate-600 transition-colors hover:bg-slate-100"
       >
-        <span className="max-w-40 truncate text-sm font-semibold text-slate-800">{displayName}</span>
+        <Bell className="h-5 w-5" aria-hidden />
+        {displayNotifications.length > 0 && (
+          <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-500" />
+        )}
+      </button>
+
+      {menuOpen && (
+        <div className="absolute right-0 top-10 z-50 w-80 rounded-xl border border-slate-200 bg-white p-3 shadow-xl">
+          <div className="mb-2 flex items-center justify-between">
+            <span className="text-sm font-semibold text-slate-800">
+              Notifications
+            </span>
+            <span className="text-xs text-slate-500">
+              {displayNotifications.length} new
+            </span>
+          </div>
+
+          {displayNotifications.length === 0 ? (
+            <div className="rounded-lg border border-dashed border-slate-200 px-3 py-4 text-center text-xs text-slate-500">
+              No notifications yet.
+            </div>
+          ) : (
+            <div className="max-h-72 space-y-2 overflow-y-auto pr-1">
+              {displayNotifications.map((item: NotificationItem) => (
+                <div
+                  key={item.id}
+                  className="flex gap-3 rounded-lg border border-slate-100 bg-slate-50 px-3 py-2"
+                >
+                  <div className="mt-0.5">
+                    <CheckCircle2
+                      className={
+                        item.status === "EXAM_TERMINATED"
+                          ? "h-4 w-4 text-red-600"
+                          : "h-4 w-4 text-emerald-600"
+                      }
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <div
+                      className={
+                        item.status === "EXAM_TERMINATED"
+                          ? "text-xs font-semibold text-red-600"
+                          : "text-xs font-semibold text-slate-800"
+                      }
+                    >
+                      {item.status === "EXAM_TERMINATED"
+                        ? "Exam terminated"
+                        : "Application submitted"}
+                    </div>
+                    <div className="text-xs text-slate-500">
+                      {item.jobTitle}
+                    </div>
+                    <div
+                      className={
+                        item.status === "EXAM_TERMINATED"
+                          ? "mt-1 text-xs text-slate-700"
+                          : "mt-1 text-xs text-slate-600"
+                      }
+                    >
+                      {item.status === "EXAM_TERMINATED" ? (
+                        "Exam terminated due to violations. Please contact support if needed."
+                      ) : item.status === "EXAM_SUBMITTED" ? (
+                        <>
+                          <span className="text-emerald-600">Exam completed</span>
+                          <span className="text-emerald-600"> successfully</span>. We will
+                          inform you later about the interview process if selected.
+                        </>
+                      ) : (
+                        "Applied successfully. You can now face exam."
+                      )}
+                    </div>
+                    <div className="mt-1 text-[11px] text-slate-400">
+                      {formatTime(item.createdAt)}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      <Link
+        href="/student/profile"
+        className="flex items-center gap-2 text-slate-800 hover:text-slate-900"
+      >
+        <span className="max-w-40 truncate text-sm font-semibold text-slate-800">
+          {displayName}
+        </span>
         {image ? (
           <img
             src={image}
@@ -97,38 +169,7 @@ export default function ProfileMenu({ isLoggedIn, name, email, image }: ProfileM
             {initials}
           </span>
         )}
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          className={`h-4 w-4 text-slate-600 transition-transform ${open ? "rotate-180" : ""}`}
-        >
-          <path d="m6 9 6 6 6-6" />
-        </svg>
-      </button>
-
-      {open && (
-        <div className="absolute right-0 mt-2 w-44 rounded-xl border border-slate-200 bg-white p-1 shadow-lg" role="menu">
-          <Link
-            href="/student/profile"
-            onClick={() => setOpen(false)}
-            className="block rounded-lg px-3 py-2 text-sm text-slate-700 transition-colors hover:bg-slate-100"
-            role="menuitem"
-          >
-            Profile
-          </Link>
-          <button
-            type="button"
-            onClick={() => signOut({ callbackUrl: "/" })}
-            className="block w-full rounded-lg px-3 py-2 text-left text-sm text-rose-600 transition-colors hover:bg-rose-50"
-            role="menuitem"
-          >
-            Log out
-          </button>
-        </div>
-      )}
+      </Link>
     </div>
   );
 }

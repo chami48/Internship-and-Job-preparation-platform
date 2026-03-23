@@ -4,9 +4,9 @@ import HeaderAuthControls from "~/app/components/common/HeaderAuthControls";
 
 export default function Header() {
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-200 bg-white">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-        <a href="http://localhost:3000/home" className="flex items-center gap-4">
+    <header data-app-header className="sticky top-0 z-50 border-b border-slate-200 bg-white relative">
+      <div className="mx-auto flex max-w-[1180px] items-center justify-between px-7 py-5">
+        <a href="http://localhost:3000/home" className="flex items-center gap-3 ml-6">
           <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-slate-900 text-white font-bold text-sm relative">
             HS
             <div className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-sky-400 opacity-60"></div>
@@ -18,22 +18,21 @@ export default function Header() {
           </div>
         </a>
 
-        <nav className="hidden items-center gap-6 text-sm text-slate-600 md:flex">
+        <nav className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-6 text-sm text-slate-600 md:flex">
           <Link className="font-medium hover:text-slate-900 transition-colors" href="/student">
-            Features
+            Opportunities
           </Link>
-          <Link className="font-medium hover:text-slate-900 transition-colors" href="/company">
-            Roadmaps
+          <Link className="font-medium hover:text-slate-900 transition-colors" href="/prep-quiz">
+            Interview Preparation
           </Link>
-          <Link className="font-medium hover:text-slate-900 transition-colors" href="/exam">
-            Pricing
-          </Link>
-          <Link className="font-medium hover:text-slate-900 transition-colors" href="/ai">
-            Blog
+          <Link className="font-medium hover:text-slate-900 transition-colors" href="/contact">
+            Contact Us
           </Link>
         </nav>
 
-        <HeaderAuthControls />
+        <div className="mr-4">
+          <HeaderAuthControls />
+        </div>
       </div>
     </header>
   );

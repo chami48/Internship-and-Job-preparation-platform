@@ -37,10 +37,7 @@ export default function ContactPage() {
   return (
     <main className="contact-root">
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap');
-
         .contact-root {
-          font-family: 'Manrope', sans-serif;
           color: #0F172A;
           background:
             radial-gradient(circle at 20% 10%, rgba(14,165,233,0.12), transparent 38%),
@@ -50,7 +47,6 @@ export default function ContactPage() {
         }
 
         .contact-display {
-          font-family: 'Space Grotesk', sans-serif;
           letter-spacing: -0.03em;
         }
 
@@ -240,7 +236,6 @@ export default function ContactPage() {
           border: 1px solid #CBD5E1;
           padding: 12px 14px;
           font-size: 0.95rem;
-          font-family: inherit;
           color: #0F172A;
         }
 

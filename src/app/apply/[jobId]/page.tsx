@@ -384,8 +384,6 @@ export default function ApplyPage({ params }: { params: { jobId: string } }) {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap');
-
         :root{
           --bg: #f7f9fc;
           --surface: #ffffff;
@@ -404,10 +402,8 @@ export default function ApplyPage({ params }: { params: { jobId: string } }) {
             radial-gradient(circle at 20% 20%, rgba(99,102,241,0.10), transparent 35%),
             linear-gradient(180deg, #f8fafc, #eef2f7 60%, #e9edf5);
           color: var(--text);
-          font-family: 'Manrope', sans-serif;
         }
         .title, .brandTitle{
-          font-family: 'Sora', sans-serif;
         }
 
         .scan{ display:none; }

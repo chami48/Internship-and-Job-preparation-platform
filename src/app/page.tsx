@@ -29,10 +29,7 @@ export default function LandingPage() {
   return (
     <main className="relative overflow-hidden bg-[#fbfcff] text-slate-900">
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap');
-
         .landing-shell {
-          font-family: 'Manrope', sans-serif;
           background-image:
             radial-gradient(circle at 10% 10%, rgba(3, 105, 161, 0.08), transparent 30%),
             radial-gradient(circle at 85% 5%, rgba(15, 23, 42, 0.08), transparent 30%),
@@ -40,7 +37,6 @@ export default function LandingPage() {
         }
 
         .display-font {
-          font-family: 'Space Grotesk', sans-serif;
           letter-spacing: -0.03em;
         }
 
