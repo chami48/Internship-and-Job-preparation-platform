@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Tesseract from "tesseract.js";
 import * as faceapi from "face-api.js";
 import { User } from "lucide-react";
+import { showAlert } from "~/app/components/common/alert";
 
 export default function ApplyPage() {
   const searchParams = useSearchParams();
@@ -125,7 +126,10 @@ export default function ApplyPage() {
   const itNumber = await extractITNumber(file);
   
   if (!itNumber) {
-    alert("Could not detect IT number from ID card. Please try a clearer image.");
+    void showAlert({
+      icon: "error",
+      text: "Could not detect IT number from ID card. Please try a clearer image.",
+    });
     setIdImage(null);
     setIdPreview(null);
     setOcrLoading(false);
@@ -138,9 +142,10 @@ export default function ApplyPage() {
     const registered = userStudentId.replace(/\s/g, "").toUpperCase();
 
     if (detected !== registered) {
-      alert(
-        `Student ID mismatch!\n\nDetected on card: ${detected}\nYour registered ID: ${registered}\n\nPlease upload your own student ID card.`
-      );
+      void showAlert({
+        icon: "error",
+        html: `Student ID mismatch!<br/><br/>Detected on card: ${detected}<br/>Your registered ID: ${registered}<br/><br/>Please upload your own student ID card.`,
+      });
       setIdImage(null);
       setIdPreview(null);
       setOcrLoading(false);
@@ -164,20 +169,38 @@ export default function ApplyPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
-  if (!idImage) { alert("Please upload your ID image"); return; }
-  if (!detectedStudentId) { alert("Could not detect IT number from ID card."); return; }
+  if (!idImage) {
+    void showAlert({
+      icon: "warning",
+      text: "Please upload your ID image",
+    });
+    return;
+  }
+  if (!detectedStudentId) {
+    void showAlert({
+      icon: "error",
+      text: "Could not detect IT number from ID card.",
+    });
+    return;
+  }
 
   // ✅ Final guard before submission
   if (userStudentId) {
     const detected = detectedStudentId.replace(/\s/g, "").toUpperCase();
     const registered = userStudentId.replace(/\s/g, "").toUpperCase();
     if (detected !== registered) {
-      alert("Student ID on card does not match your registered account. Submission blocked.");
+      void showAlert({
+        icon: "error",
+        text: "Student ID on card does not match your registered account. Submission blocked.",
+      });
       return;
     }
   } else {
     // studentId not set on this account — block entirely
-    alert("Your student ID is not registered in the system. Please contact admin.");
+    void showAlert({
+      icon: "error",
+      text: "Your student ID is not registered in the system. Please contact admin.",
+    });
     return;
   }
 
@@ -210,7 +233,10 @@ export default function ApplyPage() {
       setRedirectingAfterSubmit(false);
       setLoading(false);
       setStep("form");
-      alert("Failed to submit verification.");
+      void showAlert({
+        icon: "error",
+        text: "Failed to submit verification.",
+      });
     }
   };
   reader.readAsDataURL(idImage);
@@ -418,8 +444,6 @@ export default function ApplyPage() {
    STYLES
 ───────────────────────────────────────────── */
 const STYLES = `
-  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
-
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   /* ── LAYOUT ── */
@@ -432,7 +456,6 @@ const STYLES = `
     padding: 40px 20px;
     position: relative;
     overflow: hidden;
-    font-family: 'Space Grotesk', sans-serif;
   }
 
   /* orbs */
@@ -509,17 +532,14 @@ const STYLES = `
     border-radius: 10px;
     background: linear-gradient(135deg, #0EA5E9, #38BDF8);
     display: flex; align-items: center; justify-content: center;
-    font-family: 'JetBrains Mono', monospace;
     font-size: 11px; font-weight: 700; color: white;
     box-shadow: 0 4px 12px rgba(14,165,233,0.3);
   }
   .av-logo-name {
-    font-family: 'Space Grotesk', sans-serif;
     font-size: 1rem; font-weight: 700; color: white;
     letter-spacing: -0.02em; line-height: 1;
   }
   .av-logo-sub {
-    font-family: 'JetBrains Mono', monospace;
     font-size: 0.55rem; color: #0EA5E9;
     letter-spacing: 0.14em; text-transform: uppercase; margin-top: 2px;
   }
@@ -531,7 +551,6 @@ const STYLES = `
   }
 
   .av-left-title {
-    font-family: 'Space Grotesk', sans-serif;
     font-size: 1.6rem; font-weight: 800;
     color: white; letter-spacing: -0.03em;
     line-height: 1.1; margin-bottom: 14px;
@@ -562,7 +581,6 @@ const STYLES = `
     border: 1px solid rgba(14,165,233,0.3);
     background: rgba(14,165,233,0.08);
     display: flex; align-items: center; justify-content: center;
-    font-family: 'JetBrains Mono', monospace;
     font-size: 0.65rem; font-weight: 700; color: #38BDF8;
     flex-shrink: 0;
   }
@@ -618,13 +636,11 @@ const STYLES = `
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    font-family: 'JetBrains Mono', monospace;
     font-size: 0.65rem; font-weight: 700;
     letter-spacing: 0.12em; text-transform: uppercase;
     color: #0EA5E9; margin-bottom: 10px;
   }
   .av-form-title {
-    font-family: 'Space Grotesk', sans-serif;
     font-size: 1.55rem; font-weight: 800;
     color: #0F172A; letter-spacing: -0.03em;
     margin-bottom: 6px;
@@ -636,7 +652,6 @@ const STYLES = `
   /* fields */
   .av-field { display: flex; flex-direction: column; gap: 8px; }
   .av-label {
-    font-family: 'Space Grotesk', sans-serif;
     font-size: 0.8rem; font-weight: 600; color: #374151;
     letter-spacing: -0.01em;
   }
@@ -655,7 +670,6 @@ const STYLES = `
     padding: 12px 14px 12px 42px;
     border: 1.5px solid #E2E8F0;
     border-radius: 12px;
-    font-family: 'Space Grotesk', sans-serif;
     font-size: 0.9rem; color: #0F172A;
     background: #FAFBFF;
     outline: none;
@@ -697,7 +711,6 @@ const STYLES = `
   }
   .av-role-icon { font-size: 1.3rem; }
   .av-role-label {
-    font-family: 'Space Grotesk', sans-serif;
     font-size: 0.68rem; font-weight: 600; color: #475569;
     text-align: center; line-height: 1.2;
   }
@@ -730,7 +743,6 @@ const STYLES = `
     display: flex; align-items: center; justify-content: center;
   }
   .av-upload-main {
-    font-family: 'Space Grotesk', sans-serif;
     font-size: 0.875rem; font-weight: 600; color: #0F172A;
   }
   .av-upload-sub {
@@ -756,7 +768,6 @@ const STYLES = `
     border: none;
     border-radius: 8px;
     padding: 5px 10px;
-    font-family: 'JetBrains Mono', monospace;
     font-size: 0.65rem; font-weight: 600;
     cursor: pointer;
     backdrop-filter: blur(4px);
@@ -771,7 +782,6 @@ const STYLES = `
     gap: 10px;
     padding: 12px 16px;
     border-radius: 12px;
-    font-family: 'Space Grotesk', sans-serif;
     font-size: 0.85rem;
     font-weight: 500;
   }
@@ -806,7 +816,6 @@ const STYLES = `
     border-radius: 14px;
     background: linear-gradient(135deg, #0F172A, #1E293B);
     color: white;
-    font-family: 'Space Grotesk', sans-serif;
     font-size: 0.95rem; font-weight: 700;
     letter-spacing: -0.01em;
     cursor: pointer;
@@ -869,7 +878,6 @@ const STYLES = `
     align-items: center; justify-content: center;
     gap: 16px;
     background: #F0F6FF;
-    font-family: 'Space Grotesk', sans-serif;
   }
   .av-loading-text {
     font-size: 0.9rem; color: #64748B; font-weight: 500;
@@ -894,7 +902,6 @@ const STYLES = `
     width: 100%;
   }
   .av-processing-title {
-    font-family: 'Space Grotesk', sans-serif;
     font-size: 1.2rem; font-weight: 700; color: #0F172A;
     margin-bottom: 8px;
   }

@@ -266,7 +266,7 @@ model Application {
 
   projects     Project[]
   scenarios    ScenarioAnswer[]
-  examAnswers  ExamAnswer[]   // ✅ REQUIRED reverse relation
+  examAnswers  ExamAnswer[]   
   violations ExamViolation[]
 
   lockedQuestions Json?

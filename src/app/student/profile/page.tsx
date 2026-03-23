@@ -77,10 +77,7 @@ export default async function StudentProfilePage() {
   return (
     <main className="min-h-[calc(100vh-80px)] bg-slate-50 px-4 py-8 md:px-8">
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
-
         .profile-shell {
-          font-family: 'Manrope', sans-serif;
         }
 
         .profile-grid-bg {
