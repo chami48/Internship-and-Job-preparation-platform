@@ -144,6 +144,7 @@ export default function ExamPage() {
     };
   }, [examStarted, startingExam]);
 
+
   // ─────────────────────────────────────────────
   // FULLSCREEN HELPERS
   // ─────────────────────────────────────────────
@@ -198,30 +199,53 @@ export default function ExamPage() {
   }, []);
 
   const stopCamera = useCallback(() => {
-    mediaStreamRef.current?.getTracks().forEach((t) => t.stop());
-    mediaStreamRef.current = null;
-  }, []);
+  if (mediaStreamRef.current) {
+    mediaStreamRef.current.getTracks().forEach((track) => {
+      track.stop();
+      track.enabled = false;
+    });
+  }
+
+  if (videoRef.current) {
+    videoRef.current.pause();
+    videoRef.current.srcObject = null;
+  }
+
+  mediaStreamRef.current = null;
+  setCameraAllowed(false);
+}, []);
+
+  useEffect(() => {
+    if (!examStarted) {
+      stopCamera();
+    }
+  }, [examStarted, stopCamera]);
 
   // ─────────────────────────────────────────────
   // VIOLATION SYSTEM
   // ─────────────────────────────────────────────
   const terminateNow = useCallback(async () => {
-    if (terminationTriggeredRef.current) return;
-    terminationTriggeredRef.current = true;
+  if (terminationTriggeredRef.current) return;
 
-    setTerminated(true);
-    stopCamera();
+  terminationTriggeredRef.current = true;
 
-    if (appId) {
-      await terminateApplication.mutateAsync({
-        applicationId: appId,
-        reason: "VIOLATION",
-      });
-    }
+  setTerminated(true);
 
-    await exitFullscreen();
-    router.push("/home");
-  }, [appId, terminateApplication, exitFullscreen, router, stopCamera]);
+  stopCamera(); // 🔥 FIRST
+
+  await new Promise((r) => setTimeout(r, 300)); // 🔥 IMPORTANT
+
+  if (appId) {
+    await terminateApplication.mutateAsync({
+      applicationId: appId,
+      reason: "VIOLATION",
+    });
+  }
+
+  await exitFullscreen();
+
+  router.push("/home");
+}, []);
 
   const triggerViolation = useCallback(
     (type: ViolationType) => {
@@ -775,10 +799,22 @@ export default function ExamPage() {
       applicationId: appId,
       answers: formatted,
     });
-  } finally {
-    await exitFullscreen(); // exit fullscreen before redirect
-    setTimeout(() => router.push("/home?submitted=true"), 2000);
-  }
+   } finally {
+  // 🔥 1. Stop camera FIRST
+  stopCamera();
+
+  // 🔥 2. Give browser time to release hardware
+  await new Promise((r) => setTimeout(r, 500));
+
+  // 🔥 3. Extra force release (important for Chrome)
+  navigator.mediaDevices.getUserMedia({ video: false }).catch(() => {});
+
+  // 🔥 4. Exit fullscreen
+  await exitFullscreen();
+
+  // 🔥 5. Then navigate
+  router.push("/home?submitted=true");
+}
 }, [appId, answers, submitExam, stopCamera, exitFullscreen, router]);
 
   // ─────────────────────────────────────────────
@@ -945,10 +981,6 @@ export default function ExamPage() {
     // ✅ 2. THEN start camera
     const camOk = await startCamera();
 
-    if (videoRef.current) {
-      await videoRef.current.play();
-    }
-
     if (!camOk) {
       await document.exitFullscreen(); // 🔥 exit fullscreen if camera fails
       setStartingExam(false);
@@ -960,19 +992,52 @@ export default function ExamPage() {
       const video = videoRef.current;
 
       await new Promise<void>((resolve) => {
+        let resolved = false;
+
+        const cleanup = () => {
+          video.onloadedmetadata = null;
+          video.oncanplay = null;
+        };
+
+        const safeResolve = () => {
+          if (resolved) return;
+          resolved = true;
+          cleanup();
+          resolve();
+        };
+
+        const tryPlay = () => {
+          if (!video.isConnected || video.srcObject == null) return;
+          video.play().catch(() => {
+            // ignore AbortError when the element is replaced/unmounted
+          });
+        };
+
         video.onloadedmetadata = () => {
-          video.play();
+          tryPlay();
+          safeResolve();
         };
 
-        const checkReady = () => {
-          if (video.readyState === 4) {
-            resolve();
-          } else {
-            requestAnimationFrame(checkReady);
-          }
+        video.oncanplay = () => {
+          tryPlay();
+          safeResolve();
         };
 
-        checkReady();
+        if (video.readyState >= 2) {
+          tryPlay();
+          safeResolve();
+        } else {
+          const checkReady = () => {
+            if (video.readyState >= 2) {
+              tryPlay();
+              safeResolve();
+            } else {
+              requestAnimationFrame(checkReady);
+            }
+          };
+
+          checkReady();
+        }
       });
 
       // extra delay for stable frame
@@ -1012,12 +1077,13 @@ export default function ExamPage() {
   };
 
   // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      stopCamera();
-      if (alertTimeoutRef.current) clearTimeout(alertTimeoutRef.current);
-    };
-  }, [stopCamera]);
+ useEffect(() => {
+  return () => {
+    if (mediaStreamRef.current) {
+      mediaStreamRef.current.getTracks().forEach((t) => t.stop());
+    }
+  };
+}, []);
 
   // ─────────────────────────────────────────────
   // AUTH GUARD
