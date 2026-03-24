@@ -61,7 +61,7 @@ export const jobRouter = createTRPCRouter({
       ...job,
       applied: !!app,
       examSubmitted: app?.examSubmitted ?? false,
-      terminated: app?.terminationReason === "VIOLATION",
+      terminated: app?.terminationReason === "VIOLATION" && !app?.examSubmitted,
       terminationReason: app?.terminationReason ?? null,
       applicationId: app?.id ?? null,
     };

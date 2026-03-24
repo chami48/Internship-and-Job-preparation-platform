@@ -29,18 +29,18 @@ function StatusBadge({
   examSubmitted?: boolean;
   terminated?: boolean;
 }) {
-  if (terminated) {
-    return (
-      <span className="rounded-full bg-rose-100 px-3 py-1 text-xs font-semibold text-rose-700">
-        Terminated
-      </span>
-    );
-  }
-
   if (examSubmitted) {
     return (
       <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
         Submitted
+      </span>
+    );
+  }
+
+  if (terminated) {
+    return (
+      <span className="rounded-full bg-rose-100 px-3 py-1 text-xs font-semibold text-rose-700">
+        Terminated
       </span>
     );
   }

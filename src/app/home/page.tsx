@@ -182,14 +182,14 @@ function JobCard({
             {job.level?.toUpperCase()}
           </span>
           {role === "STUDENT" ? (
-            job.terminationReason === "FACE_MISMATCH" ? (
+            job.examSubmitted ? (
+              <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#15803D" }}>Exam Done ✓</span>
+            ) : job.terminationReason === "FACE_MISMATCH" ? (
               <Link href={`/exam/${job.id}?appId=${job.applicationId}`} onClick={(e) => e.stopPropagation()} style={{ fontSize: "0.75rem", fontWeight: 700, color: "#B45309", textDecoration: "none" }}>
-                Retry Verification
+                Begin Exam
               </Link>
             ) : job.terminated ? (
               <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#DC2626" }}>Limit Exceeded</span>
-            ) : job.examSubmitted ? (
-              <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#15803D" }}>Exam Done ✓</span>
             ) : job.applied ? (
               <Link href={`/exam/${job.id}?appId=${job.applicationId}`} onClick={(e) => e.stopPropagation()} style={{ borderRadius: 8, padding: "6px 14px", fontSize: "0.75rem", fontWeight: 700, color: "white", background: "#38BDF8", textDecoration: "none" }}>
                 Start Exam →
