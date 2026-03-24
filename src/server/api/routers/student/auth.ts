@@ -21,6 +21,15 @@ export const studentAuthRouter = createTRPCRouter({
         throw new Error("An account with this email already exists");
       }
 
+      const latestOtp = await ctx.db.emailOTP.findFirst({
+        where: { email: input.email },
+        orderBy: { createdAt: "desc" },
+      });
+
+      if (latestOtp && latestOtp.expiresAt > new Date()) {
+        throw new Error("OTP already sent. Please wait a few minutes.");
+      }
+
       await sendOTP(input.email);
 
       return { success: true, message: "OTP sent successfully" };
@@ -39,6 +48,15 @@ export const studentAuthRouter = createTRPCRouter({
 
       if (!existingUser) {
         throw new Error("No student account found for this email");
+      }
+
+      const latestOtp = await ctx.db.emailOTP.findFirst({
+        where: { email: input.email },
+        orderBy: { createdAt: "desc" },
+      });
+
+      if (latestOtp && latestOtp.expiresAt > new Date()) {
+        throw new Error("OTP already sent. Please wait a few minutes.");
       }
 
       await sendOTP(input.email);
