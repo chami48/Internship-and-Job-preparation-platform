@@ -204,6 +204,12 @@ export default function StudentLoginPage() {
                 </div>
               </div>
 
+              <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                <Link href="/student/forgot-password" style={{ fontSize: "0.75rem", color: "#0EA5E9", fontWeight: 600, textDecoration: "none" }}>
+                  Forgot password?
+                </Link>
+              </div>
+
               <button
                 type="submit"
                 className="reg-btn"
