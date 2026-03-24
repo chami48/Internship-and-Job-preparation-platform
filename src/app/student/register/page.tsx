@@ -64,7 +64,7 @@ export default function StudentRegisterPage() {
   const validateName = (value: string) => {
     const trimmed = value.trim();
     if (!trimmed) return "";
-    return /^[A-Za-z\s]+$/.test(trimmed) ? "" : "Full name must contain letters only.";
+    return /^[A-Za-z.\s]+$/.test(trimmed) ? "" : "Full name can contain letters, spaces, and dots only.";
   };
 
   const validateStudentId = (value: string) => {
@@ -79,6 +79,27 @@ export default function StudentRegisterPage() {
     return /^IT\d{8}@my\.sliit\.lk$/i.test(trimmed)
       ? ""
       : "Use your SLIIT email (IT12345678@my.sliit.lk).";
+  };
+
+  const fillMockData = () => {
+    const mockName = "M.Sandani Chamoda";
+    const mockStudentId = "IT23832480";
+    const mockEmail = "it23832480@my.sliit.lk";
+    const mockPassword = "Sandani@07";
+
+    setName(mockName);
+    setStudentId(mockStudentId);
+    setEmail(mockEmail);
+    setDegree("BSc IT");
+    setYear("3");
+    setPassword(mockPassword);
+    setConfirmPassword(mockPassword);
+    setNameError(validateName(mockName));
+    setStudentIdError(validateStudentId(mockStudentId));
+    setEmailError(validateEmail(mockEmail));
+    setFormError("");
+    setOtpError("");
+    setOtpSent(false);
   };
 
   const handleSendOtp = async (e: FormEvent<HTMLFormElement>) => {
@@ -290,6 +311,27 @@ export default function StudentRegisterPage() {
                     ⚠ {formError}
                   </div>
                 )}
+
+                <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
+                  <button
+                    type="button"
+                    onClick={fillMockData}
+                    style={{
+                      border: "1px solid #E2E8F0",
+                      background: "white",
+                      color: "#0F172A",
+                      fontSize: "0.72rem",
+                      fontWeight: 700,
+                      letterSpacing: "0.08em",
+                      textTransform: "uppercase",
+                      padding: "8px 12px",
+                      borderRadius: 8,
+                      cursor: "pointer",
+                    }}
+                  >
+                    Fill Sample Data
+                  </button>
+                </div>
 
                 <form onSubmit={handleSendOtp} style={{ display: "flex", flexDirection: "column", gap: 18 }}>
                   {(() => {
