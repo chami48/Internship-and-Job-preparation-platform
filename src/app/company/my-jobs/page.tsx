@@ -2,7 +2,25 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Briefcase, MapPin, Clock, Users, Calendar, Pencil, Trash2, Search, ChevronRight } from "lucide-react";
+import {
+  Briefcase,
+  MapPin,
+  Clock,
+  Users,
+  Calendar,
+  Pencil,
+  Trash2,
+  Search,
+  ChevronRight,
+  LayoutDashboard,
+  UserCircle,
+  LogOut,
+  Bell,
+  Plus,
+  Menu,
+  X
+} from "lucide-react";
+import Swal from "sweetalert2";
 import { api } from "~/trpc/react";
 
 // Role → icon emoji mapping for visual variety
@@ -48,15 +66,46 @@ export default function MyJobsPage() {
   const [search, setSearch] = useState("");
   const [filterType, setFilterType] = useState("ALL");
   const [filterLevel, setFilterLevel] = useState("ALL");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const { data: company } = api.company.getProfile.useQuery(
+    { companyId: companyId ?? "" },
+    { enabled: !!companyId },
+  );
+  const companyName = company?.name || "Company";
 
   useEffect(() => {
     setCompanyId(localStorage.getItem("companyId"));
   }, []);
 
-  const { data: jobs = [], isLoading } = api.job.listByCompany.useQuery(
+  const { data: jobs = [], isLoading, refetch } = api.job.listByCompany.useQuery(
     { companyId: companyId ?? "" },
     { enabled: !!companyId },
   );
+
+  const deleteJob = api.job.delete.useMutation({
+    onSuccess: async () => {
+      await refetch();
+    },
+  });
+
+  const handleLogout = () => router.push('/company/comlogin');
+  const handleCreateJob = () => router.push('/company/create-job');
+  const handleDelete = async (jobId: string) => {
+    if (!companyId) return;
+    const result = await Swal.fire({
+      title: "Delete this job post?",
+      text: "This action cannot be undone.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Delete",
+      cancelButtonText: "Cancel",
+      confirmButtonColor: "#DC2626",
+      cancelButtonColor: "#64748B",
+    });
+    if (!result.isConfirmed) return;
+    deleteJob.mutate({ id: jobId, companyId });
+  };
 
   const active     = jobs.filter((j) => !isExpired(j.deadline)).length;
   const expired    = jobs.filter((j) => isExpired(j.deadline)).length;
@@ -78,145 +127,252 @@ export default function MyJobsPage() {
   }
 
   return (
-    <div className="px-8 py-8">
+    <div className="min-h-screen bg-[#F4F7FB] font-sans text-[#0F172A] selection:bg-[#3AB6D9]/30">
 
-      {/* ── PAGE HEADER ── */}
-      <div className="flex items-center justify-between mb-7">
-        <div>
-          <h1 className="text-2xl font-extrabold text-[#0F172A] tracking-tight">My Job Posts</h1>
-          <p className="text-base text-slate-400 mt-0.5 font-medium">{jobs.length} listing{jobs.length !== 1 ? "s" : ""}</p>
-        </div>
-      </div>
+      {/* Navbar - Full Width at Top */}
+      <header className="h-16 sm:h-20 bg-white sticky top-0 z-30 border-b border-slate-200 shadow-sm flex items-center justify-between px-4 sm:px-6 lg:px-12">
 
-      {/* ── CONTROLS ROW ── */}
-      <div className="flex gap-3 mb-7 items-stretch">
+        {/* Mobile Menu Button */}
+        <button
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          className="lg:hidden p-2 text-[#0F172A] hover:bg-[#F4F7FB] rounded-xl transition-colors"
+          aria-label="Toggle menu"
+        >
+          <Menu size={24} />
+        </button>
 
-        {/* Search + Filters */}
-        <div className="flex gap-2.5 items-stretch flex-1">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
-            <input
-              type="text"
-              placeholder="Search job title…"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full h-full pl-9 pr-4 border border-[#E2E8F0] rounded-xl text-base outline-none bg-white focus:ring-2 focus:ring-[#3AB6D9]/40 focus:border-[#3AB6D9] transition"
-            />
+        {/* Dashboard Logo */}
+        <div className="hidden md:flex items-center gap-3 mr-4">
+          <div className="relative inline-flex h-10 w-10 items-center justify-center rounded-xl bg-[#0F172A] text-white font-bold text-sm">
+            HS
+            <div className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-[#3AB6D9]"></div>
           </div>
-          <select
-            value={filterType}
-            onChange={(e) => setFilterType(e.target.value)}
-            className="border border-[#E2E8F0] rounded-xl px-3 h-full text-base outline-none bg-white focus:ring-2 focus:ring-[#3AB6D9]/40 text-slate-600 font-medium shrink-0"
-          >
-            <option value="ALL">All Types</option>
-            <option value="FULL_TIME">Full Time</option>
-            <option value="INTERNSHIP">Internship</option>
-          </select>
-          <select
-            value={filterLevel}
-            onChange={(e) => setFilterLevel(e.target.value)}
-            className="border border-[#E2E8F0] rounded-xl px-3 h-full text-base outline-none bg-white focus:ring-2 focus:ring-[#3AB6D9]/40 text-slate-600 font-medium shrink-0"
-          >
-            <option value="ALL">All Levels</option>
-            <option value="JUNIOR">Junior</option>
-            <option value="MID">Mid</option>
-            <option value="SENIOR">Senior</option>
-          </select>
+          <span className="text-lg font-bold text-[#0F172A] tracking-tight">HireSmart</span>
         </div>
 
-        {/* Summary pills */}
-        <div className="flex gap-2.5 shrink-0">
-          {[
-            { label: "Active",      value: active,     bg: "bg-green-50",  border: "border-green-200", text: "text-green-700",  num: "text-green-600",  dot: "bg-green-400" },
-            { label: "Expired",     value: expired,    bg: "bg-red-50",    border: "border-red-200",   text: "text-red-600",    num: "text-red-500",    dot: "bg-red-400" },
-            { label: "No Deadline", value: noDeadline, bg: "bg-blue-50",   border: "border-blue-200",  text: "text-blue-700",   num: "text-blue-600",   dot: "bg-blue-400" },
-          ].map((s) => (
-            <div key={s.label} className={`${s.bg} ${s.border} border rounded-xl px-4 py-2.5 flex items-center gap-3 min-w-[110px]`}>
-              <span className={`w-2 h-2 rounded-full ${s.dot} flex-shrink-0`} />
+        {/* Right Actions */}
+        <div className="flex items-center gap-3 sm:gap-4 ml-auto">
+          <button className="relative flex h-10 w-10 items-center justify-center rounded-full border border-[#0F75A8]/30 bg-white text-[#0F75A8] shadow-sm transition-all hover:shadow-md hover:-translate-y-[1px]">
+            <Bell size={18} className="sm:w-[22px] sm:h-[22px]" />
+          </button>
+          <div className="hidden md:flex items-center gap-2 text-right leading-tight border-l border-[#E2E8F0] pl-3 sm:pl-4">
+            <span className="text-sm font-semibold text-[#475569]">Welcome</span>
+            <span className="text-sm font-bold text-[#0F172A] truncate max-w-[140px]">{companyName}</span>
+            <div className="w-9 h-9 sm:w-11 sm:h-11 bg-slate-200 rounded-xl lg:rounded-2xl overflow-hidden cursor-pointer hover:ring-2 ring-[#1F7FB2] transition-all shadow-sm">
+              <img src="/logos/company-logo-jpg.jpg" alt="Avatar" className="w-full h-full object-cover" />
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div className="flex relative">
+
+        {/* Mobile Sidebar Overlay */}
+        {sidebarOpen && (
+          <div
+            className="lg:hidden fixed inset-0 bg-black/50 z-40 top-16 sm:top-20"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+
+        {/* Sidebar */}
+        <aside
+          className={`${
+            sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          } lg:translate-x-0 sticky lg:sticky top-16 sm:top-20 left-0 w-64 sm:w-68 flex flex-col h-[calc(100vh-4rem)] sm:h-[calc(100vh-5rem)] overflow-y-auto overflow-x-hidden z-50 lg:z-10 transition-transform duration-300 ease-in-out lg:shrink-0 border-r border-[#0B1527]`}
+          style={{
+            background: "linear-gradient(145deg, #0F172A 0%, #0C1A33 60%, #0D2340 100%)"
+          }}
+        >
+          {/* Close button for mobile */}
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="lg:hidden absolute top-4 right-4 p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-all z-20"
+          >
+            <X size={20} />
+          </button>
+
+          {/* Navigation */}
+          <nav className="flex-1 px-4 sm:px-6 space-y-2 sm:space-y-3 mt-4 sm:mt-6 relative z-10">
+            {[
+              { name: 'Dashboard', icon: LayoutDashboard, onClick: () => { router.push('/company/dashboard'); setSidebarOpen(false); } },
+              { name: 'My Job Posts', icon: Briefcase, active: true, onClick: undefined },
+              { name: 'Selected Candidates', icon: Users, onClick: () => { router.push('/company/selected-candidates'); setSidebarOpen(false); } },
+              { name: 'Interviews', icon: Calendar, onClick: () => { router.push('/company/interviews'); setSidebarOpen(false); } },
+              { name: 'Company Profile', icon: UserCircle, onClick: () => { router.push('/company/profile'); setSidebarOpen(false); } },
+            ].map((item) => (
+              <button
+                key={item.name}
+                onClick={item.onClick}
+                className={`w-full flex items-center gap-3 sm:gap-4 px-3 sm:px-4 py-3 sm:py-3.5 rounded-xl text-sm font-semibold transition-all ${
+                  item.active
+                    ? 'bg-[#E2E8F0] text-[#0F172A] shadow-sm'
+                    : 'text-white/80 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                <item.icon
+                  size={20}
+                  className={item.active ? 'text-[#0F172A]' : 'text-white/70'}
+                />
+                {item.name}
+              </button>
+            ))}
+          </nav>
+
+          {/* Logout */}
+          <div className="px-4 sm:px-6 py-4 sm:py-6 border-t border-white/10 relative z-10">
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center gap-3 px-3 sm:px-4 py-3 text-sm font-bold text-red-400 hover:bg-red-500/10 rounded-xl transition-all group border border-red-500/20"
+            >
+              <LogOut size={18} className="group-hover:-translate-x-1 transition-transform" />
+              Logout
+            </button>
+          </div>
+        </aside>
+
+        {/* Main Content Area */}
+        <main className="flex-1 min-w-0">
+          <div className="p-4 sm:p-6 lg:p-12 space-y-6 sm:space-y-8 lg:space-y-12 bg-[#F8FAFF] text-[#0F172A] rounded-t-3xl shadow-inner">
+            <div className="max-w-6xl mx-auto space-y-6">
+
+        {/* Header */}
+        <div className="space-y-2">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#3AB6D9] bg-[#3AB6D9]/10 w-fit mb-4">
+            <span className="w-2 h-2 rounded-full bg-[#3AB6D9]"></span>
+            <span className="text-xs font-semibold text-[#0F172A]">Job Management • Post tracking enabled</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-tight mb-0" style={{
+            background: "linear-gradient(135deg, #0F172A, #0EA5E9)",
+            backgroundClip: "text",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent"
+          }}>
+            Roles you published
+          </h1>
+          <p className="text-[#475569] text-sm sm:text-base max-w-2xl leading-relaxed font-medium">{jobs.length} listing{jobs.length !== 1 ? "s" : ""} across your pipeline</p>
+        </div>
+
+        {/* Quick stats */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {[ 
+            { label: "Active", value: active },
+            { label: "Expired", value: expired },
+            { label: "No deadline", value: noDeadline },
+          ].map((stat) => (
+            <div key={stat.label} className="bg-white border rounded-xl p-4 flex items-center gap-3 shadow-sm">
+              <div className="w-10 h-10 bg-[#0F3D5E] text-white flex items-center justify-center rounded-lg">
+                <Users size={18} />
+              </div>
               <div>
-                <div className={`text-sm font-semibold ${s.text}`}>{s.label}</div>
-                <div className={`text-xl font-black leading-none mt-0.5 ${s.num}`}>{s.value}</div>
+                <p className="text-sm text-slate-500">{stat.label}</p>
+                <p className="text-xl font-bold">{stat.value}</p>
               </div>
             </div>
           ))}
         </div>
-      </div>
 
-      {/* ── JOB CARDS ── */}
-      {filtered.length === 0 ? (
-        <div className="col-span-2 flex flex-col items-center justify-center py-20 text-slate-400">
-          <div className="text-4xl mb-3">🔍</div>
-          <p className="font-semibold">No job posts found.</p>
-          <p className="text-base mt-1">Try adjusting your search or filters.</p>
+        {/* Search + Filters */}
+        <div className="bg-white p-4 rounded-xl border shadow-sm space-y-3">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+            <input
+              type="text"
+              placeholder="Search job title"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full pl-10 pr-3 py-2 border rounded-lg bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#3AB6D9]/30"
+            />
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <select
+              value={filterType}
+              onChange={(e) => setFilterType(e.target.value)}
+              className="border rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#3AB6D9]/30"
+            >
+              <option value="ALL">All types</option>
+              <option value="FULL_TIME">Full Time</option>
+              <option value="INTERNSHIP">Internship</option>
+            </select>
+            <select
+              value={filterLevel}
+              onChange={(e) => setFilterLevel(e.target.value)}
+              className="border rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#3AB6D9]/30"
+            >
+              <option value="ALL">All levels</option>
+              <option value="JUNIOR">Junior</option>
+              <option value="MID">Mid</option>
+              <option value="SENIOR">Senior</option>
+            </select>
+          </div>
         </div>
-      ) : (
-        <div className="grid grid-cols-2 gap-8">
-          {filtered.map((job) => {
-            const exp  = isExpired(job.deadline);
-            const left = daysLeft(job.deadline);
 
-            return (
-              <div
-                key={job.id}
-                onClick={() => router.push(`/company/my-jobs/${job.id}`)}
-                className="group bg-white border border-[#E2E8F0] rounded-2xl overflow-hidden hover:shadow-lg hover:border-[#3AB6D9]/40 transition-all duration-200 cursor-pointer flex flex-col"
-              >
-                {/* Top accent bar */}
-                <div className={`h-1 w-full ${exp ? "bg-gradient-to-r from-red-300 to-red-400" : "bg-gradient-to-r from-[#3AB6D9] to-[#1F7FB2]"}`} />
+        {/* Jobs */}
+        {filtered.length === 0 ? (
+          <div className="bg-white border border-dashed rounded-xl p-12 text-center text-slate-500 shadow-sm">
+            <div className="text-4xl mb-3">🔍</div>
+            <p className="font-semibold">No job posts found.</p>
+            <p className="text-base mt-1">Try adjusting your search or filters.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {filtered.map((job) => {
+              const exp  = isExpired(job.deadline);
+              const left = daysLeft(job.deadline);
 
-                <div className="p-6 flex flex-col flex-1">
-
-                  {/* Title row */}
-                  <div className="flex items-start justify-between gap-3 mb-3">
+              return (
+                <div
+                  key={job.id}
+                  onClick={() => router.push(`/company/my-jobs/${job.id}`)}
+                  className="bg-white border rounded-xl p-5 shadow-sm hover:shadow-md transition cursor-pointer flex flex-col gap-3"
+                >
+                  <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg flex-shrink-0 ${exp ? "bg-slate-100" : "bg-[#EFF6FF]"}`}>
+                      <div className="w-10 h-10 rounded-lg bg-[#0F3D5E]/10 text-lg flex items-center justify-center">
                         {ROLE_ICON[job.role] ?? "💼"}
                       </div>
                       <div>
-                        <h2 className="text-[17px] font-bold text-[#0F172A] leading-tight">{job.title}</h2>
-                        <p className="text-sm text-slate-400 font-medium mt-0.5">Posted {fmtDate(job.createdAt)}</p>
+                        <h2 className="text-lg font-bold text-[#0F172A] leading-tight">{job.title}</h2>
+                        <p className="text-sm text-slate-500">Posted {fmtDate(job.createdAt)}</p>
                       </div>
                     </div>
-                    <span className={`text-sm font-bold px-2.5 py-1 rounded-full flex-shrink-0 ${exp ? "bg-red-100 text-red-600" : "bg-green-100 text-green-700"}`}>
+                    <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${exp ? "bg-red-50 text-red-600 border-red-200" : "bg-emerald-50 text-emerald-700 border-emerald-200"}`}>
                       {exp ? "Expired" : "Active"}
                     </span>
                   </div>
 
-                  {/* Meta row */}
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    <span className="flex items-center gap-1 text-sm text-slate-500 bg-[#F8FAFC] px-2.5 py-1 rounded-lg border border-[#F1F5F9]">
-                      <MapPin size={13} className="text-slate-400" />{job.location}
+                  <div className="flex flex-wrap gap-2 text-sm text-slate-600">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border bg-slate-50">
+                      <MapPin size={13} className="text-slate-400" /> {job.location}
                     </span>
-                    <span className={`flex items-center gap-1 text-sm font-semibold px-2.5 py-1 rounded-lg ${TYPE_STYLE[job.type]}`}>
-                      <Briefcase size={13} />{job.type.replace("_", " ")}
+                    <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border ${TYPE_STYLE[job.type]}`}>
+                      <Briefcase size={13} /> {job.type.replace("_", " ")}
                     </span>
-                    <span className={`flex items-center gap-1 text-sm font-semibold px-2.5 py-1 rounded-lg ${LEVEL_STYLE[job.level]}`}>
-                      <Clock size={13} />{job.level}
+                    <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border ${LEVEL_STYLE[job.level]}`}>
+                      <Clock size={13} /> {job.level}
                     </span>
                     {job.slots && (
-                      <span className="flex items-center gap-1 text-sm text-slate-500 bg-[#F8FAFC] px-2.5 py-1 rounded-lg border border-[#F1F5F9]">
-                        <Users size={13} className="text-slate-400" />{job.slots} opening{job.slots > 1 ? "s" : ""}
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border bg-slate-50">
+                        <Users size={13} className="text-slate-400" /> {job.slots} opening{job.slots > 1 ? "s" : ""}
                       </span>
                     )}
                   </div>
 
-                  {/* Tags */}
-                  <div className="flex flex-wrap gap-1.5 mb-4">
+                  <div className="flex flex-wrap gap-1.5">
                     {job.tags.split(",").map((tag) => (
-                      <span key={tag} className="bg-[#F4F7FB] text-slate-500 text-xs font-semibold px-2.5 py-0.5 rounded-full">
+                      <span key={tag} className="bg-[#F4F7FB] text-slate-600 text-xs font-semibold px-2.5 py-0.5 rounded-full">
                         {tag.trim()}
                       </span>
                     ))}
                   </div>
 
-                  {/* Footer */}
-                  <div className="mt-auto pt-4 border-t border-[#F1F5F9] flex items-center justify-between">
-                    <div className="flex items-center gap-2">
+                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-sm font-semibold text-slate-600">
                       {job.deadline ? (
-                        <span className={`flex items-center gap-1 text-sm font-semibold ${exp ? "text-red-500" : "text-slate-500"}`}>
+                        <>
                           <Calendar size={13} />
                           {exp ? `Closed ${fmtDate(job.deadline)}` : left ?? `Closes ${fmtDate(job.deadline)}`}
-                        </span>
+                        </>
                       ) : (
                         <span className="text-sm text-slate-400 font-medium">No deadline</span>
                       )}
@@ -224,31 +380,36 @@ export default function MyJobsPage() {
                     <div className="flex items-center gap-2">
                       <button
                         onClick={(e) => { e.stopPropagation(); router.push(`/company/my-jobs/${job.id}/edit`); }}
-                        className="flex items-center gap-1 px-3 py-1.5 text-sm font-semibold text-[#1F7FB2] border border-[#1F7FB2]/30 rounded-lg hover:bg-[#EFF8FF] transition-colors"
+                        className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-semibold text-[#1F7FB2] border border-[#1F7FB2]/30 rounded-lg hover:bg-[#EFF8FF] transition"
                       >
                         <Pencil size={13} /> Edit
                       </button>
                       <button
-                        onClick={(e) => e.stopPropagation()}
-                        className="flex items-center gap-1 px-3 py-1.5 text-sm font-semibold text-red-500 border border-red-200 rounded-lg hover:bg-red-50 transition-colors"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(job.id);
+                        }}
+                        className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-semibold text-red-600 border border-red-200 rounded-lg hover:bg-red-50 transition"
                       >
                         <Trash2 size={13} /> Delete
                       </button>
                       <button
                         onClick={(e) => { e.stopPropagation(); router.push(`/company/my-jobs/${job.id}`); }}
-                        className="flex items-center gap-1 px-3 py-1.5 text-sm font-semibold text-white bg-[#1F7FB2] rounded-lg hover:bg-[#1a6f9e] transition-colors"
+                        className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-semibold text-white bg-[#1F7FB2] rounded-lg hover:bg-[#1a6f9e] transition"
                       >
                         View <ChevronRight size={13} />
                       </button>
                     </div>
                   </div>
-
                 </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+              );
+            })}
+          </div>
+        )}
+            </div>
+          </div>
+        </main>
+      </div>
     </div>
   );
 }

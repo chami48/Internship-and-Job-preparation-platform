@@ -128,4 +128,26 @@ listByCompany: publicProcedure
         },
       });
     }),
+
+  delete: publicProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        companyId: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const result = await ctx.db.job.deleteMany({
+        where: {
+          id: input.id,
+          companyId: input.companyId,
+        },
+      });
+
+      if (result.count === 0) {
+        throw new Error("Job not found or not authorized");
+      }
+
+      return { success: true };
+    }),
 });

@@ -131,6 +131,7 @@ model Company {
   email       String   @unique
   password    String
   description String?
+  logo        String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
