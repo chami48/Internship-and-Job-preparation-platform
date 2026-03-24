@@ -61,7 +61,7 @@ export const jobRouter = createTRPCRouter({
       ...job,
       applied: !!app,
       examSubmitted: app?.examSubmitted ?? false,
-      terminated: app?.terminationReason === "VIOLATION",
+      terminated: app?.terminationReason === "VIOLATION" && !app?.examSubmitted,
       terminationReason: app?.terminationReason ?? null,
       applicationId: app?.id ?? null,
     };
@@ -127,5 +127,27 @@ listByCompany: publicProcedure
           slots: data.slots ?? null,
         },
       });
+    }),
+
+  delete: publicProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        companyId: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const result = await ctx.db.job.deleteMany({
+        where: {
+          id: input.id,
+          companyId: input.companyId,
+        },
+      });
+
+      if (result.count === 0) {
+        throw new Error("Job not found or not authorized");
+      }
+
+      return { success: true };
     }),
 });

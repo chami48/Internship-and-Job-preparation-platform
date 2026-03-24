@@ -3,213 +3,69 @@ import { TRPCError } from "@trpc/server";
 import {
   createTRPCRouter,
   publicProcedure,
-  protectedProcedure,
 } from "~/server/api/trpc";
-import {
-  evaluateScenarioAnswer,
-  generateOverallFeedback,
-} from "~/server/ai/gemini";
+import { evaluateApplication } from "~/server/ai/evaluationService";
 
 export const aiRouter = createTRPCRouter({
   /**
-   * Trigger AI evaluation for a submitted exam.
-   * Creates EvaluationResult + QuestionEvaluation rows.
+   * Manually trigger AI evaluation for a submitted exam.
+   * Core logic lives in evaluationService.ts (also called automatically after exam.submit).
    */
   evaluate: publicProcedure
     .input(z.object({ applicationId: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const { applicationId } = input;
 
-      // 1. Fetch application and verify exam is submitted
+      // Validate application exists and exam is submitted
       const application = await ctx.db.application.findUnique({
         where: { id: applicationId },
-        include: { job: true },
       });
 
       if (!application) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Application not found.",
-        });
+        throw new TRPCError({ code: "NOT_FOUND", message: "Application not found." });
       }
 
       if (!application.examSubmitted) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "Exam has not been submitted yet.",
-        });
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Exam has not been submitted yet." });
       }
 
-      // 2. Prevent double evaluation
+      // Check for existing completed/processing result
       const existing = await ctx.db.evaluationResult.findUnique({
         where: { applicationId },
       });
 
-      if (existing) {
-        throw new TRPCError({
-          code: "CONFLICT",
-          message: "This application has already been evaluated.",
-        });
+      if (existing && (existing.status === "COMPLETED" || existing.status === "PROCESSING")) {
+        throw new TRPCError({ code: "CONFLICT", message: "This application has already been evaluated." });
       }
 
-      // 3. Get job cutoff
-      const jobCutoff = application.job.cutoff;
+      // Delegate to shared service (awaited here for manual trigger — returns result)
+      await evaluateApplication(ctx.db, applicationId);
 
-      // 4. Fetch all exam answers with their questions
-      const examAnswers = await ctx.db.examAnswer.findMany({
+      const result = await ctx.db.evaluationResult.findUnique({
         where: { applicationId },
-        include: {
-          question: {
-            include: { options: true },
-          },
-        },
       });
 
-      if (examAnswers.length === 0) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "No exam answers found for this application.",
-        });
-      }
-
-      // 5. Create EvaluationResult with PROCESSING status
-      const evalResult = await ctx.db.evaluationResult.create({
-        data: {
-          applicationId,
-          totalScore: 0,
-          maxScore: 0,
-          percentage: 0,
-          cutoff: jobCutoff,
-          passed: false,
-          aiFeedback: "",
-          cvUploadGranted: false,
-          status: "PROCESSING",
-        },
-      });
-
-      try {
-        // 6. Evaluate each answer
-        const questionResults: {
-          questionPrompt: string;
-          score: number;
-          maxMarks: number;
-        }[] = [];
-
-        for (const ea of examAnswers) {
-          const q = ea.question;
-          const maxMarks = q.maxMarks;
-          let scoreAwarded: number;
-          let feedback: string;
-          let expectedAnswer: string;
-
-          if (q.type === "MCQ") {
-            // Direct comparison — no AI needed
-            expectedAnswer = q.correctKey ?? "";
-            const isCorrect =
-              ea.answer?.trim().toUpperCase() === expectedAnswer.trim().toUpperCase();
-            scoreAwarded = isCorrect ? maxMarks : 0;
-            feedback = isCorrect
-              ? "Correct answer."
-              : `Incorrect. The correct answer was ${expectedAnswer}.`;
-          } else {
-            // SCENARIO — use Gemini API
-            expectedAnswer = q.rubric ?? "";
-            const aiResult = await evaluateScenarioAnswer({
-              questionPrompt: q.prompt,
-              rubric: expectedAnswer,
-              studentAnswer: ea.answer ?? "",
-              maxMarks,
-            });
-            scoreAwarded = aiResult.score;
-            feedback = aiResult.feedback;
-          }
-
-          // Create QuestionEvaluation record
-          await ctx.db.questionEvaluation.create({
-            data: {
-              evaluationResultId: evalResult.id,
-              questionId: q.id,
-              applicationId,
-              studentAnswer: ea.answer,
-              expectedAnswer,
-              scoreAwarded,
-              maxMarks,
-              aiFeedback: feedback,
-            },
-          });
-
-          questionResults.push({
-            questionPrompt: q.prompt,
-            score: scoreAwarded,
-            maxMarks,
-          });
-        }
-
-        // 7. Calculate totals
-        const totalScore = questionResults.reduce((sum, r) => sum + r.score, 0);
-        const maxScore = questionResults.reduce((sum, r) => sum + r.maxMarks, 0);
-        const percentage = maxScore > 0 ? (totalScore / maxScore) * 100 : 0;
-        const passed = percentage >= jobCutoff;
-
-        // 8. Generate overall AI feedback
-        const aiFeedback = await generateOverallFeedback({
-          questionResults,
-          percentage,
-          passed,
-        });
-
-        // 9. Update EvaluationResult with final data
-        await ctx.db.evaluationResult.update({
-          where: { id: evalResult.id },
-          data: {
-            totalScore,
-            maxScore,
-            percentage,
-            passed,
-            aiFeedback,
-            cvUploadGranted: passed,
-            status: "COMPLETED",
-          },
-        });
-
-        return {
-          success: true,
-          evaluationResultId: evalResult.id,
-          passed,
-          percentage,
-        };
-      } catch (error) {
-        // Mark as FAILED if something goes wrong
-        await ctx.db.evaluationResult.update({
-          where: { id: evalResult.id },
-          data: { status: "FAILED" },
-        });
+      if (!result || result.status === "FAILED") {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "AI evaluation failed. Please try again.",
-          cause: error,
         });
       }
+
+      return {
+        success: true,
+        evaluationResultId: result.id,
+        passed: result.passed,
+        percentage: result.percentage,
+      };
     }),
 
   /**
    * Student result page — overall evaluation summary.
    */
-  getResult: protectedProcedure
+  getResult: publicProcedure
     .input(z.object({ applicationId: z.string() }))
     .query(async ({ ctx, input }) => {
-      // Verify student owns this application
-      const application = await ctx.db.application.findUnique({
-        where: { id: input.applicationId },
-      });
-
-      if (!application || application.userId !== ctx.session.user.id) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Application not found.",
-        });
-      }
-
       const result = await ctx.db.evaluationResult.findUnique({
         where: { applicationId: input.applicationId },
       });
@@ -244,21 +100,9 @@ export const aiRouter = createTRPCRouter({
   /**
    * Per-question breakdown for student evaluation details page.
    */
-  getEvaluationDetails: protectedProcedure
+  getEvaluationDetails: publicProcedure
     .input(z.object({ applicationId: z.string() }))
     .query(async ({ ctx, input }) => {
-      // Verify student owns this application
-      const application = await ctx.db.application.findUnique({
-        where: { id: input.applicationId },
-      });
-
-      if (!application || application.userId !== ctx.session.user.id) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Application not found.",
-        });
-      }
-
       const evals = await ctx.db.questionEvaluation.findMany({
         where: { applicationId: input.applicationId },
         include: { question: true },
@@ -280,20 +124,9 @@ export const aiRouter = createTRPCRouter({
   /**
    * Student permission / CV upload status.
    */
-  getPermissionStatus: protectedProcedure
+  getPermissionStatus: publicProcedure
     .input(z.object({ applicationId: z.string() }))
     .query(async ({ ctx, input }) => {
-      const application = await ctx.db.application.findUnique({
-        where: { id: input.applicationId },
-      });
-
-      if (!application || application.userId !== ctx.session.user.id) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Application not found.",
-        });
-      }
-
       const result = await ctx.db.evaluationResult.findUnique({
         where: { applicationId: input.applicationId },
       });

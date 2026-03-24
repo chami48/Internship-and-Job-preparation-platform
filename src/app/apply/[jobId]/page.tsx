@@ -70,13 +70,19 @@ type FormState = {
   q3: string;
 };
 type Specialization =
-  | "SE"
-  | "DS"
+  | "INFORMATION_TECHNOLOGY"
+  | "SOFTWARE_ENGINEERING"
   | "CYBER_SECURITY"
-  | "NETWORKING"
-  | "AI";
+  | "DATA_SCIENCE"
+  | "COMPUTER_SCIENCE_NETWORK_ENGINEERING"
+  | "INTERACTIVE_MEDIA";
 
-export default function ApplyPage({ params }: { params: { jobId: string } }) {
+export default function ApplyPage({
+  params,
+}: {
+  params: Promise<{ jobId: string }>;
+}) {
+  const { jobId } = React.use(params);
   const createApplication = api.application.create.useMutation();
   const router = useRouter();
 
@@ -114,6 +120,52 @@ export default function ApplyPage({ params }: { params: { jobId: string } }) {
     q2: "",
     q3: "",
   });
+
+  const fillDemoData = () => {
+  setForm({
+    // Personal
+    fullName: "Dilmi Chamya",
+    email: "dilmichamya@gmail.com",
+    mobile: "+94771234567",
+    linkedin: "https://www.linkedin.com/in/dilmichamya",
+    github: "https://github.com/dilmichamya",
+    portfolio: "https://dilmi.dev",
+
+    // Education
+    university: "SLIIT",
+    degree: "BSc (Hons) Information Technology",
+    specialization: "INFORMATION_TECHNOLOGY",
+    cgpa: "3.85",
+    awards: "Dean’s List 2024",
+
+    // Projects
+    projects: [
+      {
+        name: "HireSmart AI Screening System",
+        details:
+          "Role: Full-stack developer\nStack: Next.js, tRPC, Prisma\nImpact: Improved candidate filtering by 70%",
+      },
+      {
+        name: "Event Planning System",
+        details:
+          "Role: Backend developer\nStack: MERN\nFeatures: Booking, vendor management, payments",
+      },
+    ],
+
+    // Skills
+    programmingLanguages: "JavaScript, TypeScript, Java, Python",
+    frameworks: "Next.js, React, Node.js, Express, Prisma",
+    softwareProficiency: "Git, VS Code, Postman, Figma",
+
+    // Scenario Answers
+    q1: "I would debug step by step, check logs, isolate the issue, and test fixes.",
+    q2: "I prioritize tasks using deadlines and break work into smaller parts.",
+    q3: "I communicate with the member, understand issues, and redistribute tasks if needed.",
+  });
+
+  // Optional: mark all sections completed
+  setCompletedSections(new Set([0, 1, 2, 3, 4]));
+};
 
   const progress = useMemo(() => {
     return Math.round((completedSections.size / SECTIONS.length) * 100);
@@ -345,7 +397,7 @@ export default function ApplyPage({ params }: { params: { jobId: string } }) {
     // FINAL STEP — SAVE TO DATABASE
     try {
       const created = await createApplication.mutateAsync({
-        jobId: params.jobId,
+        jobId,
 
         fullName: form.fullName,
         email: form.email,
@@ -374,7 +426,7 @@ export default function ApplyPage({ params }: { params: { jobId: string } }) {
       });
 
       // 🔥 PASS APPLICATION ID
-      router.push(`/apply/${params.jobId}/agreement?appId=${created.id}`);
+      router.push(`/apply/${jobId}/agreement?appId=${created.id}`);
     } catch (error) {
       console.error(error);
       void showAlert({
@@ -776,6 +828,22 @@ export default function ApplyPage({ params }: { params: { jobId: string } }) {
 
           {/* MAIN */}
           <main className="main">
+
+            <div style={{ marginBottom: "20px" }}>
+  <button
+    type="button"
+    className="btn"
+    onClick={fillDemoData}
+    style={{
+      background: "#e0f2fe",
+      border: "1px solid #0ea5e9",
+      color: "#0284c7",
+      fontWeight: 700
+    }}
+  >
+    ⚡ Fill Demo Data
+  </button>
+</div>
             {/* SECTION 0 */}
             {activeSection === 0 && (
               <>

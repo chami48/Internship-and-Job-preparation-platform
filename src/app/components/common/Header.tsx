@@ -19,7 +19,7 @@ export default function Header() {
         </a>
 
         <nav className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-6 text-sm text-slate-600 md:flex">
-          <Link className="font-medium hover:text-slate-900 transition-colors" href="/student">
+          <Link className="font-medium hover:text-slate-900 transition-colors" href="/home#jobs">
             Opportunities
           </Link>
           <Link className="font-medium hover:text-slate-900 transition-colors" href="/prep-quiz">

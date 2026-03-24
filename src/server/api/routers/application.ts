@@ -145,10 +145,10 @@ export const applicationRouter = createTRPCRouter({
 
     const items = applications.map((app) => {
       const submittedAt = app.examAnswers[0]?.createdAt ?? app.createdAt;
-      const status = app.terminationReason
-        ? "EXAM_TERMINATED"
-        : app.examSubmitted
-          ? "EXAM_SUBMITTED"
+      const status = app.examSubmitted
+        ? "EXAM_SUBMITTED"
+        : app.terminationReason
+          ? "EXAM_TERMINATED"
           : "APPLIED";
 
       return {

@@ -21,7 +21,7 @@ interface ScenarioEvalResult {
 export async function evaluateScenarioAnswer(
   input: ScenarioEvalInput,
 ): Promise<ScenarioEvalResult> {
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
   const prompt = `You are an expert exam evaluator. Evaluate the student's answer against the rubric/model answer.
 
@@ -74,7 +74,7 @@ interface OverallFeedbackInput {
 export async function generateOverallFeedback(
   input: OverallFeedbackInput,
 ): Promise<string> {
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
   const breakdown = input.questionResults
     .map((q, i) => `Q${i + 1}: ${q.score}/${q.maxMarks} — "${q.questionPrompt.slice(0, 80)}"`)

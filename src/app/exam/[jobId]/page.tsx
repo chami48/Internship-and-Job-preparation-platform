@@ -144,6 +144,7 @@ export default function ExamPage() {
     };
   }, [examStarted, startingExam]);
 
+
   // ─────────────────────────────────────────────
   // FULLSCREEN HELPERS
   // ─────────────────────────────────────────────
@@ -198,33 +199,57 @@ export default function ExamPage() {
   }, []);
 
   const stopCamera = useCallback(() => {
-    mediaStreamRef.current?.getTracks().forEach((t) => t.stop());
-    mediaStreamRef.current = null;
-  }, []);
+  if (mediaStreamRef.current) {
+    mediaStreamRef.current.getTracks().forEach((track) => {
+      track.stop();
+      track.enabled = false;
+    });
+  }
+
+  if (videoRef.current) {
+    videoRef.current.pause();
+    videoRef.current.srcObject = null;
+  }
+
+  mediaStreamRef.current = null;
+  setCameraAllowed(false);
+}, []);
+
+  useEffect(() => {
+    if (!examStarted) {
+      stopCamera();
+    }
+  }, [examStarted, stopCamera]);
 
   // ─────────────────────────────────────────────
   // VIOLATION SYSTEM
   // ─────────────────────────────────────────────
   const terminateNow = useCallback(async () => {
-    if (terminationTriggeredRef.current) return;
-    terminationTriggeredRef.current = true;
+  if (terminationTriggeredRef.current) return;
 
-    setTerminated(true);
-    stopCamera();
+  terminationTriggeredRef.current = true;
 
-    if (appId) {
-      await terminateApplication.mutateAsync({
-        applicationId: appId,
-        reason: "VIOLATION",
-      });
-    }
+  setTerminated(true);
 
-    await exitFullscreen();
-    router.push("/home");
-  }, [appId, terminateApplication, exitFullscreen, router, stopCamera]);
+  stopCamera(); // 🔥 FIRST
+
+  await new Promise((r) => setTimeout(r, 300)); // 🔥 IMPORTANT
+
+  if (appId) {
+    await terminateApplication.mutateAsync({
+      applicationId: appId,
+      reason: "VIOLATION",
+    });
+  }
+
+  await exitFullscreen();
+
+  router.push("/home");
+}, []);
 
   const triggerViolation = useCallback(
     (type: ViolationType) => {
+      if (submittedRef.current) return;
       if (type === "FULLSCREEN_EXIT") {
         void terminateNow();
       }
@@ -761,6 +786,7 @@ export default function ExamPage() {
 
   submittedRef.current = true;
   setSubmitted(true);
+  setExamStarted(false);
   stopCamera();
 
   const formatted = Object.entries(answers).map(([questionId, answer]) => ({
@@ -773,10 +799,22 @@ export default function ExamPage() {
       applicationId: appId,
       answers: formatted,
     });
-  } finally {
-    await exitFullscreen(); // exit fullscreen before redirect
-    setTimeout(() => router.push("/home?submitted=true"), 600);
-  }
+   } finally {
+  // 🔥 1. Stop camera FIRST
+  stopCamera();
+
+  // 🔥 2. Give browser time to release hardware
+  await new Promise((r) => setTimeout(r, 500));
+
+  // 🔥 3. Extra force release (important for Chrome)
+  navigator.mediaDevices.getUserMedia({ video: false }).catch(() => {});
+
+  // 🔥 4. Exit fullscreen
+  await exitFullscreen();
+
+  // 🔥 5. Then navigate
+  router.push("/home?submitted=true");
+}
 }, [appId, answers, submitExam, stopCamera, exitFullscreen, router]);
 
   // ─────────────────────────────────────────────
@@ -943,10 +981,6 @@ export default function ExamPage() {
     // ✅ 2. THEN start camera
     const camOk = await startCamera();
 
-    if (videoRef.current) {
-      await videoRef.current.play();
-    }
-
     if (!camOk) {
       await document.exitFullscreen(); // 🔥 exit fullscreen if camera fails
       setStartingExam(false);
@@ -958,19 +992,52 @@ export default function ExamPage() {
       const video = videoRef.current;
 
       await new Promise<void>((resolve) => {
+        let resolved = false;
+
+        const cleanup = () => {
+          video.onloadedmetadata = null;
+          video.oncanplay = null;
+        };
+
+        const safeResolve = () => {
+          if (resolved) return;
+          resolved = true;
+          cleanup();
+          resolve();
+        };
+
+        const tryPlay = () => {
+          if (!video.isConnected || video.srcObject == null) return;
+          video.play().catch(() => {
+            // ignore AbortError when the element is replaced/unmounted
+          });
+        };
+
         video.onloadedmetadata = () => {
-          video.play();
+          tryPlay();
+          safeResolve();
         };
 
-        const checkReady = () => {
-          if (video.readyState === 4) {
-            resolve();
-          } else {
-            requestAnimationFrame(checkReady);
-          }
+        video.oncanplay = () => {
+          tryPlay();
+          safeResolve();
         };
 
-        checkReady();
+        if (video.readyState >= 2) {
+          tryPlay();
+          safeResolve();
+        } else {
+          const checkReady = () => {
+            if (video.readyState >= 2) {
+              tryPlay();
+              safeResolve();
+            } else {
+              requestAnimationFrame(checkReady);
+            }
+          };
+
+          checkReady();
+        }
       });
 
       // extra delay for stable frame
@@ -1010,12 +1077,13 @@ export default function ExamPage() {
   };
 
   // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      stopCamera();
-      if (alertTimeoutRef.current) clearTimeout(alertTimeoutRef.current);
-    };
-  }, [stopCamera]);
+ useEffect(() => {
+  return () => {
+    if (mediaStreamRef.current) {
+      mediaStreamRef.current.getTracks().forEach((t) => t.stop());
+    }
+  };
+}, []);
 
   // ─────────────────────────────────────────────
   // AUTH GUARD
@@ -1398,7 +1466,7 @@ export default function ExamPage() {
   if (terminated) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50 p-6">
-        <div className="max-w-sm text-center">
+        <div className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
           <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full border border-red-200 bg-red-100">
             <svg
               className="h-8 w-8 text-red-500"
@@ -1420,15 +1488,11 @@ export default function ExamPage() {
           <p className="mb-1 text-sm text-slate-500">
             You reached the maximum number of violations.
           </p>
-          <p className="text-xs text-slate-400">Redirecting to home page...</p>
-          <div className="mt-5 flex justify-center gap-1.5">
-            {[0, 1, 2].map((i) => (
-              <div
-                key={i}
-                className="h-1.5 w-1.5 animate-bounce rounded-full bg-red-400"
-                style={{ animationDelay: `${i * 0.15}s` }}
-              />
-            ))}
+          <div className="mt-5 flex items-center justify-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2">
+            <div className="h-4 w-4 animate-spin rounded-full border-2 border-red-300 border-t-red-500" />
+            <p className="text-xs font-medium text-slate-500">
+              Ending session and redirecting...
+            </p>
           </div>
         </div>
       </div>
@@ -1444,7 +1508,7 @@ export default function ExamPage() {
         {/* Camera for Face Detection */}
         <div className="fixed right-4 bottom-4 h-36 w-48 overflow-hidden rounded-lg border shadow-lg"></div>
 
-        <div className="max-w-sm text-center">
+        <div className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
           <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full border border-green-200 bg-green-100">
             <svg
               className="h-8 w-8 text-green-500"
@@ -1464,8 +1528,14 @@ export default function ExamPage() {
             Submitted Successfully
           </h1>
           <p className="text-sm text-slate-500">
-            Your answers have been recorded. Redirecting...
+            Your answers have been recorded.
           </p>
+          <div className="mt-5 flex items-center justify-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2">
+            <div className="h-4 w-4 animate-spin rounded-full border-2 border-emerald-300 border-t-emerald-500" />
+            <p className="text-xs font-medium text-slate-500">
+              Finalizing submission and redirecting...
+            </p>
+          </div>
         </div>
       </div>
     );

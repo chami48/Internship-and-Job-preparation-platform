@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Swal from "sweetalert2";
 import { api } from "~/trpc/react";
 
 function EyeIcon({ open }: { open: boolean }) {
@@ -22,6 +23,23 @@ export default function LoginCompany() {
   const router = useRouter();
   const login = api.company.login.useMutation();
 
+  const toast = Swal.mixin({
+    toast: true,
+    position: "top-end",
+    showConfirmButton: false,
+    showCloseButton: true,
+    timer: 2200,
+    timerProgressBar: true,
+    background: "#F8FBFF",
+    color: "#0F172A",
+    customClass: {
+      popup: "hs-toast",
+      title: "text-[13px] font-semibold leading-tight",
+      closeButton: "text-red-500 hover:text-red-600",
+      icon: "border-2 border-[#DCEAF6] scale-75",
+    },
+  });
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
@@ -38,7 +56,12 @@ export default function LoginCompany() {
       {
         onSuccess: (data) => {
           localStorage.setItem("companyId", data.companyId);
-          router.push("/company/dashboard");
+          toast.fire({
+            icon: "success",
+            iconColor: "#16A34A",
+            title: "Login successful!",
+          });
+          setTimeout(() => router.push("/company/dashboard"), 2200);
         },
         onError: (err) => setError(err.message),
       },

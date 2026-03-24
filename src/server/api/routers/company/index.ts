@@ -133,11 +133,16 @@ export const companyRouter = createTRPCRouter({
       companyId: z.string(),
       name: z.string().min(1),
       description: z.string().optional(),
+      logo: z.string().optional(),
     }))
     .mutation(async ({ ctx, input }) => {
       return ctx.db.company.update({
         where: { id: input.companyId },
-        data: { name: input.name, description: input.description ?? null },
+        data: { 
+          name: input.name, 
+          description: input.description ?? null,
+          logo: input.logo ?? null, 
+        },
       });
     }),
 });
