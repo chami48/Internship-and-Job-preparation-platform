@@ -55,7 +55,7 @@ export default function HeaderAuthControls() {
           />
           <button
             type="button"
-            onClick={() => signOut({ callbackUrl: "/" })}
+            onClick={() => signOut({ callbackUrl: "/home" })}
             aria-label="Sign out"
             className="ml-2 inline-flex h-9 w-9 items-center justify-center rounded-full border border-red-200 text-red-600 transition-colors hover:bg-red-50"
           >
