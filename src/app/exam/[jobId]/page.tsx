@@ -225,6 +225,7 @@ export default function ExamPage() {
 
   const triggerViolation = useCallback(
     (type: ViolationType) => {
+      if (submittedRef.current) return;
       if (type === "FULLSCREEN_EXIT") {
         void terminateNow();
       }
@@ -761,6 +762,7 @@ export default function ExamPage() {
 
   submittedRef.current = true;
   setSubmitted(true);
+  setExamStarted(false);
   stopCamera();
 
   const formatted = Object.entries(answers).map(([questionId, answer]) => ({
@@ -775,7 +777,7 @@ export default function ExamPage() {
     });
   } finally {
     await exitFullscreen(); // exit fullscreen before redirect
-    setTimeout(() => router.push("/home?submitted=true"), 600);
+    setTimeout(() => router.push("/home?submitted=true"), 2000);
   }
 }, [appId, answers, submitExam, stopCamera, exitFullscreen, router]);
 
@@ -1398,7 +1400,7 @@ export default function ExamPage() {
   if (terminated) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50 p-6">
-        <div className="max-w-sm text-center">
+        <div className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
           <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full border border-red-200 bg-red-100">
             <svg
               className="h-8 w-8 text-red-500"
@@ -1420,15 +1422,11 @@ export default function ExamPage() {
           <p className="mb-1 text-sm text-slate-500">
             You reached the maximum number of violations.
           </p>
-          <p className="text-xs text-slate-400">Redirecting to home page...</p>
-          <div className="mt-5 flex justify-center gap-1.5">
-            {[0, 1, 2].map((i) => (
-              <div
-                key={i}
-                className="h-1.5 w-1.5 animate-bounce rounded-full bg-red-400"
-                style={{ animationDelay: `${i * 0.15}s` }}
-              />
-            ))}
+          <div className="mt-5 flex items-center justify-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2">
+            <div className="h-4 w-4 animate-spin rounded-full border-2 border-red-300 border-t-red-500" />
+            <p className="text-xs font-medium text-slate-500">
+              Ending session and redirecting...
+            </p>
           </div>
         </div>
       </div>
@@ -1444,7 +1442,7 @@ export default function ExamPage() {
         {/* Camera for Face Detection */}
         <div className="fixed right-4 bottom-4 h-36 w-48 overflow-hidden rounded-lg border shadow-lg"></div>
 
-        <div className="max-w-sm text-center">
+        <div className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
           <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full border border-green-200 bg-green-100">
             <svg
               className="h-8 w-8 text-green-500"
@@ -1464,8 +1462,14 @@ export default function ExamPage() {
             Submitted Successfully
           </h1>
           <p className="text-sm text-slate-500">
-            Your answers have been recorded. Redirecting...
+            Your answers have been recorded.
           </p>
+          <div className="mt-5 flex items-center justify-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2">
+            <div className="h-4 w-4 animate-spin rounded-full border-2 border-emerald-300 border-t-emerald-500" />
+            <p className="text-xs font-medium text-slate-500">
+              Finalizing submission and redirecting...
+            </p>
+          </div>
         </div>
       </div>
     );

@@ -140,7 +140,7 @@ if (count >= 3) {
   await ctx.db.application.update({
     where: { id: input.applicationId },
     data: {
-      examSubmitted: true,
+      examSubmitted: false,
       terminationReason: "VIOLATION",
     },
   });
@@ -217,6 +217,7 @@ return {
       where: { id: input.applicationId },
       data: {
         examSubmitted: true,
+        terminationReason: null,
       },
     });
 
