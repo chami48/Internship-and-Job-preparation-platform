@@ -71,7 +71,7 @@ export default function LoginCompany() {
   const inputStyle: React.CSSProperties = {
     width: "100%",
     padding: "11px 14px",
-    border: "1.5px solid #E2E8F0",
+    border: "1.5px solid #CBD5E1",
     borderRadius: 10,
     fontSize: "0.875rem",
     color: "#0F172A",
@@ -87,7 +87,7 @@ export default function LoginCompany() {
     fontWeight: 700,
     letterSpacing: "0.07em",
     textTransform: "uppercase",
-    color: "#64748B",
+    color: "#334155",
     marginBottom: 6,
   };
 
@@ -95,7 +95,7 @@ export default function LoginCompany() {
     <>
       <style>{`
         .reg-input:focus { border-color: #0EA5E9 !important; box-shadow: 0 0 0 3px rgba(14,165,233,0.12) !important; background: #fff !important; }
-        .reg-input::placeholder { color: #CBD5E1; }
+        .reg-input::placeholder { color: #94A3B8; }
         .reg-btn:hover:not(:disabled) { background: #0284C7 !important; box-shadow: 0 6px 20px rgba(14,165,233,0.35) !important; transform: translateY(-1px); }
         .reg-btn:disabled { opacity: 0.6; cursor: not-allowed; }
         .reg-btn { transition: background 0.2s, box-shadow 0.2s, transform 0.18s; }
@@ -184,16 +184,20 @@ export default function LoginCompany() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          padding: "3rem 2rem",
+          paddingTop: "3rem",
+          paddingRight: "2rem",
+          paddingBottom: "3rem",
+          paddingLeft: "2rem",
         }}>
-          <div style={{ width: "100%", maxWidth: 420 }}>
+          <div style={{ width: "100%", maxWidth: 420, background: "#F0F7FF", padding: "2rem", borderRadius: 20, border: "1px solid #E0EEFF" }}>
 
-            <div style={{ marginBottom: "2rem" }}>
+            <div style={{ marginBottom: "2.75rem" }}>
               <h2 style={{
-                fontSize: "1.6rem", fontWeight: 800, color: "#0F172A",
+                fontSize: "1.75rem", fontWeight: 800, color: "#112847",
                 margin: 0, letterSpacing: "-0.025em",
+                fontFamily: "var(--font-plus-jakarta), ui-sans-serif, system-ui, sans-serif",
               }}>Sign in to your account</h2>
-              <p style={{ marginTop: 6, fontSize: "0.82rem", color: "#94A3B8", fontWeight: 400 }}>
+              <p style={{ marginTop: 6, fontSize: "0.82rem", color: "#64748B", fontWeight: 400 }}>
                 Enter your credentials to access the employer dashboard.
               </p>
             </div>
@@ -210,7 +214,7 @@ export default function LoginCompany() {
               </div>
             )}
 
-            <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
 
               {/* Email */}
               <div>
