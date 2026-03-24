@@ -1,7 +1,7 @@
 "use client";
 
-import { usePathname } from "next/navigation";
-import Header from "./Header";
+import { usePathname } from "next/navigation"; 
+import HeaderLegacy from "./HeaderLegacy";
 import Footer from "./Footer";
 
 export default function ConditionalLayout({
@@ -11,7 +11,6 @@ export default function ConditionalLayout({
 }) {
   const pathname = usePathname();
 
-  // Pages where header should be hidden
   const hideHeader =
     pathname === "/company/register" ||
     pathname === "/company/comlogin" ||
@@ -24,11 +23,17 @@ export default function ConditionalLayout({
     pathname?.startsWith("/company/selected/") ||
     pathname?.startsWith("/company/create-job");
 
+  const mainClass = "min-h-screen";
+
   return (
     <>
-      {!hideHeader && <Header />}
-      {children}
-      <Footer />
+      {!hideHeader && <HeaderLegacy />}
+
+      <main className={mainClass}>
+        {children}
+      </main>
+
+      {!hideHeader && <Footer />}
     </>
   );
 }

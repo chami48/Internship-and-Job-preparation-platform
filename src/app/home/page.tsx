@@ -1,8 +1,8 @@
-//smart-screening\src\app\page.tsx
 "use client";
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 import { useSession } from "next-auth/react";
 
@@ -11,7 +11,6 @@ function Tag({ text }: { text: string }) {
   return (
     <span
       style={{
-        fontFamily: "'Plus Jakarta Sans', sans-serif",
         background: "#E0F2FE",
         border: "1px solid rgba(14,165,233,0.3)",
         color: "#0369A1",
@@ -43,7 +42,7 @@ function Counter({ to, label, suffix = "+" }: { to: number; label: string; suffi
 
   return (
     <div className="flex flex-col items-start">
-      <span style={{ fontFamily: "'Clash Display', sans-serif", fontSize: "2.4rem", fontWeight: 700, color: "white", lineHeight: 1 }}>
+      <span style={{ fontSize: "2.4rem", fontWeight: 700, color: "white", lineHeight: 1 }}>
         {val.toLocaleString()}<span style={{ color: "#0EA5E9" }}>{suffix}</span>
       </span>
       <span style={{ fontSize: "0.72rem", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)", marginTop: 5 }}>
@@ -54,6 +53,21 @@ function Counter({ to, label, suffix = "+" }: { to: number; label: string; suffi
 }
 
 /* ─── Job Card ───────────────────────────────────────────── */
+function formatSalary(value?: string | null) {
+  if (!value) return "Negotiable";
+  const numeric = value.replace(/[^0-9.]/g, "");
+  if (numeric && !/[a-zA-Z]/.test(value)) return `LKR ${numeric}`;
+  return value;
+}
+
+function formatJobType(value?: string) {
+  const t = (value ?? "").toLowerCase();
+  if (t.includes("intern")) return "Internship";
+  if (t.includes("part")) return "Part Time";
+  if (t.includes("full")) return "Full Time";
+  return value ?? "";
+}
+
 function JobCard({
   job,
   index,
@@ -68,7 +82,7 @@ function JobCard({
     level: string;
     tags: string[];
     salary?: string | null;
-    
+    createdAt?: string | Date | null;
     applied?: boolean;
     examSubmitted?: boolean;
     terminated?: boolean;
@@ -77,203 +91,121 @@ function JobCard({
   };
   index: number;
   role?: string;
-})  {
-  const isIntern = job.type?.toLowerCase().includes("intern");
+}) {
+  const router = useRouter();
+  const shareText = `Check this job: ${job.title}`;
+  const shareUrl = typeof window !== "undefined" ? window.location.origin + `/jobs/${job.id}` : "";
+  const postedDate = job.createdAt
+    ? new Date(job.createdAt).toLocaleDateString("en-GB")
+    : "";
 
   return (
     <div
       className="job-card"
+      onClick={() => router.push(`/jobs/${job.id}`)}
       style={{
         animationDelay: `${index * 60}ms`,
         background: "white",
-        border: "1px solid #E2E8F0",
-        borderRadius: 18,
+        border: "1px solid #E5EAF1",
+        borderRadius: 16,
         display: "flex",
         flexDirection: "column",
         overflow: "hidden",
-        boxShadow: "0 4px 24px rgba(15,23,42,0.06)",
+        boxShadow: "0 2px 10px rgba(15,23,42,0.05)",
         transition: "border-color 0.25s, box-shadow 0.25s, transform 0.25s",
-      }}
-      onMouseEnter={(e) => {
-        (e.currentTarget as HTMLElement).style.borderColor = "rgba(14,165,233,0.35)";
-        (e.currentTarget as HTMLElement).style.transform = "translateY(-4px)";
-        (e.currentTarget as HTMLElement).style.boxShadow = "0 12px 40px rgba(14,165,233,0.12)";
-      }}
-      onMouseLeave={(e) => {
-        (e.currentTarget as HTMLElement).style.borderColor = "#E2E8F0";
-        (e.currentTarget as HTMLElement).style.transform = "translateY(0)";
-        (e.currentTarget as HTMLElement).style.boxShadow = "0 4px 24px rgba(15,23,42,0.06)";
+        cursor: "pointer",
       }}
     >
-      {/* top colour strip */}
-      <div style={{ height: 4, width: "100%", background: isIntern ? "linear-gradient(90deg, #818CF8, #A78BFA)" : "linear-gradient(90deg, #0EA5E9, #38BDF8)", flexShrink: 0 }} />
-
-      <div style={{ display: "flex", flexDirection: "column", flex: 1, padding: "1.25rem" }}>
-        {/* header */}
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
-          <div style={{
-            width: 40, height: 40, flexShrink: 0, borderRadius: 13,
-            background: isIntern ? "#EEF2FF" : "#E0F2FE",
-            display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.2rem"
-          }}>
-            {isIntern ? "🎓" : "💼"}
-          </div>
-          <div style={{ display: "flex", gap: 6 }}>
-            <span style={{
-              borderRadius: "100px", padding: "2px 10px", fontSize: 9,
-              fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase",
-              background: isIntern ? "#EEF2FF" : "#E0F2FE",
-              color: isIntern ? "#6366F1" : "#0369A1",
-            }}>
-              {job.type}
-            </span>
-            <span style={{
-              borderRadius: "100px", padding: "2px 10px", fontSize: 9,
-              fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase",
-              background: "#F1F5F9", color: "#475569",
-            }}>
-              {job.level}
-            </span>
-          </div>
+      <div style={{ display: "flex", flexDirection: "column", flex: 1, padding: "1.1rem 1.2rem" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+          <span style={{ fontSize: "0.7rem", color: "#94A3B8", fontWeight: 600 }}>
+            {postedDate ? `Posted ${postedDate}` : ""}
+          </span>
+          <a
+            href={shareUrl ? `https://wa.me/?text=${encodeURIComponent(`${shareText} ${shareUrl}`)}` : "#"}
+            style={{
+              width: 26,
+              height: 26,
+              borderRadius: 999,
+              border: "1px solid #E2E8F0",
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#64748B",
+              textDecoration: "none",
+            }}
+            aria-label="Share job"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M4 12v7a1 1 0 001 1h14a1 1 0 001-1v-7" />
+              <path d="M16 6l-4-4-4 4" />
+              <path d="M12 2v14" />
+            </svg>
+          </a>
         </div>
 
-        <div style={{ marginTop: 12 }}>
-          <h3 style={{ fontFamily: "'Clash Display', sans-serif", fontSize: "1rem", fontWeight: 600, color: "#0F172A", margin: 0, letterSpacing: "-0.01em" }}>
+        <div style={{ marginTop: 10 }}>
+          <h3 style={{ fontSize: "0.98rem", fontWeight: 700, color: "#0F172A", margin: 0 }}>
             {job.title}
           </h3>
-          <p style={{ marginTop: 4, fontSize: "0.75rem", color: "#94A3B8", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-            {job.company} · {job.location}
-          </p>
+          <p style={{ marginTop: 4, fontSize: "0.78rem", color: "#94A3B8" }}>{job.company}</p>
         </div>
 
-        {job.tags?.length > 0 && (
-          <div style={{ marginTop: 12, display: "flex", flexWrap: "wrap", gap: 6 }}>
-            {job.tags.map((t) => <Tag key={t} text={t} />)}
-          </div>
-        )}
+        <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", color: "#64748B", fontSize: "0.75rem" }}>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M12 22s7-7 7-12a7 7 0 10-14 0c0 5 7 12 7 12z" />
+              <circle cx="12" cy="10" r="3" />
+            </svg>
+            {job.location}
+          </span>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M12 1v22" />
+              <path d="M17 5H9.5a3.5 3.5 0 000 7H14a3.5 3.5 0 010 7H6" />
+            </svg>
+            {formatSalary(job.salary)}
+          </span>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M3 7h18" />
+              <path d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2" />
+              <rect x="3" y="7" width="18" height="13" rx="2" />
+            </svg>
+            {formatJobType(job.type)}
+          </span>
+        </div>
 
-        <div style={{ marginTop: "auto", display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: 20 }}>
-          <p style={{ fontSize: "0.75rem", color: "#94A3B8", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-            Salary: <span style={{ fontWeight: 600, color: "#475569" }}>{job.salary ?? "Negotiable"}</span>
-          </p>
-  {role === "STUDENT" ? (
-  job.terminationReason === "FACE_MISMATCH" ? (
-    <Link
-      href={`/exam/${job.id}?appId=${job.applicationId}`}
-      style={{
-        borderRadius: 10,
-        padding: "8px 16px",
-        fontSize: "0.75rem",
-        fontWeight: 700,
-        letterSpacing: "0.05em",
-        textTransform: "uppercase",
-        background: "#FEF3C7",
-        color: "#92400E",
-        textDecoration: "none",
-      }}
-    >
-      Retry Verification
-    </Link>
-  ) : job.terminated ? (
-    <button
-      disabled
-      style={{
-        borderRadius: 10,
-        padding: "8px 16px",
-        fontSize: "0.75rem",
-        fontWeight: 700,
-        letterSpacing: "0.05em",
-        textTransform: "uppercase",
-        background: "#FEE2E2",
-        color: "#B91C1C",
-        cursor: "not-allowed",
-      }}
-    >
-      ✕ you exceeded the violation limit
-    </button>
-  ) : job.examSubmitted ? (
-    <button
-      disabled
-      style={{
-        borderRadius: 10,
-        padding: "8px 16px",
-        fontSize: "0.75rem",
-        fontWeight: 700,
-        letterSpacing: "0.05em",
-        textTransform: "uppercase",
-        background: "#DCFCE7",
-        color: "#15803D",
-        cursor: "not-allowed",
-      }}
-    >
-      ✓ Exam Completed
-    </button>
-  ) : job.applied ? (
-    <Link
-      href={`/exam/${job.id}?appId=${job.applicationId}`}
-      style={{
-        borderRadius: 10,
-        padding: "8px 16px",
-        fontSize: "0.75rem",
-        fontWeight: 700,
-        letterSpacing: "0.05em",
-        textTransform: "uppercase",
-        color: "white",
-        background: "#0EA5E9",
-        textDecoration: "none",
-      }}
-    >
-      Start Exam
-    </Link>
-  ) : (
-    <Link
-     href={`/jobs/${job.id}`}
-      style={{
-        borderRadius: 10,
-        padding: "8px 16px",
-        fontSize: "0.75rem",
-        fontWeight: 700,
-        letterSpacing: "0.05em",
-        textTransform: "uppercase",
-        color: "white",
-        background: "#0F172A",
-        textDecoration: "none",
-      }}
-    >
-      Apply →
-    </Link>
-  )
-) : role === "COMPANY" ? (
-  <button
-    disabled
-    style={{
-      borderRadius: 10,
-      padding: "8px 16px",
-      fontSize: "0.75rem",
-      fontWeight: 700,
-      background: "#CBD5E1",
-      color: "#64748B",
-      cursor: "not-allowed",
-    }}
-  >
-    View Job Details
-  </button>
-) : (
-  <Link
-    href="/student/login"
-    style={{
-      borderRadius: 10,
-      padding: "8px 16px",
-      fontSize: "0.75rem",
-      fontWeight: 700,
-      background: "#0EA5E9",
-      color: "white",
-      textDecoration: "none",
-    }}
-  >
-    Login to Apply
-  </Link>
-)}
+        <div style={{ marginTop: 14, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <span style={{ fontSize: "0.72rem", color: "#94A3B8", fontWeight: 600, letterSpacing: "0.08em" }}>
+            {job.level?.toUpperCase()}
+          </span>
+          {role === "STUDENT" ? (
+            job.terminationReason === "FACE_MISMATCH" ? (
+              <Link href={`/exam/${job.id}?appId=${job.applicationId}`} onClick={(e) => e.stopPropagation()} style={{ fontSize: "0.75rem", fontWeight: 700, color: "#B45309", textDecoration: "none" }}>
+                Retry Verification
+              </Link>
+            ) : job.terminated ? (
+              <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#DC2626" }}>Limit Exceeded</span>
+            ) : job.examSubmitted ? (
+              <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#15803D" }}>Exam Done ✓</span>
+            ) : job.applied ? (
+              <Link href={`/exam/${job.id}?appId=${job.applicationId}`} onClick={(e) => e.stopPropagation()} style={{ borderRadius: 8, padding: "6px 14px", fontSize: "0.75rem", fontWeight: 700, color: "white", background: "#38BDF8", textDecoration: "none" }}>
+                Start Exam →
+              </Link>
+            ) : (
+              <Link href={`/jobs/${job.id}`} onClick={(e) => e.stopPropagation()} style={{ borderRadius: 8, padding: "6px 14px", fontSize: "0.75rem", fontWeight: 700, color: "white", background: "#0F2544", textDecoration: "none" }}>
+                Apply Now →
+              </Link>
+            )
+          ) : role === "COMPANY" ? (
+            <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#94A3B8" }}>View Job Details</span>
+          ) : (
+            <Link href="/student/login" style={{ borderRadius: 8, padding: "6px 14px", fontSize: "0.75rem", fontWeight: 700, color: "white", background: "#0F2544", textDecoration: "none" }}>
+              Login to Apply
+            </Link>
+          )}
         </div>
       </div>
     </div>
@@ -282,12 +214,32 @@ function JobCard({
 
 /* ─── Main Page ──────────────────────────────────────────── */
 export default function HomePage() {
-
   const { data: session } = useSession();
   const role = session?.user?.role;
 
   const { data: jobs, isLoading, error } = api.job.list.useQuery();
   const [filter, setFilter] = useState<"all" | "internship" | "fulltime">("all");
+
+  const allJobs = (jobs ?? []).map((j) => ({
+    ...j,
+    company:
+      typeof (j as any).company === "object"
+        ? (j as any).company?.name ?? "Unknown Company"
+        : (j as any).company ?? "Unknown Company",
+  }));
+
+  const appliedCount = allJobs.filter((j) => j.applied).length;
+  const examDoneCount = allJobs.filter((j) => j.examSubmitted).length;
+  const openCount = allJobs.filter((j) => !j.applied && !j.terminated).length;
+  const totalCount = allJobs.length;
+
+  const recentRoles = [...allJobs]
+    .sort((a, b) => {
+      const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return bTime - aTime;
+    })
+    .slice(0, 4);
 
   const filteredJobs = (jobs ?? []).filter((j) => {
     if (filter === "all") return true;
@@ -300,14 +252,18 @@ export default function HomePage() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Clash+Display:wght@500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap');
-
         * { box-sizing: border-box; }
 
         .job-card { animation: fadeUp 0.45s ease both; }
         @keyframes fadeUp {
           from { opacity: 0; transform: translateY(14px); }
           to   { opacity: 1; transform: translateY(0); }
+        }
+        
+        .job-card:hover {
+          border-color: rgba(14,165,233,0.4);
+          box-shadow: 0 20px 48px rgba(14,165,233,0.12);
+          transform: translateY(-6px);
         }
 
         .hero-word { animation: wordIn 0.55s cubic-bezier(0.16,1,0.3,1) both; }
@@ -316,22 +272,53 @@ export default function HomePage() {
           to   { opacity: 1; transform: translateY(0) scale(1); }
         }
 
-        .floating { animation: floating 6s ease-in-out infinite; }
-        @keyframes floating {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-20px); }
+        @keyframes float {
+          0%, 100% { transform: translateY(0px) translateX(0px); }
+          50% { transform: translateY(40px) translateX(20px); }
         }
 
-        .blur-in { animation: blurIn 0.6s ease-out; }
-        @keyframes blurIn {
-          from { opacity: 0; filter: blur(10px); }
-          to { opacity: 1; filter: blur(0); }
+        .eyebrow-blink { animation: blink 1.4s infinite; }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+        /* ── Live openings card ── */
+        .live-card {
+          background: white;
+          border-radius: 20px;
+          padding: 28px;
+          position: absolute;
+          inset: 0;
+          z-index: 2;
+          box-shadow: 0 20px 60px rgba(14,165,233,0.10), 0 4px 16px rgba(15,23,42,0.06);
+          border: 1px solid rgba(14,165,233,0.15);
         }
 
-        .glow-pulse { animation: glowPulse 3s ease-in-out infinite; }
-        @keyframes glowPulse {
-          0%, 100% { filter: drop-shadow(0 0 20px rgba(14,165,233,0.3)); }
-          50% { filter: drop-shadow(0 0 40px rgba(14,165,233,0.6)); }
+        .live-row {
+          display: flex;
+          align-items: center;
+          gap: 14px;
+          border-radius: 10px;
+          padding: 11px 14px;
+          font-size: 0.88rem;
+          font-weight: 500;
+          color: #334155;
+          transition: background 0.2s, border-color 0.2s;
+          cursor: default;
+          border: 1px solid transparent;
+        }
+        .live-row:hover {
+          background: #F0F9FF;
+          border-color: rgba(14,165,233,0.2);
+        }
+        .live-row-label {
+          margin-left: auto;
+          font-size: 0.62rem;
+          font-weight: 700;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          color: #94A3B8;
+          display: flex;
+          align-items: center;
+          gap: 5px;
         }
 
         .filter-btn {
@@ -341,13 +328,11 @@ export default function HomePage() {
           border-radius: 999px;
           padding: 7px 18px;
           font-size: 11px;
-          font-family: 'Plus Jakarta Sans', sans-serif;
           font-weight: 700;
           letter-spacing: 0.07em;
           text-transform: uppercase;
           cursor: pointer;
           transition: all 0.18s;
-          -webkit-backdrop-filter: blur(8px);
           backdrop-filter: blur(8px);
         }
         .filter-btn:hover:not(.f-active) { 
@@ -355,260 +340,252 @@ export default function HomePage() {
           color: #0369A1;
           background: rgba(224,242,254,0.8);
         }
-        .f-active-all  { border-color: #0EA5E9 !important; background: rgba(14,165,233,0.15) !important; color: #0369A1 !important; backdrop-filter: blur(8px); }
-        .f-active-intern { border-color: #818CF8 !important; background: rgba(129,140,248,0.15) !important; color: #6366F1 !important; backdrop-filter: blur(8px); }
-        .f-active-full { border-color: #0EA5E9 !important; background: rgba(14,165,233,0.15) !important; color: #0369A1 !important; backdrop-filter: blur(8px); }
-
-        .glass-card {
-          background: rgba(255,255,255,0.8);
-          -webkit-backdrop-filter: blur(20px);
-          backdrop-filter: blur(20px);
-          border: 1px solid rgba(14,165,233,0.2);
-          border-radius: 24px;
-          transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
-          box-shadow: 0 8px 32px rgba(15,23,42,0.08);
-        }
-        .glass-card:hover {
-          background: rgba(255,255,255,0.95);
-          border-color: rgba(14,165,233,0.4);
-          box-shadow: 0 20px 48px rgba(14,165,233,0.15);
-          transform: translateY(-8px);
-        }
+        .f-active-all  { border-color: #0EA5E9 !important; background: rgba(14,165,233,0.15) !important; color: #0369A1 !important; }
+        .f-active-intern { border-color: #818CF8 !important; background: rgba(129,140,248,0.15) !important; color: #6366F1 !important; }
+        .f-active-full { border-color: #0EA5E9 !important; background: rgba(14,165,233,0.15) !important; color: #0369A1 !important; }
 
         .feature-card {
-          background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(224,242,254,0.5) 100%);
-          border: 1px solid rgba(14,165,233,0.25);
+          background: white;
+          border: 1px solid rgba(14,165,233,0.2);
           border-radius: 24px;
           padding: 2.5rem;
           transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
-          box-shadow: 0 8px 32px rgba(14,165,233,0.08);
-          position: relative;
-          overflow: hidden;
-          -webkit-backdrop-filter: blur(10px);
-          backdrop-filter: blur(10px);
-        }
-        .feature-card::before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background: radial-gradient(circle at top right, rgba(14,165,233,0.05), transparent);
-          pointer-events: none;
+          box-shadow: 0 4px 24px rgba(14,165,233,0.06);
         }
         .feature-card:hover {
           border-color: rgba(14,165,233,0.4);
           box-shadow: 0 20px 48px rgba(14,165,233,0.12);
-          transform: translateY(-8px);
-          background: linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(224,242,254,0.7) 100%);
-        }
-
-        .eyebrow-blink { animation: blink 1.4s infinite; }
-        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
-
-        .trending-row {
-          display: flex; align-items: center; gap: 12px;
-          border-radius: 12px; 
-          border: 1px solid rgba(14,165,233,0.2);
-          background: rgba(224,242,254,0.5); 
-          padding: 12px 16px;
-          font-size: 0.875rem; 
-          color: #475569;
-          transition: all 0.2s;
-          cursor: default;
-          -webkit-backdrop-filter: blur(8px);
-          backdrop-filter: blur(8px);
-        }
-        .trending-row:hover { 
-          border-color: rgba(14,165,233,0.5); 
-          background: rgba(14,165,233,0.1); 
-          color: #0F172A; 
-          transform: translateX(4px);
-        }
-
-        .progress-bar-fill {
-          height: 100%; border-radius: 100px;
-          background: linear-gradient(90deg, #0EA5E9, #38BDF8);
-        }
-
-        .scroll-fade {
-          position: relative;
+          transform: translateY(-6px);
         }
 
         @media (prefers-reduced-motion: reduce) {
-          .floating, .hero-word, .blur-in, .glow-pulse { animation: none; }
+          .hero-word { animation: none; }
         }
       `}</style>
 
-      <main style={{ minHeight: "100vh", background: "#F8FAFF", fontFamily: "'Plus Jakarta Sans', sans-serif", position: "relative", overflow: "hidden" }}>
+      <main style={{ minHeight: "100vh", background: "#EEF6FF", position: "relative", overflow: "hidden" }}>
 
-        {/* Animated gradient orbs */}
-        <div style={{
-          position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none",
-        }}>
-          {/* Orb 1 */}
+        {/* Subtle gradient orbs */}
+        <div style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none" }}>
           <div style={{
-            position: "absolute", top: "-10%", right: "-5%", width: 600, height: 600,
-            background: "radial-gradient(circle, rgba(14,165,233,0.08) 0%, transparent 70%)",
+            position: "absolute", top: "-10%", right: "-5%", width: 700, height: 700,
+            background: "radial-gradient(circle, rgba(14,165,233,0.07) 0%, transparent 70%)",
             borderRadius: "50%", filter: "blur(80px)",
             animation: "float 15s ease-in-out infinite",
           }} />
-          {/* Orb 2 */}
           <div style={{
-            position: "absolute", bottom: "10%", left: "-10%", width: 500, height: 500,
-            background: "radial-gradient(circle, rgba(14,165,233,0.06) 0%, transparent 70%)",
+            position: "absolute", bottom: "5%", left: "-8%", width: 500, height: 500,
+            background: "radial-gradient(circle, rgba(99,102,241,0.05) 0%, transparent 70%)",
             borderRadius: "50%", filter: "blur(80px)",
             animation: "float 18s ease-in-out infinite reverse",
           }} />
-          <style>{`
-            @keyframes float {
-              0%, 100% { transform: translateY(0px) translateX(0px); }
-              50% { transform: translateY(40px) translateX(20px); }
-            }
-          `}</style>
         </div>
 
-        <div className="relative z-10 mx-auto max-w-6xl px-5 py-14">
-      
+        <div className="relative z-10 mx-auto max-w-6xl px-5 py-16">
+
           {/* ── HERO ── */}
-          <section className="grid gap-16 md:grid-cols-[1fr_420px] md:items-center" style={{ marginBottom: 80 }}>
+          <section className="grid gap-16 md:grid-cols-[1fr_460px] md:items-center" style={{ marginBottom: 80, minHeight: "78vh" }}>
+
             {/* LEFT */}
             <div>
               {/* eyebrow */}
               <div style={{
                 display: "inline-flex", alignItems: "center", gap: 8,
-                background: "rgba(224,242,254,0.6)", 
-                border: "1px solid rgba(14,165,233,0.4)",
-                borderRadius: 12, padding: "8px 16px", marginBottom: 28,
-                fontSize: "0.72rem", fontWeight: 700, color: "#0369A1",
-                letterSpacing: "0.08em", textTransform: "uppercase",
+                background: "rgba(255,255,255,0.7)",
+                border: "1px solid rgba(14,165,233,0.35)",
+                borderRadius: 10, padding: "7px 16px", marginBottom: 32,
+                fontSize: "0.7rem", fontWeight: 700, color: "#0369A1",
+                letterSpacing: "0.1em", textTransform: "uppercase",
                 backdropFilter: "blur(8px)",
               }}>
                 <span className="eyebrow-blink" style={{ width: 6, height: 6, borderRadius: "50%", background: "#0EA5E9", display: "inline-block" }} />
                 HireSmart
               </div>
 
-              <h1 style={{ fontFamily: "'Clash Display', sans-serif", fontWeight: 700, letterSpacing: "-0.03em", color: "#0F172A", lineHeight: 1.05, margin: 0 }}>
-                <span className="hero-word block" style={{ fontSize: "clamp(3.5rem,7vw,6rem)", animationDelay: "0ms" }}>
-                  Beyond Skills
+              {/* Main headline — large like Screenshot 1 */}
+              <h1 style={{ margin: 0, letterSpacing: "-0.03em", lineHeight: 1.02 }}>
+                <span className="hero-word block" style={{
+                  fontSize: "clamp(3.5rem, 6vw, 6.5rem)",
+                  fontWeight: 700,
+                  color: "#0F172A",
+                  animationDelay: "0ms",
+                }}>
+                  Beyond Skills,
                 </span>
-                <span className="hero-word block" style={{ fontSize: "clamp(1.6rem,3.5vw,2.6rem)", marginTop: 12, animationDelay: "100ms", background: "linear-gradient(135deg, #0F172A, #0EA5E9)", backgroundClip: "text", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-                  Into Potential
+                <span className="hero-word block" style={{
+                  fontSize: "clamp(2.4rem, 5vw, 4.2rem)",
+                  fontWeight: 700,
+                  color: "#1a2e4a",
+                  animationDelay: "80ms",
+                  marginTop: 8,
+                }}>
+                  Into{" "}
+                  <span style={{ color: "#0EA5E9" }}>Potential.</span>
                 </span>
               </h1>
 
-              <p style={{ marginTop: 24, maxWidth: 500, fontSize: "1.1rem", lineHeight: 1.8, color: "#475569", fontWeight: 400 }}>
-                Future-ready screening platform where you prove your capabilities through intelligent, secure assessments. Your potential unlock starts here.
+              <p style={{ marginTop: 24, maxWidth: 520, fontSize: "1.05rem", lineHeight: 1.8, color: "#4A6580", fontWeight: 400}}>
+                The future-ready screening platform where candidates prove capabilities through intelligent, secure assessments. Your potential unlock starts here.
               </p>
 
-              {/* CTAs */}
-              <div style={{ marginTop: 32, display: "flex", flexWrap: "wrap", gap: 12 }}>
+              {/* CTAs — matching Screenshot 1 style */}
+              <div style={{ marginTop: 36, display: "flex", flexWrap: "wrap", gap: 14 }}>
                 <a href="#jobs" style={{
-                  display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8,
-                  padding: "16px 32px", borderRadius: 14,
-                  background: "linear-gradient(135deg, #0F172A, #0EA5E9)",
-                  color: "white",
-                  fontFamily: "'Plus Jakarta Sans', sans-serif",
-                  fontWeight: 700, fontSize: "0.98rem", textDecoration: "none",
-                  boxShadow: "0 12px 32px rgba(14,165,233,0.25)",
-                  transition: "all 0.3s cubic-bezier(0.4,0,0.2,1)",
-                  position: "relative",
-                  overflow: "hidden",
+                  display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 10,
+                  padding: "16px 36px", borderRadius: 12,
+                  background: "#1a2e4a",
+                  color: "white", fontWeight: 700, fontSize: "0.9rem",
+                  letterSpacing: "0.06em", textTransform: "uppercase",
+                  textDecoration: "none",
+                  boxShadow: "0 8px 24px rgba(26,46,74,0.25)",
+                  transition: "all 0.25s",
                 }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = "translateY(-4px)";
-                    e.currentTarget.style.boxShadow = "0 20px 48px rgba(14,165,233,0.35)";
+                    e.currentTarget.style.transform = "translateY(-3px)";
+                    e.currentTarget.style.boxShadow = "0 16px 36px rgba(26,46,74,0.3)";
+                    e.currentTarget.style.background = "#152540";
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.boxShadow = "0 12px 32px rgba(14,165,233,0.25)";
+                    e.currentTarget.style.boxShadow = "0 8px 24px rgba(26,46,74,0.25)";
+                    e.currentTarget.style.background = "#1a2e4a";
                   }}
                 >
-                  Explore Opportunities
-                  <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+                  EXPLORE OPPORTUNITIES
+                  <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
                 </a>
                 <Link href="/how-it-works" style={{
-                  display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8,
-                  padding: "16px 32px", borderRadius: 14,
-                  border: "1.5px solid rgba(14,165,233,0.4)", 
-                  background: "rgba(255,255,255,0.7)",
-                  color: "#0F172A", fontFamily: "'Plus Jakarta Sans', sans-serif",
-                  fontWeight: 700, fontSize: "0.98rem", textDecoration: "none",
-                  transition: "all 0.3s",
+                  display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 10,
+                  padding: "16px 36px", borderRadius: 12,
+                  border: "1.5px solid #CBD5E1",
+                  background: "rgba(255,255,255,0.8)",
+                  color: "#334155", fontWeight: 700, fontSize: "0.9rem",
+                  letterSpacing: "0.06em", textTransform: "uppercase",
+                  textDecoration: "none",
+                  transition: "all 0.25s",
                   backdropFilter: "blur(8px)",
                 }}
-                  onMouseEnter={(e) => { 
-                    e.currentTarget.style.borderColor = "#0EA5E9"; 
-                    e.currentTarget.style.background = "rgba(224,242,254,0.8)";
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = "#0EA5E9";
+                    e.currentTarget.style.color = "#0369A1";
+                    e.currentTarget.style.background = "rgba(224,242,254,0.9)";
                   }}
-                  onMouseLeave={(e) => { 
-                    e.currentTarget.style.borderColor = "rgba(14,165,233,0.4)"; 
-                    e.currentTarget.style.background = "rgba(255,255,255,0.7)";
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = "#CBD5E1";
+                    e.currentTarget.style.color = "#334155";
+                    e.currentTarget.style.background = "rgba(255,255,255,0.8)";
                   }}
                 >
-                  Learn More
+                  HOW IT WORKS
                 </Link>
               </div>
 
-              {/* Trust badges */}
-              <div style={{ marginTop: 36, display: "flex", alignItems: "center", gap: 24, flexWrap: "wrap" }}>
-                {["Enterprise Security", "AI-Powered", "Trusted by 300+"].map((t, i) => (
-                  <span key={t} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "0.85rem", color: "#475569", fontWeight: 600 }}>
-                    <span style={{ width: 24, height: 24, borderRadius: "50%", background: "rgba(14,165,233,0.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.7rem", color: "#0EA5E9" }}>✓</span>
-                    {t}
-                  </span>
-                ))}
+              {/* scroll hint */}
+              <div style={{ marginTop: 60, display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 6 }}>
+                <span style={{ fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase", color: "#94A3B8" }}>
+                  SCROLL TO EXPLORE
+                </span>
+                <svg width="14" height="20" viewBox="0 0 14 20" fill="none" style={{ opacity: 0.4 }}>
+                  <rect x="1" y="1" width="12" height="18" rx="6" stroke="#0EA5E9" strokeWidth="1.5" />
+                  <circle cx="7" cy="6" r="2" fill="#0EA5E9">
+                    <animate attributeName="cy" values="6;12;6" dur="1.8s" repeatCount="indefinite" />
+                  </circle>
+                </svg>
               </div>
             </div>
 
-            {/* RIGHT - Glass Card Stack */}
-            <div style={{ position: "relative", height: "100%", minHeight: 450 }}>
-              {/* Back card */}
+            {/* RIGHT — dark card  */}
+            <div style={{ position: "relative", height: 520 , width: 500 }}>
+              {/* Shadow card behind */}
               <div style={{
-                position: "absolute", inset: 0, background: "linear-gradient(135deg, rgba(14,165,233,0.08), transparent)",
-                border: "1px solid rgba(14,165,233,0.15)", borderRadius: 24, backdropFilter: "blur(12px)",
-                transform: "translateY(16px) translateX(16px)", zIndex: 1,
+                position: "absolute",
+                top: 12, left: 12, right: -12, bottom: -12,
+                borderRadius: 22,
+                background: "rgba(14,165,233,0.07)",
+                border: "1px solid rgba(14,165,233,0.1)",
+                zIndex: 1,
               }} />
-              
-              {/* Front card */}
-              <div className="glass-card" style={{
-                position: "absolute", inset: 0, zIndex: 2,
-                background: "linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(224,242,254,0.4) 100%)",
-                padding: 28, backdropFilter: "blur(20px)",
-              }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
-                  <p style={{ fontFamily: "'Clash Display', sans-serif", fontWeight: 700, fontSize: "1rem", color: "#0F172A", margin: 0 }}>
-                    🚀 Trending Now
-                  </p>
-                  <span style={{ borderRadius: 100, background: "rgba(14,165,233,0.1)", padding: "4px 14px", fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase", color: "#0369A1", border: "1px solid rgba(14,165,233,0.2)" }}>
-                    Live
+
+              {/* Main dark card */}
+              <div className="live-card">
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
+                  <span style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase", color: "#071d3b" }}>
+                    {role === "STUDENT" ? "YOUR OPPORTUNITIES" : "OPPORTUNITIES OVERVIEW"}
+                  </span>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6, borderRadius: 999, padding: "4px 12px", fontSize: "0.65rem", fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", background: "rgba(14,165,233,0.08)", border: "1px solid rgba(14,165,233,0.25)", color: "#0EA5E9" }}>
+                    <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#0EA5E9", display: "inline-block" }} />
+                    {openCount} OPEN
                   </span>
                 </div>
 
-                <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 8, marginBottom: 12 }}>
                   {[
-                    { label: "AI Engineer", color: "#0EA5E9" },
-                    { label: "ML Specialist", color: "#818CF8" },
-                    { label: "Data Scientist", color: "#38BDF8" },
-                    { label: "Tech Internship", color: "#34D399" },
-                  ].map((r) => (
-                    <div key={r.label} className="trending-row">
-                      <span style={{ width: 8, height: 8, borderRadius: "50%", background: r.color, flexShrink: 0 }} />
-                      {r.label}
-                      <span style={{ marginLeft: "auto", fontSize: "0.7rem", color: "#94A3B8" }}>→</span>
+                    { label: "Applied", value: appliedCount },
+                    { label: "Exam Done", value: examDoneCount },
+                    { label: "Open", value: openCount },
+                    { label: "Total", value: totalCount },
+                  ].map((item) => (
+                    <div key={item.label} style={{ borderRadius: 12, border: "1px solid #E2E8F0", background: "#F8FAFC", padding: "8px 10px", textAlign: "center" }}>
+                      <p style={{ margin: 0, fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#94A3B8" }}>
+                        {item.label}
+                      </p>
+                      <p style={{ margin: "6px 0 0", fontSize: "0.95rem", fontWeight: 700, color: "#0F172A" }}>
+                        {item.value}
+                      </p>
                     </div>
                   ))}
                 </div>
 
-                <div style={{ borderRadius: 16, border: "1px solid rgba(14,165,233,0.3)", background: "rgba(224,242,254,0.4)", padding: 16, backdropFilter: "blur(8px)" }}>
-                  <p style={{ fontFamily: "'Clash Display', sans-serif", fontWeight: 700, fontSize: "0.9rem", color: "#0F172A", margin: "0 0 8px" }}>
-                    ⚡ Smart Screening Flow
-                  </p>
-                  <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: "0.7rem", color: "#475569", fontWeight: 600 }}>
-                    <span style={{ background: "rgba(14,165,233,0.2)", color: "#0369A1", padding: "2px 8px", borderRadius: 4 }}>Basic CV data enter & Secure role based exam</span>
-                    <span style={{ color: "#0EA5E9", fontWeight: 700 }}>→</span>
-                    <span style={{ background: "rgba(14,165,233,0.1)", color: "#0369A1", padding: "2px 8px", borderRadius: 4 }}>CV upload unlock</span>
-                    <span style={{ color: "#0EA5E9", fontWeight: 700 }}>→</span>
-                    <span style={{ background: "rgba(129,140,248,0.1)", color: "#6366F1", padding: "2px 8px", borderRadius: 4 }}>Interview</span>
-                  </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  {recentRoles.length === 0 ? (
+                    <div style={{ borderRadius: 14, border: "1px dashed #E2E8F0", padding: "18px", textAlign: "center", color: "#94A3B8", fontSize: "0.85rem" }}>
+                      No roles available yet.
+                    </div>
+                  ) : (
+                    recentRoles.map((job) => (
+                      <div key={job.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderRadius: 12, border: "1px solid #E2E8F0", background: "#FFFFFF", padding: "8px 12px" }}>
+                        <div>
+                          <p style={{ margin: 0, fontSize: "0.84rem", fontWeight: 700, color: "#0F172A" }}>
+                            {job.title}
+                          </p>
+                          <p style={{ marginTop: 3, marginBottom: 0, fontSize: "0.7rem", color: "#94A3B8" }}>
+                            {job.company}
+                          </p>
+                        </div>
+                        <div style={{ textAlign: "right" }}>
+                          <span style={{ display: "inline-flex", alignItems: "center", borderRadius: 999, padding: "3px 8px", fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", background: "rgba(14,165,233,0.08)", color: "#0EA5E9" }}>
+                            {formatJobType(job.type) || "Role"}
+                          </span>
+                          <p style={{ marginTop: 4, marginBottom: 0, fontSize: "0.65rem", color: "#94A3B8" }}>
+                            {job.createdAt ? new Date(job.createdAt).toLocaleDateString("en-GB") : "Recently posted"}
+                          </p>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 16 }}>
+                  <span style={{ fontSize: "0.75rem", color: "#94A3B8" }}>
+                    {role === "STUDENT" ? "Track your progress and apply faster." : "Overview of current roles."}
+                  </span>
+                  <Link
+                    href="#jobs"
+                    style={{
+                      borderRadius: 10,
+                      padding: "10px 16px",
+                      fontSize: "0.75rem",
+                      fontWeight: 800,
+                      letterSpacing: "0.08em",
+                      textTransform: "uppercase",
+                      border: "none",
+                      background: "#0F172A",
+                      color: "white",
+                      textDecoration: "none",
+                    }}
+                  >
+                    View Roles →
+                  </Link>
                 </div>
               </div>
             </div>
@@ -616,29 +593,25 @@ export default function HomePage() {
 
           {/* ── STATS SECTION ── */}
           <section style={{
-            marginTop: 100, marginBottom: 100,
-            background: "linear-gradient(135deg, #0F172A 0%, rgba(14,165,233,0.1) 100%)",
-            borderRadius: 28, padding: "4rem 2rem", 
-            border: "1px solid rgba(14,165,233,0.2)",
+            marginBottom: 100,
+            background: "linear-gradient(135deg, #1a2e4a 0%, #0c2040 100%)",
+            borderRadius: 28, padding: "4rem 2rem",
+            border: "1px solid rgba(14,165,233,0.15)",
             position: "relative", overflow: "hidden",
           }}>
-            {/* Grid overlay */}
             <div style={{
               position: "absolute", inset: 0,
               backgroundImage: "linear-gradient(rgba(14,165,233,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(14,165,233,0.03) 1px, transparent 1px)",
               backgroundSize: "40px 40px", pointerEvents: "none",
             }} />
-
             <div style={{ position: "relative", zIndex: 1, display: "flex", justifyContent: "space-around", flexWrap: "wrap", gap: "2rem" }}>
               {[
                 { to: 2400, label: "Active Opportunities" },
                 { to: 14800, label: "Talented Candidates" },
                 { to: 320, label: "Partner Companies" },
                 { to: 91, label: "Success Rate", suffix: "%" },
-              ].map((s, i) => (
-                <div key={s.label} style={{
-                  flex: 1, minWidth: 140, textAlign: "center", padding: "1.5rem",
-                }}>
+              ].map((s) => (
+                <div key={s.label} style={{ flex: 1, minWidth: 140, textAlign: "center", padding: "1.5rem" }}>
                   <Counter to={s.to} label={s.label} suffix={s.suffix ?? "+"} />
                 </div>
               ))}
@@ -646,27 +619,27 @@ export default function HomePage() {
           </section>
 
           {/* ── FEATURE CARDS ── */}
-          <section style={{ marginTop: 20, marginBottom: 80 }}>
+          <section style={{ marginBottom: 80 }}>
             <div style={{ marginBottom: 40 }}>
               <div style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#0EA5E9", marginBottom: 12 }}>
                 <span style={{ width: 20, height: 2, background: "#0EA5E9", borderRadius: 2 }} />
-                Why HireSmart 2050
+                Why HireSmart
               </div>
-              <h2 style={{ fontFamily: "'Clash Display', sans-serif", fontSize: "clamp(2rem,3.5vw,2.8rem)", fontWeight: 700, color: "#0F172A", letterSpacing: "-0.02em", margin: 0 }}>
+              <h2 style={{ fontSize: "clamp(2rem,3.5vw,2.8rem)", fontWeight: 700, color: "#0F172A", letterSpacing: "-0.02em", margin: 0 }}>
                 Next-generation talent screening
               </h2>
             </div>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
               {[
-                { icon: "🎯", label: "Intelligent Exams",     desc: "Randomized, role-specific assessments that adapt to candidate expertise level, ensuring fair competition." },
-                { icon: "🔐", label: "Fort Knox Security",    desc: "Advanced proctoring with fullscreen enforcement, tab-switch detection, and biometric verification." },
-                { icon: "🤖", label: "AI Evaluation Engine",  desc: "Real-time scenario scoring using neural networks for objective, bias-free candidate assessment." },
+                { icon: "🎯", label: "Intelligent Exams", desc: "Randomized, role-specific assessments that adapt to candidate expertise level, ensuring fair competition." },
+                { icon: "🔐", label: "Fort Knox Security", desc: "Advanced proctoring with fullscreen enforcement, tab-switch detection, and biometric verification." },
+                { icon: "🤖", label: "AI Evaluation Engine", desc: "Real-time scenario scoring using neural networks for objective, bias-free candidate assessment." },
               ].map((f) => (
-                <div key={f.label} className="feature-card" style={{ position: "relative" }}>
-                  <div style={{ width: 56, height: 56, borderRadius: 16, background: "linear-gradient(135deg, rgba(14,165,233,0.15), rgba(224,242,254,0.3))", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "2rem", marginBottom: 20, border: "1px solid rgba(14,165,233,0.2)", position: "relative" }}>
+                <div key={f.label} className="feature-card">
+                  <div style={{ width: 56, height: 56, borderRadius: 16, background: "#E0F2FE", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "2rem", marginBottom: 20 }}>
                     {f.icon}
                   </div>
-                  <h3 style={{ fontFamily: "'Clash Display', sans-serif", fontWeight: 700, fontSize: "1.15rem", color: "#0F172A", marginBottom: 10 }}>
+                  <h3 style={{ fontWeight: 700, fontSize: "1.15rem", color: "#0F172A", marginBottom: 10 }}>
                     {f.label}
                   </h3>
                   <p style={{ color: "#94A3B8", fontSize: "0.9rem", lineHeight: 1.7, margin: 0 }}>{f.desc}</p>
@@ -676,13 +649,13 @@ export default function HomePage() {
           </section>
 
           {/* ── JOBS ── */}
-          <section id="jobs" style={{ marginTop: 100, scrollMarginTop: 32 }}>
+          <section id="jobs" style={{ marginTop: 80, scrollMarginTop: 32 }}>
             <div style={{ marginBottom: 32, display: "flex", flexWrap: "wrap", gap: 20, alignItems: "flex-end", justifyContent: "space-between" }}>
               <div>
                 <p style={{ fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", color: "#0EA5E9", marginBottom: 8 }}>
                   📊 Database Powered by Prisma & SQLite
                 </p>
-                <h2 style={{ fontFamily: "'Clash Display', sans-serif", fontSize: "clamp(1.8rem,3vw,2.6rem)", fontWeight: 700, color: "#0F172A", letterSpacing: "-0.02em", margin: 0 }}>
+                <h2 style={{ fontSize: "clamp(1.8rem,3vw,2.6rem)", fontWeight: 700, color: "#0F172A", letterSpacing: "-0.02em", margin: 0 }}>
                   Opportunities Awaiting
                 </h2>
               </div>
@@ -694,7 +667,7 @@ export default function HomePage() {
             </div>
 
             {isLoading && (
-              <div style={{ display: "flex", alignItems: "center", gap: 12, background: "rgba(255,255,255,0.8)", border: "1px solid rgba(14,165,233,0.2)", borderRadius: 16, padding: "40px 24px", color: "#94A3B8", fontSize: "0.875rem", backdropFilter: "blur(8px)" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12, background: "rgba(255,255,255,0.8)", border: "1px solid rgba(14,165,233,0.2)", borderRadius: 16, padding: "40px 24px", color: "#94A3B8", fontSize: "0.875rem" }}>
                 <svg className="animate-spin" style={{ width: 16, height: 16, color: "#0EA5E9" }} viewBox="0 0 24 24" fill="none">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
@@ -726,92 +699,14 @@ export default function HomePage() {
                       ...j,
                       tags: Array.isArray((j as any).tags) ? ((j as any).tags as string[]) : [],
                       company:
-  typeof (j as any).company === "object"
-    ? (j as any).company?.name ?? "Unknown Company"
-    : (j as any).company ?? "Unknown Company"
+                        typeof (j as any).company === "object"
+                          ? (j as any).company?.name ?? "Unknown Company"
+                          : (j as any).company ?? "Unknown Company"
                     }}
                   />
                 ))}
               </div>
             )}
-          </section>
-
-          {/* ── CTA BANNER ── */}
-          <section style={{
-            marginTop: 120, borderRadius: 32, padding: "6rem 4rem 5rem",
-            background: "linear-gradient(135deg, #0F172A 0%, rgba(14,165,233,0.08) 100%)",
-            position: "relative", overflow: "hidden", textAlign: "center",
-            border: "1px solid rgba(14,165,233,0.2)",
-          }}>
-            {/* Animated orbs */}
-            <div style={{
-              position: "absolute", top: "-40%", left: "-10%", width: 600, height: 600,
-              background: "radial-gradient(ellipse, rgba(14,165,233,0.15) 0%, transparent 70%)",
-              borderRadius: "50%", filter: "blur(80px)", pointerEvents: "none",
-            }} />
-            <div style={{
-              position: "absolute", bottom: "-30%", right: "-5%", width: 500, height: 500,
-              background: "radial-gradient(ellipse, rgba(14,165,233,0.1) 0%, transparent 70%)",
-              borderRadius: "50%", filter: "blur(80px)", pointerEvents: "none",
-            }} />
-
-            <div style={{ position: "relative", zIndex: 2 }}>
-              <h2 style={{ fontFamily: "'Clash Display', sans-serif", fontSize: "clamp(2.2rem,4.5vw,3.2rem)", fontWeight: 700, color: "white", letterSpacing: "-0.02em", margin: "0 0 16px", lineHeight: 1.1 }}>
-                Your Future <em style={{ fontStyle: "normal", color: "#38BDF8", textShadow: "0 0 30px rgba(56,189,248,0.3)" }}>starts here</em>
-              </h2>
-              <p style={{ color: "rgba(255,255,255,0.6)", maxWidth: 500, margin: "0 auto 40px", lineHeight: 1.8, fontSize: "1rem" }}>
-                Step into the exam room. Prove your skills. Unlock your potential with leading enterprises ready to invest in talent.
-              </p>
-              <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap", marginBottom: 24 }}>
-                <Link href="/exam" style={{
-                  display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8,
-                  padding: "16px 36px", borderRadius: 14,
-                  background: "linear-gradient(135deg, #0EA5E9, #38BDF8)", 
-                  color: "white", textDecoration: "none",
-                  fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, fontSize: "1.05rem",
-                  boxShadow: "0 16px 40px rgba(14,165,233,0.35)",
-                  transition: "all 0.3s cubic-bezier(0.4,0,0.2,1)",
-                }}
-                  onMouseEnter={(e) => { 
-                    e.currentTarget.style.transform = "translateY(-4px)"; 
-                    e.currentTarget.style.boxShadow = "0 24px 56px rgba(14,165,233,0.45)";
-                  }}
-                  onMouseLeave={(e) => { 
-                    e.currentTarget.style.transform = "translateY(0)"; 
-                    e.currentTarget.style.boxShadow = "0 16px 40px rgba(14,165,233,0.35)";
-                  }}
-                >
-                  Begin Assessment →
-                </Link>
-                <Link href="/how-it-works" style={{
-                  display: "inline-flex", alignItems: "center", justifyContent: "center",
-                  padding: "16px 36px", borderRadius: 14,
-                  border: "1.5px solid rgba(255,255,255,0.25)", 
-                  color: "rgba(255,255,255,0.9)",
-                  fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, fontSize: "1.05rem", 
-                  textDecoration: "none",
-                  transition: "all 0.3s",
-                  background: "rgba(255,255,255,0.05)",
-                  backdropFilter: "blur(8px)",
-                }}
-                  onMouseEnter={(e) => { 
-                    e.currentTarget.style.borderColor = "#38BDF8"; 
-                    e.currentTarget.style.color = "#38BDF8";
-                    e.currentTarget.style.background = "rgba(56,189,248,0.1)";
-                  }}
-                  onMouseLeave={(e) => { 
-                    e.currentTarget.style.borderColor = "rgba(255,255,255,0.25)"; 
-                    e.currentTarget.style.color = "rgba(255,255,255,0.9)";
-                    e.currentTarget.style.background = "rgba(255,255,255,0.05)";
-                  }}
-                >
-                  Learn Process
-                </Link>
-              </div>
-              <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.25)", marginTop: 0 }}>
-                💡 Secure assessment • Real-time evaluation • Transparent results
-              </p>
-            </div>
           </section>
 
         </div>

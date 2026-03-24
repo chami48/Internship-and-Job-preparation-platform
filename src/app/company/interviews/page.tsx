@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { api } from "~/trpc/react";
 import {
   CalendarClock,
   CalendarDays,
@@ -171,8 +171,12 @@ const HOLIDAYS: Record<string, string> = {
 
 export default function InterviewsPage() {
   const router = useRouter();
-  const { data: session } = useSession();
-  const companyName = session?.user?.name || "IFS";
+  const [companyId, setCompanyId] = React.useState<string | null>(null);
+  const { data: company } = api.company.getProfile.useQuery(
+    { companyId: companyId ?? "" },
+    { enabled: !!companyId },
+  );
+  const companyName = company?.name || "Company";
   const [search, setSearch] = React.useState("");
   const [stage, setStage] = React.useState<"ALL" | Interview["stage"]>("ALL");
   const [status, setStatus] = React.useState<"ALL" | Interview["status"]>("ALL");
@@ -181,6 +185,10 @@ export default function InterviewsPage() {
   const [selectedDate, setSelectedDate] = React.useState<Date | null>(null);
   const [expandedJobs, setExpandedJobs] = React.useState<Record<string, boolean>>({});
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    setCompanyId(localStorage.getItem("companyId"));
+  }, []);
 
   const handleLogout = () => router.push('/company/comlogin');
   const handleCreateJob = () => router.push('/company/create-job');

@@ -3,8 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Swal from "sweetalert2";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 
 function EyeIcon({ open }: { open: boolean }) {
   return open ? (
@@ -22,23 +21,7 @@ function EyeIcon({ open }: { open: boolean }) {
 
 export default function StudentLoginPage() {
   const router = useRouter();
-
-  const toast = Swal.mixin({
-    toast: true,
-    position: "top-end",
-    showConfirmButton: false,
-    showCloseButton: true,
-    timer: 2200,
-    timerProgressBar: true,
-    background: "#F8FBFF",
-    color: "#0F172A",
-    customClass: {
-      popup: "hs-toast",
-      title: "text-[13px] font-semibold leading-tight",
-      closeButton: "text-red-500 hover:text-red-600",
-      icon: "border-2 border-[#DCEAF6] scale-75",
-    },
-  });
+  const { update } = useSession();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -67,12 +50,9 @@ export default function StudentLoginPage() {
       setError("Invalid email or password.");
       return;
     }
-    toast.fire({
-      icon: "success",
-      iconColor: "#16A34A",
-      title: "Login successful!",
-    });
-    setTimeout(() => router.push("/home"), 2200);
+
+    await update();
+    router.push("/home");
   };
 
   const inputStyle: React.CSSProperties = {
@@ -81,7 +61,6 @@ export default function StudentLoginPage() {
     border: "1.5px solid #E2E8F0",
     borderRadius: 10,
     fontSize: "0.875rem",
-    fontFamily: "'Plus Jakarta Sans', sans-serif",
     color: "#0F172A",
     background: "#F8FAFF",
     outline: "none",
@@ -97,13 +76,11 @@ export default function StudentLoginPage() {
     textTransform: "uppercase",
     color: "#64748B",
     marginBottom: 6,
-    fontFamily: "'Plus Jakarta Sans', sans-serif",
   };
 
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
         .reg-input:focus { border-color: #0EA5E9 !important; box-shadow: 0 0 0 3px rgba(14,165,233,0.12) !important; background: #fff !important; }
         .reg-input::placeholder { color: #CBD5E1; }
         .reg-btn:hover:not(:disabled) { background: #0284C7 !important; box-shadow: 0 6px 20px rgba(14,165,233,0.35) !important; transform: translateY(-1px); }
@@ -119,7 +96,7 @@ export default function StudentLoginPage() {
         }
       `}</style>
 
-      <div className="auth-shell" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+      <div className="auth-shell" style={{ }}>
         <div
           className="auth-left"
           style={{
@@ -243,7 +220,6 @@ export default function StudentLoginPage() {
                   fontWeight: 700,
                   letterSpacing: "0.04em",
                   cursor: "pointer",
-                  fontFamily: "'Plus Jakarta Sans', sans-serif",
                 }}
               >
                 {isSubmitting ? "Signing in..." : "Sign In →"}

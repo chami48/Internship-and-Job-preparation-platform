@@ -4,6 +4,7 @@
 import React, { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
+import { showAlert } from "~/app/components/common/alert";
 
 const SECTIONS = [
   { id: "personal", label: "Personal", short: "01", icon: "◈" },
@@ -18,19 +19,19 @@ const SCENARIO_QUESTIONS = [
     id: "q1",
     tag: "System Design",
     question:
-      "You’re optimizing a backend service handling 10,000 req/sec, but CPU is ~80%. Explain your step-by-step diagnostic and resolution plan.",
+      "You are working on a project, and a feature you developed is not working as expected. What steps would you take to identify and fix the issue?",
   },
   {
     id: "q2",
     tag: "Crisis Management",
     question:
-      "A critical production bug appears 30 minutes before launch. Fix requires a database migration. What do you do and why?",
+      "You have multiple assignment deadlines and a project to complete, but you are running out of time. How would you manage your tasks?",
   },
   {
     id: "q3",
     tag: "Collaboration",
     question:
-      "You disagree with your team lead’s architectural decision and believe it will cause technical debt. How do you handle it professionally?",
+      "You are working in a group project, but one team member is not contributing properly. How would you handle this situation?",
   },
 ] as const;
 
@@ -68,8 +69,20 @@ type FormState = {
   q2: string;
   q3: string;
 };
+type Specialization =
+  | "INFORMATION_TECHNOLOGY"
+  | "SOFTWARE_ENGINEERING"
+  | "CYBER_SECURITY"
+  | "DATA_SCIENCE"
+  | "COMPUTER_SCIENCE_NETWORK_ENGINEERING"
+  | "INTERACTIVE_MEDIA";
 
-export default function ApplyPage({ params }: { params: { jobId: string } }) {
+export default function ApplyPage({
+  params,
+}: {
+  params: Promise<{ jobId: string }>;
+}) {
+  const { jobId } = React.use(params);
   const createApplication = api.application.create.useMutation();
   const router = useRouter();
 
@@ -78,6 +91,10 @@ export default function ApplyPage({ params }: { params: { jobId: string } }) {
     new Set(),
   );
   const [focusedField, setFocusedField] = useState<string | null>(null);
+  const [linkErrors, setLinkErrors] = useState({
+    linkedin: "",
+    github: "",
+  });
 
   const [form, setForm] = useState<FormState>({
     fullName: "",
@@ -87,9 +104,9 @@ export default function ApplyPage({ params }: { params: { jobId: string } }) {
     github: "",
     portfolio: "",
 
-    university: "",
-    degree: "",
-    specialization: "",
+    university: "SLIIT",
+    degree: "BSc (Honors) Information Technology",
+    specialization: "" as Specialization | "",
     cgpa: "",
     awards: "",
 
@@ -108,11 +125,144 @@ export default function ApplyPage({ params }: { params: { jobId: string } }) {
     return Math.round((completedSections.size / SECTIONS.length) * 100);
   }, [completedSections.size]);
 
+  const handleCgpaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let { value } = e.target;
+
+    if (value === "") {
+      setForm((prev) => ({ ...prev, cgpa: "" }));
+      return;
+    }
+
+    value = value.replace(/[^0-9.]/g, "");
+
+    if (value.startsWith(".")) {
+      value = `0${value}`;
+    }
+
+    const parts = value.split(".");
+    if (parts.length > 2) {
+      value = `${parts[0]}.${parts.slice(1).join("")}`;
+    }
+
+    const [intPart, decPart] = value.split(".");
+    if (decPart && decPart.length > 2) {
+      value = `${intPart}.${decPart.slice(0, 2)}`;
+    }
+
+    const num = Number(value);
+    if (!Number.isNaN(num)) {
+      if (num > 4) return;
+      if (num < 0) value = "0";
+    }
+
+    setForm((prev) => ({ ...prev, cgpa: value }));
+  };
+
+  const handleCgpaBlur = () => {
+    if (!form.cgpa.trim()) return;
+    const num = Number(form.cgpa);
+    if (Number.isNaN(num)) {
+      setForm((prev) => ({ ...prev, cgpa: "" }));
+      return;
+    }
+
+    const clamped = Math.min(4, Math.max(0, num));
+    setForm((prev) => ({ ...prev, cgpa: clamped.toFixed(2) }));
+  };
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    const sanitized = value.replace(/[^a-zA-Z0-9@.]/g, "");
+    setForm((prev) => ({ ...prev, [name as keyof FormState]: sanitized }));
+  };
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    const sanitized = value.replace(/[^a-zA-Z\s]/g, "");
+    setForm((prev) => ({ ...prev, [name as keyof FormState]: sanitized }));
+  };
+
+  const handleMobileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value;
+    const digits = value.replace(/\D/g, "");
+    let local = digits.startsWith("94") ? digits.slice(2) : digits;
+    local = local.slice(0, 9);
+    const formatted = `+94${local}`;
+    setForm((prev) => ({ ...prev, mobile: formatted }));
+  };
+
+  const handleLinkedInChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    const sanitized = value.replace(/[^a-zA-Z0-9._\-/:]/g, "");
+    let error = "";
+
+    if (sanitized !== value) {
+      error = "Only letters, numbers, ., -, _, /, and : are allowed.";
+    } else if (
+      sanitized.length > 0 &&
+      !/^(?:https:\/\/)?(?:www\.)?linkedin\.com\/in\/[a-zA-Z0-9._-]+\/?$/.test(
+        sanitized,
+      )
+    ) {
+      error = "Use https//www.linkedin.com/in/yourname format.";
+    }
+
+    setLinkErrors((prev) => ({ ...prev, linkedin: error }));
+    setForm((prev) => ({ ...prev, [name as keyof FormState]: sanitized }));
+  };
+
+  const handleGithubChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    const sanitized = value.replace(/[^a-zA-Z0-9._\-/:]/g, "");
+    let error = "";
+
+    if (sanitized !== value) {
+      error = "Only letters, numbers, ., -, _, /, and : are allowed.";
+    } else if (
+      sanitized.length > 0 &&
+      !/^(?:https:\/\/)?(?:www\.)?github\.com\/[a-zA-Z0-9._-]+(?:\/[a-zA-Z0-9._-]+)?\/?$/.test(
+        sanitized,
+      )
+    ) {
+      error =
+        "Use https//github.com/username or https://github.com/username/repo format.";
+    }
+
+    setLinkErrors((prev) => ({ ...prev, github: error }));
+    setForm((prev) => ({ ...prev, [name as keyof FormState]: sanitized }));
+  };
+
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
   ) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name as keyof FormState]: value }));
+  };
+
+  const isValidLinkedInUrl = (value: string) => {
+    try {
+      const url = new URL(value.startsWith("http") ? value : `https://${value}`);
+      const host = url.hostname.toLowerCase();
+      if (!host.endsWith("linkedin.com")) return false;
+      return /^\/in\/[a-zA-Z0-9._-]+\/?$/.test(url.pathname);
+    } catch {
+      return false;
+    }
+  };
+
+  const isValidGithubUrl = (value: string) => {
+    try {
+      const url = new URL(value.startsWith("http") ? value : `https://${value}`);
+      const host = url.hostname.toLowerCase();
+      if (!host.endsWith("github.com")) return false;
+      return /^\/[a-zA-Z0-9._-]+(?:\/[a-zA-Z0-9._-]+)?\/?$/.test(
+        url.pathname,
+      );
+    } catch {
+      return false;
+    }
   };
 
   // ✅ Projects handlers
@@ -146,11 +296,19 @@ export default function ApplyPage({ params }: { params: { jobId: string } }) {
   // ✅ Validation per step
   const validateCurrentStep = () => {
     if (activeSection === 0) {
-      if (!form.fullName.trim() || !form.email.trim()) return false;
+      if (!form.fullName.trim()) return false;
+      if (!form.email.trim()) return false;
+      if (!/^\+94\d{9}$/.test(form.mobile)) return false;
+      if (!form.linkedin.trim() || !isValidLinkedInUrl(form.linkedin))
+        return false;
+      if (!form.github.trim() || !isValidGithubUrl(form.github)) return false;
     }
 
     if (activeSection === 1) {
-      if (!form.university.trim() || !form.degree.trim()) return false;
+      if (!form.university.trim()) return false;
+      if (!form.degree.trim()) return false;
+      if (!form.specialization) return false;
+      if (!form.cgpa.trim()) return false;
     }
 
     if (activeSection === 2) {
@@ -161,64 +319,76 @@ export default function ApplyPage({ params }: { params: { jobId: string } }) {
 
     if (activeSection === 3) {
       if (!form.programmingLanguages.trim()) return false;
+      if (!form.frameworks.trim()) return false;
+      if (!form.softwareProficiency.trim()) return false;
+    }
+
+    if (activeSection === 4) {
+      if (!form.q1.trim()) return false;
+      if (!form.q2.trim()) return false;
+      if (!form.q3.trim()) return false;
     }
 
     return true;
   };
 
   const handleNext = async () => {
-  if (!validateCurrentStep()) {
-    alert("Please fill the required fields before continuing.");
-    return;
-  }
+    if (!validateCurrentStep()) {
+      void showAlert({
+        icon: "warning",
+        text: "Please fill the required fields before continuing.",
+      });
+      return;
+    }
 
-  setCompletedSections((prev) => new Set([...prev, activeSection]));
+    setCompletedSections((prev) => new Set([...prev, activeSection]));
 
-  if (activeSection < SECTIONS.length - 1) {
-    setActiveSection((s) => s + 1);
-    return;
-  }
+    if (activeSection < SECTIONS.length - 1) {
+      setActiveSection((s) => s + 1);
+      return;
+    }
 
-  // FINAL STEP — SAVE TO DATABASE
-  try {
-   const created = await createApplication.mutateAsync({
-  jobId: params.jobId,
+    // FINAL STEP — SAVE TO DATABASE
+    try {
+      const created = await createApplication.mutateAsync({
+        jobId,
 
-  fullName: form.fullName,
-  email: form.email,
-  mobile: form.mobile,
-  linkedin: form.linkedin,
-  github: form.github,
-  portfolio: form.portfolio,
+        fullName: form.fullName,
+        email: form.email,
+        mobile: form.mobile,
+        linkedin: form.linkedin,
+        github: form.github,
+        portfolio: form.portfolio,
 
-  university: form.university,
-  degree: form.degree,
-  specialization: form.specialization,
-  cgpa: form.cgpa,
-  awards: form.awards,
+        university: form.university,
+        degree: form.degree,
+        specialization: form.specialization as Specialization,
+        cgpa: form.cgpa,
+        awards: form.awards,
 
-  programmingLanguages: form.programmingLanguages,
-  frameworks: form.frameworks,
-  softwareProficiency: form.softwareProficiency,
+        programmingLanguages: form.programmingLanguages,
+        frameworks: form.frameworks,
+        softwareProficiency: form.softwareProficiency,
 
-  projects: form.projects,
+        projects: form.projects,
 
-  scenarios: [
-    { questionKey: "q1", answer: form.q1 },
-    { questionKey: "q2", answer: form.q2 },
-    { questionKey: "q3", answer: form.q3 },
-  ],
-});
+        scenarios: [
+          { questionKey: "q1", answer: form.q1 },
+          { questionKey: "q2", answer: form.q2 },
+          { questionKey: "q3", answer: form.q3 },
+        ],
+      });
 
-// 🔥 PASS APPLICATION ID
-router.push(
-  `/apply/${params.jobId}/agreement?appId=${created.id}`
-);
-  } catch (error) {
-    console.error(error);
-    alert("Failed to submit application.");
-  }
-};
+      // 🔥 PASS APPLICATION ID
+      router.push(`/apply/${jobId}/agreement?appId=${created.id}`);
+    } catch (error) {
+      console.error(error);
+      void showAlert({
+        icon: "error",
+        text: "Failed to submit application.",
+      });
+    }
+  };
 
   const handleBack = () => {
     if (activeSection > 0) setActiveSection((s) => s - 1);
@@ -227,41 +397,41 @@ router.push(
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap');
-
         :root{
-          --bg: #ffffff;
-          --surface: #f8faff;
+          --bg: #f7f9fc;
+          --surface: #ffffff;
           --border: #e2e8f0;
           --text: #0f172a;
-          --muted: #94a3b8;
+          --muted: #64748b;
           --accent: #0ea5e9;
+          --accent-strong: #0284c7;
+          --shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
         }
 
         *{ box-sizing: border-box; }
 
         .apply-shell{
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'Inter', sans-serif;
-}
-  .title, .brandTitle{
-  font-family: 'Poppins', sans-serif;
-}
+          background: radial-gradient(circle at top, rgba(14,165,233,0.12), transparent 45%),
+            radial-gradient(circle at 20% 20%, rgba(99,102,241,0.10), transparent 35%),
+            linear-gradient(180deg, #f8fafc, #eef2f7 60%, #e9edf5);
+          color: var(--text);
+        }
+        .title, .brandTitle{
+        }
 
         .scan{ display:none; }
 
         .root{
           min-height: 100vh;
           display: grid;
-          grid-template-columns: 260px 1fr;
+          grid-template-columns: 280px 1fr;
         }
 
         .sidebar{
           position: sticky;
           top: 80px;
           height: calc(100vh - 80px);
-          background: #fafbfc;
+          background: #f4f7fb;
           border-right: 1px solid var(--border);
           padding: 28px 0;
         }
@@ -273,8 +443,10 @@ router.push(
 
         .brandTag{
           font-size: 11px;
-          font-weight: 600;
-          color: var(--accent);
+          font-weight: 700;
+          color: var(--accent-strong);
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
           margin-bottom: 6px;
         }
 
@@ -294,31 +466,34 @@ router.push(
           font-size:12px;
           color: var(--muted);
           margin-bottom:8px;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
         }
 
         .bar{
-          height:4px;
-          background:#f1f3f5;
-          border-radius:4px;
+          height:6px;
+          background:#e2e8f0;
+          border-radius:999px;
         }
 
         .barFill{
           height:100%;
-          background: var(--accent);
-          border-radius:4px;
+          background: linear-gradient(90deg, #0ea5e9, #38bdf8);
+          border-radius:999px;
+          transition: width 0.4s ease;
         }
 
         .nav{
           padding: 0 16px;
           display:flex;
           flex-direction:column;
-          gap:6px;
+          gap:8px;
         }
 
         .navBtn{
           width:100%;
-          padding:10px 12px;
-          border-radius:10px;
+          padding:12px 14px;
+          border-radius:14px;
           border:1px solid transparent;
           background:#fff;
           text-align:left;
@@ -328,26 +503,29 @@ router.push(
           color: var(--text);
           display:flex;
           align-items:center;
-          gap:10px;
+          gap:12px;
+          box-shadow: 0 10px 24px rgba(15, 23, 42, 0.04);
         }
 
         .navBtn:hover{
-          background: var(--surface);
+          border-color: rgba(14,165,233,0.2);
+          color: var(--accent-strong);
         }
 
         .navBtn.active{
           background: #e0f2fe;
-          border-color: var(--accent);
+          border-color: rgba(14,165,233,0.4);
+          box-shadow: 0 12px 30px rgba(14,165,233,0.12);
         }
 
         .navNum{
-          width:26px;
-          height:26px;
-          border-radius:8px;
+          width:28px;
+          height:28px;
+          border-radius:10px;
           display:flex;
           align-items:center;
           justify-content:center;
-          background: var(--surface);
+          background: #f1f5f9;
           border:1px solid var(--border);
           font-size:12px;
           font-weight:700;
@@ -361,13 +539,21 @@ router.push(
 
         .main{
           padding: 60px 80px;
+          animation: fadeUp 0.5s ease;
+        }
+
+        @keyframes fadeUp{
+          from { opacity: 0; transform: translateY(18px); }
+          to { opacity: 1; transform: translateY(0); }
         }
 
         .eyebrow{
           font-size:12px;
           font-weight:700;
-          color: var(--accent);
+          color: var(--accent-strong);
           margin-bottom:10px;
+          letter-spacing: 0.18em;
+          text-transform: uppercase;
         }
 
         .title{
@@ -378,20 +564,21 @@ router.push(
         }
 
         .highlight{
-          color: var(--accent);
+          color: var(--accent-strong);
         }
 
         .desc{
           color: var(--muted);
           margin-bottom: 30px;
-          font-size: 14px;
+          font-size: 15px;
         }
 
         .card{
           background: var(--surface);
-          border: 1px solid var(--border);
-          border-radius: 16px;
+          border: 1px solid rgba(148,163,184,0.35);
+          border-radius: 20px;
           padding: 28px;
+          box-shadow: var(--shadow);
         }
 
         .grid2{
@@ -407,6 +594,13 @@ router.push(
           font-weight:700;
           color: var(--muted);
           margin-bottom:6px;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+        }
+
+        .required{
+          color: #b42318;
+          margin-left: 4px;
         }
 
         .optional{
@@ -418,18 +612,19 @@ router.push(
 
         .input, .textarea{
           width:100%;
-          border-radius:10px;
+          border-radius:12px;
           padding:12px 14px;
           border:1px solid var(--border);
           background:#ffffff;
           font-size:14px;
           color: var(--text);
+          transition: border-color 0.2s, box-shadow 0.2s;
         }
 
         .input:focus, .textarea:focus{
           outline:none;
           border-color: var(--accent);
-          box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
+          box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.15);
         }
 
         .textarea{
@@ -445,10 +640,10 @@ router.push(
         }
 
         .projectBlock{
-          border: 1px dashed var(--border);
-          border-radius: 14px;
+          border: 1px dashed rgba(148,163,184,0.5);
+          border-radius: 16px;
           padding: 18px;
-          background: #fff;
+          background: #f8fafc;
         }
 
         .projectTop{
@@ -465,8 +660,8 @@ router.push(
         }
 
         .miniBtn{
-          padding: 8px 10px;
-          border-radius: 10px;
+          padding: 8px 12px;
+          border-radius: 12px;
           border: 1px solid var(--border);
           background: #fff;
           cursor: pointer;
@@ -475,7 +670,8 @@ router.push(
         }
 
         .miniBtn:hover{
-          background: var(--surface);
+          border-color: rgba(14,165,233,0.4);
+          color: var(--accent-strong);
         }
 
         .danger{
@@ -493,34 +689,37 @@ router.push(
         .btn{
           padding:12px 24px;
           border-radius:16px;
-          font-weight:500;
+          font-weight:600;
           cursor:pointer;
           border:1px solid var(--border);
           background:#fff;
           color: var(--text);
-          transition: background-color 0.2s;
+          transition: all 0.2s;
         }
 
         .btn:hover{
           border-color: var(--accent);
-          color: var(--accent);
+          color: var(--accent-strong);
+          box-shadow: 0 10px 22px rgba(15, 23, 42, 0.08);
         }
 
         .btnPrimary{
           background: #0f172a;
           color:#fff;
           border:none;
+          box-shadow: 0 14px 30px rgba(15, 23, 42, 0.2);
         }
 
         .btnPrimary:hover{
-          background: #0ea5e9;
-          box-shadow: 0 4px 16px rgba(14, 165, 233, 0.18);
+          background: var(--accent-strong);
+          color:#fff;
+          box-shadow: 0 18px 36px rgba(14, 165, 233, 0.28);
         }
 
         .btnPrimary:disabled{
           background: #334155;
           cursor: not-allowed;
-          opacity: 0.5;
+          opacity: 0.55;
         }
 
         @media (max-width: 900px){
@@ -539,12 +738,17 @@ router.push(
           <aside className="sidebar">
             <div className="brand">
               <div className="brandTag">◈ HireSmart • Application</div>
-              <div className="brandTitle">
-  HireSmart
-</div>
-<div style={{ marginTop: 6, fontSize: 12, color: "var(--muted)", fontWeight: 600 }}>
-  Smart Screening Platform
-</div>
+              <div className="brandTitle">HireSmart</div>
+              <div
+                style={{
+                  marginTop: 6,
+                  fontSize: 12,
+                  color: "var(--muted)",
+                  fontWeight: 600,
+                }}
+              >
+                Smart Screening Platform
+              </div>
             </div>
 
             <div className="progressWrap">
@@ -587,7 +791,8 @@ router.push(
                   <span className="highlight">Information</span>
                 </h1>
                 <p className="desc">
-                  No CV upload. We collect structured information for fair screening.
+                  No CV upload. We collect structured information for fair
+                  screening.
                 </p>
 
                 <div className="card">
@@ -598,62 +803,84 @@ router.push(
                           focusedField === "fullName" ? "focused" : ""
                         }`}
                       >
-                        Full Name
+                        Full Name <span className="required">*</span>
                       </div>
                       <input
                         className="input"
                         name="fullName"
                         value={form.fullName}
                         placeholder="Your full name"
-                        onChange={handleChange}
+                        onChange={handleNameChange}
                         onFocus={() => setFocusedField("fullName")}
                         onBlur={() => setFocusedField(null)}
+                        required
                       />
                     </div>
 
                     <div>
-                      <div className="label">Email</div>
+                      <div className="label">Email <span className="required">*</span></div>
                       <input
                         className="input"
                         name="email"
                         type="email"
                         value={form.email}
                         placeholder="you@example.com"
-                        onChange={handleChange}
+                        onChange={handleEmailChange}
+                        required
                       />
                     </div>
 
                     <div>
-                      <div className="label">Mobile Number</div>
+                      <div className="label">Mobile Number <span className="required">*</span></div>
                       <input
                         className="input"
                         name="mobile"
+                        type="tel"
+                        inputMode="numeric"
                         value={form.mobile}
                         placeholder="+94 7X XXX XXXX"
-                        onChange={handleChange}
+                        onChange={handleMobileChange}
+                        pattern="^\+94\d{9}$"
+                        minLength={12}
+                        maxLength={12}
+                        required
                       />
                     </div>
 
                     <div>
-                      <div className="label">LinkedIn Profile</div>
+                      <div className="label">LinkedIn Profile <span className="required">*</span></div>
                       <input
                         className="input"
                         name="linkedin"
                         value={form.linkedin}
                         placeholder="linkedin.com/in/yourname"
-                        onChange={handleChange}
+                        onChange={handleLinkedInChange}
+                        pattern="^[a-zA-Z0-9._\-/:]+$"
+                        required
                       />
+                      {linkErrors.linkedin && (
+                        <div className="hint" style={{ color: "#b42318" }}>
+                          {linkErrors.linkedin}
+                        </div>
+                      )}
                     </div>
 
                     <div>
-                      <div className="label">GitHub</div>
+                      <div className="label">GitHub <span className="required">*</span></div>
                       <input
                         className="input"
                         name="github"
                         value={form.github}
                         placeholder="github.com/yourusername"
-                        onChange={handleChange}
+                        onChange={handleGithubChange}
+                        pattern="^[a-zA-Z0-9._\-/:]+$"
+                        required
                       />
+                      {linkErrors.github && (
+                        <div className="hint" style={{ color: "#b42318" }}>
+                          {linkErrors.github}
+                        </div>
+                      )}
                     </div>
 
                     <div className="span2">
@@ -688,47 +915,78 @@ router.push(
                 <div className="card">
                   <div className="grid2">
                     <div className="span2">
-                      <div className="label">University / Institution</div>
+                      <div className="label">University / Institution <span className="required">*</span></div>
                       <input
                         className="input"
                         name="university"
                         value={form.university}
                         placeholder="e.g. SLIIT / University of Moratuwa"
                         onChange={handleChange}
+                        disabled
+                        required
                       />
                     </div>
 
                     <div>
-                      <div className="label">Degree</div>
+                      <div className="label">Degree <span className="required">*</span></div>
                       <input
                         className="input"
                         name="degree"
-                        value={form.degree}
-                        placeholder="e.g. BSc (Hons) in IT"
+                        value= {form.degree}
                         onChange={handleChange}
+                        disabled
+                        required
                       />
                     </div>
 
                     <div>
-                      <div className="label">Specialization</div>
-                      <input
+                      <div className="label">Specialization <span className="required">*</span></div>
+                      <select
                         className="input"
                         name="specialization"
                         value={form.specialization}
-                        placeholder="e.g. Software Engineering"
                         onChange={handleChange}
-                      />
+                        required
+                      >
+                        <option value="">Select Specialization</option>
+
+                        <option value="INFORMATION_TECHNOLOGY">
+                          Information Technology
+                        </option>
+
+                        <option value="SOFTWARE_ENGINEERING">
+                          Software Engineering
+                        </option>
+
+                        <option value="CYBER_SECURITY">Cyber Security</option>
+
+                        <option value="DATA_SCIENCE">Data Science</option>
+
+                        <option value="COMPUTER_SCIENCE_NETWORK_ENGINEERING">
+                          Computer Science & Network Engineering
+                        </option>
+
+                        <option value="INTERACTIVE_MEDIA">
+                          Interactive Media
+                        </option>
+                      </select>
                     </div>
 
                     <div>
-                      <div className="label">CGPA</div>
+                      <div className="label">CGPA <span className="required">*</span></div>
                       <input
-                        className="input"
-                        name="cgpa"
-                        value={form.cgpa}
-                        placeholder="e.g. 3.45 / 4.00"
-                        onChange={handleChange}
-                      />
+  className="input"
+  name="cgpa"
+  type="number"
+  step="0.01"
+  min="0"
+  max="4"
+  value={form.cgpa}
+  placeholder="e.g. 3.75"
+                        onChange={handleCgpaChange}
+                        onBlur={handleCgpaBlur}
+                        required
+/>
                     </div>
 
                     <div>
@@ -763,12 +1021,22 @@ router.push(
                 <div className="card">
                   <div className="projectTop">
                     <div className="projectTitle">Academic Projects</div>
-                    <button type="button" className="miniBtn" onClick={addProject}>
+                    <button
+                      type="button"
+                      className="miniBtn"
+                      onClick={addProject}
+                    >
                       + Add Project
                     </button>
                   </div>
 
-                  <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 14,
+                    }}
+                  >
                     {form.projects.map((p, idx) => (
                       <div key={idx} className="projectBlock">
                         <div className="projectTop">
@@ -786,7 +1054,7 @@ router.push(
 
                         <div className="grid2">
                           <div className="span2">
-                            <div className="label">Project Name</div>
+                            <div className="label">Project Name <span className="required">*</span></div>
                             <input
                               className="input"
                               value={p.name}
@@ -794,11 +1062,12 @@ router.push(
                               onChange={(e) =>
                                 handleProjectChange(idx, "name", e.target.value)
                               }
+                              required={idx === 0}
                             />
                           </div>
 
                           <div className="span2">
-                            <div className="label">Project Details</div>
+                            <div className="label">Project Details <span className="required">*</span></div>
                             <textarea
                               className="textarea"
                               value={p.details}
@@ -807,8 +1076,13 @@ Stack: Next.js, Prisma, PostgreSQL
 Impact: Reduced booking conflicts by 70%
 GitHub: github.com/you/project`}
                               onChange={(e) =>
-                                handleProjectChange(idx, "details", e.target.value)
+                                handleProjectChange(
+                                  idx,
+                                  "details",
+                                  e.target.value,
+                                )
                               }
+                              required={idx === 0}
                             />
                           </div>
                         </div>
@@ -832,42 +1106,48 @@ GitHub: github.com/you/project`}
                   <span className="highlight">Tool Skills</span>
                 </h1>
                 <p className="desc">
-                  Skills must be specific. This helps generate a role-based assessment.
+                  Skills must be specific. This helps generate a role-based
+                  assessment.
                 </p>
 
                 <div className="card">
                   <div className="grid2">
                     <div className="span2">
-                      <div className="label">Programming Languages</div>
+                      <div className="label">Programming Languages <span className="required">*</span></div>
                       <input
                         className="input"
                         name="programmingLanguages"
                         value={form.programmingLanguages}
                         placeholder="TypeScript, Java, Python, SQL..."
                         onChange={handleChange}
+                        required
                       />
-                      <div className="hint">Comma separated (order by skill)</div>
+                      <div className="hint">
+                        Comma separated (order by skill)
+                      </div>
                     </div>
 
                     <div className="span2">
-                      <div className="label">Frameworks / Stacks</div>
+                      <div className="label">Frameworks / Stacks <span className="required">*</span></div>
                       <textarea
                         className="textarea"
                         name="frameworks"
                         value={form.frameworks}
                         placeholder="Next.js, React, Node.js, Spring Boot, Prisma..."
                         onChange={handleChange}
+                        required
                       />
                     </div>
 
                     <div className="span2">
-                      <div className="label">Software Proficiency</div>
+                      <div className="label">Software Proficiency <span className="required">*</span></div>
                       <input
                         className="input"
                         name="softwareProficiency"
                         value={form.softwareProficiency}
                         placeholder="Git, VS Code, Postman, Figma..."
                         onChange={handleChange}
+                        required
                       />
                     </div>
                   </div>
@@ -892,6 +1172,7 @@ GitHub: github.com/you/project`}
                     <div key={q.id} style={{ marginBottom: 18 }}>
                       <div className="label">
                         {String(idx + 1).padStart(2, "0")} • {q.tag}
+                        <span className="required">*</span>
                       </div>
                       <div style={{ fontWeight: 700, marginBottom: 10 }}>
                         {q.question}
@@ -902,6 +1183,7 @@ GitHub: github.com/you/project`}
                         value={form[q.id as keyof FormState] as string}
                         placeholder="Explain your reasoning..."
                         onChange={handleChange}
+                        required
                       />
                     </div>
                   ))}
@@ -914,12 +1196,18 @@ GitHub: github.com/you/project`}
                 className="btn"
                 type="button"
                 onClick={handleBack}
-                style={{ visibility: activeSection === 0 ? "hidden" : "visible" }}
+                style={{
+                  visibility: activeSection === 0 ? "hidden" : "visible",
+                }}
               >
                 ← Back
               </button>
 
-              <button className="btn btnPrimary" type="button" onClick={handleNext}>
+              <button
+                className="btn btnPrimary"
+                type="button"
+                onClick={handleNext}
+              >
                 {activeSection === SECTIONS.length - 1
                   ? "Continue to Agreement ✓"
                   : "Continue →"}

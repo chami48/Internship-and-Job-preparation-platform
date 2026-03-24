@@ -123,7 +123,6 @@ export default function RegisterCompany() {
     border: "1.5px solid #E2E8F0",
     borderRadius: 10,
     fontSize: "0.875rem",
-    fontFamily: "'Plus Jakarta Sans', sans-serif",
     color: "#0F172A",
     background: "#F8FAFF",
     outline: "none",
@@ -139,13 +138,11 @@ export default function RegisterCompany() {
     textTransform: "uppercase",
     color: "#64748B",
     marginBottom: 6,
-    fontFamily: "'Plus Jakarta Sans', sans-serif",
   };
 
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
         .reg-input:focus { border-color: #0EA5E9 !important; box-shadow: 0 0 0 3px rgba(14,165,233,0.12) !important; background: #fff !important; }
         .reg-input::placeholder { color: #CBD5E1; }
         .reg-btn:hover:not(:disabled) { background: #0284C7 !important; box-shadow: 0 6px 20px rgba(14,165,233,0.35) !important; transform: translateY(-1px); }
@@ -156,9 +153,8 @@ export default function RegisterCompany() {
 
       <div style={{
         minHeight: "100vh",
-        background: "#F8FAFF",
-        fontFamily: "'Plus Jakarta Sans', sans-serif",
-        display: "flex",
+          background: "#F8FAFF",
+          display: "flex",
         alignItems: "stretch",
       }}>
 
@@ -192,7 +188,6 @@ export default function RegisterCompany() {
                 For Employers
               </div>
               <h1 style={{
-                fontFamily: "'Plus Jakarta Sans', sans-serif",
                 fontSize: "2rem", fontWeight: 800,
                 color: "white", margin: 0, lineHeight: 1.2,
                 letterSpacing: "-0.03em",
@@ -250,7 +245,6 @@ export default function RegisterCompany() {
                 {/* header */}
                 <div style={{ marginBottom: "2rem" }}>
                   <h2 style={{
-                    fontFamily: "'Plus Jakarta Sans', sans-serif",
                     fontSize: "1.6rem", fontWeight: 800, color: "#0F172A",
                     margin: 0, letterSpacing: "-0.025em",
                   }}>Create your company account</h2>
@@ -396,7 +390,6 @@ export default function RegisterCompany() {
                       fontWeight: 700,
                       letterSpacing: "0.04em",
                       cursor: "pointer",
-                      fontFamily: "'Plus Jakarta Sans', sans-serif",
                     }}
                   >
                     {createCompany.isPending ? "Creating account…" : "Create Account & Get OTP →"}
@@ -424,7 +417,6 @@ export default function RegisterCompany() {
                     boxShadow: "0 4px 20px rgba(14,165,233,0.2)",
                   }}>✉️</div>
                   <h2 style={{
-                    fontFamily: "'Plus Jakarta Sans', sans-serif",
                     fontSize: "1.5rem", fontWeight: 800, color: "#0F172A",
                     margin: 0, letterSpacing: "-0.025em",
                   }}>Check your email</h2>
@@ -473,9 +465,7 @@ export default function RegisterCompany() {
                       fontSize: "0.875rem",
                       fontWeight: 700,
                       letterSpacing: "0.04em",
-                      cursor: "pointer",
-                      fontFamily: "'Plus Jakarta Sans', sans-serif",
-                    }}
+                      cursor: "pointer"}}
                   >
                     {verifyOtp.isPending ? "Verifying…" : "Verify & Continue →"}
                   </button>
@@ -486,7 +476,6 @@ export default function RegisterCompany() {
                     style={{
                       background: "none", border: "none", cursor: "pointer",
                       fontSize: "0.78rem", color: "#94A3B8", fontWeight: 600,
-                      fontFamily: "'Plus Jakarta Sans', sans-serif",
                       textDecoration: "underline", textUnderlineOffset: 3,
                     }}
                   >

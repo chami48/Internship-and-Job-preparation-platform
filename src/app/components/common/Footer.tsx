@@ -1,4 +1,3 @@
-// smart-screening\src\app\components\common\Footer.tsx
 "use client";
 import Link from "next/link";
 
@@ -6,229 +5,248 @@ export default function Footer() {
   return (
     <>
       <style>{`
-        .footer-wrapper {
-          background: linear-gradient(135deg, #0F172A 0%, rgba(14, 165, 233, 0.05) 100%);
+        .hs-footer {
+          --hs-bg: #0F172A;
+          --hs-accent: #0EA5E9;
+          --hs-text: rgba(255,255,255,0.85);
+          --hs-muted: rgba(255,255,255,0.55);
+          --hs-dim: rgba(255,255,255,0.35);
+
+          background: radial-gradient(1200px 420px at 10% 0%, rgba(14,165,233,0.12), transparent 55%),
+                      radial-gradient(900px 380px at 90% 10%, rgba(14,165,233,0.08), transparent 60%),
+                      var(--hs-bg);
           position: relative;
           overflow: hidden;
+          border-top: 1px solid rgba(14,165,233,0.2);
         }
 
-        .footer-glow {
+        /* Subtle grid overlay */
+        .hs-footer-grid {
           position: absolute;
+          inset: 0;
+          background-image:
+            linear-gradient(rgba(14,165,233,0.04) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(14,165,233,0.04) 1px, transparent 1px);
+          background-size: 56px 56px;
+          opacity: 0.7;
           pointer-events: none;
         }
 
-        .footer-glow-1 {
-          top: -20%;
-          right: -10%;
-          width: 600px;
-          height: 600px;
-          background: radial-gradient(ellipse, rgba(14, 165, 233, 0.1) 0%, transparent 70%);
-          border-radius: 50%;
-          filter: blur(80px);
-          animation: float 15s ease-in-out infinite;
+        .hs-footer-accent {
+          position: absolute;
+          top: 0;
+          left: 8%;
+          right: 8%;
+          height: 1px;
+          background: linear-gradient(90deg, transparent, rgba(14,165,233,0.65), transparent);
         }
 
-        .footer-glow-2 {
-          bottom: -10%;
-          left: -15%;
-          width: 500px;
-          height: 500px;
-          background: radial-gradient(ellipse, rgba(14, 165, 233, 0.08) 0%, transparent 70%);
-          border-radius: 50%;
-          filter: blur(80px);
-          animation: float 18s ease-in-out infinite reverse;
+        .hs-footer-orb {
+          position: absolute;
+          width: 320px;
+          height: 320px;
+          border-radius: 999px;
+          background: radial-gradient(circle, rgba(14,165,233,0.18), transparent 70%);
+          filter: blur(2px);
+          pointer-events: none;
         }
 
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(30px); }
-        }
+        .hs-footer-orb.left { top: -120px; left: -80px; }
+        .hs-footer-orb.right { bottom: -140px; right: -60px; }
 
-        .footer-content {
+        /* ── INNER ── */
+        .hs-footer-inner {
           position: relative;
           z-index: 10;
+          max-width: 1120px;
+          margin: 0 auto;
+          padding: 72px 32px 36px;
         }
 
-        .footer-logo {
+        /* ── BRAND ── */
+        .hs-f-logo {
           display: inline-flex;
           align-items: center;
           gap: 12px;
+          text-decoration: none;
+          margin-bottom: 18px;
+        }
+
+        .hs-f-logo-mark {
+          width: 12px;
+          height: 12px;
+          border-radius: 3px;
+          background: linear-gradient(135deg, rgba(14,165,233,0.95), rgba(255,255,255,0.9));
+          box-shadow: 0 0 14px rgba(14,165,233,0.45);
+        }
+
+        .hs-f-logo-name {
+          font-size: 1.60rem;
+          font-weight: 700;
+          color: white;
+          letter-spacing: -0.02em;
+        }
+
+        .hs-f-logo-sub {
+          font-size: 0.66rem;
+          font-weight: 600;
+          color: var(--hs-accent);
+          letter-spacing: 0.16em;
+          text-transform: uppercase;
+        }
+
+        .hs-f-desc {
+          font-size: 0.95rem;
+          color: var(--hs-muted);
+          line-height: 1.8;
+          max-width: 320px;
+          margin-bottom: 26px;
+        }
+
+        /* ── COLUMN LABEL ── */
+        .hs-f-col-label {
+          font-size: 0.72rem;
+          font-weight: 700;
+          letter-spacing: 0.16em;
+          text-transform: uppercase;
+          color: rgba(255,255,255,0.45);
           margin-bottom: 16px;
         }
 
-        .footer-logo-icon {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          width: 40px;
-          height: 40px;
-          border-radius: 12px;
-          background: linear-gradient(135deg, #0EA5E9, #38BDF8);
-          color: white;
-          font-weight: bold;
-          font-size: 14px;
-          box-shadow: 0 4px 16px rgba(14, 165, 233, 0.3);
-        }
-
-        .footer-logo-text {
-          font-size: 1.2rem;
-          font-weight: bold;
-          color: white;
-          transition: color 0.3s;
-        }
-
-        .footer-logo:hover .footer-logo-text {
-          color: #38BDF8;
-        }
-
-        .footer-col h4 {
-          font-size: 0.8rem;
-          font-weight: 700;
-          letter-spacing: 0.12em;
-          text-transform: uppercase;
-          color: rgba(255, 255, 255, 0.7);
-          margin-bottom: 14px;
-        }
-
-        .footer-col ul {
+        /* ── LINKS ── */
+        .hs-f-list {
           list-style: none;
           padding: 0;
           margin: 0;
+          display: grid;
+          gap: 10px;
         }
 
-        .footer-col li {
-          margin-bottom: 10px;
-        }
-
-        .footer-link {
-          color: rgba(255, 255, 255, 0.5);
+        .hs-f-link {
+          font-size: 0.95rem;
+          color: var(--hs-muted);
           text-decoration: none;
-          font-size: 0.9rem;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           position: relative;
-          display: inline-block;
+          transition: color 0.2s, transform 0.2s;
         }
 
-        .footer-link::after {
-          content: '';
+        .hs-f-link::after {
+          content: "";
           position: absolute;
-          bottom: -2px;
           left: 0;
+          bottom: -4px;
           width: 0;
           height: 1px;
-          background: linear-gradient(90deg, #0EA5E9, #38BDF8);
-          transition: width 0.3s ease;
+          background: rgba(14,165,233,0.7);
+          transition: width 0.2s ease;
         }
 
-        .footer-link:hover {
-          color: #38BDF8;
+        .hs-f-link:hover {
+          color: white;
+          transform: translateX(2px);
         }
 
-        .footer-link:hover::after {
-          width: 100%;
+        .hs-f-link:hover::after {
+          width: 20px;
         }
 
-        .footer-divider {
+        /* ── BOTTOM ── */
+        .hs-f-divider {
           height: 1px;
-          background: linear-gradient(90deg, rgba(14, 165, 233, 0.3), transparent);
-          margin: 32px 0;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+          margin: 36px 0 20px;
         }
 
-        .footer-bottom {
+        .hs-f-bottom {
           display: flex;
-          flex-direction: column;
-          gap: 14px;
           align-items: center;
-          text-align: center;
-          color: rgba(255, 255, 255, 0.4);
-          font-size: 0.85rem;
+          justify-content: space-between;
+          gap: 16px;
+          flex-wrap: wrap;
         }
 
-        @media (min-width: 768px) {
-          .footer-bottom {
-            flex-direction: row;
-            justify-content: space-between;
-            align-items: center;
-            text-align: left;
-          }
+        .hs-f-copy {
+          font-size: 0.75rem;
+          color: var(--hs-dim);
         }
 
-        .footer-heart {
-          color: #0EA5E9;
-          animation: heartbeat 1.5s ease-in-out infinite;
+        .hs-f-tagline {
+          font-size: 0.9rem;
+          color: var(--hs-dim);
         }
 
-        @keyframes heartbeat {
-          0%, 100% { transform: scale(1); }
-          50% { transform: scale(1.2); }
+        /* ── GRID ── */
+        .hs-f-grid {
+          display: grid;
+          grid-template-columns: 2fr 1fr 1fr;
+          gap: 56px;
+        }
+
+        @media (max-width: 900px) {
+          .hs-f-grid { grid-template-columns: 1fr 1fr; gap: 40px; }
+        }
+
+        @media (max-width: 560px) {
+          .hs-f-grid { grid-template-columns: 1fr; }
+          .hs-footer-inner { padding: 48px 20px 32px; }
+          .hs-f-bottom { flex-direction: column; align-items: flex-start; }
         }
       `}</style>
 
-      <footer className="footer-wrapper">
-        {/* Animated glows */}
-        <div className="footer-glow footer-glow-1"></div>
-        <div className="footer-glow footer-glow-2"></div>
+      <footer data-app-footer className="hs-footer">
+        <div className="hs-footer-grid" />
+        <div className="hs-footer-accent" />
+        <div className="hs-footer-orb left" />
+        <div className="hs-footer-orb right" />
 
-        <div className="footer-content mx-auto max-w-6xl px-5 py-16">
-          {/* Main Footer Grid */}
-          <div className="grid gap-12 md:grid-cols-5 mb-8">
-            {/* Brand Section */}
-            <div className="md:col-span-2">
-              <div className="footer-logo">
-                <div className="footer-logo-icon">HS</div>
+        <div className="hs-footer-inner">
+          <div className="hs-f-grid">
+
+            {/* Brand */}
+            <div>
+              <a href="/" className="hs-f-logo">
+                <span className="hs-f-logo-mark" aria-hidden="true" />
                 <div>
-                  <div className="footer-logo-text">HireSmart</div>
-                  <div className="text-xs font-semibold text-sky-400 tracking-widest">Innovation 2050</div>
+                  <div className="hs-f-logo-name">HireSmart</div>
+                  <div className="hs-f-logo-sub">Innovation 2026</div>
                 </div>
-              </div>
-              <p className="text-sm text-white/50 leading-relaxed max-w-xs mt-4">
-                Future-ready screening platform where ambitious students prove their skills and unlock opportunities with leading enterprises.
+              </a>
+
+              <p className="hs-f-desc">
+                Future-ready screening platform where candidates prove their
+                skills and unlock real career opportunities.
               </p>
             </div>
 
-            {/* Platform Links */}
-            <div className="footer-col">
-              <h4>Platform</h4>
-              <ul>
-                <li><a href="#" className="footer-link">Roadmaps</a></li>
-                <li><a href="#" className="footer-link">Mock Exams</a></li>
-                <li><a href="#" className="footer-link">Resume Builder</a></li>
-                <li><a href="#" className="footer-link">Company Guides</a></li>
-                <li><a href="#" className="footer-link">Courses</a></li>
+            {/* Platform */}
+            <div>
+              <div className="hs-f-col-label">Platform</div>
+              <ul className="hs-f-list">
+                <li><Link href="/about" className="hs-f-link">About HireSmart</Link></li>
+                <li><Link href="/how-it-works" className="hs-f-link">How It Works</Link></li>
+                <li><Link href="/contact" className="hs-f-link">Contact</Link></li>
+                <li><Link href="/#" className="hs-f-link">Help Center</Link></li>
               </ul>
             </div>
 
-            {/* Company Links */}
-            <div className="footer-col">
-              <h4>Company</h4>
-              <ul>
-                <li><a href="#" className="footer-link">About</a></li>
-                <li><a href="#" className="footer-link">Blog</a></li>
-                <li><a href="#" className="footer-link">Careers</a></li>
-                <li><a href="#" className="footer-link">Contact</a></li>
-                <li><a href="#" className="footer-link">Newsroom</a></li>
+            {/* Legal */}
+            <div>
+              <div className="hs-f-col-label">Legal</div>
+              <ul className="hs-f-list">
+                <li><Link href="/privacy-policy" className="hs-f-link">Privacy Policy</Link></li>
+                <li><Link href="/terms-and-conditions" className="hs-f-link">Terms & Conditions</Link></li>
               </ul>
             </div>
 
-            {/* Legal Links */}
-            <div className="footer-col">
-              <h4>Legal</h4>
-              <ul>
-                <li><a href="#" className="footer-link">Privacy</a></li>
-                <li><a href="#" className="footer-link">Terms</a></li>
-                <li><a href="#" className="footer-link">Cookies</a></li>
-                <li><a href="#" className="footer-link">Security</a></li>
-              </ul>
-            </div>
           </div>
 
-          {/* Divider */}
-          <div className="footer-divider"></div>
+          <div className="hs-f-divider" />
 
-          {/* Bottom Section */}
-          <div className="footer-bottom">
-            <p>© {new Date().getFullYear()} HireSmart. All rights reserved.</p>
-            <p>Built with <span className="footer-heart">♥</span> for the next generation of innovators</p>
+          <div className="hs-f-bottom">
+            <span className="hs-f-copy">© {new Date().getFullYear()} HireSmart. All rights reserved.</span>
+            <span className="hs-f-tagline">
+              Built for the next generation of innovators
+            </span>
           </div>
         </div>
       </footer>

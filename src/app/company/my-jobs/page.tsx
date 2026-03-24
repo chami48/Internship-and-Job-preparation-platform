@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
 import {
   Briefcase,
   MapPin,
@@ -21,6 +20,7 @@ import {
   Menu,
   X
 } from "lucide-react";
+import Swal from "sweetalert2";
 import { api } from "~/trpc/react";
 
 // Role → icon emoji mapping for visual variety
@@ -62,25 +62,50 @@ function fmtDate(d: Date | null): string {
 
 export default function MyJobsPage() {
   const router = useRouter();
-  const { data: session } = useSession();
-  const companyName = session?.user?.name || "IFS";
   const [companyId, setCompanyId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [filterType, setFilterType] = useState("ALL");
   const [filterLevel, setFilterLevel] = useState("ALL");
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  const { data: company } = api.company.getProfile.useQuery(
+    { companyId: companyId ?? "" },
+    { enabled: !!companyId },
+  );
+  const companyName = company?.name || "Company";
+
   useEffect(() => {
     setCompanyId(localStorage.getItem("companyId"));
   }, []);
 
-  const { data: jobs = [], isLoading } = api.job.listByCompany.useQuery(
+  const { data: jobs = [], isLoading, refetch } = api.job.listByCompany.useQuery(
     { companyId: companyId ?? "" },
     { enabled: !!companyId },
   );
 
+  const deleteJob = api.job.delete.useMutation({
+    onSuccess: async () => {
+      await refetch();
+    },
+  });
+
   const handleLogout = () => router.push('/company/comlogin');
   const handleCreateJob = () => router.push('/company/create-job');
+  const handleDelete = async (jobId: string) => {
+    if (!companyId) return;
+    const result = await Swal.fire({
+      title: "Delete this job post?",
+      text: "This action cannot be undone.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Delete",
+      cancelButtonText: "Cancel",
+      confirmButtonColor: "#DC2626",
+      cancelButtonColor: "#64748B",
+    });
+    if (!result.isConfirmed) return;
+    deleteJob.mutate({ id: jobId, companyId });
+  };
 
   const active     = jobs.filter((j) => !isExpired(j.deadline)).length;
   const expired    = jobs.filter((j) => isExpired(j.deadline)).length;
@@ -360,7 +385,10 @@ export default function MyJobsPage() {
                         <Pencil size={13} /> Edit
                       </button>
                       <button
-                        onClick={(e) => e.stopPropagation()}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(job.id);
+                        }}
                         className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-semibold text-red-600 border border-red-200 rounded-lg hover:bg-red-50 transition"
                       >
                         <Trash2 size={13} /> Delete

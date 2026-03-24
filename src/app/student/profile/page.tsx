@@ -3,11 +3,12 @@ import Link from "next/link";
 
 export default async function StudentProfilePage() {
   const profile = await api.profile.getProfile();
+  const jobs = await api.job.list();
 
-  const skills = profile?.skills
+  const skills: string[] = profile?.skills
     ? profile.skills
         .split(",")
-        .map((skill) => skill.trim())
+        .map((skill: string) => skill.trim())
         .filter(Boolean)
     : [];
 
@@ -32,7 +33,7 @@ export default async function StudentProfilePage() {
     .split(" ")
     .filter(Boolean)
     .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() ?? "")
+    .map((part: string) => part[0]?.toUpperCase() ?? "")
     .join("") || "ST";
 
   const completionItems = [
@@ -48,36 +49,35 @@ export default async function StudentProfilePage() {
     },
   ];
 
-  const recentActivities = [
-    {
-      title: "Applied for Software Engineer Intern",
-      subtitle: "Application submitted successfully",
-      time: "2 hours ago",
-      tone: "sky",
-    },
-    {
-      title: "Completed Java Quiz",
-      subtitle: "Scored 82% in technical assessment",
-      time: "Yesterday",
-      tone: "emerald",
-    },
-    {
-      title: "Finished Mock Interview",
-      subtitle: "AI feedback generated for improvement",
-      time: "2 days ago",
-      tone: "indigo",
-    },
-  ] as const;
+  const recentActivities: Array<{
+    title: string;
+    subtitle: string;
+    time: string;
+    tone: "sky" | "emerald" | "indigo";
+    status: "applied" | "interview" | "selected" | "rejected";
+  }> = (jobs ?? [])
+    .filter((job) => job.applied)
+    .slice(0, 3)
+    .map((job) => {
+      const status = job.examSubmitted ? "interview" : "applied";
+
+      return {
+        title: job.title ?? "Job Application",
+        subtitle: job.examSubmitted
+          ? "Exam completed. Interview pending."
+          : "Application submitted successfully",
+        time: job.createdAt ? new Date(job.createdAt).toLocaleDateString() : "Recently",
+        tone: job.examSubmitted ? "emerald" : "sky",
+        status,
+      };
+    });
 
   const finishedSteps = completionItems.filter((item) => item.done).length;
 
   return (
     <main className="min-h-[calc(100vh-80px)] bg-slate-50 px-4 py-8 md:px-8">
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
-
         .profile-shell {
-          font-family: 'Manrope', sans-serif;
         }
 
         .profile-grid-bg {
@@ -194,7 +194,7 @@ export default async function StudentProfilePage() {
               <p className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">Skills</p>
               {skills.length > 0 ? (
                 <div className="mt-3 flex flex-wrap gap-2">
-                  {skills.map((skill) => (
+                  {skills.map((skill: string) => (
                     <span
                       key={skill}
                       className="rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.06em] text-sky-700"
@@ -357,6 +357,43 @@ export default async function StudentProfilePage() {
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-semibold text-slate-900">{activity.title}</p>
                       <p className="mt-1 text-xs text-slate-500">{activity.subtitle}</p>
+                      <div className="mt-3">
+                        <div className="grid grid-cols-3 gap-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-400">
+                          <span className="text-center">Applied</span>
+                          <span className="text-center">Interview</span>
+                          <span className="text-center">Decision</span>
+                        </div>
+                        <div className="mt-2 grid grid-cols-3 gap-2">
+                          <div
+                            className={`h-2 rounded-full ${
+                              activity.status === "applied" ||
+                              activity.status === "interview" ||
+                              activity.status === "selected" ||
+                              activity.status === "rejected"
+                                ? "bg-sky-500"
+                                : "bg-slate-200"
+                            }`}
+                          />
+                          <div
+                            className={`h-2 rounded-full ${
+                              activity.status === "interview" ||
+                              activity.status === "selected" ||
+                              activity.status === "rejected"
+                                ? "bg-amber-400"
+                                : "bg-slate-200"
+                            }`}
+                          />
+                          <div
+                            className={`h-2 rounded-full ${
+                              activity.status === "selected"
+                                ? "bg-emerald-500"
+                                : activity.status === "rejected"
+                                ? "bg-rose-500"
+                                : "bg-slate-200"
+                            }`}
+                          />
+                        </div>
+                      </div>
                       <p className="mt-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-400">
                         {activity.time}
                       </p>

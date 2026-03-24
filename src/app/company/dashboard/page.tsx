@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
+import { api } from "~/trpc/react";
 import {
   LayoutDashboard,
   Briefcase,
@@ -25,9 +25,17 @@ import {
 
 export default function CompanyDashboard() {
   const router = useRouter();
-  const { data: session } = useSession();
-  const companyName = session?.user?.name || 'IFS';
+  const [companyId, setCompanyId] = React.useState<string | null>(null);
+  const { data: company } = api.company.getProfile.useQuery(
+    { companyId: companyId ?? "" },
+    { enabled: !!companyId },
+  );
+  const companyName = company?.name || "Company";
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    setCompanyId(localStorage.getItem("companyId"));
+  }, []);
 
   const handleLogout = () => router.push('/company/comlogin');
   const handleCreateJob = () => router.push('/company/create-job');

@@ -4,6 +4,7 @@ import { postRouter } from "~/server/api/routers/post";
 import { companyRouter } from "~/server/api/routers/company";
 import { studentRouter } from "~/server/api/routers/student";  //sandani
 import { profileRouter } from "./routers/student/profile";     //sandani
+import { prepQuizRouter } from "./routers/prepQuiz/prepQuiz.router";   //sandani
 import { examRouter } from "~/server/api/routers/exam";//dill
 import { aiRouter } from "~/server/api/routers/ai";
 import { jobRouter } from "~/server/api/routers/job";//nilumi
@@ -21,6 +22,7 @@ export const appRouter = createTRPCRouter({
   company: companyRouter,
   student: studentRouter,
   profile: profileRouter,
+  prepQuiz: prepQuizRouter,
   exam: examRouter,
   ai: aiRouter,
   admin: adminRouter,

@@ -5,6 +5,7 @@ import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 import { api } from "~/trpc/react";
+import { showAlert } from "~/app/components/common/alert";
 
 const JOB_ROLES = ["SOFTWARE_ENGINEER", "UX_ENGINEER", "PROJECT_MANAGER"] as const;
 const JOB_TYPES = ["INTERNSHIP", "FULL_TIME"] as const;
@@ -14,6 +15,8 @@ export default function CreateJobPage() {
   const router = useRouter();
   const createJob = api.job.create.useMutation();
   const [currentStep, setCurrentStep] = useState(1);
+  const today = new Date();
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
 
   const toast = Swal.mixin({
     toast: true,
@@ -46,15 +49,59 @@ export default function CreateJobPage() {
     deadline: "",
     slots: "",
   });
+  const [salaryError, setSalaryError] = useState("");
+  const [slotsError, setSlotsError] = useState("");
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
   ) => {
+    if (e.target.name === "slots") {
+      const digitsOnly = e.target.value.replace(/\D/g, "");
+      const trimmed = digitsOnly.slice(0, 3);
+      setForm((prev) => ({ ...prev, slots: trimmed }));
+      if (trimmed.startsWith("0") && trimmed.length > 0) {
+        setSlotsError("Number of openings cannot start with 0.");
+      } else {
+        setSlotsError("");
+      }
+      return;
+    }
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    if (e.target.name === "salary") {
+      const nextValue = e.target.value.trim();
+      if (!nextValue) {
+        setSalaryError("");
+      } else if (!/\d/.test(nextValue)) {
+        setSalaryError("Salary must include at least one number.");
+      } else if (/^-\s*\d/.test(nextValue)) {
+        setSalaryError("Salary cannot be a negative value.");
+      } else {
+        setSalaryError("");
+      }
+    }
   };
 
   const handleNext = (e: React.MouseEvent) => {
     e.preventDefault();
+    if (currentStep === 1) {
+      if (!form.title || !form.location || !form.tags || salaryError) {
+        toast.fire({
+          icon: "warning",
+          title: "Please complete all required fields before continuing.",
+        });
+        return;
+      }
+    }
+
+    if (currentStep === 2) {
+      if (!form.description || !form.responsibilities || !form.requirements) {
+        toast.fire({
+          icon: "warning",
+          title: "Please complete all required fields before continuing.",
+        });
+        return;
+      }
+    }
     setCurrentStep((prev) => Math.min(prev + 1, 3));
   };
 
@@ -75,11 +122,51 @@ export default function CreateJobPage() {
       return;
     }
 
+    if (salaryError) {
+      return;
+    }
+
+    if (slotsError) {
+      return;
+    }
+
+    if (form.deadline) {
+        const [yearStr, monthStr, dayStr] = form.deadline.split("-");
+        const year = Number(yearStr);
+        const month = Number(monthStr);
+        const day = Number(dayStr);
+        if (!year || !month || !day) {
+          toast.fire({
+            icon: "warning",
+            title: "Deadline must be today or a future date.",
+          });
+          return;
+        }
+        const deadlineDate = new Date(year, month - 1, day);
+      const minDate = new Date();
+      minDate.setHours(0, 0, 0, 0);
+      if (Number.isNaN(deadlineDate.getTime()) || deadlineDate < minDate) {
+        toast.fire({
+          icon: "warning",
+          title: "Deadline must be today or a future date.",
+        });
+        return;
+      }
+    }
+
+    if (form.slots && Number(form.slots) < 1) {
+      toast.fire({
+        icon: "warning",
+        title: "Number of openings must be at least 1.",
+      });
+      return;
+    }
+
     const companyId = localStorage.getItem("companyId");
     if (!companyId) {
-      toast.fire({
-        icon: "error",
-        title: "Not logged in. Please log in first.",
+      void showAlert({
+        icon: "warning",
+        text: "Not logged in. Please log in first.",
       });
       router.push("/company/comlogin");
       return;
@@ -104,16 +191,16 @@ export default function CreateJobPage() {
       },
       {
         onSuccess: () => {
-          toast.fire({
+          void showAlert({
             icon: "success",
-            title: "Job post created successfully!",
+            text: "Job post created successfully!",
           });
-          router.push("/company/dashboard");
+          router.push("/company/my-jobs");
         },
         onError: (err) => {
-          toast.fire({
+          void showAlert({
             icon: "error",
-            title: err.message,
+            text: err.message,
           });
         },
       },
@@ -145,14 +232,16 @@ export default function CreateJobPage() {
                 Step {currentStep} of 3 — Complete each section to publish your job posting
               </p>
             </div>
-            <button
-              onClick={() => router.push("/company/dashboard")}
-              className="shrink-0 inline-flex items-center justify-center h-10 w-10 rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm hover:bg-slate-50 transition-colors"
-              aria-label="Back to dashboard"
-              title="Back to dashboard"
-            >
-              <ArrowLeft size={18} />
-            </button>
+            {currentStep === 1 && (
+              <button
+                onClick={() => router.push("/company/dashboard")}
+                className="shrink-0 inline-flex items-center justify-center h-10 w-10 rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm hover:bg-slate-50 transition-colors"
+                aria-label="Back to dashboard"
+                title="Back to dashboard"
+              >
+                <ArrowLeft size={18} />
+              </button>
+            )}
           </div>
         </div>
 
@@ -299,6 +388,9 @@ export default function CreateJobPage() {
                 className="border border-slate-300 rounded-lg px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-[#3AB6D9] bg-slate-50"
                 placeholder="e.g. LKR 80,000 - 120,000"
               />
+              {salaryError && (
+                <span className="text-xs font-semibold text-red-600">{salaryError}</span>
+              )}
             </div>
           </>
         )}
@@ -374,6 +466,7 @@ export default function CreateJobPage() {
                   name="deadline"
                   value={form.deadline}
                   onChange={handleChange}
+                  min={todayStr}
                   className="border border-slate-300 rounded-lg px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-[#3AB6D9] bg-slate-50"
                 />
               </div>
@@ -384,10 +477,22 @@ export default function CreateJobPage() {
                   name="slots"
                   value={form.slots}
                   onChange={handleChange}
+                  onKeyDown={(event) => {
+                    if (event.key === "e" || event.key === "E" || event.key === "-" || event.key === "+") {
+                      event.preventDefault();
+                    }
+                  }}
                   min={1}
+                  max={999}
+                  maxLength={3}
+                  inputMode="numeric"
+                  pattern="\d*"
                   className="border border-slate-300 rounded-lg px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-[#3AB6D9] bg-slate-50"
                   placeholder="e.g. 3"
                 />
+                {slotsError && (
+                  <span className="text-xs font-semibold text-red-600">{slotsError}</span>
+                )}
               </div>
             </div>
 

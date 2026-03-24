@@ -68,11 +68,11 @@ model User {
   name          String?
   email         String?   @unique
   password      String?
-  role          UserRole @default(STUDENT)
+  role          UserRole @default(STUDENT)     
 
   studentId     String?
   degree        String?
-  year          String?   // ✅ ADD THIS
+  year          String?   
 
   specialization String?
   skills        String?
@@ -89,6 +89,7 @@ model User {
   posts    Post[]
   applications Application[]
   verification ApplicantVerification?
+  prepQuizAttempts PrepQuizAttempt[]
 }
 
 model EmailOTP {
@@ -162,6 +163,7 @@ model Job {
 
   deadline  DateTime?
   slots     Int?
+  cutoff    Float     @default(60)   // pass threshold as percentage (e.g. 60 = 60%)
 
   createdAt DateTime @default(now())
 
@@ -203,8 +205,10 @@ model Question {
   options    Option[]
   correctKey String?
   rubric     String?
+  maxMarks   Float    @default(10)   // points available for this question
 
-  examAnswers ExamAnswer[]
+  examAnswers    ExamAnswer[]
+  questionEvals  QuestionEvaluation[]
 
   @@index([role, difficulty, topic])
 }
@@ -223,6 +227,15 @@ model Option {
 //////////////////////////////////////////////////////
 // Module 3 - Application System
 //////////////////////////////////////////////////////
+
+enum Specialization {
+  INFORMATION_TECHNOLOGY
+  SOFTWARE_ENGINEERING
+  CYBER_SECURITY
+  DATA_SCIENCE
+  COMPUTER_SCIENCE_NETWORK_ENGINEERING
+  INTERACTIVE_MEDIA
+}
 
 model Application {
   id        String   @id @default(cuid())
@@ -243,7 +256,7 @@ model Application {
 
   university     String
   degree         String
-  specialization String?
+  specialization Specialization
   cgpa           String?
   awards         String?
 
@@ -255,15 +268,17 @@ model Application {
 
   projects     Project[]
   scenarios    ScenarioAnswer[]
-  examAnswers  ExamAnswer[]   // ✅ REQUIRED reverse relation
+  examAnswers  ExamAnswer[]   
   violations ExamViolation[]
 
   lockedQuestions Json?
   examSubmitted   Boolean  @default(false)
   terminationReason String?
 
+  evaluationResult  EvaluationResult?
+
   @@unique([userId, jobId])
-  
+
 }
 
 model Project {
@@ -327,7 +342,118 @@ model ApplicantVerification {
 
   fullName        String
   studentIdNumber String
-  role            String
   idImageUrl      String
   createdAt       DateTime @default(now())
+}
+
+enum PrepQuizRole {
+  SOFTWARE_ENGINEER
+  FRONTEND_DEVELOPER
+  BACKEND_DEVELOPER
+  FULLSTACK_DEVELOPER
+  QA_ENGINEER
+  DEVOPS_ENGINEER
+  DATA_ANALYST
+  UI_UX_DESIGNER
+  PROJECT_MANAGER
+  BUSINESS_ANALYST
+}
+
+model PrepQuizQuestion {
+  id          String          @id @default(cuid())
+  role        PrepQuizRole
+  question    String
+  type        String          // MCQ or SHORT
+  explanation String?
+  createdAt   DateTime        @default(now())
+
+  options     PrepQuizOption[]
+  answers     PrepQuizAnswer[]
+}
+
+model PrepQuizOption {
+  id         String   @id @default(cuid())
+  questionId String
+  key        String
+  text       String
+  isCorrect  Boolean
+
+  question PrepQuizQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([questionId, key])
+}
+
+model PrepQuizAttempt {
+  id        String   @id @default(cuid())
+  userId    String
+  role      PrepQuizRole
+  score     Int
+  createdAt DateTime @default(now())
+
+  answers PrepQuizAnswer[]
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model PrepQuizAnswer {
+  id          String   @id @default(cuid())
+  attemptId   String
+  questionId  String
+  selectedKey String
+  isCorrect   Boolean
+
+  attempt  PrepQuizAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question PrepQuizQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+}
+//////////////////////////////////////////////////////
+// Module 4 - AI Evaluation & Candidate Filtering
+//////////////////////////////////////////////////////
+
+enum EvalStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+model EvaluationResult {
+  id              String      @id @default(cuid())
+  applicationId   String      @unique
+  application     Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  totalScore      Float
+  maxScore        Float
+  percentage      Float
+  cutoff          Float
+  passed          Boolean
+  aiFeedback      String
+  cvUploadGranted Boolean     @default(false)
+
+  status          EvalStatus  @default(PENDING)
+  evaluatedAt     DateTime    @default(now())
+
+  questionEvals   QuestionEvaluation[]
+
+  @@index([applicationId])
+}
+
+model QuestionEvaluation {
+  id                  String           @id @default(cuid())
+  evaluationResultId  String
+  evaluationResult    EvaluationResult @relation(fields: [evaluationResultId], references: [id], onDelete: Cascade)
+
+  questionId          String
+  question            Question         @relation(fields: [questionId], references: [id])
+
+  applicationId       String
+  studentAnswer       String?
+  expectedAnswer      String?
+  scoreAwarded        Float
+  maxMarks            Float
+  aiFeedback          String
+
+  createdAt           DateTime         @default(now())
+
+  @@index([evaluationResultId])
+  @@index([applicationId])
 }

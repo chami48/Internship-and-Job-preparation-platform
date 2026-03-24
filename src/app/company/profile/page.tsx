@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowLeft, Pencil, Check, X, Building2, Mail, CalendarDays,
@@ -43,6 +43,7 @@ export default function CompanyProfilePage() {
   const [draftLogo, setDraftLogo] = useState("");
   const [saveError, setSaveError] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [calendarMonth, setCalendarMonth] = useState(new Date());
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
@@ -69,6 +70,17 @@ export default function CompanyProfilePage() {
       setDraftLogo(company.logo ?? "");
     }
   }, [company]);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handleOutside = (event: MouseEvent) => {
+      if (!menuRef.current) return;
+      if (menuRef.current.contains(event.target as Node)) return;
+      setMenuOpen(false);
+    };
+    document.addEventListener("mousedown", handleOutside);
+    return () => document.removeEventListener("mousedown", handleOutside);
+  }, [menuOpen]);
 
   const handleSave = async () => {
     setSaveError("");
@@ -160,7 +172,7 @@ export default function CompanyProfilePage() {
           <div className="hidden md:flex items-center gap-2 text-right leading-tight border-l border-[#E2E8F0] pl-3 sm:pl-4">
             <span className="text-sm font-semibold text-[#475569]">Welcome</span>
             <span className="text-sm font-bold text-[#0F172A] truncate max-w-[140px]">{companyName}</span>
-            <div className="relative" onMouseLeave={() => setMenuOpen(false)}>
+            <div className="relative" ref={menuRef}>
               <button
                 type="button"
                 onClick={() => setMenuOpen((v) => !v)}
@@ -314,15 +326,26 @@ export default function CompanyProfilePage() {
 
       {/* ── ORIGINAL tab bar ── */}
       <div className="mx-auto max-w-6xl px-6 sm:px-8 pt-5">
-        <div className="mb-8 flex items-center gap-2 rounded-2xl border border-white/70 bg-white/90 backdrop-blur shadow-lg shadow-[#0EA5E9]/10 p-1.5 w-fit">
-          <button className={tabCls("overview")} onClick={() => setTab("overview")}>
-            <span className="flex items-center gap-1.5"><LayoutGrid size={13} />Overview</span>
-          </button>
-          <button className={tabCls("jobs")} onClick={() => setTab("jobs")}>
-            <span className="flex items-center gap-1.5"><Briefcase size={13} />Job Posts{jobs ? ` (${jobs.length})` : ""}</span>
-          </button>
-          <button className={tabCls("settings")} onClick={() => setTab("settings")}>
-            <span className="flex items-center gap-1.5"><Settings size={13} />Edit Profile</span>
+        <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-2 rounded-2xl border border-white/70 bg-white/90 backdrop-blur shadow-lg shadow-[#0EA5E9]/10 p-1.5 w-fit">
+            <button className={tabCls("overview")} onClick={() => setTab("overview")}>
+              <span className="flex items-center gap-1.5"><LayoutGrid size={13} />Overview</span>
+            </button>
+            <button className={tabCls("jobs")} onClick={() => setTab("jobs")}>
+              <span className="flex items-center gap-1.5"><Briefcase size={13} />Job Posts{jobs ? ` (${jobs.length})` : ""}</span>
+            </button>
+            <button className={tabCls("settings")} onClick={() => setTab("settings")}>
+              <span className="flex items-center gap-1.5"><Settings size={13} />Edit Profile</span>
+            </button>
+          </div>
+          <button
+            type="button"
+            onClick={() => router.push("/company/dashboard")}
+            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/70 bg-white/90 text-slate-700 shadow-md shadow-[#0EA5E9]/10 transition-all hover:bg-white"
+            aria-label="Back to dashboard"
+            title="Back to dashboard"
+          >
+            <ArrowLeft size={18} />
           </button>
         </div>
 
