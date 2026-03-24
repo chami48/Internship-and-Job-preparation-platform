@@ -1,195 +1,431 @@
+"use client";
+
+import Image from "next/image";
 import Link from "next/link";
 
-const featureCards = [
-  {
-    title: "AI Interview Drills",
-    description:
-      "Practice with role-aware question flows and receive structured feedback before the real interview.",
-  },
-  {
-    title: "Verified Skill Exams",
-    description:
-      "Timed assessments for internship and job tracks with anti-cheat controls and confidence scoring.",
-  },
-  {
-    title: "Career-Ready Profiles",
-    description:
-      "Build a student profile recruiters can review quickly, including links, projects, and exam outcomes.",
-  },
-];
-
-const pathSteps = [
-  "Create your account and complete your profile",
-  "Apply to internships or jobs that match your skills",
-  "Take assessments and prepare with AI interview practice",
-  "Track status updates and improve continuously",
-];
-
 export default function LandingPage() {
+  const featureIcons = [
+    (
+      <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
+        <path
+          d="M8 21h8m-4-4v4m6-8a6 6 0 0 0-12 0v3h12v-3Z"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M9 13l2 2 4-4"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    ),
+    (
+      <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
+        <path
+          d="M6 3h12a2 2 0 0 1 2 2v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a2 2 0 0 1 2-2Z"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M8 7h8M8 11h5M8 15h8"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+        />
+      </svg>
+    ),
+    (
+      <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
+        <path
+          d="M12 3l2.7 5.5 6.1.9-4.4 4.3 1 6-5.4-2.9-5.4 2.9 1-6-4.4-4.3 6.1-.9L12 3Z"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    ),
+  ];
+
+  const serviceIcons = [
+    (
+      <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
+        <path
+          d="M6 14l3 3 9-9"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M5 7h8"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+        />
+      </svg>
+    ),
+    (
+      <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
+        <path
+          d="M4 7h16M7 7V4m10 3V4"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+        />
+        <path
+          d="M5 10h14v9H5z"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinejoin="round"
+        />
+      </svg>
+    ),
+    (
+      <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
+        <path
+          d="M5 19V5h14v14H5Z"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M9 15l6-6"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+        />
+        <path
+          d="M9 9h6v6"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+        />
+      </svg>
+    ),
+    (
+      <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
+        <path
+          d="M5 5h14v6H5z"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M7 15h10M7 19h6"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+        />
+      </svg>
+    ),
+    (
+      <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
+        <path
+          d="M4 18l6-6 4 4 6-6"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M4 6h4"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+        />
+      </svg>
+    ),
+    (
+      <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
+        <path
+          d="M12 3v6m0 6v6M6 12h12"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+        />
+        <path
+          d="M7 7h10v10H7z"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinejoin="round"
+        />
+      </svg>
+    ),
+  ];
+
   return (
-    <main className="relative overflow-hidden bg-[#fbfcff] text-slate-900">
-      <style>{`
-        .landing-shell {
-          background-image:
-            radial-gradient(circle at 10% 10%, rgba(3, 105, 161, 0.08), transparent 30%),
-            radial-gradient(circle at 85% 5%, rgba(15, 23, 42, 0.08), transparent 30%),
-            linear-gradient(#fbfcff, #f3f7ff);
-        }
+    <main className="bg-white text-slate-900">
 
-        .display-font {
-          letter-spacing: -0.03em;
-        }
+      {/* ───────── HERO ───────── */}
+  <section className="relative h-screen w-full overflow-hidden bg-white">
+ 
+      {/* BACKGROUND IMAGE — fully visible */}
+      <Image
+        src="/images/hero.jpeg"
+        alt="Hero"
+        fill
+        priority
+        className="object-cover object-top"
+      />
 
-        .hero-pop {
-          animation: heroPop 620ms cubic-bezier(0.16, 1, 0.3, 1) both;
-        }
-
-        .stagger-in {
-          animation: staggerIn 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
-        }
-
-        .float-orb {
-          animation: floatOrb 6s ease-in-out infinite;
-        }
-
-        .grid-dot {
-          background-image: radial-gradient(circle, rgba(15, 23, 42, 0.14) 1px, transparent 1px);
-          background-size: 28px 28px;
-        }
-
-        @keyframes heroPop {
-          from {
-            opacity: 0;
-            transform: translateY(24px) scale(0.98);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-          }
-        }
-
-        @keyframes staggerIn {
-          from {
-            opacity: 0;
-            transform: translateY(16px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        @keyframes floatOrb {
-          0%,
-          100% {
-            transform: translateY(0px);
-          }
-          50% {
-            transform: translateY(-12px);
-          }
-        }
-      `}</style>
-
-      <div className="pointer-events-none absolute inset-0 grid-dot opacity-20" />
-      <div className="float-orb pointer-events-none absolute -left-16 top-20 h-44 w-44 rounded-full bg-sky-200/50 blur-2xl" />
-      <div className="float-orb pointer-events-none absolute -right-12 bottom-24 h-56 w-56 rounded-full bg-indigo-200/40 blur-2xl" />
-
-      <section className="landing-shell relative mx-auto max-w-6xl px-5 pb-16 pt-14 md:px-8 md:pb-24 md:pt-20">
-        <div className="grid items-center gap-12 md:grid-cols-[1.1fr_0.9fr]">
-          <div>
-            <span className="hero-pop inline-flex rounded-full border border-sky-300 bg-sky-100 px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-sky-800">
-              Smart Hiring Journey
-            </span>
-
-            <h1 className="display-font hero-pop mt-5 text-4xl font-bold leading-tight text-slate-900 md:text-6xl">
-              Connecting Skilled Students 
-              <span className="block text-sky-600">With Smart Companies</span>
+      <div
+        className="pointer-events-none absolute inset-y-0 left-0 w-[60%] bg-white/30 backdrop-blur-[6px]"
+        style={{ maskImage: "linear-gradient(to right, black 0%, black 55%, transparent 100%)" }}
+      />
+ 
+      {/* CONTENT */}
+      <div className="absolute inset-0 z-10 flex items-center">
+        <div className="mx-auto max-w-6xl px-6 w-full">
+          <div className="max-w-xl">
+ 
+            <p className="text-sm uppercase tracking-widest text-[#0F1E44] font-semibold">
+              Join HireSmart
+            </p>
+ 
+            <h1 className="mt-4 text-4xl font-bold leading-tight text-[#0F1E44] md:text-6xl">
+              Prepare for Interviews. <br />
+              Prove Your Skills. <br />
+              <span className="text-sky-700">Get Hired.</span>
             </h1>
-
-            <p
-              className="stagger-in mt-5 max-w-xl text-base leading-7 text-slate-600 md:text-lg"
-              style={{ animationDelay: "120ms" }}
-            >
-              HireSmart connects preparation, skill evaluation, and recruitment into one focused platform for students and companies.
+ 
+            <p className="mt-6 text-lg text-[#0F1E44]/70">
+              Practice real interview questions, take verified assessments,
+              and stand out to top companies — all in one platform.
             </p>
-            <p
-              className="stagger-in mt-5 max-w-xl text-base leading-7 text-slate-600 md:text-lg"
-              style={{ animationDelay: "120ms" }}
-            >
-             Begin Your Journey by Registering Today,
-            </p>
-
-            <div className="stagger-in mt-8 flex flex-wrap items-center gap-3" style={{ animationDelay: "220ms" }}>
+ 
+            <div className="mt-8 flex flex-wrap gap-4">
               <Link
                 href="/student/register"
-                className="rounded-xl bg-slate-900 px-6 py-3 text-sm font-bold uppercase tracking-[0.12em] text-white transition-colors hover:bg-sky-600"
+                className="rounded-lg bg-[#0F1E44] px-6 py-3 text-white font-semibold hover:bg-[#38BDF8] hover:text-[#0F1E44] transition-colors duration-200"
               >
-                Student
+                STUDENT
               </Link>
               <Link
                 href="/company/register"
-                className="rounded-xl border border-slate-300 bg-white px-6 py-3 text-sm font-bold uppercase tracking-[0.12em] text-slate-700 transition-colors hover:border-sky-400 hover:text-sky-700"
+                className="rounded-lg border-2 border-[#0F1E44] px-6 py-3 text-[#0F1E44] font-semibold hover:bg-[#0F1E44] hover:text-white transition-colors duration-200"
               >
-                Company
+                COMPANY
               </Link>
             </div>
+ 
           </div>
+        </div>
+      </div>
+    </section>
 
-          <div className="stagger-in rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-xl shadow-slate-200/60 backdrop-blur" style={{ animationDelay: "180ms" }}>
-            <h2 className="display-font text-2xl font-semibold text-slate-900">Platform Snapshot</h2>
-            <div className="mt-6 grid grid-cols-2 gap-4">
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <p className="display-font text-3xl font-bold text-slate-900">1200+</p>
-                <p className="mt-1 text-sm text-slate-600">Student Accounts</p>
-              </div>
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <p className="display-font text-3xl font-bold text-slate-900">340+</p>
-                <p className="mt-1 text-sm text-slate-600">Active Openings</p>
-              </div>
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <p className="display-font text-3xl font-bold text-slate-900">92%</p>
-                <p className="mt-1 text-sm text-slate-600">Exam Completion</p>
-              </div>
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <p className="display-font text-3xl font-bold text-slate-900">24/7</p>
-                <p className="mt-1 text-sm text-slate-600">AI Preparation</p>
-              </div>
+      {/* ───────── FEATURES ───────── */}
+      <section className="bg-slate-50/70 py-20">
+        <div className="mx-auto max-w-6xl px-6">
+          <div className="flex flex-wrap items-end justify-between gap-6">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">
+                Why HireSmart
+              </p>
+              <h2 className="mt-3 text-3xl font-semibold text-slate-900 md:text-4xl">
+                Tools Built for Real Hiring Outcomes
+              </h2>
             </div>
           </div>
-        </div>
-      </section>
 
-      <section className="mx-auto max-w-6xl px-5 pb-16 md:px-8 md:pb-24">
-        <h2 className="display-font text-3xl font-semibold text-slate-900 md:text-4xl">What You Get</h2>
-        <div className="mt-8 grid gap-5 md:grid-cols-3">
-          {featureCards.map((card, index) => (
-            <article
-              key={card.title}
-              className="stagger-in rounded-2xl border border-slate-200 bg-white p-6 shadow-md shadow-slate-100 transition-transform hover:-translate-y-1"
-              style={{ animationDelay: `${index * 120 + 120}ms` }}
-            >
-              <h3 className="display-font text-xl font-semibold text-slate-900">{card.title}</h3>
-              <p className="mt-3 text-sm leading-6 text-slate-600">{card.description}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-6xl px-5 pb-20 md:px-8">
-        <div className="rounded-3xl border border-slate-200 bg-white p-6 md:p-10">
-          <h2 className="display-font text-3xl font-semibold text-slate-900 md:text-4xl">How It Works</h2>
-          <div className="mt-6 grid gap-4 md:grid-cols-2">
-            {pathSteps.map((step, index) => (
-              <div key={step} className="stagger-in flex items-start gap-4 rounded-xl border border-slate-200 bg-slate-50 p-4" style={{ animationDelay: `${index * 100 + 140}ms` }}>
-                <div className="display-font inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-900 text-sm font-bold text-white">
-                  {index + 1}
+          <div className="mt-10 grid gap-6 md:grid-cols-3">
+            {[
+              {
+                title: "Internships & Jobs",
+                desc: "Students discover internships and jobs matched to their skills and career goals in one place.",
+              },
+              {
+                title: "Secure Skill Assessments",
+                desc: "High-integrity, proctored exams replace CVs with verified, job-ready proof of ability.",
+              },
+              {
+                title: "AI Shortlisting & Prep",
+                desc: "AI helps filter and shortlist candidates, and students get free interview prep to perform better.",
+              },
+            ].map((item, index) => (
+              <div
+                key={item.title}
+                className={`rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg ${
+                  index === 1 ? "md:-translate-y-3" : ""
+                }`}
+              >
+                <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-full bg-sky-100 text-slate-900">
+                  {featureIcons[index]}
                 </div>
-                <p className="text-sm leading-6 text-slate-700">{step}</p>
+                <h3 className="text-lg font-semibold text-slate-900">{item.title}</h3>
+                <p className="mt-3 text-sm leading-6 text-slate-600">{item.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
+
+      {/* ───────── ABOUT ───────── */}
+      <section className="bg-slate-50 py-20">
+        <div className="mx-auto grid max-w-6xl gap-12 px-6 md:grid-cols-2 items-center">
+          <Image
+            src="/images/about.jpeg"
+            alt="About"
+            width={500}
+            height={400}
+            className="rounded-2xl object-cover shadow-lg shadow-slate-200"
+          />
+
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">
+              About HireSmart
+            </p>
+            <h2 className="mt-3 text-3xl font-semibold text-slate-900 md:text-4xl">
+              A Smarter Way to Prepare for Your Career
+            </h2>
+
+            <p className="mt-6 text-sm leading-6 text-slate-600">
+              We connect internships and jobs with verified skill proof, so students are evaluated on ability, not just a CV.
+            </p>
+
+            <p className="mt-4 text-sm leading-6 text-slate-600">
+              From secure assessments to guided interview preparation, HireSmart makes every step feel confident and professional.
+            </p>
+
+            <Link
+              href="/student/register"
+              className="mt-6 inline-block rounded-lg bg-slate-900 px-6 py-3 text-white hover:bg-sky-600"
+            >
+              Get Started
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ───────── SERVICES ───────── */}
+<section className="bg-[#f6f7fb] py-20">
+  <div className="mx-auto max-w-7xl px-6 grid md:grid-cols-[1fr_2fr_1fr] gap-10 items-start">
+
+    {/* LEFT CONTENT */}
+    <div>
+      <p className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">
+        Our Services
+      </p>
+
+      <h2 className="mt-4 text-3xl font-semibold text-slate-900 leading-snug">
+        We Have Best Services for Your Career
+      </h2>
+
+      <p className="mt-4 text-sm leading-6 text-slate-600">
+        HireSmart connects real jobs with verified skills, helping students stand out and companies hire better.
+      </p>
+
+      <Link
+        href="/how-it-works"
+        className="mt-6 inline-block bg-[#1E3A8A] px-6 py-3 text-sm font-semibold text-white hover:bg-[#172554]"
+      >
+        More Details
+      </Link>
+    </div>
+
+    {/* SERVICES GRID */}
+    <div className="grid grid-cols-2 gap-x-10 gap-y-10 md:grid-cols-3">
+
+      {[
+        "Internship Discovery",
+        "Skill-Based Exams",
+        "AI Shortlisting",
+        "Interview Practice",
+        "Recruiter Insights",
+        "Career Profiles",
+      ].map((title) => (
+        <div key={title} className="flex flex-col items-start">
+          
+          <div className="mb-3 text-2xl text-slate-700">
+            •
+          </div>
+
+          <h3 className="text-base font-semibold text-slate-900">
+            {title}
+          </h3>
+
+          <p className="mt-2 text-sm text-slate-600 leading-6">
+            HireSmart provides structured tools to improve skills and connect candidates with the right opportunities.
+          </p>
+        </div>
+      ))}
+
+    </div>
+
+    {/* RIGHT IMAGE */}
+    <div className="hidden md:block">
+      <Image
+        src="/images/services.jpg"
+        alt="Services"
+        width={350}
+        height={500}
+        className="h-full w-full object-cover rounded-lg"
+      />
+    </div>
+
+  </div>
+</section>
+
+      {/* ───────── CTA ───────── */}
+      <section className="bg-slate-50 py-16">
+        <div className="mx-auto max-w-6xl px-6">
+          <div className="rounded-2xl border border-slate-200 bg-white px-6 py-10 text-slate-900 shadow-lg shadow-slate-200/60 md:px-10">
+            <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">
+                  Get Started
+                </p>
+                <h2 className="mt-3 text-3xl font-semibold text-slate-900 md:text-4xl">
+                  Start Your Career Journey Today
+                </h2>
+                <p className="mt-3 text-sm text-slate-600">
+                  Create your profile, take secure assessments, and get shortlisted faster with HireSmart.
+                </p>
+              </div>
+
+              <div className="flex flex-wrap gap-3">
+                <Link
+                  href="/student/register"
+                  className="rounded-lg bg-[#0F1E44] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#38BDF8] hover:text-[#0F1E44]"
+                >
+                  Get Started Free
+                </Link>
+                <Link
+                  href="/company/register"
+                  className="rounded-lg border border-[#0F1E44] px-6 py-3 text-sm font-semibold text-[#0F1E44] transition-colors hover:bg-[#0F1E44] hover:text-white"
+                >
+                  Hire Talent
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
     </main>
   );
 }
