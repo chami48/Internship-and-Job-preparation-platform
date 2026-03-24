@@ -21,7 +21,9 @@ export default function ConditionalLayout({
     pathname === "/company/profile" ||
     pathname?.startsWith("/company/my-jobs/") ||
     pathname?.startsWith("/company/selected/") ||
-    pathname?.startsWith("/company/create-job");
+    pathname?.startsWith("/company/create-job") ||
+    pathname === "/exam" ||
+    pathname?.startsWith("/exam/");
 
   const mainClass = "min-h-screen";
 
