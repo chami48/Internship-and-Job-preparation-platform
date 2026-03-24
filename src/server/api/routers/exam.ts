@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import { evaluateApplication } from "~/server/ai/evaluationService";
 
 // Fisher–Yates shuffle
 function shuffle<T>(array: T[]): T[] {
@@ -218,6 +219,10 @@ return {
         examSubmitted: true,
       },
     });
+
+    // Auto-trigger AI evaluation in the background (fire-and-forget)
+    // Does not block exam submission — student gets { success: true } immediately
+    void evaluateApplication(ctx.db, input.applicationId);
 
     return { success: true };
   }),
