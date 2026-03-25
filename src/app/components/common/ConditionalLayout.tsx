@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation"; 
-import HeaderLegacy from "./HeaderLegacy";
+import HeaderLegacy from "./Header";
 import Footer from "./Footer";
 
 export default function ConditionalLayout({
@@ -21,7 +21,9 @@ export default function ConditionalLayout({
     pathname === "/company/profile" ||
     pathname?.startsWith("/company/my-jobs/") ||
     pathname?.startsWith("/company/selected/") ||
-    pathname?.startsWith("/company/create-job");
+    pathname?.startsWith("/company/create-job") ||
+    pathname === "/exam" ||
+    pathname?.startsWith("/exam/");
 
   const mainClass = "min-h-screen";
 

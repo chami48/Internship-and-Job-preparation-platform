@@ -38,100 +38,86 @@ export default function QuizSummaryPage() {
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-[#0F172A] selection:bg-[#0F172A] selection:text-white">
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; }
+        :root {
+          --quiz-ink: #0F172A;
+          --quiz-soft: #F8FAFC;
+          --quiz-card: #FFFFFF;
+          --quiz-muted: #64748B;
+          --quiz-accent: #0EA5E9;
+          --quiz-accent-2: #22C55E;
+        }
+        .summary-shell { font-family: var(--font-sans), ui-sans-serif, system-ui; }
+        .summary-fade { animation: summaryFade 0.7s ease-out both; }
+        @keyframes summaryFade {
+          from { opacity: 0; transform: translateY(12px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .glass-card {
+          background: #F1F5F9;
+          border: 1px solid rgba(15, 23, 42, 0.08);
+          box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
+        }
+        .score-ring {
+          background: conic-gradient(#0EA5E9 ${scorePercent}%, rgba(148, 163, 184, 0.2) 0);
+        }
       `}</style>
 
-      <main className="max-w-4xl mx-auto px-6 py-12">
-        {/* Success Card */}
-        <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm overflow-hidden mb-8">
-          <div className="p-8 md:p-10 text-center">
-            <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-6">
-              <svg className="w-8 h-8 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            
-            <h1 className="text-2xl font-bold text-[#0F172A]">Assessment Completed</h1>
-            <p className="text-slate-500 text-sm mt-2">
-              Well done! You have successfully finished the <span className="text-[#0F172A] font-semibold">{attempt.role}</span> evaluation.
-            </p>
-
-            <div className="mt-10 flex flex-col items-center">
-              <div className="relative">
-                <svg className="w-32 h-32 transform -rotate-90">
-                  <circle
-                    cx="64" cy="64" r="58"
-                    stroke="currentColor" strokeWidth="8"
-                    fill="transparent"
-                    className="text-slate-100"
-                  />
-                  <circle
-                    cx="64" cy="64" r="58"
-                    stroke="currentColor" strokeWidth="8"
-                    fill="transparent"
-                    strokeDasharray={364.4}
-                    strokeDashoffset={364.4 - (364.4 * scorePercent) / 100}
-                    className="text-[#0F172A] transition-all duration-1000 ease-out"
-                    strokeLinecap="round"
-                  />
+      <main className="summary-shell max-w-4xl mx-auto px-6 py-12">
+        <div className="summary-fade relative">
+          <div className="glass-card rounded-[22px] p-7 md:p-9">
+            <div className="text-center">
+              <div className="mx-auto h-12 w-12 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
+                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
                 </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-3xl font-bold text-[#0F172A]">{scorePercent}%</span>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase">Score</span>
+              </div>
+              <h1 className="mt-4 text-2xl font-semibold text-[var(--quiz-ink)]">Assessment Completed</h1>
+              <p className="mt-2 text-xs text-[var(--quiz-muted)]">
+                You have finished the {attempt.role.replace(/_/g, " ")} evaluation.
+              </p>
+            </div>
+
+            <div className="mt-7 flex flex-col items-center">
+              <div className="relative h-36 w-36 rounded-full score-ring p-[7px]">
+                <div className="h-full w-full rounded-full bg-white flex flex-col items-center justify-center shadow-[0_12px_30px_rgba(15,23,42,0.1)]">
+                  <span className="text-3xl font-semibold text-[var(--quiz-ink)]">{scorePercent}%</span>
+                  <span className="text-[10px] uppercase tracking-[0.3em] text-slate-400">Score</span>
                 </div>
               </div>
+              <p className="mt-4 text-xs text-slate-500 font-semibold">
+                {attempt.score} / {total} Points
+              </p>
+            </div>
+
+            <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-3">
+              {[
+                { label: "Total", value: total, color: "text-[var(--quiz-ink)]" },
+                { label: "Correct", value: correct, color: "text-emerald-600" },
+                { label: "Incorrect", value: incorrect, color: "text-rose-500" },
+                { label: "Unanswered", value: unanswered, color: "text-amber-500" },
+              ].map((stat) => (
+                <div key={stat.label} className="rounded-2xl bg-[#F8FAFC] px-4 py-3 border border-slate-100">
+                  <p className="text-[10px] uppercase tracking-[0.25em] text-slate-400">{stat.label}</p>
+                  <p className={`mt-2 text-base font-semibold ${stat.color}`}>{stat.value}</p>
+                </div>
+              ))}
             </div>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 border-t border-slate-100 divide-x divide-slate-100">
-            <div className="p-6 text-center">
-              <span className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Total</span>
-              <span className="text-xl font-bold text-[#0F172A]">{total}</span>
-            </div>
-            <div className="p-6 text-center">
-              <span className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Correct</span>
-              <span className="text-xl font-bold text-emerald-600">{correct}</span>
-            </div>
-            <div className="p-6 text-center">
-              <span className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Missed</span>
-              <span className="text-xl font-bold text-rose-500">{incorrect}</span>
-            </div>
-            <div className="p-6 text-center">
-              <span className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Unanswered</span>
-              <span className="text-xl font-bold text-amber-500">{unanswered}</span>
-            </div>
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <button
+              onClick={() => router.push(`/prep-quiz/result/${attemptId}`)}
+              className="w-full sm:w-auto px-7 py-3 bg-[#0F172A] text-white rounded-xl font-semibold text-xs hover:shadow-[0_18px_40px_rgba(15,23,42,0.18)] transition-all"
+            >
+              Review Detailed Results
+            </button>
+            <button
+              onClick={() => router.push("/prep-quiz")}
+              className="w-full sm:w-auto px-7 py-3 bg-white border border-slate-200 text-slate-700 rounded-xl font-semibold text-xs hover:bg-slate-50 transition-colors"
+            >
+              Back to Dashboard
+            </button>
           </div>
-        </div>
-
-        {/* Unified Bottom Actions */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <button
-            onClick={() => router.push(`/prep-quiz/result/${attemptId}`)}
-            className="w-full sm:w-auto px-8 py-3.5 bg-[#0F172A] text-white rounded-xl font-semibold text-sm hover:shadow-lg transition-all"
-          >
-            Review Detailed Results
-          </button>
-          <button
-            onClick={() => router.push("/prep-quiz")}
-            className="w-full sm:w-auto px-8 py-3.5 bg-white text-[#0F172A] border border-slate-200 rounded-xl font-semibold text-sm hover:bg-slate-50 transition-colors"
-          >
-            Go to Dashboard
-          </button>
-        </div>
-
-        {/* Subtle Tip */}
-        <div className="mt-12 p-5 bg-blue-50/50 rounded-xl border border-blue-100/50 flex gap-4 items-start">
-           <div className="mt-1 p-2 bg-blue-500 rounded-lg text-white">
-             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM5 10a1 1 0 01-1 1H3a1 1 0 110-2h1a1 1 0 011 1zM8 16v-1a1 1 0 10-2 0v1a1 1 0 102 0zM13.243 18.586a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM16 11.243l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414z" /></svg>
-           </div>
-           <div>
-             <h4 className="text-sm font-semibold text-blue-900">Expert Tip</h4>
-             <p className="text-xs text-blue-800/70 mt-1 leading-relaxed">
-               Candidates who review their mistakes right after the test tend to perform 40% better on their next attempt. 
-               Click "Review Detailed Results" to see where you can improve.
-             </p>
-           </div>
         </div>
       </main>
     </div>

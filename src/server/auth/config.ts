@@ -1,4 +1,3 @@
-import { PrismaAdapter } from "@auth/prisma-adapter";
 import { type DefaultSession, type NextAuthConfig } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
@@ -21,7 +20,6 @@ declare module "next-auth" {
  * NextAuth configuration
  */
 export const authConfig = {
-  adapter: PrismaAdapter(db),
 
   providers: [
     Credentials({

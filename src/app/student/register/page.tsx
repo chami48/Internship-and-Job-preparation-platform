@@ -42,8 +42,11 @@ export default function StudentRegisterPage() {
   const register = api.student.auth.register.useMutation();
 
   const [name, setName] = useState("");
+  const [nameError, setNameError] = useState("");
   const [studentId, setStudentId] = useState("");
+  const [studentIdError, setStudentIdError] = useState("");
   const [email, setEmail] = useState("");
+  const [emailError, setEmailError] = useState("");
   const [degree, setDegree] = useState("");
   const [year, setYear] = useState("");
   const [password, setPassword] = useState("");
@@ -58,6 +61,47 @@ export default function StudentRegisterPage() {
 
   const strength = pwStrength(password);
 
+  const validateName = (value: string) => {
+    const trimmed = value.trim();
+    if (!trimmed) return "";
+    return /^[A-Za-z.\s]+$/.test(trimmed) ? "" : "Full name can contain letters, spaces, and dots only.";
+  };
+
+  const validateStudentId = (value: string) => {
+    const trimmed = value.trim();
+    if (!trimmed) return "";
+    return /^IT\d{8}$/.test(trimmed) ? "" : "Student ID must be IT followed by 8 digits.";
+  };
+
+  const validateEmail = (value: string) => {
+    const trimmed = value.trim();
+    if (!trimmed) return "";
+    return /^IT\d{8}@my\.sliit\.lk$/i.test(trimmed)
+      ? ""
+      : "Use your SLIIT email (IT12345678@my.sliit.lk).";
+  };
+
+  const fillMockData = () => {
+    const mockName = "M.Sandani Chamoda";
+    const mockStudentId = "IT23832480";
+    const mockEmail = "it23832480@my.sliit.lk";
+    const mockPassword = "Sandani@07";
+
+    setName(mockName);
+    setStudentId(mockStudentId);
+    setEmail(mockEmail);
+    setDegree("BSc IT");
+    setYear("3");
+    setPassword(mockPassword);
+    setConfirmPassword(mockPassword);
+    setNameError(validateName(mockName));
+    setStudentIdError(validateStudentId(mockStudentId));
+    setEmailError(validateEmail(mockEmail));
+    setFormError("");
+    setOtpError("");
+    setOtpSent(false);
+  };
+
   const handleSendOtp = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setFormError("");
@@ -67,13 +111,29 @@ export default function StudentRegisterPage() {
       return;
     }
 
-    if (password !== confirmPassword) {
-      setFormError("Passwords do not match.");
+    const currentNameError = validateName(name);
+    if (currentNameError) {
+      setFormError(currentNameError);
+      setNameError(currentNameError);
       return;
     }
 
-    if (!email.endsWith("@my.sliit.lk")) {
-      setFormError("Only SLIIT student emails are allowed.");
+    const currentStudentIdError = validateStudentId(studentId);
+    if (currentStudentIdError) {
+      setFormError(currentStudentIdError);
+      setStudentIdError(currentStudentIdError);
+      return;
+    }
+
+    const currentEmailError = validateEmail(email);
+    if (currentEmailError) {
+      setFormError(currentEmailError);
+      setEmailError(currentEmailError);
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setFormError("Passwords do not match.");
       return;
     }
 
@@ -118,7 +178,9 @@ export default function StudentRegisterPage() {
   const inputStyle: React.CSSProperties = {
     width: "100%",
     padding: "11px 14px",
-    border: "1.5px solid #E2E8F0",
+    borderWidth: "1.5px",
+    borderStyle: "solid",
+    borderColor: "#E2E8F0",
     borderRadius: 10,
     fontSize: "0.875rem",
     color: "#0F172A",
@@ -250,18 +312,54 @@ export default function StudentRegisterPage() {
                   </div>
                 )}
 
+                <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
+                  <button
+                    type="button"
+                    onClick={fillMockData}
+                    style={{
+                      border: "1px solid #E2E8F0",
+                      background: "white",
+                      color: "#0F172A",
+                      fontSize: "0.72rem",
+                      fontWeight: 700,
+                      letterSpacing: "0.08em",
+                      textTransform: "uppercase",
+                      padding: "8px 12px",
+                      borderRadius: 8,
+                      cursor: "pointer",
+                    }}
+                  >
+                    Fill Sample Data
+                  </button>
+                </div>
+
                 <form onSubmit={handleSendOtp} style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+                  {(() => {
+                    const emailLocal = email.split("@")[0] ?? "";
+                    return (
+                      <>
                   <div>
                     <label style={labelStyle}>Full Name <span style={{ color: "#EF4444" }}>*</span></label>
                     <input
                       className="reg-input"
-                      style={inputStyle}
+                      style={{
+                        ...inputStyle,
+                        ...(nameError ? { borderColor: "#FCA5A5", background: "#FFF8F8" } : {}),
+                      }}
                       type="text"
                       placeholder="Your full name"
                       value={name}
-                      onChange={(e) => setName(e.target.value)}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setName(value);
+                        setNameError(validateName(value));
+                      }}
+                      onBlur={(e) => setNameError(validateName(e.target.value))}
                       required
                     />
+                    {nameError && (
+                      <p style={{ marginTop: 5, fontSize: "0.7rem", color: "#EF4444", fontWeight: 600 }}>{nameError}</p>
+                    )}
                   </div>
 
                   <div style={{ display: "grid", gap: 14, gridTemplateColumns: "1fr 1fr" }}>
@@ -269,13 +367,27 @@ export default function StudentRegisterPage() {
                       <label style={labelStyle}>Student ID <span style={{ color: "#EF4444" }}>*</span></label>
                       <input
                         className="reg-input"
-                        style={inputStyle}
+                        style={{
+                          ...inputStyle,
+                          ...(studentIdError ? { borderColor: "#FCA5A5", background: "#FFF8F8" } : {}),
+                        }}
                         type="text"
                         placeholder="ITXXXXXXX"
+                        name="studentId"
+                        autoComplete="off"
+                        maxLength={10}
                         value={studentId}
-                        onChange={(e) => setStudentId(e.target.value)}
+                        onChange={(e) => {
+                          const value = e.target.value.toUpperCase();
+                          setStudentId(value);
+                          setStudentIdError(validateStudentId(value));
+                        }}
+                        onBlur={(e) => setStudentIdError(validateStudentId(e.target.value))}
                         required
                       />
+                      {studentIdError && (
+                        <p style={{ marginTop: 5, fontSize: "0.7rem", color: "#EF4444", fontWeight: 600 }}>{studentIdError}</p>
+                      )}
                     </div>
                     <div>
                       <label style={labelStyle}>Year of Study <span style={{ color: "#EF4444" }}>*</span></label>
@@ -291,16 +403,58 @@ export default function StudentRegisterPage() {
 
                   <div>
                     <label style={labelStyle}>SLIIT Email <span style={{ color: "#EF4444" }}>*</span></label>
-                    <input
-                      className="reg-input"
-                      style={inputStyle}
-                      type="email"
-                      placeholder="ITXXXXXXX@my.sliit.lk"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                    />
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        ...inputStyle,
+                        ...(emailError ? { borderColor: "#FCA5A5", background: "#FFF8F8" } : {}),
+                        padding: "0 14px",
+                        gap: 6,
+                      }}
+                    >
+                      <input
+                        className="reg-input"
+                        style={{
+                          border: "none",
+                          background: "transparent",
+                          outline: "none",
+                          padding: "11px 0",
+                          flex: 1,
+                          fontSize: "0.875rem",
+                          color: "#0F172A",
+                        }}
+                        type="text"
+                        placeholder="IT12345678"
+                        name="email"
+                        autoComplete="email"
+                        value={emailLocal}
+                        maxLength={10}
+                        onChange={(e) => {
+                          const rawValue = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
+                          const normalized = rawValue ? `${rawValue}@my.sliit.lk` : "";
+                          setEmail(normalized);
+                          setEmailError(validateEmail(normalized));
+                        }}
+                        onBlur={(e) => {
+                          const rawValue = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
+                          const normalized = rawValue ? `${rawValue}@my.sliit.lk` : "";
+                          setEmail(normalized);
+                          setEmailError(validateEmail(normalized));
+                        }}
+                        required
+                      />
+                      <span style={{ color: "#CBD5E1", fontSize: "0.8rem", whiteSpace: "nowrap" }}>
+                        @my.sliit.lk
+                      </span>
+                    </div>
+                    {emailError && (
+                      <p style={{ marginTop: 5, fontSize: "0.7rem", color: "#EF4444", fontWeight: 600 }}>{emailError}</p>
+                    )}
                   </div>
+                      </>
+                    );
+                  })()}
 
                   <div>
                     <label style={labelStyle}>Degree Program <span style={{ color: "#EF4444" }}>*</span></label>
@@ -321,6 +475,7 @@ export default function StudentRegisterPage() {
                         style={{ ...inputStyle, paddingRight: 42 }}
                         type={showPw ? "text" : "password"}
                         placeholder="Min. 8 characters"
+                        autoComplete="new-password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
@@ -370,6 +525,7 @@ export default function StudentRegisterPage() {
                         }}
                         type={showCpw ? "text" : "password"}
                         placeholder="Re-enter your password"
+                        autoComplete="new-password"
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         required

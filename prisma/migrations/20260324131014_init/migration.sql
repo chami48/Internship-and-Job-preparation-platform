@@ -77,6 +77,7 @@ CREATE TABLE "Company" (
     "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
     "description" TEXT,
+    "logo" TEXT,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
     "isVerified" BOOLEAN NOT NULL DEFAULT false,
@@ -101,6 +102,7 @@ CREATE TABLE "Job" (
     "benefits" TEXT,
     "deadline" DATETIME,
     "slots" INTEGER,
+    "cutoff" REAL NOT NULL DEFAULT 60,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "Job_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
@@ -116,7 +118,8 @@ CREATE TABLE "Question" (
     "explanation" TEXT,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "correctKey" TEXT,
-    "rubric" TEXT
+    "rubric" TEXT,
+    "maxMarks" REAL NOT NULL DEFAULT 10
 );
 
 -- CreateTable
@@ -143,7 +146,7 @@ CREATE TABLE "Application" (
     "portfolio" TEXT,
     "university" TEXT NOT NULL,
     "degree" TEXT NOT NULL,
-    "specialization" TEXT,
+    "specialization" TEXT NOT NULL,
     "cgpa" TEXT,
     "awards" TEXT,
     "programmingLanguages" TEXT NOT NULL,
@@ -151,6 +154,7 @@ CREATE TABLE "Application" (
     "softwareProficiency" TEXT,
     "lockedQuestions" JSONB,
     "examSubmitted" BOOLEAN NOT NULL DEFAULT false,
+    "terminationReason" TEXT,
     CONSTRAINT "Application_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT "Application_jobId_fkey" FOREIGN KEY ("jobId") REFERENCES "Job" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
@@ -200,10 +204,82 @@ CREATE TABLE "ApplicantVerification" (
     "userId" TEXT NOT NULL,
     "fullName" TEXT NOT NULL,
     "studentIdNumber" TEXT NOT NULL,
-    "role" TEXT NOT NULL,
     "idImageUrl" TEXT NOT NULL,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "ApplicantVerification_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "PrepQuizQuestion" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "role" TEXT NOT NULL,
+    "question" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
+    "explanation" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- CreateTable
+CREATE TABLE "PrepQuizOption" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "questionId" TEXT NOT NULL,
+    "key" TEXT NOT NULL,
+    "text" TEXT NOT NULL,
+    "isCorrect" BOOLEAN NOT NULL,
+    CONSTRAINT "PrepQuizOption_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "PrepQuizQuestion" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "PrepQuizAttempt" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "userId" TEXT NOT NULL,
+    "role" TEXT NOT NULL,
+    "score" INTEGER NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "PrepQuizAttempt_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "PrepQuizAnswer" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "attemptId" TEXT NOT NULL,
+    "questionId" TEXT NOT NULL,
+    "selectedKey" TEXT NOT NULL,
+    "isCorrect" BOOLEAN NOT NULL,
+    CONSTRAINT "PrepQuizAnswer_attemptId_fkey" FOREIGN KEY ("attemptId") REFERENCES "PrepQuizAttempt" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "PrepQuizAnswer_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "PrepQuizQuestion" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "EvaluationResult" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "applicationId" TEXT NOT NULL,
+    "totalScore" REAL NOT NULL,
+    "maxScore" REAL NOT NULL,
+    "percentage" REAL NOT NULL,
+    "cutoff" REAL NOT NULL,
+    "passed" BOOLEAN NOT NULL,
+    "aiFeedback" TEXT NOT NULL,
+    "cvUploadGranted" BOOLEAN NOT NULL DEFAULT false,
+    "status" TEXT NOT NULL DEFAULT 'PENDING',
+    "evaluatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "EvaluationResult_applicationId_fkey" FOREIGN KEY ("applicationId") REFERENCES "Application" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "QuestionEvaluation" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "evaluationResultId" TEXT NOT NULL,
+    "questionId" TEXT NOT NULL,
+    "applicationId" TEXT NOT NULL,
+    "studentAnswer" TEXT,
+    "expectedAnswer" TEXT,
+    "scoreAwarded" REAL NOT NULL,
+    "maxMarks" REAL NOT NULL,
+    "aiFeedback" TEXT NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "QuestionEvaluation_evaluationResultId_fkey" FOREIGN KEY ("evaluationResultId") REFERENCES "EvaluationResult" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "QuestionEvaluation_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "Question" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 -- CreateIndex
@@ -237,10 +313,7 @@ CREATE INDEX "Question_role_difficulty_topic_idx" ON "Question"("role", "difficu
 CREATE UNIQUE INDEX "Option_questionId_key_key" ON "Option"("questionId", "key");
 
 -- CreateIndex
-CREATE INDEX "Application_jobId_idx" ON "Application"("jobId");
-
--- CreateIndex
-CREATE INDEX "Application_userId_idx" ON "Application"("userId");
+CREATE UNIQUE INDEX "Application_userId_jobId_key" ON "Application"("userId", "jobId");
 
 -- CreateIndex
 CREATE INDEX "ExamAnswer_questionId_idx" ON "ExamAnswer"("questionId");
@@ -253,3 +326,18 @@ CREATE INDEX "ExamViolation_applicationId_idx" ON "ExamViolation"("applicationId
 
 -- CreateIndex
 CREATE UNIQUE INDEX "ApplicantVerification_userId_key" ON "ApplicantVerification"("userId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "PrepQuizOption_questionId_key_key" ON "PrepQuizOption"("questionId", "key");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "EvaluationResult_applicationId_key" ON "EvaluationResult"("applicationId");
+
+-- CreateIndex
+CREATE INDEX "EvaluationResult_applicationId_idx" ON "EvaluationResult"("applicationId");
+
+-- CreateIndex
+CREATE INDEX "QuestionEvaluation_evaluationResultId_idx" ON "QuestionEvaluation"("evaluationResultId");
+
+-- CreateIndex
+CREATE INDEX "QuestionEvaluation_applicationId_idx" ON "QuestionEvaluation"("applicationId");
