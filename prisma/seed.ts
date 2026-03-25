@@ -1,5 +1,5 @@
 //smart-screening\prisma\seed.ts
-import { PrismaClient, Difficulty, JobRole, QuestionType } from "../generated/prisma";
+import { PrismaClient, Difficulty, JobRole, QuestionType, JobType, JobLevel } from "../generated/prisma";
 
 const prisma = new PrismaClient();
 
@@ -3123,6 +3123,186 @@ await scenario({
 });
 
   console.log("✅ Seeded question bank successfully!");
+
+  // -------------------- MOCK JOB POSTS --------------------
+  
+  // Create sample companies
+  const techCorp = await prisma.company.create({
+    data: {
+      name: "TechCorp Solutions",
+      email: "jobs@techcorp.com",
+      password: "hashed_password",
+      description: "Leading software development company",
+      isVerified: true,
+    },
+  });
+
+  const designStudio = await prisma.company.create({
+    data: {
+      name: "Design Studio Pro",
+      email: "jobs@designstudio.com",
+      password: "hashed_password",
+      description: "Creative design and UX agency",
+      isVerified: true,
+    },
+  });
+
+  const managementCo = await prisma.company.create({
+    data: {
+      name: "Project Management Corp",
+      email: "jobs@pmcorp.com",
+      password: "hashed_password",
+      description: "Professional project management services",
+      isVerified: true,
+    },
+  });
+
+  // Create 6 diverse job posts for filtering demo
+  
+  // Job 1: Junior Software Engineer Internship
+  await prisma.job.create({
+    data: {
+      title: "Junior Software Engineer Intern",
+      companyId: techCorp.id,
+      location: "Colombo, Sri Lanka",
+      role: JobRole.SOFTWARE_ENGINEER,
+      type: JobType.INTERNSHIP,
+      level: JobLevel.JUNIOR,
+      tags: "JavaScript, React, Node.js",
+      salary: "Stipend - LKR 15,000/month",
+      description:
+        "Join our team as a junior software engineer intern and work on real-world projects. You'll learn full-stack development with modern technologies.",
+      responsibilities:
+        "Develop features under mentorship, write clean code, participate in code reviews, contribute to documentation.",
+      requirements:
+        "Strong fundamentals in JavaScript, familiarity with React, eager to learn.",
+      benefits: "Mentorship, certificate, flexible hours, possible conversion to full-time",
+      deadline: new Date("2026-04-30"),
+      slots: 5,
+    },
+  });
+
+  // Job 2: Mid-Level UX Engineer (Full-Time)
+  await prisma.job.create({
+    data: {
+      title: "Mid-Level UX Engineer",
+      companyId: designStudio.id,
+      location: "Colombo, Sri Lanka",
+      role: JobRole.UX_ENGINEER,
+      type: JobType.FULL_TIME,
+      level: JobLevel.MID,
+      tags: "Figma, UI Design, Prototyping, User Research",
+      salary: "LKR 120,000 - 150,000/month",
+      description:
+        "Design beautiful and functional user experiences for our suite of web and mobile applications. You'll collaborate with product and engineering teams.",
+      responsibilities:
+        "Create wireframes and prototypes, conduct user research, design UI components, implement design systems, collaborate with developers.",
+      requirements:
+        "3+ years UX design experience, proficiency in Figma, strong portfolio, knowledge of design principles.",
+      benefits:
+        "Competitive salary, health insurance, unlimited learning budget, remote flexibility",
+      deadline: new Date("2026-05-15"),
+      slots: 3,
+    },
+  });
+
+  // Job 3: Senior Project Manager (Full-Time)
+  await prisma.job.create({
+    data: {
+      title: "Senior Project Manager",
+      companyId: managementCo.id,
+      location: "Colombo, Sri Lanka",
+      role: JobRole.PROJECT_MANAGER,
+      type: JobType.FULL_TIME,
+      level: JobLevel.SENIOR,
+      tags: "Agile, Scrum, Leadership, Jira",
+      salary: "LKR 200,000 - 250,000/month",
+      description:
+        "Lead cross-functional teams in delivering complex projects on time and within budget. Mentor junior PMs and establish best practices.",
+      responsibilities:
+        "Project planning and execution, team leadership, stakeholder management, risk mitigation, process improvement.",
+      requirements:
+        "7+ years project management experience, Scrum Master certification, proven track record of successful project delivery.",
+      benefits:
+        "High salary, performance bonus, executive benefits, professional development",
+      deadline: new Date("2026-06-01"),
+      slots: 2,
+    },
+  });
+
+  // Job 4: Senior Software Engineer (Full-Time)
+  await prisma.job.create({
+    data: {
+      title: "Senior Software Engineer - Backend",
+      companyId: techCorp.id,
+      location: "Colombo, Sri Lanka",
+      role: JobRole.SOFTWARE_ENGINEER,
+      type: JobType.FULL_TIME,
+      level: JobLevel.SENIOR,
+      tags: "Node.js, TypeScript, PostgreSQL, AWS, Microservices",
+      salary: "LKR 250,000 - 300,000/month",
+      description:
+        "Design and build scalable backend systems. You'll architect solutions, mentor engineers, and drive technical excellence across our platform.",
+      responsibilities:
+        "System architecture, code quality oversight, technical mentoring, performance optimization, code reviews.",
+      requirements:
+        "8+ years backend development, expertise in TypeScript/Node.js, cloud platforms, system design knowledge.",
+      benefits:
+        "Premium salary, stock options, health insurance, annual bonus, remote work allowed",
+      deadline: new Date("2026-06-15"),
+      slots: 2,
+    },
+  });
+
+  // Job 5: Junior UX Engineer Internship
+  await prisma.job.create({
+    data: {
+      title: "Junior UX Designer Intern",
+      companyId: designStudio.id,
+      location: "Colombo, Sri Lanka",
+      role: JobRole.UX_ENGINEER,
+      type: JobType.INTERNSHIP,
+      level: JobLevel.JUNIOR,
+      tags: "UI Design, Figma, Design Thinking, Prototyping",
+      salary: "Stipend - LKR 12,000/month",
+      description:
+        "Start your UX design career by working on real projects. Learn from experienced designers while contributing to product design.",
+      responsibilities:
+        "Create UI mockups, participate in design reviews, conduct user testing, assist with design documentation.",
+      requirements:
+        "Passion for design, basic Figma knowledge, portfolio with design work, creative mindset.",
+      benefits:
+        "Industry mentorship, design tools access, portfolio building, possible full-time conversion",
+      deadline: new Date("2026-04-15"),
+      slots: 4,
+    },
+  });
+
+  // Job 6: Mid-Level Project Manager Internship
+  await prisma.job.create({
+    data: {
+      title: "Project Coordinator Intern",
+      companyId: managementCo.id,
+      location: "Colombo, Sri Lanka",
+      role: JobRole.PROJECT_MANAGER,
+      type: JobType.INTERNSHIP,
+      level: JobLevel.MID,
+      tags: "Project Coordination, Jira, Agile, Communication",
+      salary: "Stipend - LKR 18,000/month",
+      description:
+        "Support project managers in coordinating team activities and managing project workflows. Great opportunity to understand PM fundamentals.",
+      responsibilities:
+        "Schedule meetings, maintain project documentation, track deadlines, assist with reporting, support team coordination.",
+      requirements:
+        "Strong organizational skills, familiarity with Agile, MS Office proficiency, excellent communication.",
+      benefits:
+        "PM mentorship, Agile training, certificate of completion, possible permanent role",
+      deadline: new Date("2026-05-01"),
+      slots: 3,
+    },
+  });
+
+  console.log("✅ Seeded 6 mock job posts with different filtering options!");
 }
 
 main()

@@ -456,14 +456,14 @@ export default function CompanyProfilePage() {
                     </div>
                     <div className="px-5 py-4 space-y-3">
                       {[
-                        { icon: <Users size={13} />, label: "Industry" },
-                        { icon: <MapPin size={13} />, label: "Location" },
-                        { icon: <ExternalLink size={13} />, label: "Website" },
-                      ].map(({ icon, label }) => (
+                        { icon: <Users size={13} />, label: "Industry", value: "Technology & Software" },
+                        { icon: <MapPin size={13} />, label: "Location", value: "Colombo, Sri Lanka" },
+                        { icon: <ExternalLink size={13} />, label: "Website", value: "www.itech.lk" },
+                      ].map(({ icon, label, value }) => (
                         <div key={label} className="flex items-center gap-2 text-sm">
                           <span className="text-[#1F7FB2] shrink-0">{icon}</span>
                           <span className="text-[#94A3B8] text-xs w-16 shrink-0">{label}:</span>
-                          <span className="italic text-[#CBD5E1] text-xs">Not set</span>
+                          <span className="text-[#0F172A] text-xs font-semibold">{value}</span>
                         </div>
                       ))}
                     </div>
@@ -477,13 +477,13 @@ export default function CompanyProfilePage() {
                     </div>
                     <div className="px-5 py-4 space-y-3 text-sm text-[#475569]">
                       {[
-                        { label: "Values" },
-                        { label: "Benefits" },
-                        { label: "Tech Stack" },
-                      ].map(({ label }) => (
-                        <div key={label} className="flex items-center gap-2">
+                        { label: "Values", value: "Innovation, Integrity, Excellence" },
+                        { label: "Benefits", value: "Remote Work, Health Insurance, Training" },
+                        { label: "Tech Stack", value: "React, Next.js, TypeScript, Prisma" },
+                      ].map(({ label, value }) => (
+                        <div key={label} className="flex items-start gap-2">
                           <span className="text-[#94A3B8] text-xs w-20 shrink-0">{label}:</span>
-                          <span className="italic text-[#CBD5E1] text-xs">Not set</span>
+                          <span className="text-[#0F172A] text-xs font-semibold">{value}</span>
                         </div>
                       ))}
                     </div>
@@ -517,10 +517,15 @@ export default function CompanyProfilePage() {
                     <h3 className="text-xs font-extrabold uppercase tracking-widest text-[#0F172A]">Social</h3>
                   </div>
                   <div className="px-5 py-4 flex flex-col gap-2">
-                    {["LinkedIn", "Facebook", "Instagram"].map(platform => (
-                      <a key={platform} href="#"
+                    {[
+                      { platform: "LinkedIn", url: "https://linkedin.com/company/hiresmart", color: "text-blue-600" },
+                      { platform: "Facebook", url: "https://facebook.com/hiresmart", color: "text-blue-500" },
+                      { platform: "Instagram", url: "https://instagram.com/hiresmart", color: "text-pink-600" },
+                    ].map(({ platform, url, color }) => (
+                      <a key={platform} href={url} target="_blank" rel="noopener noreferrer"
                         className="flex items-center justify-between rounded-lg border border-[#E2E8F0] px-3 py-2 text-xs font-semibold text-[#1F7FB2] hover:bg-[#EFF6FF] hover:border-[#1F7FB2]/30 transition-all">
-                        {platform} <ExternalLink size={10} />
+                        <span className="flex items-center gap-2"><span className={`w-3 h-3 rounded-full ${color}`} /> {platform}</span>
+                        <ExternalLink size={10} />
                       </a>
                     ))}
                   </div>

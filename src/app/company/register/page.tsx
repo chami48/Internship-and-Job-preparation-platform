@@ -48,7 +48,7 @@ export default function RegisterCompany() {
     position: "top-end",
     showConfirmButton: false,
     showCloseButton: true,
-    timer: 2200,
+    timer: 800,
     timerProgressBar: true,
     background: "#F8FBFF",
     color: "#0F172A",
@@ -71,24 +71,93 @@ export default function RegisterCompany() {
   const [showOtp, setShowOtp] = useState(false);
   const [formError, setFormError] = useState("");
   const [otpError, setOtpError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+
+  const validateName = (value: string): string => {
+    if (!value.trim()) return "Company name is required";
+    if (value.trim().length < 2) return "Company name must be at least 2 characters";
+    if (value.trim().length > 100) return "Company name must not exceed 100 characters";
+    return "";
+  };
+
+  const validateEmail = (value: string): string => {
+    if (!value.trim()) return "Email is required";
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(value)) return "Please enter a valid email address";
+    return "";
+  };
+
+  const validatePassword = (value: string): string => {
+    if (!value) return "Password is required";
+    if (value.length < 8) return "Password must be at least 8 characters";
+    return "";
+  };
+
+  const validateConfirmPassword = (value: string): string => {
+    if (!value) return "Please confirm your password";
+    if (value !== password) return "Passwords do not match";
+    return "";
+  };
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    // Prevent non-alphabetic characters and numbers, spaces allowed
+    const filtered = value.replace(/[^a-zA-Z0-9\s&-]/g, "");
+    setName(filtered);
+    setFieldErrors((prev) => ({ ...prev, name: validateName(filtered) }));
+    setFormError("");
+  };
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setEmail(value);
+    setFieldErrors((prev) => ({ ...prev, email: validateEmail(value) }));
+    setFormError("");
+  };
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setPassword(value);
+    setFieldErrors((prev) => ({ 
+      ...prev, 
+      password: validatePassword(value),
+      confirmPassword: confirmPassword ? validateConfirmPassword(confirmPassword) : "",
+    }));
+    setFormError("");
+  };
+
+  const handleConfirmPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setConfirmPassword(value);
+    setFieldErrors((prev) => ({ ...prev, confirmPassword: validateConfirmPassword(value) }));
+    setFormError("");
+  };
 
   const strength = pwStrength(password);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError("");
-    if (!name.trim() || !email.trim() || !password) {
-      setFormError("Please fill in all required fields.");
-      return;
-    }
-    if (password !== confirmPassword) {
-      setFormError("Passwords do not match.");
-      return;
-    }
-    if (password.length < 8) {
-      setFormError("Password must be at least 8 characters.");
-      return;
-    }
+    
+    const nameErr = validateName(name);
+    const emailErr = validateEmail(email);
+    const passwordErr = validatePassword(password);
+    const confirmPasswordErr = validateConfirmPassword(confirmPassword);
+
+    setFieldErrors({
+      name: nameErr,
+      email: emailErr,
+      password: passwordErr,
+      confirmPassword: confirmPasswordErr,
+    });
+
+    if (nameErr || emailErr || passwordErr || confirmPasswordErr) return;
+
     try {
       await createCompany.mutateAsync({ name, email, password, description });
       setShowOtp(true);
@@ -114,6 +183,14 @@ export default function RegisterCompany() {
         onError: (err) => setOtpError(err.message),
       },
     );
+  };
+
+  const handleDemoFill = () => {
+    setName("iTech");
+    setEmail("itechcom56@gmail.com");
+    setDescription("Leading provider of cutting-edge software solutions for enterprise clients worldwide.");
+    setPassword("iTechcom56#56#");
+    setConfirmPassword("iTechcom56#56#");
   };
 
   /* ── shared input style ───────────────────────────────── */
@@ -273,12 +350,21 @@ export default function RegisterCompany() {
                     <label style={labelStyle}>Company Name <span style={{ color: "#EF4444" }}>*</span></label>
                     <input
                       className="reg-input"
-                      style={inputStyle}
+                      style={{
+                        ...inputStyle,
+                        ...(fieldErrors.name && { border: "1.5px solid #FCA5A5", background: "#FFF8F8" }),
+                      }}
                       placeholder="Acme Corp"
                       value={name}
-                      onChange={(e) => setName(e.target.value)}
+                      onChange={handleNameChange}
+                      maxLength={100}
                       required
                     />
+                    {fieldErrors.name && (
+                      <p style={{ marginTop: 5, fontSize: "0.75rem", color: "#DC2626", fontWeight: 600 }}>
+                        {fieldErrors.name}
+                      </p>
+                    )}
                   </div>
 
                   {/* Email */}
@@ -286,13 +372,22 @@ export default function RegisterCompany() {
                     <label style={labelStyle}>Work Email <span style={{ color: "#EF4444" }}>*</span></label>
                     <input
                       className="reg-input"
-                      style={inputStyle}
+                      style={{
+                        ...inputStyle,
+                        ...(fieldErrors.email && { border: "1.5px solid #FCA5A5", background: "#FFF8F8" }),
+                      }}
                       type="email"
                       placeholder="hr@company.com"
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      onChange={handleEmailChange}
+                      maxLength={100}
                       required
                     />
+                    {fieldErrors.email && (
+                      <p style={{ marginTop: 5, fontSize: "0.75rem", color: "#DC2626", fontWeight: 600 }}>
+                        {fieldErrors.email}
+                      </p>
+                    )}
                   </div>
 
                   {/* Description */}
@@ -303,8 +398,15 @@ export default function RegisterCompany() {
                       style={{ ...inputStyle, resize: "vertical", minHeight: 80 }}
                       placeholder="Tell candidates what makes your company great…"
                       value={description}
-                      onChange={(e) => setDescription(e.target.value)}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (value.length <= 500) setDescription(value);
+                      }}
+                      maxLength={500}
                     />
+                    <p style={{ marginTop: 4, fontSize: "0.68rem", color: "#94A3B8", fontWeight: 500 }}>
+                      {description.length}/500
+                    </p>
                   </div>
 
                   {/* Password */}
@@ -313,11 +415,16 @@ export default function RegisterCompany() {
                     <div style={{ position: "relative" }}>
                       <input
                         className="reg-input"
-                        style={{ ...inputStyle, paddingRight: 42 }}
+                        style={{
+                          ...inputStyle,
+                          paddingRight: 42,
+                          ...(fieldErrors.password && { border: "1.5px solid #FCA5A5", background: "#FFF8F8" }),
+                        }}
                         type={showPw ? "text" : "password"}
                         placeholder="Min. 8 characters"
                         value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                        onChange={handlePasswordChange}
+                        maxLength={50}
                         required
                       />
                       <button type="button" onClick={() => setShowPw(!showPw)}
@@ -325,6 +432,11 @@ export default function RegisterCompany() {
                         <EyeIcon open={showPw} />
                       </button>
                     </div>
+                    {fieldErrors.password && (
+                      <p style={{ marginTop: 5, fontSize: "0.75rem", color: "#DC2626", fontWeight: 600 }}>
+                        {fieldErrors.password}
+                      </p>
+                    )}
                     {/* strength bar */}
                     {password.length > 0 && (
                       <div style={{ marginTop: 8 }}>
@@ -351,14 +463,16 @@ export default function RegisterCompany() {
                       <input
                         className="reg-input"
                         style={{
-                          ...inputStyle, paddingRight: 42,
-                          ...(confirmPassword && password !== confirmPassword ? { borderColor: "#FCA5A5", background: "#FFF8F8" } : {}),
-                          ...(confirmPassword && password === confirmPassword ? { borderColor: "#86EFAC" } : {}),
+                          ...inputStyle,
+                          paddingRight: 42,
+                          ...(fieldErrors.confirmPassword && { border: "1.5px solid #FCA5A5", background: "#FFF8F8" }),
+                          ...(confirmPassword && password === confirmPassword && !fieldErrors.confirmPassword ? { border: "1.5px solid #86EFAC" } : {}),
                         }}
                         type={showCpw ? "text" : "password"}
                         placeholder="Re-enter your password"
                         value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        onChange={handleConfirmPasswordChange}
+                        maxLength={50}
                         required
                       />
                       <button type="button" onClick={() => setShowCpw(!showCpw)}
@@ -366,11 +480,13 @@ export default function RegisterCompany() {
                         <EyeIcon open={showCpw} />
                       </button>
                     </div>
-                    {confirmPassword && password !== confirmPassword && (
-                      <p style={{ marginTop: 5, fontSize: "0.7rem", color: "#EF4444", fontWeight: 600 }}>Passwords don&apos;t match</p>
+                    {fieldErrors.confirmPassword && (
+                      <p style={{ marginTop: 5, fontSize: "0.75rem", color: "#DC2626", fontWeight: 600 }}>
+                        {fieldErrors.confirmPassword}
+                      </p>
                     )}
-                    {confirmPassword && password === confirmPassword && (
-                      <p style={{ marginTop: 5, fontSize: "0.7rem", color: "#10B981", fontWeight: 600 }}>✓ Passwords match</p>
+                    {confirmPassword && password === confirmPassword && !fieldErrors.confirmPassword && (
+                      <p style={{ marginTop: 5, fontSize: "0.75rem", color: "#10B981", fontWeight: 600 }}>✓ Passwords match</p>
                     )}
                   </div>
 
@@ -488,6 +604,44 @@ export default function RegisterCompany() {
 
           </div>
         </div>
+
+        {/* Demo Button */}
+        {!showOtp && (
+          <button
+            onClick={handleDemoFill}
+            style={{
+              position: "fixed",
+              bottom: "2rem",
+              right: "2rem",
+              width: 56,
+              height: 56,
+              borderRadius: "50%",
+              background: "linear-gradient(135deg, #0EA5E9, #0284C7)",
+              border: "none",
+              color: "white",
+              fontSize: "1.5rem",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              boxShadow: "0 6px 20px rgba(14,165,233,0.35)",
+              transition: "background 0.2s, box-shadow 0.2s, transform 0.18s",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "linear-gradient(135deg, #0284C7, #0164A7)";
+              e.currentTarget.style.boxShadow = "0 8px 25px rgba(14,165,233,0.45)";
+              e.currentTarget.style.transform = "translateY(-2px)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "linear-gradient(135deg, #0EA5E9, #0284C7)";
+              e.currentTarget.style.boxShadow = "0 6px 20px rgba(14,165,233,0.35)";
+              e.currentTarget.style.transform = "translateY(0)";
+            }}
+            title="Fill demo data"
+          >
+            ✨
+          </button>
+        )}
       </div>
     </>
   );

@@ -42,6 +42,100 @@ const TYPE_STYLE: Record<string, string> = {
   INTERNSHIP:  "bg-[#F5F3FF] text-[#7C3AED]",
 };
 
+// Mock jobs for demo
+const MOCK_JOBS = [
+  {
+    id: "demo-1",
+    title: "Senior React Developer",
+    location: "Colombo, Sri Lanka",
+    role: "SOFTWARE_ENGINEER",
+    type: "FULL_TIME",
+    level: "SENIOR",
+    salary: "LKR 280,000 - 320,000",
+    tags: "React, TypeScript, Node.js",
+    slots: 3,
+    deadline: new Date("2026-05-15"),
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    companyId: "demo",
+  },
+  {
+    id: "demo-2",
+    title: "Frontend Engineer Intern",
+    location: "Colombo, Sri Lanka",
+    role: "SOFTWARE_ENGINEER",
+    type: "INTERNSHIP",
+    level: "JUNIOR",
+    salary: "Stipend - LKR 15,000",
+    tags: "React, JavaScript, Tailwind",
+    slots: 5,
+    deadline: new Date("2026-04-30"),
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    companyId: "demo",
+  },
+  {
+    id: "demo-3",
+    title: "Product Designer",
+    location: "Colombo, Sri Lanka",
+    role: "UX_ENGINEER",
+    type: "FULL_TIME",
+    level: "MID",
+    salary: "LKR 150,000 - 180,000",
+    tags: "Figma, Design Systems, UX",
+    slots: 2,
+    deadline: new Date("2026-05-20"),
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    companyId: "demo",
+  },
+  {
+    id: "demo-4",
+    title: "DevOps Engineer",
+    location: "Colombo, Sri Lanka",
+    role: "SOFTWARE_ENGINEER",
+    type: "FULL_TIME",
+    level: "MID",
+    salary: "LKR 200,000 - 240,000",
+    tags: "AWS, Docker, Kubernetes",
+    slots: 3,
+    deadline: new Date("2026-06-01"),
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    companyId: "demo",
+  },
+  {
+    id: "demo-5",
+    title: "UX Researcher Intern",
+    location: "Colombo, Sri Lanka",
+    role: "UX_ENGINEER",
+    type: "INTERNSHIP",
+    level: "JUNIOR",
+    salary: "Stipend - LKR 13,000",
+    tags: "User Research, Testing",
+    slots: 4,
+    deadline: new Date("2026-04-20"),
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    companyId: "demo",
+  },
+  {
+    id: "demo-6",
+    title: "Project Manager",
+    location: "Colombo, Sri Lanka",
+    role: "PROJECT_MANAGER",
+    type: "FULL_TIME",
+    level: "MID",
+    salary: "LKR 160,000 - 190,000",
+    tags: "Agile, Scrum, Leadership",
+    slots: 2,
+    deadline: new Date("2026-05-25"),
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    companyId: "demo",
+  },
+];
+
 function isExpired(deadline: Date | null) {
   if (!deadline) return false;
   return new Date(deadline) < new Date();
@@ -83,6 +177,9 @@ export default function MyJobsPage() {
     { enabled: !!companyId },
   );
 
+  // Combine with mock jobs for demo
+  const allJobs = [...(jobs || []), ...MOCK_JOBS];
+
   const deleteJob = api.job.delete.useMutation({
     onSuccess: async () => {
       await refetch();
@@ -107,11 +204,11 @@ export default function MyJobsPage() {
     deleteJob.mutate({ id: jobId, companyId });
   };
 
-  const active     = jobs.filter((j) => !isExpired(j.deadline)).length;
-  const expired    = jobs.filter((j) => isExpired(j.deadline)).length;
-  const noDeadline = jobs.filter((j) => !j.deadline).length;
+  const active     = allJobs.filter((j) => !isExpired(j.deadline)).length;
+  const expired    = allJobs.filter((j) => isExpired(j.deadline)).length;
+  const noDeadline = allJobs.filter((j) => !j.deadline).length;
 
-  const filtered = jobs.filter((job) => {
+  const filtered = allJobs.filter((job) => {
     const matchSearch = job.title.toLowerCase().includes(search.toLowerCase());
     const matchType   = filterType  === "ALL" || job.type  === filterType;
     const matchLevel  = filterLevel === "ALL" || job.level === filterLevel;
@@ -250,11 +347,11 @@ export default function MyJobsPage() {
           }}>
             Roles you published
           </h1>
-          <p className="text-[#475569] text-sm sm:text-base max-w-2xl leading-relaxed font-medium">{jobs.length} listing{jobs.length !== 1 ? "s" : ""} across your pipeline</p>
+          <p className="text-[#475569] text-sm sm:text-base max-w-2xl leading-relaxed font-medium">7 listings across your pipeline</p>
         </div>
 
         {/* Quick stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
           {[ 
             { label: "Active", value: active },
             { label: "Expired", value: expired },
@@ -315,7 +412,7 @@ export default function MyJobsPage() {
             <p className="text-base mt-1">Try adjusting your search or filters.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {filtered.map((job) => {
               const exp  = isExpired(job.deadline);
               const left = daysLeft(job.deadline);
@@ -324,80 +421,72 @@ export default function MyJobsPage() {
                 <div
                   key={job.id}
                   onClick={() => router.push(`/company/my-jobs/${job.id}`)}
-                  className="bg-white border rounded-xl p-5 shadow-sm hover:shadow-md transition cursor-pointer flex flex-col gap-3"
+                  className="bg-white border rounded-xl p-4 shadow-sm hover:shadow-md transition cursor-pointer flex flex-col gap-2"
                 >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-[#0F3D5E]/10 text-lg flex items-center justify-center">
-                        {ROLE_ICON[job.role] ?? "💼"}
-                      </div>
-                      <div>
-                        <h2 className="text-lg font-bold text-[#0F172A] leading-tight">{job.title}</h2>
-                        <p className="text-sm text-slate-500">Posted {fmtDate(job.createdAt)}</p>
-                      </div>
+                  {/* Header: Title + Status */}
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <h2 className="text-base font-bold text-[#0F172A] leading-tight">{job.title}</h2>
                     </div>
-                    <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${exp ? "bg-red-50 text-red-600 border-red-200" : "bg-emerald-50 text-emerald-700 border-emerald-200"}`}>
+                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full border whitespace-nowrap ${exp ? "bg-red-50 text-red-600 border-red-200" : "bg-emerald-50 text-emerald-700 border-emerald-200"}`}>
                       {exp ? "Expired" : "Active"}
                     </span>
                   </div>
 
-                  <div className="flex flex-wrap gap-2 text-sm text-slate-600">
-                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border bg-slate-50">
-                      <MapPin size={13} className="text-slate-400" /> {job.location}
+                  {/* Meta: Location, Type, Level */}
+                  <div className="flex flex-wrap gap-1.5 text-xs">
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg border bg-slate-50 text-slate-600">
+                      <MapPin size={12} className="text-slate-400" /> {job.location}
                     </span>
-                    <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border ${TYPE_STYLE[job.type]}`}>
-                      <Briefcase size={13} /> {job.type.replace("_", " ")}
+                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg border ${TYPE_STYLE[job.type]}`}>
+                      <Briefcase size={12} /> {job.type.replace("_", " ")}
                     </span>
-                    <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border ${LEVEL_STYLE[job.level]}`}>
-                      <Clock size={13} /> {job.level}
+                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg border ${LEVEL_STYLE[job.level]}`}>
+                      <Clock size={12} /> {job.level}
                     </span>
-                    {job.slots && (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border bg-slate-50">
-                        <Users size={13} className="text-slate-400" /> {job.slots} opening{job.slots > 1 ? "s" : ""}
-                      </span>
-                    )}
                   </div>
 
-                  <div className="flex flex-wrap gap-1.5">
-                    {job.tags.split(",").map((tag) => (
-                      <span key={tag} className="bg-[#F4F7FB] text-slate-600 text-xs font-semibold px-2.5 py-0.5 rounded-full">
+                  {/* Tags */}
+                  <div className="flex flex-wrap gap-1">
+                    {job.tags.split(",").slice(0, 3).map((tag) => (
+                      <span key={tag} className="bg-[#F4F7FB] text-slate-600 text-xs px-2 py-0.5 rounded-full">
                         {tag.trim()}
                       </span>
                     ))}
+                    {job.tags.split(",").length > 3 && (
+                      <span className="text-xs text-slate-400 px-2 py-0.5">+{job.tags.split(",").length - 3}</span>
+                    )}
                   </div>
 
-                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-sm font-semibold text-slate-600">
-                      {job.deadline ? (
-                        <>
-                          <Calendar size={13} />
-                          {exp ? `Closed ${fmtDate(job.deadline)}` : left ?? `Closes ${fmtDate(job.deadline)}`}
-                        </>
-                      ) : (
-                        <span className="text-sm text-slate-400 font-medium">No deadline</span>
-                      )}
+                  {/* Footer: Deadline + Actions */}
+                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
+                    <div className="flex items-center gap-1 text-xs font-medium text-slate-500">
+                      <Calendar size={12} />
+                      <span>{exp ? `Closed` : left ?? `Closes`} {fmtDate(job.deadline)}</span>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1">
                       <button
                         onClick={(e) => { e.stopPropagation(); router.push(`/company/my-jobs/${job.id}/edit`); }}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-semibold text-[#1F7FB2] border border-[#1F7FB2]/30 rounded-lg hover:bg-[#EFF8FF] transition"
+                        title="Edit job post"
+                        className="inline-flex items-center justify-center p-1.5 text-[#1F7FB2] border border-[#1F7FB2]/30 rounded-lg hover:bg-[#EFF8FF] transition"
                       >
-                        <Pencil size={13} /> Edit
+                        <Pencil size={14} />
                       </button>
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           handleDelete(job.id);
                         }}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-semibold text-red-600 border border-red-200 rounded-lg hover:bg-red-50 transition"
+                        title="Delete job post"
+                        className="inline-flex items-center justify-center p-1.5 text-red-600 border border-red-200 rounded-lg hover:bg-red-50 transition"
                       >
-                        <Trash2 size={13} /> Delete
+                        <Trash2 size={14} />
                       </button>
                       <button
                         onClick={(e) => { e.stopPropagation(); router.push(`/company/my-jobs/${job.id}`); }}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-semibold text-white bg-[#1F7FB2] rounded-lg hover:bg-[#1a6f9e] transition"
+                        className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-white bg-[#1F7FB2] rounded-lg hover:bg-[#1a6f9e] transition"
                       >
-                        View <ChevronRight size={13} />
+                        View <ChevronRight size={12} />
                       </button>
                     </div>
                   </div>
