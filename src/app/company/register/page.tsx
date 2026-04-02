@@ -86,9 +86,36 @@ export default function RegisterCompany() {
   };
 
   const validateEmail = (value: string): string => {
-    if (!value.trim()) return "Email is required";
+    const trimmed = value.trim();
+    if (!trimmed) return "Email is required";
+    if (trimmed.length > 254) return "Email is too long";
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(value)) return "Please enter a valid email address";
+    if (!emailRegex.test(trimmed)) return "Please enter a valid email address";
+
+    const atIndex = trimmed.lastIndexOf("@");
+    const local = trimmed.slice(0, atIndex);
+    const domain = trimmed.slice(atIndex + 1);
+
+    if (local.length > 64) return "Email local part is too long";
+    if (local.startsWith(".") || local.endsWith(".")) {
+      return "Local part cannot start or end with a dot";
+    }
+    if (local.includes("..")) return "Local part cannot contain consecutive dots";
+
+    if (domain.length < 4) return "Domain is too short";
+    if (domain.includes("..")) return "Domain cannot contain consecutive dots";
+    const labels = domain.split(".");
+    const tld = labels[labels.length - 1] || "";
+    if (tld.length < 2) return "Top-level domain is too short";
+    for (const label of labels) {
+      if (!label) return "Domain cannot contain empty labels";
+      if (label.startsWith("-") || label.endsWith("-")) {
+        return "Domain labels cannot start or end with a hyphen";
+      }
+      if (label.length > 63) return "Domain label is too long";
+    }
+
     return "";
   };
 

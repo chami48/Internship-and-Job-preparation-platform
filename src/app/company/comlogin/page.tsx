@@ -100,8 +100,8 @@ export default function LoginCompany() {
   };
 
   const handleDemoFill = () => {
-    setEmail("itechcom56@gmail.com");
-    setPassword("iTechcom56#56#");
+    setEmail("nilumidakshika5@gmail.com");
+    setPassword("Nilumi123#");
   };
 
   const inputStyle: React.CSSProperties = {
