@@ -164,9 +164,9 @@ function JobCard({
                 ✕ you exceeded the violation limit
               </button>
             ) : job.examSubmitted ? (
-              <button disabled style={{ borderRadius: 10, padding: "8px 16px", fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", background: "#DCFCE7", color: "#15803D", cursor: "not-allowed" }}>
+              <Link href={`/ai/result?applicationId=${job.applicationId}`} style={{ borderRadius: 10, padding: "8px 16px", fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", background: "#DCFCE7", color: "#15803D", textDecoration: "none" }}>
                 ✓ Exam Completed
-              </button>
+              </Link>
             ) : job.applied ? (
               <Link href={`/exam/${job.id}?appId=${job.applicationId}`} style={{ borderRadius: 10, padding: "8px 16px", fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", color: "white", background: "#0EA5E9", textDecoration: "none" }}>
                 Start Exam
@@ -286,7 +286,7 @@ export default function HomePage() {
           font-family: 'Plus Jakarta Sans', sans-serif;
           font-weight: 700;
           letter-spacing: 0.07em;
-          text-transform: uppercase;
+          text-transform: uppercase;  
           cursor: pointer;
           transition: all 0.18s;
           backdrop-filter: blur(8px);

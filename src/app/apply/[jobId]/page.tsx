@@ -75,7 +75,8 @@ type Specialization =
   | "NETWORKING"
   | "AI";
 
-export default function ApplyPage({ params }: { params: { jobId: string } }) {
+export default function ApplyPage({ params: paramsPromise }: { params: Promise<{ jobId: string }> }) {
+  const params = React.use(paramsPromise);
   const createApplication = api.application.create.useMutation();
   const router = useRouter();
 
