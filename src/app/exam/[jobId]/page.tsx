@@ -799,7 +799,8 @@ export default function ExamPage() {
       applicationId: appId,
       answers: formatted,
     });
-   } finally {
+   }
+    finally {
   // 🔥 1. Stop camera FIRST
   stopCamera();
 
