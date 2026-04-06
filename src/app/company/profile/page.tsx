@@ -32,6 +32,34 @@ const HOLIDAYS: Record<string, string> = {
 
 type Tab = "overview" | "jobs" | "settings";
 
+type CompanyInfo = {
+  industry: string;
+  location: string;
+  website: string;
+};
+
+const DEFAULT_COMPANY_INFO: CompanyInfo = {
+  industry: "Technology & Software",
+  location: "Colombo, Sri Lanka",
+  website: "www.example.com",
+};
+
+const INDUSTRY_OPTIONS = [
+  "Technology & Software",
+  "FinTech",
+  "Healthcare",
+  "Education",
+  "E-commerce",
+  "Telecommunications",
+  "Manufacturing",
+  "Banking & Finance",
+  "Logistics",
+  "Media & Entertainment",
+  "Consulting",
+  "Government",
+  "Non-profit",
+];
+
 export default function CompanyProfilePage() {
   const router = useRouter();
   const [companyId, setCompanyId] = useState<string | null>(null);
@@ -47,10 +75,39 @@ export default function CompanyProfilePage() {
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [calendarMonth, setCalendarMonth] = useState(new Date());
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
+  const [infoEditMode, setInfoEditMode] = useState(false);
+  const [companyInfo, setCompanyInfo] = useState<CompanyInfo>(DEFAULT_COMPANY_INFO);
+  const [infoDraft, setInfoDraft] = useState<CompanyInfo>(DEFAULT_COMPANY_INFO);
 
   const handleLogout = () => router.push('/company/comlogin');
 
   useEffect(() => { setCompanyId(localStorage.getItem("companyId")); }, []);
+
+  useEffect(() => {
+    if (!companyId) return;
+
+    const storageKey = `companyProfileInfo:${companyId}`;
+    const saved = localStorage.getItem(storageKey);
+
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved) as Partial<CompanyInfo>;
+        const next: CompanyInfo = {
+          industry: parsed.industry?.trim() || DEFAULT_COMPANY_INFO.industry,
+          location: parsed.location?.trim() || DEFAULT_COMPANY_INFO.location,
+          website: parsed.website?.trim() || DEFAULT_COMPANY_INFO.website,
+        };
+        setCompanyInfo(next);
+        setInfoDraft(next);
+        return;
+      } catch {
+        // Fall back to defaults when stored data is malformed.
+      }
+    }
+
+    setCompanyInfo(DEFAULT_COMPANY_INFO);
+    setInfoDraft(DEFAULT_COMPANY_INFO);
+  }, [companyId]);
 
   const { data: company, isLoading, refetch } = api.company.getProfile.useQuery(
     { companyId: companyId ?? "" },
@@ -60,65 +117,7 @@ export default function CompanyProfilePage() {
     { companyId: companyId ?? "" },
     { enabled: !!companyId },
   );
-  const mockProfileJobs = [
-    {
-      id: "profile-mock-1",
-      title: "AI Engineer Intern",
-      location: "Remote",
-      type: "INTERNSHIP",
-      salary: "LKR 80,000",
-      deadline: new Date("2026-05-30"),
-    },
-    {
-      id: "profile-mock-2",
-      title: "ML Specialist",
-      location: "Colombo HQ",
-      type: "FULL_TIME",
-      salary: "LKR 220,000",
-      deadline: new Date("2026-06-10"),
-    },
-    {
-      id: "profile-mock-3",
-      title: "UI/UX Designer",
-      location: "Remote",
-      type: "FULL_TIME",
-      salary: "LKR 160,000",
-      deadline: new Date("2026-05-25"),
-    },
-    {
-      id: "profile-mock-4",
-      title: "DevOps Engineer",
-      location: "Colombo HQ",
-      type: "FULL_TIME",
-      salary: "LKR 200,000",
-      deadline: new Date("2026-06-05"),
-    },
-    {
-      id: "profile-mock-5",
-      title: "Business Analyst",
-      location: "Remote",
-      type: "FULL_TIME",
-      salary: "LKR 150,000",
-      deadline: new Date("2026-05-28"),
-    },
-    {
-      id: "profile-mock-6",
-      title: "Frontend Engineer",
-      location: "Colombo HQ",
-      type: "FULL_TIME",
-      salary: "LKR 170,000",
-      deadline: new Date("2026-06-08"),
-    },
-    {
-      id: "profile-mock-7",
-      title: "Software Engineer",
-      location: "Remote",
-      type: "FULL_TIME",
-      salary: "LKR 190,000",
-      deadline: new Date("2026-06-12"),
-    },
-  ];
-  const profileJobs = mockProfileJobs;
+  const profileJobs = jobs ?? [];
   const updateProfile = api.company.updateProfile.useMutation();
 
   useEffect(() => {
@@ -164,6 +163,25 @@ export default function CompanyProfilePage() {
       setDraftLogo(company.logo ?? "");
     }
     setSaveError(""); setEditMode(false);
+  };
+
+  const handleInfoSave = () => {
+    if (!companyId) return;
+
+    const normalized: CompanyInfo = {
+      industry: infoDraft.industry.trim() || DEFAULT_COMPANY_INFO.industry,
+      location: infoDraft.location.trim() || DEFAULT_COMPANY_INFO.location,
+      website: infoDraft.website.trim() || DEFAULT_COMPANY_INFO.website,
+    };
+
+    setCompanyInfo(normalized);
+    localStorage.setItem(`companyProfileInfo:${companyId}`, JSON.stringify(normalized));
+    setInfoEditMode(false);
+  };
+
+  const handleInfoCancel = () => {
+    setInfoDraft(companyInfo);
+    setInfoEditMode(false);
   };
 
   if (isLoading || !company) {
@@ -508,23 +526,89 @@ export default function CompanyProfilePage() {
                 <div className="grid grid-cols-2 gap-4">
 
                   {/* Info */}
-                  <div className="rounded-2xl bg-white/90 backdrop-blur border border-white/80 shadow-lg shadow-[#0EA5E9]/10 overflow-hidden">
+                  <div
+                    className="rounded-2xl bg-white/90 backdrop-blur border border-white/80 shadow-lg shadow-[#0EA5E9]/10 overflow-hidden"
+                    onClick={() => {
+                      if (!infoEditMode) {
+                        setInfoDraft(companyInfo);
+                        setInfoEditMode(true);
+                      }
+                    }}
+                  >
                     <div className="px-5 py-4 border-b border-[#F1F5F9] flex items-center gap-2 bg-gradient-to-r from-white to-[#F0F9FF]">
                       <span className="w-1 h-4 rounded-full bg-[#1F7FB2] block" />
                       <h3 className="text-xs font-extrabold uppercase tracking-widest text-[#0F172A]">Info</h3>
+                      <span className="ml-auto text-[10px] font-semibold text-[#64748B]">{infoEditMode ? "Editing" : "Click card to edit"}</span>
                     </div>
-                    <div className="px-5 py-4 space-y-3">
-                      {[
-                        { icon: <Users size={13} />, label: "Industry", value: "Technology & Software" },
-                        { icon: <MapPin size={13} />, label: "Location", value: "Colombo, Sri Lanka" },
-                        { icon: <ExternalLink size={13} />, label: "Website", value: "www.itech.lk" },
-                      ].map(({ icon, label, value }) => (
-                        <div key={label} className="flex items-center gap-2 text-sm">
-                          <span className="text-[#1F7FB2] shrink-0">{icon}</span>
-                          <span className="text-[#94A3B8] text-xs w-16 shrink-0">{label}:</span>
-                          <span className="text-[#0F172A] text-xs font-semibold">{value}</span>
-                        </div>
-                      ))}
+                    <div className="px-5 py-4 space-y-3" onClick={(e) => e.stopPropagation()}>
+                      {infoEditMode ? (
+                        <>
+                          <div className="space-y-1.5">
+                            <label className="text-[11px] font-bold uppercase tracking-widest text-[#64748B]">Industry</label>
+                            <input
+                              value={infoDraft.industry}
+                              onChange={(e) => setInfoDraft((prev) => ({ ...prev, industry: e.target.value }))}
+                              list="industry-options"
+                              className="w-full rounded-lg border border-[#BFDBFE] bg-[#F8FBFF] px-3 py-2 text-xs font-semibold text-[#0F172A] outline-none focus:border-[#1F7FB2]"
+                              placeholder="Technology & Software"
+                            />
+                            <datalist id="industry-options">
+                              {INDUSTRY_OPTIONS.map((option) => (
+                                <option key={option} value={option} />
+                              ))}
+                            </datalist>
+                          </div>
+
+                          <div className="space-y-1.5">
+                            <label className="text-[11px] font-bold uppercase tracking-widest text-[#64748B]">Location</label>
+                            <input
+                              value={infoDraft.location}
+                              onChange={(e) => setInfoDraft((prev) => ({ ...prev, location: e.target.value }))}
+                              className="w-full rounded-lg border border-[#BFDBFE] bg-[#F8FBFF] px-3 py-2 text-xs font-semibold text-[#0F172A] outline-none focus:border-[#1F7FB2]"
+                              placeholder="Colombo, Sri Lanka"
+                            />
+                          </div>
+
+                          <div className="space-y-1.5">
+                            <label className="text-[11px] font-bold uppercase tracking-widest text-[#64748B]">Website</label>
+                            <input
+                              value={infoDraft.website}
+                              onChange={(e) => setInfoDraft((prev) => ({ ...prev, website: e.target.value }))}
+                              className="w-full rounded-lg border border-[#BFDBFE] bg-[#F8FBFF] px-3 py-2 text-xs font-semibold text-[#0F172A] outline-none focus:border-[#1F7FB2]"
+                              placeholder="www.example.com"
+                            />
+                          </div>
+
+                          <div className="flex gap-2 pt-1">
+                            <button
+                              type="button"
+                              onClick={handleInfoCancel}
+                              className="flex-1 rounded-lg border border-[#E2E8F0] py-2 text-xs font-bold text-[#64748B] hover:bg-[#F8FAFC]"
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              type="button"
+                              onClick={handleInfoSave}
+                              className="flex-1 rounded-lg bg-[#1F7FB2] py-2 text-xs font-bold text-white hover:bg-[#1668A0]"
+                            >
+                              Save
+                            </button>
+                          </div>
+                        </>
+                      ) : (
+                        [
+                          { icon: <Users size={13} />, label: "Industry", value: companyInfo.industry },
+                          { icon: <MapPin size={13} />, label: "Location", value: companyInfo.location },
+                          { icon: <ExternalLink size={13} />, label: "Website", value: companyInfo.website },
+                        ].map(({ icon, label, value }) => (
+                          <div key={label} className="flex items-center gap-2 text-sm">
+                            <span className="text-[#1F7FB2] shrink-0">{icon}</span>
+                            <span className="text-[#94A3B8] text-xs w-16 shrink-0">{label}:</span>
+                            <span className="text-[#0F172A] text-xs font-semibold">{value}</span>
+                          </div>
+                        ))
+                      )}
                     </div>
                   </div>
 

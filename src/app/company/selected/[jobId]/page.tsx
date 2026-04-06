@@ -488,7 +488,7 @@ export default function SelectedJobDetailPage() {
                     <p className="text-xs font-semibold text-slate-500">Applied {c.appliedAt}</p>
                     <div className="flex flex-wrap gap-2">
                       <button 
-                        onClick={() => router.push(`/student/view/${c.userId}`)}
+                        onClick={() => router.push("/student/profile")}
                         className="inline-flex items-center gap-1 px-3 py-2 text-sm font-semibold text-[#0F3D5E] border border-[#0F3D5E]/30 rounded-lg hover:bg-[#EFF6FF] transition">
                         <Eye size={14} /> View profile
                       </button>

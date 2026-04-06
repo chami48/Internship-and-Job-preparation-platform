@@ -18,7 +18,8 @@ import {
   Bell,
   Plus,
   Menu,
-  X
+  X,
+  BarChart3
 } from "lucide-react";
 import Swal from "sweetalert2";
 import { api } from "~/trpc/react";
@@ -465,6 +466,13 @@ export default function MyJobsPage() {
                       <span>{exp ? `Closed` : left ?? `Closes`} {fmtDate(job.deadline)}</span>
                     </div>
                     <div className="flex items-center gap-1">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); router.push(`/company/my-jobs/${job.id}?performance=1`); }}
+                        title="Check performance"
+                        className="inline-flex items-center justify-center p-1.5 text-emerald-700 border border-emerald-200 rounded-lg hover:bg-emerald-50 transition"
+                      >
+                        <BarChart3 size={14} />
+                      </button>
                       <button
                         onClick={(e) => { e.stopPropagation(); router.push(`/company/my-jobs/${job.id}/edit`); }}
                         title="Edit job post"

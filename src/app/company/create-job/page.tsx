@@ -11,9 +11,23 @@ const JOB_ROLES = ["SOFTWARE_ENGINEER", "UX_ENGINEER", "PROJECT_MANAGER"] as con
 const JOB_TYPES = ["INTERNSHIP", "FULL_TIME"] as const;
 const JOB_LEVELS = ["JUNIOR", "MID", "SENIOR"] as const;
 
+type AnalysisResult = {
+  score: number;
+  warnings: string[];
+  suggestions: string[];
+};
+
+type ScoreMeta = {
+  label: string;
+  scoreTextClass: string;
+  badgeClass: string;
+  barClass: string;
+};
+
 export default function CreateJobPage() {
   const router = useRouter();
   const createJob = api.job.create.useMutation();
+  const improveDraft = api.job.improveDraft.useMutation();
   const [currentStep, setCurrentStep] = useState(1);
   const today = new Date();
   const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
@@ -52,6 +66,260 @@ export default function CreateJobPage() {
   const [salaryError, setSalaryError] = useState("");
   const [slotsError, setSlotsError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [quickFixMessage, setQuickFixMessage] = useState("");
+  const [aiMessage, setAiMessage] = useState("");
+  const [aiTips, setAiTips] = useState<string[]>([]);
+  const [aiChanges, setAiChanges] = useState<string[]>([]);
+  const [baselineScore, setBaselineScore] = useState<number | null>(null);
+  const [previousScore, setPreviousScore] = useState<number | null>(null);
+
+  const analyzeJobPost = (data: typeof form): AnalysisResult => {
+    let score = 100;
+    const warnings: string[] = [];
+    const suggestions: string[] = [];
+
+    const title = data.title.trim();
+    const description = data.description.trim();
+    const requirements = data.requirements.trim();
+    const benefits = data.benefits.trim();
+    const salary = data.salary.trim();
+    const tags = data.tags
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean);
+
+    const genericTitles = [
+      "developer",
+      "engineer",
+      "intern",
+      "manager",
+      "staff",
+      "worker",
+      "employee",
+    ];
+
+    if (!salary) {
+      score -= 20;
+      warnings.push("No salary mentioned");
+      suggestions.push("Add a salary range to increase applicant trust.");
+    }
+
+    if (description.length < 100) {
+      score -= 15;
+      warnings.push("Description is too short");
+      suggestions.push("Expand the description with role impact and team context.");
+    }
+
+    if (!requirements || requirements.length < 40) {
+      score -= 20;
+      warnings.push("Requirements section is weak or missing");
+      suggestions.push("Add clear required skills, experience, and qualifications.");
+    }
+
+    if (!benefits) {
+      score -= 10;
+      warnings.push("No benefits mentioned");
+      suggestions.push("Include benefits like insurance, hybrid work, or growth support.");
+    }
+
+    if (tags.length < 3) {
+      score -= 10;
+      warnings.push("Not enough skills/tags listed");
+      suggestions.push("Add at least 3 relevant technologies or skills.");
+    }
+
+    if (!title || genericTitles.includes(title.toLowerCase())) {
+      score -= 10;
+      warnings.push("Job title is too generic");
+      suggestions.push("Use a specific title like 'Frontend Developer - React'.");
+    }
+
+    if (score < 0) score = 0;
+
+    if (score >= 85 && warnings.length === 0) {
+      suggestions.push("Great job post quality. Ready to publish.");
+    }
+
+    return { score, warnings, suggestions };
+  };
+
+  const handleAnalyze = () => {
+    const currentScore = analysis?.score ?? null;
+
+    setAnalyzing(true);
+    setAnalysis(null);
+    setQuickFixMessage("");
+
+    setTimeout(() => {
+      const result = analyzeJobPost(form);
+      setBaselineScore((prev) => prev ?? result.score);
+      setPreviousScore(currentScore);
+      setAnalysis(result);
+      setAnalyzing(false);
+    }, 1000);
+  };
+
+  const handleImproveWithAI = async () => {
+    if (!form.title.trim() || !form.description.trim() || !form.requirements.trim()) {
+      void showAlert({
+        icon: "warning",
+        text: "Please fill at least title, description, and requirements before using AI improve.",
+      });
+      return;
+    }
+
+    setAiMessage("");
+    setAiTips([]);
+    setAiChanges([]);
+    setQuickFixMessage("");
+
+    try {
+      const improved = await improveDraft.mutateAsync({
+        title: form.title,
+        location: form.location,
+        role: form.role as (typeof JOB_ROLES)[number],
+        type: form.type as (typeof JOB_TYPES)[number],
+        level: form.level as (typeof JOB_LEVELS)[number],
+        tags: form.tags,
+        salary: form.salary || undefined,
+        description: form.description,
+        responsibilities: form.responsibilities,
+        requirements: form.requirements,
+        benefits: form.benefits || undefined,
+      });
+
+      const updatedForm = {
+        ...form,
+        description: improved.improvedDescription,
+        responsibilities: improved.improvedResponsibilities,
+        requirements: improved.improvedRequirements,
+        benefits: improved.improvedBenefits,
+      };
+
+      const changes: string[] = [];
+      if (improved.improvedDescription.trim() !== form.description.trim()) {
+        changes.push("Description improved");
+      }
+      if (improved.improvedResponsibilities.trim() !== form.responsibilities.trim()) {
+        changes.push("Responsibilities refined");
+      }
+      if (improved.improvedRequirements.trim() !== form.requirements.trim()) {
+        changes.push("Requirements clarified");
+      }
+      if (!form.benefits.trim() && improved.improvedBenefits.trim()) {
+        changes.push("Benefits added");
+      } else if (improved.improvedBenefits.trim() !== form.benefits.trim()) {
+        changes.push("Benefits improved");
+      }
+
+      setForm(updatedForm);
+      setAiTips(improved.recruiterTips ?? []);
+      setAiChanges(changes);
+      setAiMessage(
+        changes.length > 0
+          ? "AI improvements applied. Review the updated text below."
+          : "AI ran successfully, but no major text changes were suggested.",
+      );
+
+      const currentScore = analysis?.score ?? null;
+      const nextAnalysis = analyzeJobPost(updatedForm);
+      setBaselineScore((prev) => prev ?? nextAnalysis.score);
+      setPreviousScore(currentScore);
+      setAnalysis(nextAnalysis);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "AI improvement failed.";
+      void showAlert({
+        icon: "error",
+        text: message,
+      });
+    }
+  };
+
+  const handleApplyQuickFixes = () => {
+    let changed = false;
+
+    setForm((prev) => {
+      const next = { ...prev };
+
+      if (!next.salary.trim()) {
+        next.salary = "Competitive salary";
+        changed = true;
+      }
+
+      if (next.description.trim().length < 100) {
+        next.description = `${next.description.trim()} You will collaborate with cross-functional teams to deliver high-quality solutions and contribute to continuous product improvement.`.trim();
+        changed = true;
+      }
+
+      if (next.requirements.trim().length < 40) {
+        next.requirements = `${next.requirements.trim()} Strong communication, teamwork, and problem-solving skills are required.`.trim();
+        changed = true;
+      }
+
+      if (!next.benefits.trim()) {
+        next.benefits = "Health insurance, flexible hours, learning budget, and career growth opportunities.";
+        changed = true;
+      }
+
+      const tagList = next.tags
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean);
+
+      if (tagList.length < 3) {
+        const defaults = ["Communication", "Problem Solving", "Teamwork"];
+        const merged = Array.from(new Set([...tagList, ...defaults]));
+        next.tags = merged.join(", ");
+        changed = true;
+      }
+
+      return next;
+    });
+
+    if (changed) {
+      setAnalysis(null);
+      setQuickFixMessage("Quick fixes applied. Click Re-analyze Job Post to see updated score.");
+      setSalaryError("");
+      setFieldErrors((prev) => ({
+        ...prev,
+        tags: "",
+        description: "",
+        requirements: "",
+        salary: "",
+      }));
+    } else {
+      setQuickFixMessage("No quick fixes needed. Your post is already in good shape.");
+    }
+  };
+
+  const getScoreMeta = (score: number): ScoreMeta => {
+    if (score >= 85) {
+      return {
+        label: "Excellent",
+        scoreTextClass: "text-emerald-600",
+        badgeClass: "bg-emerald-50 text-emerald-700 border-emerald-200",
+        barClass: "bg-emerald-500",
+      };
+    }
+
+    if (score >= 60) {
+      return {
+        label: "Good",
+        scoreTextClass: "text-amber-600",
+        badgeClass: "bg-amber-50 text-amber-700 border-amber-200",
+        barClass: "bg-amber-500",
+      };
+    }
+
+    return {
+      label: "Needs Improvement",
+      scoreTextClass: "text-red-600",
+      badgeClass: "bg-red-50 text-red-700 border-red-200",
+      barClass: "bg-red-500",
+    };
+  };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
@@ -350,6 +618,10 @@ export default function CreateJobPage() {
       },
     );
   };
+
+  const scoreMeta = analysis ? getScoreMeta(analysis.score) : null;
+  const scoreDelta =
+    analysis && baselineScore !== null ? analysis.score - baselineScore : null;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-blue-100 to-indigo-100 p-8 sm:p-10">
@@ -699,6 +971,139 @@ export default function CreateJobPage() {
               <p className="text-sm text-blue-900 font-semibold">Ready to publish?</p>
               <p className="text-xs text-blue-800 mt-1">Review your job posting before clicking Post Job. You can edit it later.</p>
             </div>
+
+            <div className="rounded-xl border border-[#BFDBFE] bg-[#F8FBFF] p-4 mt-2">
+              <div className="flex items-center justify-between gap-3 flex-wrap">
+                <div>
+                  <p className="text-sm font-bold text-[#0F172A]">AI Hiring Assistant</p>
+                  <p className="text-xs text-slate-600">Analyze job quality before posting.</p>
+                </div>
+              </div>
+
+              {aiMessage && (
+                <div className="mt-3 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2">
+                  <p className="text-xs text-emerald-700 font-medium">{aiMessage}</p>
+                </div>
+              )}
+
+              {aiChanges.length > 0 && (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {aiChanges.map((change) => (
+                    <span
+                      key={change}
+                      className="text-[10px] font-bold uppercase tracking-wide px-2 py-1 rounded-full bg-[#E0F2FE] text-[#075985] border border-[#BAE6FD]"
+                    >
+                      {change}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {quickFixMessage && (
+                <div className="mt-3 rounded-lg border border-[#BFDBFE] bg-white px-3 py-2">
+                  <p className="text-xs text-[#0F75A8] font-medium">{quickFixMessage}</p>
+                </div>
+              )}
+
+              {analysis && (
+                <div className="mt-4 rounded-lg border border-slate-200 bg-white p-4">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-sm font-semibold text-slate-600">Job Quality Score:</span>
+                    <span className={`text-sm font-bold ${scoreMeta?.scoreTextClass ?? "text-slate-700"}`}>
+                      {analysis.score}/100
+                    </span>
+                    <span
+                      className={`text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full border ${scoreMeta?.badgeClass ?? "bg-slate-50 text-slate-700 border-slate-200"}`}
+                    >
+                      {scoreMeta?.label}
+                    </span>
+                  </div>
+
+                  <div className="mt-3">
+                    <div className="h-2 w-full rounded-full bg-slate-200 overflow-hidden">
+                      <div
+                        className={`h-full ${scoreMeta?.barClass ?? "bg-slate-500"} transition-all duration-500`}
+                        style={{ width: `${analysis.score}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  {baselineScore !== null && scoreDelta !== null && (
+                    <div className="mt-3 rounded-lg border border-[#BFDBFE] bg-[#F8FBFF] px-3 py-2">
+                      <p className="text-xs text-slate-700">
+                        Baseline: <span className="font-semibold">{baselineScore}</span>
+                        {" "}• Previous: <span className="font-semibold">{previousScore ?? baselineScore}</span>
+                        {" "}• Current: <span className="font-semibold">{analysis.score}</span>
+                      </p>
+                      <p className={`text-xs font-semibold mt-1 ${scoreDelta > 0 ? "text-emerald-600" : scoreDelta < 0 ? "text-red-600" : "text-slate-600"}`}>
+                        {scoreDelta > 0
+                          ? `Job quality improved by +${scoreDelta} points from baseline.`
+                          : scoreDelta < 0
+                            ? `Current score is ${Math.abs(scoreDelta)} points below baseline.`
+                            : "Current score is unchanged from baseline."}
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="mt-3">
+                    <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Issues</p>
+                    {analysis.warnings.length === 0 ? (
+                      <p className="mt-1 text-xs text-emerald-600">No major issues found.</p>
+                    ) : (
+                      <ul className="mt-1 space-y-1 text-xs text-slate-700">
+                        {analysis.warnings.map((warning) => (
+                          <li key={warning}>- {warning}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+
+                  <div className="mt-3">
+                    <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Suggestions</p>
+                    <ul className="mt-1 space-y-1 text-xs text-slate-700">
+                      {analysis.suggestions.map((suggestion) => (
+                        <li key={suggestion}>- {suggestion}</li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="mt-4">
+                    <button
+                      type="button"
+                      onClick={handleApplyQuickFixes}
+                      className="inline-flex items-center justify-center rounded-full border border-[#0F75A8] px-4 py-2 text-xs font-semibold text-[#0F75A8] hover:bg-[#E0F2FE] transition-all"
+                    >
+                      Apply Quick Fixes
+                    </button>
+                  </div>
+
+                  {aiTips.length > 0 && (
+                    <div className="mt-4 rounded-lg border border-slate-200 bg-[#F8FAFC] p-3">
+                      <p className="text-xs font-bold uppercase tracking-wide text-slate-500">AI Recruiter Tips</p>
+                      <ul className="mt-2 space-y-1 text-xs text-slate-700">
+                        {aiTips.map((tip) => (
+                          <li key={tip}>- {tip}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {!analysis && !analyzing && (
+                <div className="mt-4 rounded-lg border border-dashed border-slate-300 bg-white/80 p-4">
+                  <p className="text-xs text-slate-600">
+                    Click <span className="font-semibold">Analyze Job Post</span> before publishing to see score, issues, and suggestions.
+                  </p>
+                </div>
+              )}
+
+              {!analysis && analyzing && (
+                <div className="mt-4 rounded-lg border border-slate-200 bg-white p-4">
+                  <p className="text-xs font-semibold text-[#0F75A8]">Analyzing job post...</p>
+                </div>
+              )}
+            </div>
           </>
         )}
 
@@ -722,13 +1127,33 @@ export default function CreateJobPage() {
               Next
             </button>
           ) : (
-            <button
-              type="submit"
-              disabled={createJob.isPending}
-              className="inline-flex items-center justify-center bg-gradient-to-r from-[#0F172A] to-[#0F75A8] text-white font-semibold py-3 px-6 rounded-full shadow-md hover:brightness-110 transition-all disabled:opacity-60"
-            >
-              {createJob.isPending ? "Posting..." : "Post Job"}
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleAnalyze}
+                disabled={analyzing || improveDraft.isPending}
+                className="inline-flex items-center justify-center border border-[#0F75A8] text-[#0F75A8] font-semibold py-3 px-5 rounded-full hover:bg-[#E0F2FE] transition-all disabled:opacity-60"
+              >
+                {analyzing ? "Analyzing..." : analysis ? "Re-analyze Job Post" : "Analyze Job Post"}
+              </button>
+
+              <button
+                type="button"
+                onClick={handleImproveWithAI}
+                disabled={improveDraft.isPending || analyzing}
+                className="inline-flex items-center justify-center border border-emerald-600 text-emerald-700 font-semibold py-3 px-5 rounded-full hover:bg-emerald-50 transition-all disabled:opacity-60"
+              >
+                {improveDraft.isPending ? "Improving with AI..." : "Improve with AI"}
+              </button>
+
+              <button
+                type="submit"
+                disabled={createJob.isPending || improveDraft.isPending}
+                className="inline-flex items-center justify-center bg-gradient-to-r from-[#0F172A] to-[#0F75A8] text-white font-semibold py-3 px-6 rounded-full shadow-md hover:brightness-110 transition-all disabled:opacity-60"
+              >
+                {createJob.isPending ? "Posting..." : "Post Job"}
+              </button>
+            </div>
           )}
         </div>
 
