@@ -1,9 +1,10 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
+import { Suspense, useState, useEffect } from "react";
 import Link from "next/link";
 import { api } from "~/trpc/react";
+import { Clock, Unlock, Lock } from "lucide-react";
 
 const PAGE_STYLES = `
   @keyframes pulse-ring {
@@ -35,7 +36,19 @@ const EMPTY_STEPS = [
 
 function PermissionStatusContent() {
   const searchParams = useSearchParams();
-  const applicationId = searchParams.get("applicationId") ?? "";
+  const paramId = searchParams.get("applicationId") ?? "";
+  const [applicationId, setApplicationId] = useState(paramId);
+
+  useEffect(() => {
+    if (!paramId) {
+      try {
+        const saved = localStorage.getItem("ai_last_application_id") ?? "";
+        if (saved) setApplicationId(saved);
+      } catch (_) { /* ignore */ }
+    } else {
+      setApplicationId(paramId);
+    }
+  }, [paramId]);
 
   const { data, isLoading, error } = api.ai.getPermissionStatus.useQuery(
     { applicationId },
@@ -129,7 +142,12 @@ function PermissionStatusContent() {
           className={`w-24 h-24 rounded-full flex items-center justify-center text-5xl mx-auto mb-6 ${isEmpty ? "pulse-gray" : isPassed ? "pulse-green" : "pulse-red"}`}
           style={{ background: isEmpty ? "#E2E8F0" : isPassed ? "#22C55E" : "#EF4444" }}
         >
-          {isEmpty ? "⏳" : isPassed ? "🔓" : "🔒"}
+          {isEmpty
+            ? <Clock size={40} className="text-slate-400" />
+            : isPassed
+            ? <Unlock size={40} className="text-white" />
+            : <Lock size={40} className="text-white" />
+          }
         </div>
 
         {/* Status pill */}
@@ -189,7 +207,7 @@ function PermissionStatusContent() {
       {/* Next steps */}
       <div className="bg-white border border-[#E2E8F0] rounded-4xl p-8 mb-6 shadow-sm">
         <p className="text-xs font-black uppercase tracking-widest text-[#64748B] mb-5">
-          {isEmpty ? "📋 What to Expect" : isPassed ? "🚀 Your Next Steps" : "📚 How to Improve"}
+          {isEmpty ? "What to Expect" : isPassed ? "Your Next Steps" : "How to Improve"}
         </p>
         <div className="flex flex-col gap-3">
           {nextSteps.map((step, i) => (

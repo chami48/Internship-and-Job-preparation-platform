@@ -204,6 +204,14 @@ export const companyRouter = createTRPCRouter({
       throw new Error("Invalid password");
     }
 
+    // Set logo if not already set
+    if (!company.logo) {
+      await ctx.db.company.update({
+        where: { id: company.id },
+        data: { logo: "/logos/company-logo-jpg.jpg" },
+      });
+    }
+
     return { message: "Login successful", companyId: company.id };
   }),
 

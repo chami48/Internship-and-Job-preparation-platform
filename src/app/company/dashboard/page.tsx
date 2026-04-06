@@ -196,7 +196,7 @@ export default function CompanyDashboard() {
             {/* Large Stats Row */}
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
               {[
-                { label: 'Total Job Posts', value: '18', icon: Briefcase, color: '#3B82F6' },
+                { label: 'Total Job Posts', value: '8', icon: Briefcase, color: '#3B82F6' },
                 { label: 'Qualified Candidates', value: '124', icon: Users, color: '#8B5CF6' },
                 { label: 'Interviews Scheduled', value: '42', icon: Calendar, color: '#F59E0B' },
                 { label: 'Filtering Rate', value: 'Top 20', icon: TrendingUp, color: '#10B981' },
