@@ -35,7 +35,7 @@ export default function ConditionalLayout({
         {children}
       </main>
 
-      {!hideHeader && <Footer />}
+      <Footer />
     </>
   );
 }

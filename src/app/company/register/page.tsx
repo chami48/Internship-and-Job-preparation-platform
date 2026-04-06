@@ -48,7 +48,7 @@ export default function RegisterCompany() {
     position: "top-end",
     showConfirmButton: false,
     showCloseButton: true,
-    timer: 2200,
+    timer: 800,
     timerProgressBar: true,
     background: "#F8FBFF",
     color: "#0F172A",
@@ -71,24 +71,120 @@ export default function RegisterCompany() {
   const [showOtp, setShowOtp] = useState(false);
   const [formError, setFormError] = useState("");
   const [otpError, setOtpError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+
+  const validateName = (value: string): string => {
+    if (!value.trim()) return "Company name is required";
+    if (value.trim().length < 2) return "Company name must be at least 2 characters";
+    if (value.trim().length > 100) return "Company name must not exceed 100 characters";
+    return "";
+  };
+
+  const validateEmail = (value: string): string => {
+    const trimmed = value.trim();
+    if (!trimmed) return "Email is required";
+    if (trimmed.length > 254) return "Email is too long";
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(trimmed)) return "Please enter a valid email address";
+
+    const atIndex = trimmed.lastIndexOf("@");
+    const local = trimmed.slice(0, atIndex);
+    const domain = trimmed.slice(atIndex + 1);
+
+    if (local.length > 64) return "Email local part is too long";
+    if (local.startsWith(".") || local.endsWith(".")) {
+      return "Local part cannot start or end with a dot";
+    }
+    if (local.includes("..")) return "Local part cannot contain consecutive dots";
+
+    if (domain.length < 4) return "Domain is too short";
+    if (domain.includes("..")) return "Domain cannot contain consecutive dots";
+    const labels = domain.split(".");
+    const tld = labels[labels.length - 1] || "";
+    if (tld.length < 2) return "Top-level domain is too short";
+    for (const label of labels) {
+      if (!label) return "Domain cannot contain empty labels";
+      if (label.startsWith("-") || label.endsWith("-")) {
+        return "Domain labels cannot start or end with a hyphen";
+      }
+      if (label.length > 63) return "Domain label is too long";
+    }
+
+    return "";
+  };
+
+  const validatePassword = (value: string): string => {
+    if (!value) return "Password is required";
+    if (value.length < 8) return "Password must be at least 8 characters";
+    return "";
+  };
+
+  const validateConfirmPassword = (value: string): string => {
+    if (!value) return "Please confirm your password";
+    if (value !== password) return "Passwords do not match";
+    return "";
+  };
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    // Prevent non-alphabetic characters and numbers, spaces allowed
+    const filtered = value.replace(/[^a-zA-Z0-9\s&-]/g, "");
+    setName(filtered);
+    setFieldErrors((prev) => ({ ...prev, name: validateName(filtered) }));
+    setFormError("");
+  };
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setEmail(value);
+    setFieldErrors((prev) => ({ ...prev, email: validateEmail(value) }));
+    setFormError("");
+  };
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setPassword(value);
+    setFieldErrors((prev) => ({ 
+      ...prev, 
+      password: validatePassword(value),
+      confirmPassword: confirmPassword ? validateConfirmPassword(confirmPassword) : "",
+    }));
+    setFormError("");
+  };
+
+  const handleConfirmPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setConfirmPassword(value);
+    setFieldErrors((prev) => ({ ...prev, confirmPassword: validateConfirmPassword(value) }));
+    setFormError("");
+  };
 
   const strength = pwStrength(password);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError("");
-    if (!name.trim() || !email.trim() || !password) {
-      setFormError("Please fill in all required fields.");
-      return;
-    }
-    if (password !== confirmPassword) {
-      setFormError("Passwords do not match.");
-      return;
-    }
-    if (password.length < 8) {
-      setFormError("Password must be at least 8 characters.");
-      return;
-    }
+    
+    const nameErr = validateName(name);
+    const emailErr = validateEmail(email);
+    const passwordErr = validatePassword(password);
+    const confirmPasswordErr = validateConfirmPassword(confirmPassword);
+
+    setFieldErrors({
+      name: nameErr,
+      email: emailErr,
+      password: passwordErr,
+      confirmPassword: confirmPasswordErr,
+    });
+
+    if (nameErr || emailErr || passwordErr || confirmPasswordErr) return;
+
     try {
       await createCompany.mutateAsync({ name, email, password, description });
       setShowOtp(true);
@@ -116,11 +212,19 @@ export default function RegisterCompany() {
     );
   };
 
+  const handleDemoFill = () => {
+    setName("iTech");
+    setEmail("itechcom56@gmail.com");
+    setDescription("Leading provider of cutting-edge software solutions for enterprise clients worldwide.");
+    setPassword("iTechcom56#56#");
+    setConfirmPassword("iTechcom56#56#");
+  };
+
   /* ── shared input style ───────────────────────────────── */
   const inputStyle: React.CSSProperties = {
     width: "100%",
     padding: "11px 14px",
-    border: "1.5px solid #E2E8F0",
+    border: "1.5px solid #CBD5E1",
     borderRadius: 10,
     fontSize: "0.875rem",
     color: "#0F172A",
@@ -136,7 +240,7 @@ export default function RegisterCompany() {
     fontWeight: 700,
     letterSpacing: "0.07em",
     textTransform: "uppercase",
-    color: "#64748B",
+    color: "#334155",
     marginBottom: 6,
   };
 
@@ -144,7 +248,7 @@ export default function RegisterCompany() {
     <>
       <style>{`
         .reg-input:focus { border-color: #0EA5E9 !important; box-shadow: 0 0 0 3px rgba(14,165,233,0.12) !important; background: #fff !important; }
-        .reg-input::placeholder { color: #CBD5E1; }
+        .reg-input::placeholder { color: #94A3B8; }
         .reg-btn:hover:not(:disabled) { background: #0284C7 !important; box-shadow: 0 6px 20px rgba(14,165,233,0.35) !important; transform: translateY(-1px); }
         .reg-btn:disabled { opacity: 0.6; cursor: not-allowed; }
         .reg-btn { transition: background 0.2s, box-shadow 0.2s, transform 0.18s; }
@@ -238,17 +342,18 @@ export default function RegisterCompany() {
           paddingTop: "5rem",
           overflowY: "auto",
         }}>
-          <div style={{ width: "100%", maxWidth: 480 }}>
+          <div style={{ width: "100%", maxWidth: 560, background: "#F0F7FF", padding: "2rem", borderRadius: 20, border: "1px solid #E0EEFF" }}>
 
             {!showOtp ? (
               <>
                 {/* header */}
-                <div style={{ marginBottom: "2rem" }}>
+                <div style={{ marginBottom: "2.75rem" }}>
                   <h2 style={{
-                    fontSize: "1.6rem", fontWeight: 800, color: "#0F172A",
+                    fontSize: "1.75rem", fontWeight: 800, color: "#112847",
                     margin: 0, letterSpacing: "-0.025em",
+                    fontFamily: "var(--font-plus-jakarta), ui-sans-serif, system-ui, sans-serif",
                   }}>Create your company account</h2>
-                  <p style={{ marginTop: 6, fontSize: "0.82rem", color: "#94A3B8", fontWeight: 400 }}>
+                  <p style={{ marginTop: 6, fontSize: "0.82rem", color: "#64748B", fontWeight: 400 }}>
                     Fill in your details — an OTP will be sent to verify your email.
                   </p>
                 </div>
@@ -265,19 +370,28 @@ export default function RegisterCompany() {
                   </div>
                 )}
 
-                <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+                <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 24 }}>
 
                   {/* Company Name */}
                   <div>
                     <label style={labelStyle}>Company Name <span style={{ color: "#EF4444" }}>*</span></label>
                     <input
                       className="reg-input"
-                      style={inputStyle}
+                      style={{
+                        ...inputStyle,
+                        ...(fieldErrors.name && { border: "1.5px solid #FCA5A5", background: "#FFF8F8" }),
+                      }}
                       placeholder="Acme Corp"
                       value={name}
-                      onChange={(e) => setName(e.target.value)}
+                      onChange={handleNameChange}
+                      maxLength={100}
                       required
                     />
+                    {fieldErrors.name && (
+                      <p style={{ marginTop: 5, fontSize: "0.75rem", color: "#DC2626", fontWeight: 600 }}>
+                        {fieldErrors.name}
+                      </p>
+                    )}
                   </div>
 
                   {/* Email */}
@@ -285,13 +399,22 @@ export default function RegisterCompany() {
                     <label style={labelStyle}>Work Email <span style={{ color: "#EF4444" }}>*</span></label>
                     <input
                       className="reg-input"
-                      style={inputStyle}
+                      style={{
+                        ...inputStyle,
+                        ...(fieldErrors.email && { border: "1.5px solid #FCA5A5", background: "#FFF8F8" }),
+                      }}
                       type="email"
                       placeholder="hr@company.com"
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      onChange={handleEmailChange}
+                      maxLength={100}
                       required
                     />
+                    {fieldErrors.email && (
+                      <p style={{ marginTop: 5, fontSize: "0.75rem", color: "#DC2626", fontWeight: 600 }}>
+                        {fieldErrors.email}
+                      </p>
+                    )}
                   </div>
 
                   {/* Description */}
@@ -302,8 +425,15 @@ export default function RegisterCompany() {
                       style={{ ...inputStyle, resize: "vertical", minHeight: 80 }}
                       placeholder="Tell candidates what makes your company great…"
                       value={description}
-                      onChange={(e) => setDescription(e.target.value)}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (value.length <= 500) setDescription(value);
+                      }}
+                      maxLength={500}
                     />
+                    <p style={{ marginTop: 4, fontSize: "0.68rem", color: "#94A3B8", fontWeight: 500 }}>
+                      {description.length}/500
+                    </p>
                   </div>
 
                   {/* Password */}
@@ -312,11 +442,16 @@ export default function RegisterCompany() {
                     <div style={{ position: "relative" }}>
                       <input
                         className="reg-input"
-                        style={{ ...inputStyle, paddingRight: 42 }}
+                        style={{
+                          ...inputStyle,
+                          paddingRight: 42,
+                          ...(fieldErrors.password && { border: "1.5px solid #FCA5A5", background: "#FFF8F8" }),
+                        }}
                         type={showPw ? "text" : "password"}
                         placeholder="Min. 8 characters"
                         value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                        onChange={handlePasswordChange}
+                        maxLength={50}
                         required
                       />
                       <button type="button" onClick={() => setShowPw(!showPw)}
@@ -324,6 +459,11 @@ export default function RegisterCompany() {
                         <EyeIcon open={showPw} />
                       </button>
                     </div>
+                    {fieldErrors.password && (
+                      <p style={{ marginTop: 5, fontSize: "0.75rem", color: "#DC2626", fontWeight: 600 }}>
+                        {fieldErrors.password}
+                      </p>
+                    )}
                     {/* strength bar */}
                     {password.length > 0 && (
                       <div style={{ marginTop: 8 }}>
@@ -350,14 +490,16 @@ export default function RegisterCompany() {
                       <input
                         className="reg-input"
                         style={{
-                          ...inputStyle, paddingRight: 42,
-                          ...(confirmPassword && password !== confirmPassword ? { borderColor: "#FCA5A5", background: "#FFF8F8" } : {}),
-                          ...(confirmPassword && password === confirmPassword ? { borderColor: "#86EFAC" } : {}),
+                          ...inputStyle,
+                          paddingRight: 42,
+                          ...(fieldErrors.confirmPassword && { border: "1.5px solid #FCA5A5", background: "#FFF8F8" }),
+                          ...(confirmPassword && password === confirmPassword && !fieldErrors.confirmPassword ? { border: "1.5px solid #86EFAC" } : {}),
                         }}
                         type={showCpw ? "text" : "password"}
                         placeholder="Re-enter your password"
                         value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        onChange={handleConfirmPasswordChange}
+                        maxLength={50}
                         required
                       />
                       <button type="button" onClick={() => setShowCpw(!showCpw)}
@@ -365,11 +507,13 @@ export default function RegisterCompany() {
                         <EyeIcon open={showCpw} />
                       </button>
                     </div>
-                    {confirmPassword && password !== confirmPassword && (
-                      <p style={{ marginTop: 5, fontSize: "0.7rem", color: "#EF4444", fontWeight: 600 }}>Passwords don&apos;t match</p>
+                    {fieldErrors.confirmPassword && (
+                      <p style={{ marginTop: 5, fontSize: "0.75rem", color: "#DC2626", fontWeight: 600 }}>
+                        {fieldErrors.confirmPassword}
+                      </p>
                     )}
-                    {confirmPassword && password === confirmPassword && (
-                      <p style={{ marginTop: 5, fontSize: "0.7rem", color: "#10B981", fontWeight: 600 }}>✓ Passwords match</p>
+                    {confirmPassword && password === confirmPassword && !fieldErrors.confirmPassword && (
+                      <p style={{ marginTop: 5, fontSize: "0.75rem", color: "#10B981", fontWeight: 600 }}>✓ Passwords match</p>
                     )}
                   </div>
 
@@ -487,6 +631,44 @@ export default function RegisterCompany() {
 
           </div>
         </div>
+
+        {/* Demo Button */}
+        {!showOtp && (
+          <button
+            onClick={handleDemoFill}
+            style={{
+              position: "fixed",
+              bottom: "2rem",
+              right: "2rem",
+              width: 56,
+              height: 56,
+              borderRadius: "50%",
+              background: "linear-gradient(135deg, #0EA5E9, #0284C7)",
+              border: "none",
+              color: "white",
+              fontSize: "1.5rem",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              boxShadow: "0 6px 20px rgba(14,165,233,0.35)",
+              transition: "background 0.2s, box-shadow 0.2s, transform 0.18s",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "linear-gradient(135deg, #0284C7, #0164A7)";
+              e.currentTarget.style.boxShadow = "0 8px 25px rgba(14,165,233,0.45)";
+              e.currentTarget.style.transform = "translateY(-2px)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "linear-gradient(135deg, #0EA5E9, #0284C7)";
+              e.currentTarget.style.boxShadow = "0 6px 20px rgba(14,165,233,0.35)";
+              e.currentTarget.style.transform = "translateY(0)";
+            }}
+            title="Fill demo data"
+          >
+            ✨
+          </button>
+        )}
       </div>
     </>
   );

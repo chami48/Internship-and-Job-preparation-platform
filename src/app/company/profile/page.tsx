@@ -32,6 +32,34 @@ const HOLIDAYS: Record<string, string> = {
 
 type Tab = "overview" | "jobs" | "settings";
 
+type CompanyInfo = {
+  industry: string;
+  location: string;
+  website: string;
+};
+
+const DEFAULT_COMPANY_INFO: CompanyInfo = {
+  industry: "Technology & Software",
+  location: "Colombo, Sri Lanka",
+  website: "www.example.com",
+};
+
+const INDUSTRY_OPTIONS = [
+  "Technology & Software",
+  "FinTech",
+  "Healthcare",
+  "Education",
+  "E-commerce",
+  "Telecommunications",
+  "Manufacturing",
+  "Banking & Finance",
+  "Logistics",
+  "Media & Entertainment",
+  "Consulting",
+  "Government",
+  "Non-profit",
+];
+
 export default function CompanyProfilePage() {
   const router = useRouter();
   const [companyId, setCompanyId] = useState<string | null>(null);
@@ -47,10 +75,39 @@ export default function CompanyProfilePage() {
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [calendarMonth, setCalendarMonth] = useState(new Date());
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
+  const [infoEditMode, setInfoEditMode] = useState(false);
+  const [companyInfo, setCompanyInfo] = useState<CompanyInfo>(DEFAULT_COMPANY_INFO);
+  const [infoDraft, setInfoDraft] = useState<CompanyInfo>(DEFAULT_COMPANY_INFO);
 
   const handleLogout = () => router.push('/company/comlogin');
 
   useEffect(() => { setCompanyId(localStorage.getItem("companyId")); }, []);
+
+  useEffect(() => {
+    if (!companyId) return;
+
+    const storageKey = `companyProfileInfo:${companyId}`;
+    const saved = localStorage.getItem(storageKey);
+
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved) as Partial<CompanyInfo>;
+        const next: CompanyInfo = {
+          industry: parsed.industry?.trim() || DEFAULT_COMPANY_INFO.industry,
+          location: parsed.location?.trim() || DEFAULT_COMPANY_INFO.location,
+          website: parsed.website?.trim() || DEFAULT_COMPANY_INFO.website,
+        };
+        setCompanyInfo(next);
+        setInfoDraft(next);
+        return;
+      } catch {
+        // Fall back to defaults when stored data is malformed.
+      }
+    }
+
+    setCompanyInfo(DEFAULT_COMPANY_INFO);
+    setInfoDraft(DEFAULT_COMPANY_INFO);
+  }, [companyId]);
 
   const { data: company, isLoading, refetch } = api.company.getProfile.useQuery(
     { companyId: companyId ?? "" },
@@ -60,6 +117,7 @@ export default function CompanyProfilePage() {
     { companyId: companyId ?? "" },
     { enabled: !!companyId },
   );
+  const profileJobs = jobs ?? [];
   const updateProfile = api.company.updateProfile.useMutation();
 
   useEffect(() => {
@@ -107,6 +165,25 @@ export default function CompanyProfilePage() {
     setSaveError(""); setEditMode(false);
   };
 
+  const handleInfoSave = () => {
+    if (!companyId) return;
+
+    const normalized: CompanyInfo = {
+      industry: infoDraft.industry.trim() || DEFAULT_COMPANY_INFO.industry,
+      location: infoDraft.location.trim() || DEFAULT_COMPANY_INFO.location,
+      website: infoDraft.website.trim() || DEFAULT_COMPANY_INFO.website,
+    };
+
+    setCompanyInfo(normalized);
+    localStorage.setItem(`companyProfileInfo:${companyId}`, JSON.stringify(normalized));
+    setInfoEditMode(false);
+  };
+
+  const handleInfoCancel = () => {
+    setInfoDraft(companyInfo);
+    setInfoEditMode(false);
+  };
+
   if (isLoading || !company) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#F4F7FB]">
@@ -118,7 +195,7 @@ export default function CompanyProfilePage() {
     );
   }
 
-  const activeJobs = (jobs ?? []).filter(j => !j.deadline || new Date(j.deadline) >= new Date());
+  const activeJobs = profileJobs.filter(j => !j.deadline || new Date(j.deadline) >= new Date());
   const companyName = company.name || "IFS";
   const initStr = initials(company.name);
 
@@ -240,7 +317,7 @@ export default function CompanyProfilePage() {
               </span>
               <span className="flex items-center gap-2"><Mail size={14} />{company.email}</span>
               <span className="flex items-center gap-2"><CalendarDays size={14} />Joined {fmtDate(company.createdAt)}</span>
-              <span className="flex items-center gap-2"><Briefcase size={14} />{company._count.jobs} job{company._count.jobs !== 1 ? "s" : ""} posted</span>
+              <span className="flex items-center gap-2"><Briefcase size={14} />{profileJobs.length} job{profileJobs.length !== 1 ? "s" : ""} posted</span>
             </div>
           </div>
           <div className="flex items-center gap-3 relative">
@@ -332,7 +409,7 @@ export default function CompanyProfilePage() {
               <span className="flex items-center gap-1.5"><LayoutGrid size={13} />Overview</span>
             </button>
             <button className={tabCls("jobs")} onClick={() => setTab("jobs")}>
-              <span className="flex items-center gap-1.5"><Briefcase size={13} />Job Posts{jobs ? ` (${jobs.length})` : ""}</span>
+              <span className="flex items-center gap-1.5"><Briefcase size={13} />Job Posts{profileJobs.length ? ` (${profileJobs.length})` : ""}</span>
             </button>
             <button className={tabCls("settings")} onClick={() => setTab("settings")}>
               <span className="flex items-center gap-1.5"><Settings size={13} />Edit Profile</span>
@@ -404,7 +481,7 @@ export default function CompanyProfilePage() {
                     </button>
                   </div>
                   <div className="px-6 py-4">
-                    {(jobs ?? []).length === 0 ? (
+                    {profileJobs.length === 0 ? (
                       <div className="flex flex-col items-center py-6 gap-2 text-center">
                         <Briefcase size={24} className="text-[#CBD5E1]" />
                         <p className="text-sm text-[#94A3B8]">No jobs posted yet.</p>
@@ -413,7 +490,7 @@ export default function CompanyProfilePage() {
                       </div>
                     ) : (
                       <div className="flex flex-col gap-2.5">
-                        {(jobs ?? []).slice(0, 3).map((j) => {
+                        {profileJobs.slice(0, 3).map((j) => {
                           const dl = daysLeft(j.deadline);
                           const closed = dl === "Closed";
                           return (
@@ -449,23 +526,89 @@ export default function CompanyProfilePage() {
                 <div className="grid grid-cols-2 gap-4">
 
                   {/* Info */}
-                  <div className="rounded-2xl bg-white/90 backdrop-blur border border-white/80 shadow-lg shadow-[#0EA5E9]/10 overflow-hidden">
+                  <div
+                    className="rounded-2xl bg-white/90 backdrop-blur border border-white/80 shadow-lg shadow-[#0EA5E9]/10 overflow-hidden"
+                    onClick={() => {
+                      if (!infoEditMode) {
+                        setInfoDraft(companyInfo);
+                        setInfoEditMode(true);
+                      }
+                    }}
+                  >
                     <div className="px-5 py-4 border-b border-[#F1F5F9] flex items-center gap-2 bg-gradient-to-r from-white to-[#F0F9FF]">
                       <span className="w-1 h-4 rounded-full bg-[#1F7FB2] block" />
                       <h3 className="text-xs font-extrabold uppercase tracking-widest text-[#0F172A]">Info</h3>
+                      <span className="ml-auto text-[10px] font-semibold text-[#64748B]">{infoEditMode ? "Editing" : "Click card to edit"}</span>
                     </div>
-                    <div className="px-5 py-4 space-y-3">
-                      {[
-                        { icon: <Users size={13} />, label: "Industry" },
-                        { icon: <MapPin size={13} />, label: "Location" },
-                        { icon: <ExternalLink size={13} />, label: "Website" },
-                      ].map(({ icon, label }) => (
-                        <div key={label} className="flex items-center gap-2 text-sm">
-                          <span className="text-[#1F7FB2] shrink-0">{icon}</span>
-                          <span className="text-[#94A3B8] text-xs w-16 shrink-0">{label}:</span>
-                          <span className="italic text-[#CBD5E1] text-xs">Not set</span>
-                        </div>
-                      ))}
+                    <div className="px-5 py-4 space-y-3" onClick={(e) => e.stopPropagation()}>
+                      {infoEditMode ? (
+                        <>
+                          <div className="space-y-1.5">
+                            <label className="text-[11px] font-bold uppercase tracking-widest text-[#64748B]">Industry</label>
+                            <input
+                              value={infoDraft.industry}
+                              onChange={(e) => setInfoDraft((prev) => ({ ...prev, industry: e.target.value }))}
+                              list="industry-options"
+                              className="w-full rounded-lg border border-[#BFDBFE] bg-[#F8FBFF] px-3 py-2 text-xs font-semibold text-[#0F172A] outline-none focus:border-[#1F7FB2]"
+                              placeholder="Technology & Software"
+                            />
+                            <datalist id="industry-options">
+                              {INDUSTRY_OPTIONS.map((option) => (
+                                <option key={option} value={option} />
+                              ))}
+                            </datalist>
+                          </div>
+
+                          <div className="space-y-1.5">
+                            <label className="text-[11px] font-bold uppercase tracking-widest text-[#64748B]">Location</label>
+                            <input
+                              value={infoDraft.location}
+                              onChange={(e) => setInfoDraft((prev) => ({ ...prev, location: e.target.value }))}
+                              className="w-full rounded-lg border border-[#BFDBFE] bg-[#F8FBFF] px-3 py-2 text-xs font-semibold text-[#0F172A] outline-none focus:border-[#1F7FB2]"
+                              placeholder="Colombo, Sri Lanka"
+                            />
+                          </div>
+
+                          <div className="space-y-1.5">
+                            <label className="text-[11px] font-bold uppercase tracking-widest text-[#64748B]">Website</label>
+                            <input
+                              value={infoDraft.website}
+                              onChange={(e) => setInfoDraft((prev) => ({ ...prev, website: e.target.value }))}
+                              className="w-full rounded-lg border border-[#BFDBFE] bg-[#F8FBFF] px-3 py-2 text-xs font-semibold text-[#0F172A] outline-none focus:border-[#1F7FB2]"
+                              placeholder="www.example.com"
+                            />
+                          </div>
+
+                          <div className="flex gap-2 pt-1">
+                            <button
+                              type="button"
+                              onClick={handleInfoCancel}
+                              className="flex-1 rounded-lg border border-[#E2E8F0] py-2 text-xs font-bold text-[#64748B] hover:bg-[#F8FAFC]"
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              type="button"
+                              onClick={handleInfoSave}
+                              className="flex-1 rounded-lg bg-[#1F7FB2] py-2 text-xs font-bold text-white hover:bg-[#1668A0]"
+                            >
+                              Save
+                            </button>
+                          </div>
+                        </>
+                      ) : (
+                        [
+                          { icon: <Users size={13} />, label: "Industry", value: companyInfo.industry },
+                          { icon: <MapPin size={13} />, label: "Location", value: companyInfo.location },
+                          { icon: <ExternalLink size={13} />, label: "Website", value: companyInfo.website },
+                        ].map(({ icon, label, value }) => (
+                          <div key={label} className="flex items-center gap-2 text-sm">
+                            <span className="text-[#1F7FB2] shrink-0">{icon}</span>
+                            <span className="text-[#94A3B8] text-xs w-16 shrink-0">{label}:</span>
+                            <span className="text-[#0F172A] text-xs font-semibold">{value}</span>
+                          </div>
+                        ))
+                      )}
                     </div>
                   </div>
 
@@ -477,13 +620,13 @@ export default function CompanyProfilePage() {
                     </div>
                     <div className="px-5 py-4 space-y-3 text-sm text-[#475569]">
                       {[
-                        { label: "Values" },
-                        { label: "Benefits" },
-                        { label: "Tech Stack" },
-                      ].map(({ label }) => (
-                        <div key={label} className="flex items-center gap-2">
+                        { label: "Values", value: "Innovation, Integrity, Excellence" },
+                        { label: "Benefits", value: "Remote Work, Health Insurance, Training" },
+                        { label: "Tech Stack", value: "React, Next.js, TypeScript, Prisma" },
+                      ].map(({ label, value }) => (
+                        <div key={label} className="flex items-start gap-2">
                           <span className="text-[#94A3B8] text-xs w-20 shrink-0">{label}:</span>
-                          <span className="italic text-[#CBD5E1] text-xs">Not set</span>
+                          <span className="text-[#0F172A] text-xs font-semibold">{value}</span>
                         </div>
                       ))}
                     </div>
@@ -496,7 +639,7 @@ export default function CompanyProfilePage() {
 
                 {/* Stat cards */}
                 {[
-                  { icon: <Briefcase size={15} />, label: "Total Posts", value: company._count.jobs, accent: "bg-[#E0F2FE] text-[#0369A1]" },
+                  { icon: <Briefcase size={15} />, label: "Total Posts", value: profileJobs.length, accent: "bg-[#E0F2FE] text-[#0369A1]" },
                   { icon: <Users size={15} />, label: "Active Listings", value: activeJobs.length, accent: "bg-[#DCFCE7] text-emerald-600" },
                   { icon: <CalendarDays size={15} />, label: "Member Since", value: fmtDate(company.createdAt), accent: "bg-[#EEF2FF] text-indigo-500" },
                   { icon: <ShieldCheck size={15} />, label: "Status", value: company.isVerified ? "Verified ✓" : "Unverified", accent: company.isVerified ? "bg-emerald-50 text-emerald-600" : "bg-amber-50 text-amber-600" },
@@ -517,10 +660,15 @@ export default function CompanyProfilePage() {
                     <h3 className="text-xs font-extrabold uppercase tracking-widest text-[#0F172A]">Social</h3>
                   </div>
                   <div className="px-5 py-4 flex flex-col gap-2">
-                    {["LinkedIn", "Facebook", "Instagram"].map(platform => (
-                      <a key={platform} href="#"
+                    {[
+                      { platform: "LinkedIn", url: "https://linkedin.com/company/hiresmart", color: "text-blue-600" },
+                      { platform: "Facebook", url: "https://facebook.com/hiresmart", color: "text-blue-500" },
+                      { platform: "Instagram", url: "https://instagram.com/hiresmart", color: "text-pink-600" },
+                    ].map(({ platform, url, color }) => (
+                      <a key={platform} href={url} target="_blank" rel="noopener noreferrer"
                         className="flex items-center justify-between rounded-lg border border-[#E2E8F0] px-3 py-2 text-xs font-semibold text-[#1F7FB2] hover:bg-[#EFF6FF] hover:border-[#1F7FB2]/30 transition-all">
-                        {platform} <ExternalLink size={10} />
+                        <span className="flex items-center gap-2"><span className={`w-3 h-3 rounded-full ${color}`} /> {platform}</span>
+                        <ExternalLink size={10} />
                       </a>
                     ))}
                   </div>
@@ -534,7 +682,7 @@ export default function CompanyProfilePage() {
         {/* ════════ JOBS TAB ════════ */}
         {tab === "jobs" && (
           <div className="flex flex-col gap-3">
-            {(jobs ?? []).length === 0 ? (
+            {profileJobs.length === 0 ? (
               <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-[#E2E8F0] bg-white py-16 text-center">
                 <Briefcase size={32} className="mb-3 text-[#CBD5E1]" />
                 <p className="text-sm font-bold text-[#94A3B8]">No jobs posted yet</p>
@@ -543,7 +691,7 @@ export default function CompanyProfilePage() {
                   <Plus size={14} /> Post your first job
                 </button>
               </div>
-            ) : (jobs ?? []).map((j) => {
+            ) : profileJobs.map((j) => {
               const dl = daysLeft(j.deadline);
               const closed = dl === "Closed";
               const isIntern = j.type?.toLowerCase().includes("intern");

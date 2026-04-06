@@ -171,6 +171,119 @@ function JobCard({ job }: { job: JobCardProps }) {
   );
 }
 
+const MOCK_JOBS: JobCardProps[] = [
+  {
+    id: "mock-1",
+    title: "Frontend Engineer Intern",
+    company: { name: "Innovate Labs", email: "jobs@innovatelabs.com" },
+    location: "Colombo, Sri Lanka",
+    type: "INTERNSHIP",
+    level: "JUNIOR",
+    role: "SOFTWARE_ENGINEER",
+    salary: "Stipend - LKR 14,000/month",
+    tags: "React, TypeScript, Tailwind CSS, Next.js",
+  },
+  {
+    id: "mock-2",
+    title: "Product Designer",
+    company: { name: "Creative Tech", email: "jobs@creativetech.com" },
+    location: "Colombo, Sri Lanka",
+    type: "FULL_TIME",
+    level: "MID",
+    role: "UX_ENGINEER",
+    salary: "LKR 140,000 - 170,000/month",
+    tags: "Figma, User Research, Prototyping, Design Systems",
+  },
+  {
+    id: "mock-3",
+    title: "DevOps Engineer",
+    company: { name: "Cloud Systems Ltd", email: "jobs@cloudsystems.com" },
+    location: "Colombo, Sri Lanka",
+    type: "FULL_TIME",
+    level: "MID",
+    role: "SOFTWARE_ENGINEER",
+    salary: "LKR 180,000 - 220,000/month",
+    tags: "AWS, Docker, Kubernetes, CI/CD, Linux",
+  },
+  {
+    id: "mock-4",
+    title: "Scrum Master Intern",
+    company: { name: "Agile Dynamics", email: "jobs@agiledynamics.com" },
+    location: "Colombo, Sri Lanka",
+    type: "INTERNSHIP",
+    level: "JUNIOR",
+    role: "PROJECT_MANAGER",
+    salary: "Stipend - LKR 16,000/month",
+    tags: "Agile, Jira, Team Communication, Process Improvement",
+  },
+  {
+    id: "mock-5",
+    title: "Data Engineer",
+    company: { name: "Analytics Pro", email: "jobs@analyticspro.com" },
+    location: "Colombo, Sri Lanka",
+    type: "FULL_TIME",
+    level: "SENIOR",
+    role: "SOFTWARE_ENGINEER",
+    salary: "LKR 280,000 - 350,000/month",
+    tags: "Python, SQL, Apache Spark, Data Pipeline, ETL",
+  },
+  {
+    id: "mock-6",
+    title: "Mobile App Developer Intern",
+    company: { name: "Mobile First Co", email: "jobs@mobilefirst.com" },
+    location: "Colombo, Sri Lanka",
+    type: "INTERNSHIP",
+    level: "JUNIOR",
+    role: "SOFTWARE_ENGINEER",
+    salary: "Stipend - LKR 13,000/month",
+    tags: "React Native, Flutter, JavaScript, Mobile UI",
+  },
+  {
+    id: "mock-7",
+    title: "Quality Assurance Lead",
+    company: { name: "Quality Assurance Corp", email: "jobs@qacore.com" },
+    location: "Colombo, Sri Lanka",
+    type: "FULL_TIME",
+    level: "MID",
+    role: "SOFTWARE_ENGINEER",
+    salary: "LKR 160,000 - 190,000/month",
+    tags: "Automation Testing, Selenium, Jest, Test Strategy",
+  },
+  {
+    id: "mock-8",
+    title: "Graphic Designer",
+    company: { name: "Design Studio Pro", email: "jobs@designstudio.com" },
+    location: "Colombo, Sri Lanka",
+    type: "INTERNSHIP",
+    level: "JUNIOR",
+    role: "UX_ENGINEER",
+    salary: "Stipend - LKR 11,000/month",
+    tags: "Adobe Creative Suite, Branding, Visual Design, UI",
+  },
+  {
+    id: "mock-9",
+    title: "Tech Lead - Full Stack",
+    company: { name: "Enterprise Solutions", email: "jobs@enterprise.com" },
+    location: "Colombo, Sri Lanka",
+    type: "FULL_TIME",
+    level: "SENIOR",
+    role: "SOFTWARE_ENGINEER",
+    salary: "LKR 320,000 - 400,000/month",
+    tags: "Node.js, React, PostgreSQL, Architecture, Leadership",
+  },
+  {
+    id: "mock-10",
+    title: "UX Researcher Intern",
+    company: { name: "Design Studio Pro", email: "jobs@designstudio.com" },
+    location: "Colombo, Sri Lanka",
+    type: "INTERNSHIP",
+    level: "JUNIOR",
+    role: "UX_ENGINEER",
+    salary: "Stipend - LKR 12,500/month",
+    tags: "User Research, Interviews, Analytics, Usability Testing",
+  },
+];
+
 export default function JobsPage() {
   const { data, isLoading, error } = api.job.list.useQuery();
 
@@ -178,7 +291,10 @@ export default function JobsPage() {
   const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const filteredJobs = data?.filter((job) => {
+  // Combine database jobs with mock jobs
+  const allJobs = [...(data || []), ...MOCK_JOBS];
+
+  const filteredJobs = allJobs.filter((job) => {
     const matchesType = !selectedType || job.type === selectedType;
     const matchesLevel = !selectedLevel || job.level === selectedLevel;
 
