@@ -28,24 +28,52 @@ function Tag({ text }: { text: string }) {
 }
 
 /* ─── Animated counter ───────────────────────────────────── */
-function Counter({ to, label, suffix = "+" }: { to: number; label: string; suffix?: string }) {
+function Counter({
+  to,
+  label,
+  suffix = "+",
+}: {
+  to: number;
+  label: string;
+  suffix?: string;
+}) {
   const [val, setVal] = useState(0);
   useEffect(() => {
     let v = 0;
     const step = Math.max(1, Math.ceil(to / 50));
     const id = setInterval(() => {
       v += step;
-      if (v >= to) { setVal(to); clearInterval(id); } else setVal(v);
+      if (v >= to) {
+        setVal(to);
+        clearInterval(id);
+      } else setVal(v);
     }, 25);
     return () => clearInterval(id);
   }, [to]);
 
   return (
     <div className="flex flex-col items-start">
-      <span style={{ fontSize: "2.4rem", fontWeight: 700, color: "white", lineHeight: 1 }}>
-        {val.toLocaleString()}<span style={{ color: "#0EA5E9" }}>{suffix}</span>
+      <span
+        style={{
+          fontSize: "2.4rem",
+          fontWeight: 700,
+          color: "white",
+          lineHeight: 1,
+        }}
+      >
+        {val.toLocaleString()}
+        <span style={{ color: "#0EA5E9" }}>{suffix}</span>
       </span>
-      <span style={{ fontSize: "0.72rem", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)", marginTop: 5 }}>
+      <span
+        style={{
+          fontSize: "0.72rem",
+          fontWeight: 600,
+          letterSpacing: "0.08em",
+          textTransform: "uppercase",
+          color: "rgba(255,255,255,0.4)",
+          marginTop: 5,
+        }}
+      >
         {label}
       </span>
     </div>
@@ -94,7 +122,10 @@ function JobCard({
 }) {
   const router = useRouter();
   const shareText = `Check this job: ${job.title}`;
-  const shareUrl = typeof window !== "undefined" ? window.location.origin + `/jobs/${job.id}` : "";
+  const shareUrl =
+    typeof window !== "undefined"
+      ? window.location.origin + `/jobs/${job.id}`
+      : "";
   const postedDate = job.createdAt
     ? new Date(job.createdAt).toLocaleDateString("en-GB")
     : "";
@@ -116,13 +147,33 @@ function JobCard({
         cursor: "pointer",
       }}
     >
-      <div style={{ display: "flex", flexDirection: "column", flex: 1, padding: "1.1rem 1.2rem" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-          <span style={{ fontSize: "0.7rem", color: "#94A3B8", fontWeight: 600 }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          flex: 1,
+          padding: "1.1rem 1.2rem",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 12,
+          }}
+        >
+          <span
+            style={{ fontSize: "0.7rem", color: "#94A3B8", fontWeight: 600 }}
+          >
             {postedDate ? `Posted ${postedDate}` : ""}
           </span>
           <a
-            href={shareUrl ? `https://wa.me/?text=${encodeURIComponent(`${shareText} ${shareUrl}`)}` : "#"}
+            href={
+              shareUrl
+                ? `https://wa.me/?text=${encodeURIComponent(`${shareText} ${shareUrl}`)}`
+                : "#"
+            }
             style={{
               width: 26,
               height: 26,
@@ -137,7 +188,14 @@ function JobCard({
             aria-label="Share job"
             onClick={(e) => e.stopPropagation()}
           >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
               <path d="M4 12v7a1 1 0 001 1h14a1 1 0 001-1v-7" />
               <path d="M16 6l-4-4-4 4" />
               <path d="M12 2v14" />
@@ -146,29 +204,75 @@ function JobCard({
         </div>
 
         <div style={{ marginTop: 10 }}>
-          <h3 style={{ fontSize: "0.98rem", fontWeight: 700, color: "#0F172A", margin: 0 }}>
+          <h3
+            style={{
+              fontSize: "0.98rem",
+              fontWeight: 700,
+              color: "#0F172A",
+              margin: 0,
+            }}
+          >
             {job.title}
           </h3>
-          <p style={{ marginTop: 4, fontSize: "0.78rem", color: "#94A3B8" }}>{job.company}</p>
+          <p style={{ marginTop: 4, fontSize: "0.78rem", color: "#94A3B8" }}>
+            {job.company}
+          </p>
         </div>
 
-        <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", color: "#64748B", fontSize: "0.75rem" }}>
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <div
+          style={{
+            marginTop: 8,
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+            flexWrap: "wrap",
+            color: "#64748B",
+            fontSize: "0.75rem",
+          }}
+        >
+          <span
+            style={{ display: "inline-flex", alignItems: "center", gap: 6 }}
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
               <path d="M12 22s7-7 7-12a7 7 0 10-14 0c0 5 7 12 7 12z" />
               <circle cx="12" cy="10" r="3" />
             </svg>
             {job.location}
           </span>
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <span
+            style={{ display: "inline-flex", alignItems: "center", gap: 6 }}
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
               <path d="M12 1v22" />
               <path d="M17 5H9.5a3.5 3.5 0 000 7H14a3.5 3.5 0 010 7H6" />
             </svg>
             {formatSalary(job.salary)}
           </span>
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <span
+            style={{ display: "inline-flex", alignItems: "center", gap: 6 }}
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
               <path d="M3 7h18" />
               <path d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2" />
               <rect x="3" y="7" width="18" height="13" rx="2" />
@@ -177,39 +281,113 @@ function JobCard({
           </span>
         </div>
 
-        <div style={{ marginTop: 14, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <span style={{ fontSize: "0.72rem", color: "#94A3B8", fontWeight: 600, letterSpacing: "0.08em" }}>
+        <div
+          style={{
+            marginTop: 14,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <span
+            style={{
+              fontSize: "0.72rem",
+              color: "#94A3B8",
+              fontWeight: 600,
+              letterSpacing: "0.08em",
+            }}
+          >
             {job.level?.toUpperCase()}
           </span>
           {role === "STUDENT" ? (
             job.examSubmitted ? (
-              <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#15803D" }}>Exam Done ✓</span>
+              <Link
+                href={`/ai/result?applicationId=${job.applicationId}`}
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                  fontSize: "0.75rem",
+                  fontWeight: 700,
+                  color: "#15803D",
+                  textDecoration: "none",
+                }}
+              >
+                Exam Done ✓
+              </Link>
             ) : job.terminationReason === "FACE_MISMATCH" ? (
-              <Link href={`/exam/${job.id}?appId=${job.applicationId}`} onClick={(e) => e.stopPropagation()} style={{ fontSize: "0.75rem", fontWeight: 700, color: "#B45309", textDecoration: "none" }}>
+              <Link
+                href={`/exam/${job.id}?appId=${job.applicationId}`}
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                  fontSize: "0.75rem",
+                  fontWeight: 700,
+                  color: "#B45309",
+                  textDecoration: "none",
+                }}
+              >
                 Begin Exam
               </Link>
             ) : job.terminated ? (
-              <button disabled style={{ borderRadius: 10, padding: "8px 16px", fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", background: "#FEE2E2", color: "#B91C1C", cursor: "not-allowed" }}>
-                ✕ you exceeded the violation limit
-              </button>
-            ) : job.examSubmitted ? (
-              <Link href={`/ai/result?applicationId=${job.applicationId}`} style={{ borderRadius: 10, padding: "8px 16px", fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", background: "#DCFCE7", color: "#15803D", textDecoration: "none" }}>
-                ✓ Exam Completed
-              </Link>
-              <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#DC2626" }}>Limit Exceeded</span>
+              <span
+                style={{
+                  fontSize: "0.75rem",
+                  fontWeight: 700,
+                  color: "#b41a09",
+                }}
+              >
+                Terminated 🚫
+              </span>
             ) : job.applied ? (
-              <Link href={`/exam/${job.id}?appId=${job.applicationId}`} onClick={(e) => e.stopPropagation()} style={{ borderRadius: 8, padding: "6px 14px", fontSize: "0.75rem", fontWeight: 700, color: "white", background: "#38BDF8", textDecoration: "none" }}>
+              <Link
+                href={`/exam/${job.id}?appId=${job.applicationId}`}
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                  borderRadius: 8,
+                  padding: "6px 14px",
+                  fontSize: "0.75rem",
+                  fontWeight: 700,
+                  color: "white",
+                  background: "#38BDF8",
+                  textDecoration: "none",
+                }}
+              >
                 Start Exam →
               </Link>
             ) : (
-              <Link href={`/jobs/${job.id}`} onClick={(e) => e.stopPropagation()} style={{ borderRadius: 8, padding: "6px 14px", fontSize: "0.75rem", fontWeight: 700, color: "white", background: "#0F2544", textDecoration: "none" }}>
+              <Link
+                href={`/jobs/${job.id}`}
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                  borderRadius: 8,
+                  padding: "6px 14px",
+                  fontSize: "0.75rem",
+                  fontWeight: 700,
+                  color: "white",
+                  background: "#0F2544",
+                  textDecoration: "none",
+                }}
+              >
                 Apply Now →
               </Link>
             )
           ) : role === "COMPANY" ? (
-            <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#94A3B8" }}>View Job Details</span>
+            <span
+              style={{ fontSize: "0.75rem", fontWeight: 700, color: "#94A3B8" }}
+            >
+              View Job Details
+            </span>
           ) : (
-            <Link href="/student/login" style={{ borderRadius: 8, padding: "6px 14px", fontSize: "0.75rem", fontWeight: 700, color: "white", background: "#0F2544", textDecoration: "none" }}>
+            <Link
+              href="/student/login"
+              style={{
+                borderRadius: 8,
+                padding: "6px 14px",
+                fontSize: "0.75rem",
+                fontWeight: 700,
+                color: "white",
+                background: "#0F2544",
+                textDecoration: "none",
+              }}
+            >
               Login to Apply
             </Link>
           )}
@@ -225,14 +403,16 @@ export default function HomePage() {
   const role = session?.user?.role;
 
   const { data: jobs, isLoading, error } = api.job.list.useQuery();
-  const [filter, setFilter] = useState<"all" | "internship" | "fulltime">("all");
+  const [filter, setFilter] = useState<"all" | "internship" | "fulltime">(
+    "all",
+  );
 
   const allJobs = (jobs ?? []).map((j) => ({
     ...j,
     company:
       typeof (j as any).company === "object"
-        ? (j as any).company?.name ?? "Unknown Company"
-        : (j as any).company ?? "Unknown Company",
+        ? ((j as any).company?.name ?? "Unknown Company")
+        : ((j as any).company ?? "Unknown Company"),
   }));
 
   const appliedCount = allJobs.filter((j) => j.applied).length;
@@ -370,108 +550,214 @@ export default function HomePage() {
         }
       `}</style>
 
-      <main style={{ minHeight: "100vh", background: "#EEF6FF", position: "relative", overflow: "hidden" }}>
-
+      <main
+        style={{
+          minHeight: "100vh",
+          background: "#EEF6FF",
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
         {/* Subtle gradient orbs */}
-        <div style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none" }}>
-          <div style={{
-            position: "absolute", top: "-10%", right: "-5%", width: 700, height: 700,
-            background: "radial-gradient(circle, rgba(14,165,233,0.07) 0%, transparent 70%)",
-            borderRadius: "50%", filter: "blur(80px)",
-            animation: "float 15s ease-in-out infinite",
-          }} />
-          <div style={{
-            position: "absolute", bottom: "5%", left: "-8%", width: 500, height: 500,
-            background: "radial-gradient(circle, rgba(99,102,241,0.05) 0%, transparent 70%)",
-            borderRadius: "50%", filter: "blur(80px)",
-            animation: "float 18s ease-in-out infinite reverse",
-          }} />
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 0,
+            pointerEvents: "none",
+          }}
+        >
+          <div
+            style={{
+              position: "absolute",
+              top: "-10%",
+              right: "-5%",
+              width: 700,
+              height: 700,
+              background:
+                "radial-gradient(circle, rgba(14,165,233,0.07) 0%, transparent 70%)",
+              borderRadius: "50%",
+              filter: "blur(80px)",
+              animation: "float 15s ease-in-out infinite",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              bottom: "5%",
+              left: "-8%",
+              width: 500,
+              height: 500,
+              background:
+                "radial-gradient(circle, rgba(99,102,241,0.05) 0%, transparent 70%)",
+              borderRadius: "50%",
+              filter: "blur(80px)",
+              animation: "float 18s ease-in-out infinite reverse",
+            }}
+          />
         </div>
 
         <div className="relative z-10 mx-auto max-w-6xl px-5 py-16">
-
           {/* ── HERO ── */}
-          <section className="grid gap-16 md:grid-cols-[1fr_460px] md:items-center" style={{ marginBottom: 80, minHeight: "78vh" }}>
-
+          <section
+            className="grid gap-16 md:grid-cols-[1fr_460px] md:items-center"
+            style={{ marginBottom: 80, minHeight: "78vh" }}
+          >
             {/* LEFT */}
             <div>
               {/* eyebrow */}
-              <div style={{
-                display: "inline-flex", alignItems: "center", gap: 8,
-                background: "rgba(255,255,255,0.7)",
-                border: "1px solid rgba(14,165,233,0.35)",
-                borderRadius: 10, padding: "7px 16px", marginBottom: 32,
-                fontSize: "0.7rem", fontWeight: 700, color: "#0369A1",
-                letterSpacing: "0.1em", textTransform: "uppercase",
-                backdropFilter: "blur(8px)",
-              }}>
-                <span className="eyebrow-blink" style={{ width: 6, height: 6, borderRadius: "50%", background: "#0EA5E9", display: "inline-block" }} />
+              <div
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 8,
+                  background: "rgba(255,255,255,0.7)",
+                  border: "1px solid rgba(14,165,233,0.35)",
+                  borderRadius: 10,
+                  padding: "7px 16px",
+                  marginBottom: 32,
+                  fontSize: "0.7rem",
+                  fontWeight: 700,
+                  color: "#0369A1",
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                  backdropFilter: "blur(8px)",
+                }}
+              >
+                <span
+                  className="eyebrow-blink"
+                  style={{
+                    width: 6,
+                    height: 6,
+                    borderRadius: "50%",
+                    background: "#0EA5E9",
+                    display: "inline-block",
+                  }}
+                />
                 HireSmart
               </div>
 
               {/* Main headline — large like Screenshot 1 */}
-              <h1 style={{ margin: 0, letterSpacing: "-0.03em", lineHeight: 1.02 }}>
-                <span className="hero-word block" style={{
-                  fontSize: "clamp(3.5rem, 6vw, 6.5rem)",
-                  fontWeight: 700,
-                  color: "#0F172A",
-                  animationDelay: "0ms",
-                }}>
+              <h1
+                style={{
+                  margin: 0,
+                  letterSpacing: "-0.03em",
+                  lineHeight: 1.02,
+                }}
+              >
+                <span
+                  className="hero-word block"
+                  style={{
+                    fontSize: "clamp(3.5rem, 6vw, 6.5rem)",
+                    fontWeight: 700,
+                    color: "#0F172A",
+                    animationDelay: "0ms",
+                  }}
+                >
                   Beyond Skills,
                 </span>
-                <span className="hero-word block" style={{
-                  fontSize: "clamp(2.4rem, 5vw, 4.2rem)",
-                  fontWeight: 700,
-                  color: "#1a2e4a",
-                  animationDelay: "80ms",
-                  marginTop: 8,
-                }}>
-                  Into{" "}
-                  <span style={{ color: "#0EA5E9" }}>Potential.</span>
+                <span
+                  className="hero-word block"
+                  style={{
+                    fontSize: "clamp(2.4rem, 5vw, 4.2rem)",
+                    fontWeight: 700,
+                    color: "#1a2e4a",
+                    animationDelay: "80ms",
+                    marginTop: 8,
+                  }}
+                >
+                  Into <span style={{ color: "#0EA5E9" }}>Potential.</span>
                 </span>
               </h1>
 
-              <p style={{ marginTop: 24, maxWidth: 520, fontSize: "1.05rem", lineHeight: 1.8, color: "#4A6580", fontWeight: 400}}>
-                The future-ready screening platform where candidates prove capabilities through intelligent, secure assessments. Your potential unlock starts here.
+              <p
+                style={{
+                  marginTop: 24,
+                  maxWidth: 520,
+                  fontSize: "1.05rem",
+                  lineHeight: 1.8,
+                  color: "#4A6580",
+                  fontWeight: 400,
+                }}
+              >
+                The future-ready screening platform where candidates prove
+                capabilities through intelligent, secure assessments. Your
+                potential unlock starts here.
               </p>
 
               {/* CTAs — matching Screenshot 1 style */}
-              <div style={{ marginTop: 36, display: "flex", flexWrap: "wrap", gap: 14 }}>
-                <a href="#jobs" style={{
-                  display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 10,
-                  padding: "16px 36px", borderRadius: 12,
-                  background: "#1a2e4a",
-                  color: "white", fontWeight: 700, fontSize: "0.9rem",
-                  letterSpacing: "0.06em", textTransform: "uppercase",
-                  textDecoration: "none",
-                  boxShadow: "0 8px 24px rgba(26,46,74,0.25)",
-                  transition: "all 0.25s",
+              <div
+                style={{
+                  marginTop: 36,
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: 14,
                 }}
+              >
+                <a
+                  href="#jobs"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 10,
+                    padding: "16px 36px",
+                    borderRadius: 12,
+                    background: "#1a2e4a",
+                    color: "white",
+                    fontWeight: 700,
+                    fontSize: "0.9rem",
+                    letterSpacing: "0.06em",
+                    textTransform: "uppercase",
+                    textDecoration: "none",
+                    boxShadow: "0 8px 24px rgba(26,46,74,0.25)",
+                    transition: "all 0.25s",
+                  }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.transform = "translateY(-3px)";
-                    e.currentTarget.style.boxShadow = "0 16px 36px rgba(26,46,74,0.3)";
+                    e.currentTarget.style.boxShadow =
+                      "0 16px 36px rgba(26,46,74,0.3)";
                     e.currentTarget.style.background = "#152540";
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.boxShadow = "0 8px 24px rgba(26,46,74,0.25)";
+                    e.currentTarget.style.boxShadow =
+                      "0 8px 24px rgba(26,46,74,0.25)";
                     e.currentTarget.style.background = "#1a2e4a";
                   }}
                 >
                   EXPLORE OPPORTUNITIES
-                  <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+                  <svg
+                    width="14"
+                    height="14"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                  </svg>
                 </a>
-                <Link href="/how-it-works" style={{
-                  display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 10,
-                  padding: "16px 36px", borderRadius: 12,
-                  border: "1.5px solid #CBD5E1",
-                  background: "rgba(255,255,255,0.8)",
-                  color: "#334155", fontWeight: 700, fontSize: "0.9rem",
-                  letterSpacing: "0.06em", textTransform: "uppercase",
-                  textDecoration: "none",
-                  transition: "all 0.25s",
-                  backdropFilter: "blur(8px)",
-                }}
+                <Link
+                  href="/how-it-works"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 10,
+                    padding: "16px 36px",
+                    borderRadius: 12,
+                    border: "1.5px solid #CBD5E1",
+                    background: "rgba(255,255,255,0.8)",
+                    color: "#334155",
+                    fontWeight: 700,
+                    fontSize: "0.9rem",
+                    letterSpacing: "0.06em",
+                    textTransform: "uppercase",
+                    textDecoration: "none",
+                    transition: "all 0.25s",
+                    backdropFilter: "blur(8px)",
+                  }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.borderColor = "#0EA5E9";
                     e.currentTarget.style.color = "#0369A1";
@@ -488,83 +774,255 @@ export default function HomePage() {
               </div>
 
               {/* scroll hint */}
-              <div style={{ marginTop: 60, display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 6 }}>
-                <span style={{ fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase", color: "#94A3B8" }}>
+              <div
+                style={{
+                  marginTop: 60,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "flex-start",
+                  gap: 6,
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: "0.65rem",
+                    fontWeight: 700,
+                    letterSpacing: "0.15em",
+                    textTransform: "uppercase",
+                    color: "#94A3B8",
+                  }}
+                >
                   SCROLL TO EXPLORE
                 </span>
-                <svg width="14" height="20" viewBox="0 0 14 20" fill="none" style={{ opacity: 0.4 }}>
-                  <rect x="1" y="1" width="12" height="18" rx="6" stroke="#0EA5E9" strokeWidth="1.5" />
+                <svg
+                  width="14"
+                  height="20"
+                  viewBox="0 0 14 20"
+                  fill="none"
+                  style={{ opacity: 0.4 }}
+                >
+                  <rect
+                    x="1"
+                    y="1"
+                    width="12"
+                    height="18"
+                    rx="6"
+                    stroke="#0EA5E9"
+                    strokeWidth="1.5"
+                  />
                   <circle cx="7" cy="6" r="2" fill="#0EA5E9">
-                    <animate attributeName="cy" values="6;12;6" dur="1.8s" repeatCount="indefinite" />
+                    <animate
+                      attributeName="cy"
+                      values="6;12;6"
+                      dur="1.8s"
+                      repeatCount="indefinite"
+                    />
                   </circle>
                 </svg>
               </div>
             </div>
 
             {/* RIGHT — dark card  */}
-            <div style={{ position: "relative", height: 520 , width: 500 }}>
+            <div style={{ position: "relative", height: 520, width: 500 }}>
               {/* Shadow card behind */}
-              <div style={{
-                position: "absolute",
-                top: 12, left: 12, right: -12, bottom: -12,
-                borderRadius: 22,
-                background: "rgba(14,165,233,0.07)",
-                border: "1px solid rgba(14,165,233,0.1)",
-                zIndex: 1,
-              }} />
+              <div
+                style={{
+                  position: "absolute",
+                  top: 12,
+                  left: 12,
+                  right: -12,
+                  bottom: -12,
+                  borderRadius: 22,
+                  background: "rgba(14,165,233,0.07)",
+                  border: "1px solid rgba(14,165,233,0.1)",
+                  zIndex: 1,
+                }}
+              />
 
               {/* Main dark card */}
               <div className="live-card">
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
-                  <span style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase", color: "#071d3b" }}>
-                    {role === "STUDENT" ? "YOUR OPPORTUNITIES" : "OPPORTUNITIES OVERVIEW"}
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    marginBottom: 18,
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: "0.7rem",
+                      fontWeight: 800,
+                      letterSpacing: "0.12em",
+                      textTransform: "uppercase",
+                      color: "#071d3b",
+                    }}
+                  >
+                    {role === "STUDENT"
+                      ? "YOUR OPPORTUNITIES"
+                      : "OPPORTUNITIES OVERVIEW"}
                   </span>
-                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6, borderRadius: 999, padding: "4px 12px", fontSize: "0.65rem", fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", background: "rgba(14,165,233,0.08)", border: "1px solid rgba(14,165,233,0.25)", color: "#0EA5E9" }}>
-                    <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#0EA5E9", display: "inline-block" }} />
+                  <span
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 6,
+                      borderRadius: 999,
+                      padding: "4px 12px",
+                      fontSize: "0.65rem",
+                      fontWeight: 800,
+                      letterSpacing: "0.1em",
+                      textTransform: "uppercase",
+                      background: "rgba(14,165,233,0.08)",
+                      border: "1px solid rgba(14,165,233,0.25)",
+                      color: "#0EA5E9",
+                    }}
+                  >
+                    <span
+                      style={{
+                        width: 5,
+                        height: 5,
+                        borderRadius: "50%",
+                        background: "#0EA5E9",
+                        display: "inline-block",
+                      }}
+                    />
                     {openCount} OPEN
                   </span>
                 </div>
 
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 8, marginBottom: 12 }}>
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+                    gap: 8,
+                    marginBottom: 12,
+                  }}
+                >
                   {[
                     { label: "Applied", value: appliedCount },
                     { label: "Exam Done", value: examDoneCount },
                     { label: "Open", value: openCount },
                     { label: "Total", value: totalCount },
                   ].map((item) => (
-                    <div key={item.label} style={{ borderRadius: 12, border: "1px solid #E2E8F0", background: "#F8FAFC", padding: "8px 10px", textAlign: "center" }}>
-                      <p style={{ margin: 0, fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#94A3B8" }}>
+                    <div
+                      key={item.label}
+                      style={{
+                        borderRadius: 12,
+                        border: "1px solid #E2E8F0",
+                        background: "#F8FAFC",
+                        padding: "8px 10px",
+                        textAlign: "center",
+                      }}
+                    >
+                      <p
+                        style={{
+                          margin: 0,
+                          fontSize: "0.6rem",
+                          fontWeight: 700,
+                          letterSpacing: "0.12em",
+                          textTransform: "uppercase",
+                          color: "#94A3B8",
+                        }}
+                      >
                         {item.label}
                       </p>
-                      <p style={{ margin: "6px 0 0", fontSize: "0.95rem", fontWeight: 700, color: "#0F172A" }}>
+                      <p
+                        style={{
+                          margin: "6px 0 0",
+                          fontSize: "0.95rem",
+                          fontWeight: 700,
+                          color: "#0F172A",
+                        }}
+                      >
                         {item.value}
                       </p>
                     </div>
                   ))}
                 </div>
 
-                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                <div
+                  style={{ display: "flex", flexDirection: "column", gap: 6 }}
+                >
                   {recentRoles.length === 0 ? (
-                    <div style={{ borderRadius: 14, border: "1px dashed #E2E8F0", padding: "18px", textAlign: "center", color: "#94A3B8", fontSize: "0.85rem" }}>
+                    <div
+                      style={{
+                        borderRadius: 14,
+                        border: "1px dashed #E2E8F0",
+                        padding: "18px",
+                        textAlign: "center",
+                        color: "#94A3B8",
+                        fontSize: "0.85rem",
+                      }}
+                    >
                       No roles available yet.
                     </div>
                   ) : (
                     recentRoles.map((job) => (
-                      <div key={job.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderRadius: 12, border: "1px solid #E2E8F0", background: "#FFFFFF", padding: "8px 12px" }}>
+                      <div
+                        key={job.id}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          borderRadius: 12,
+                          border: "1px solid #E2E8F0",
+                          background: "#FFFFFF",
+                          padding: "8px 12px",
+                        }}
+                      >
                         <div>
-                          <p style={{ margin: 0, fontSize: "0.84rem", fontWeight: 700, color: "#0F172A" }}>
+                          <p
+                            style={{
+                              margin: 0,
+                              fontSize: "0.84rem",
+                              fontWeight: 700,
+                              color: "#0F172A",
+                            }}
+                          >
                             {job.title}
                           </p>
-                          <p style={{ marginTop: 3, marginBottom: 0, fontSize: "0.7rem", color: "#94A3B8" }}>
+                          <p
+                            style={{
+                              marginTop: 3,
+                              marginBottom: 0,
+                              fontSize: "0.7rem",
+                              color: "#94A3B8",
+                            }}
+                          >
                             {job.company}
                           </p>
                         </div>
                         <div style={{ textAlign: "right" }}>
-                          <span style={{ display: "inline-flex", alignItems: "center", borderRadius: 999, padding: "3px 8px", fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", background: "rgba(14,165,233,0.08)", color: "#0EA5E9" }}>
+                          <span
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              borderRadius: 999,
+                              padding: "3px 8px",
+                              fontSize: "0.6rem",
+                              fontWeight: 700,
+                              letterSpacing: "0.1em",
+                              textTransform: "uppercase",
+                              background: "rgba(14,165,233,0.08)",
+                              color: "#0EA5E9",
+                            }}
+                          >
                             {formatJobType(job.type) || "Role"}
                           </span>
-                          <p style={{ marginTop: 4, marginBottom: 0, fontSize: "0.65rem", color: "#94A3B8" }}>
-                            {job.createdAt ? new Date(job.createdAt).toLocaleDateString("en-GB") : "Recently posted"}
+                          <p
+                            style={{
+                              marginTop: 4,
+                              marginBottom: 0,
+                              fontSize: "0.65rem",
+                              color: "#94A3B8",
+                            }}
+                          >
+                            {job.createdAt
+                              ? new Date(job.createdAt).toLocaleDateString(
+                                  "en-GB",
+                                )
+                              : "Recently posted"}
                           </p>
                         </div>
                       </div>
@@ -572,9 +1030,18 @@ export default function HomePage() {
                   )}
                 </div>
 
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 16 }}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    marginTop: 16,
+                  }}
+                >
                   <span style={{ fontSize: "0.75rem", color: "#94A3B8" }}>
-                    {role === "STUDENT" ? "Track your progress and apply faster." : "Overview of current roles."}
+                    {role === "STUDENT"
+                      ? "Track your progress and apply faster."
+                      : "Overview of current roles."}
                   </span>
                   <Link
                     href="#jobs"
@@ -599,26 +1066,52 @@ export default function HomePage() {
           </section>
 
           {/* ── STATS SECTION ── */}
-          <section style={{
-            marginBottom: 100,
-            background: "linear-gradient(135deg, #1a2e4a 0%, #0c2040 100%)",
-            borderRadius: 28, padding: "4rem 2rem",
-            border: "1px solid rgba(14,165,233,0.15)",
-            position: "relative", overflow: "hidden",
-          }}>
-            <div style={{
-              position: "absolute", inset: 0,
-              backgroundImage: "linear-gradient(rgba(14,165,233,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(14,165,233,0.03) 1px, transparent 1px)",
-              backgroundSize: "40px 40px", pointerEvents: "none",
-            }} />
-            <div style={{ position: "relative", zIndex: 1, display: "flex", justifyContent: "space-around", flexWrap: "wrap", gap: "2rem" }}>
+          <section
+            style={{
+              marginBottom: 100,
+              background: "linear-gradient(135deg, #1a2e4a 0%, #0c2040 100%)",
+              borderRadius: 28,
+              padding: "4rem 2rem",
+              border: "1px solid rgba(14,165,233,0.15)",
+              position: "relative",
+              overflow: "hidden",
+            }}
+          >
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                backgroundImage:
+                  "linear-gradient(rgba(14,165,233,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(14,165,233,0.03) 1px, transparent 1px)",
+                backgroundSize: "40px 40px",
+                pointerEvents: "none",
+              }}
+            />
+            <div
+              style={{
+                position: "relative",
+                zIndex: 1,
+                display: "flex",
+                justifyContent: "space-around",
+                flexWrap: "wrap",
+                gap: "2rem",
+              }}
+            >
               {[
                 { to: 2400, label: "Active Opportunities" },
                 { to: 14800, label: "Talented Candidates" },
                 { to: 320, label: "Partner Companies" },
                 { to: 91, label: "Success Rate", suffix: "%" },
               ].map((s) => (
-                <div key={s.label} style={{ flex: 1, minWidth: 140, textAlign: "center", padding: "1.5rem" }}>
+                <div
+                  key={s.label}
+                  style={{
+                    flex: 1,
+                    minWidth: 140,
+                    textAlign: "center",
+                    padding: "1.5rem",
+                  }}
+                >
                   <Counter to={s.to} label={s.label} suffix={s.suffix ?? "+"} />
                 </div>
               ))}
@@ -628,28 +1121,95 @@ export default function HomePage() {
           {/* ── FEATURE CARDS ── */}
           <section style={{ marginBottom: 80 }}>
             <div style={{ marginBottom: 40 }}>
-              <div style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#0EA5E9", marginBottom: 12 }}>
-                <span style={{ width: 20, height: 2, background: "#0EA5E9", borderRadius: 2 }} />
+              <div
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 8,
+                  fontSize: "0.72rem",
+                  fontWeight: 700,
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                  color: "#0EA5E9",
+                  marginBottom: 12,
+                }}
+              >
+                <span
+                  style={{
+                    width: 20,
+                    height: 2,
+                    background: "#0EA5E9",
+                    borderRadius: 2,
+                  }}
+                />
                 Why HireSmart
               </div>
-              <h2 style={{ fontSize: "clamp(2rem,3.5vw,2.8rem)", fontWeight: 700, color: "#0F172A", letterSpacing: "-0.02em", margin: 0 }}>
+              <h2
+                style={{
+                  fontSize: "clamp(2rem,3.5vw,2.8rem)",
+                  fontWeight: 700,
+                  color: "#0F172A",
+                  letterSpacing: "-0.02em",
+                  margin: 0,
+                }}
+              >
                 Next-generation talent screening
               </h2>
             </div>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
               {[
-                { icon: "🎯", label: "Intelligent Exams", desc: "Randomized, role-specific assessments that adapt to candidate expertise level, ensuring fair competition." },
-                { icon: "🔐", label: "Fort Knox Security", desc: "Advanced proctoring with fullscreen enforcement, tab-switch detection, and biometric verification." },
-                { icon: "🤖", label: "AI Evaluation Engine", desc: "Real-time scenario scoring using neural networks for objective, bias-free candidate assessment." },
+                {
+                  icon: "🎯",
+                  label: "Intelligent Exams",
+                  desc: "Randomized, role-specific assessments that adapt to candidate expertise level, ensuring fair competition.",
+                },
+                {
+                  icon: "🔐",
+                  label: "Fort Knox Security",
+                  desc: "Advanced proctoring with fullscreen enforcement, tab-switch detection, and biometric verification.",
+                },
+                {
+                  icon: "🤖",
+                  label: "AI Evaluation Engine",
+                  desc: "Real-time scenario scoring using neural networks for objective, bias-free candidate assessment.",
+                },
               ].map((f) => (
                 <div key={f.label} className="feature-card">
-                  <div style={{ width: 56, height: 56, borderRadius: 16, background: "#E0F2FE", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "2rem", marginBottom: 20 }}>
+                  <div
+                    style={{
+                      width: 56,
+                      height: 56,
+                      borderRadius: 16,
+                      background: "#E0F2FE",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "2rem",
+                      marginBottom: 20,
+                    }}
+                  >
                     {f.icon}
                   </div>
-                  <h3 style={{ fontWeight: 700, fontSize: "1.15rem", color: "#0F172A", marginBottom: 10 }}>
+                  <h3
+                    style={{
+                      fontWeight: 700,
+                      fontSize: "1.15rem",
+                      color: "#0F172A",
+                      marginBottom: 10,
+                    }}
+                  >
                     {f.label}
                   </h3>
-                  <p style={{ color: "#94A3B8", fontSize: "0.9rem", lineHeight: 1.7, margin: 0 }}>{f.desc}</p>
+                  <p
+                    style={{
+                      color: "#94A3B8",
+                      fontSize: "0.9rem",
+                      lineHeight: 1.7,
+                      margin: 0,
+                    }}
+                  >
+                    {f.desc}
+                  </p>
                 </div>
               ))}
             </div>
@@ -657,40 +1217,125 @@ export default function HomePage() {
 
           {/* ── JOBS ── */}
           <section id="jobs" style={{ marginTop: 80, scrollMarginTop: 32 }}>
-            <div style={{ marginBottom: 32, display: "flex", flexWrap: "wrap", gap: 20, alignItems: "flex-end", justifyContent: "space-between" }}>
+            <div
+              style={{
+                marginBottom: 32,
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 20,
+                alignItems: "flex-end",
+                justifyContent: "space-between",
+              }}
+            >
               <div>
-                <p style={{ fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", color: "#0EA5E9", marginBottom: 8 }}>
+                <p
+                  style={{
+                    fontSize: "0.7rem",
+                    fontWeight: 700,
+                    letterSpacing: "0.2em",
+                    textTransform: "uppercase",
+                    color: "#0EA5E9",
+                    marginBottom: 8,
+                  }}
+                >
                   📊 Database Powered by Prisma & SQLite
                 </p>
-                <h2 style={{ fontSize: "clamp(1.8rem,3vw,2.6rem)", fontWeight: 700, color: "#0F172A", letterSpacing: "-0.02em", margin: 0 }}>
+                <h2
+                  style={{
+                    fontSize: "clamp(1.8rem,3vw,2.6rem)",
+                    fontWeight: 700,
+                    color: "#0F172A",
+                    letterSpacing: "-0.02em",
+                    margin: 0,
+                  }}
+                >
                   Opportunities Awaiting
                 </h2>
               </div>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
-                <button onClick={() => setFilter("all")} className={`filter-btn ${filter === "all" ? "f-active f-active-all" : ""}`}>All Roles</button>
-                <button onClick={() => setFilter("internship")} className={`filter-btn ${filter === "internship" ? "f-active f-active-intern" : ""}`}>Internships</button>
-                <button onClick={() => setFilter("fulltime")} className={`filter-btn ${filter === "fulltime" ? "f-active f-active-full" : ""}`}>Full-time</button>
+                <button
+                  onClick={() => setFilter("all")}
+                  className={`filter-btn ${filter === "all" ? "f-active f-active-all" : ""}`}
+                >
+                  All Roles
+                </button>
+                <button
+                  onClick={() => setFilter("internship")}
+                  className={`filter-btn ${filter === "internship" ? "f-active f-active-intern" : ""}`}
+                >
+                  Internships
+                </button>
+                <button
+                  onClick={() => setFilter("fulltime")}
+                  className={`filter-btn ${filter === "fulltime" ? "f-active f-active-full" : ""}`}
+                >
+                  Full-time
+                </button>
               </div>
             </div>
 
             {isLoading && (
-              <div style={{ display: "flex", alignItems: "center", gap: 12, background: "rgba(255,255,255,0.8)", border: "1px solid rgba(14,165,233,0.2)", borderRadius: 16, padding: "40px 24px", color: "#94A3B8", fontSize: "0.875rem" }}>
-                <svg className="animate-spin" style={{ width: 16, height: 16, color: "#0EA5E9" }} viewBox="0 0 24 24" fill="none">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 12,
+                  background: "rgba(255,255,255,0.8)",
+                  border: "1px solid rgba(14,165,233,0.2)",
+                  borderRadius: 16,
+                  padding: "40px 24px",
+                  color: "#94A3B8",
+                  fontSize: "0.875rem",
+                }}
+              >
+                <svg
+                  className="animate-spin"
+                  style={{ width: 16, height: 16, color: "#0EA5E9" }}
+                  viewBox="0 0 24 24"
+                  fill="none"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v8z"
+                  />
                 </svg>
                 Loading positions…
               </div>
             )}
 
             {error && (
-              <div style={{ borderRadius: 16, border: "1px solid #FECACA", background: "#FEF2F2", padding: "20px 24px", fontSize: "0.875rem", color: "#EF4444" }}>
+              <div
+                style={{
+                  borderRadius: 16,
+                  border: "1px solid #FECACA",
+                  background: "#FEF2F2",
+                  padding: "20px 24px",
+                  fontSize: "0.875rem",
+                  color: "#EF4444",
+                }}
+              >
                 Failed to load jobs: {error.message}
               </div>
             )}
 
             {!isLoading && !error && filteredJobs.length === 0 && (
-              <div style={{ padding: "48px 0", textAlign: "center", fontSize: "0.875rem", color: "#94A3B8" }}>
+              <div
+                style={{
+                  padding: "48px 0",
+                  textAlign: "center",
+                  fontSize: "0.875rem",
+                  color: "#94A3B8",
+                }}
+              >
                 No positions match this filter.
               </div>
             )}
@@ -704,18 +1349,19 @@ export default function HomePage() {
                     role={role}
                     job={{
                       ...j,
-                      tags: Array.isArray((j as any).tags) ? ((j as any).tags as string[]) : [],
+                      tags: Array.isArray((j as any).tags)
+                        ? ((j as any).tags as string[])
+                        : [],
                       company:
                         typeof (j as any).company === "object"
-                          ? (j as any).company?.name ?? "Unknown Company"
-                          : (j as any).company ?? "Unknown Company"
+                          ? ((j as any).company?.name ?? "Unknown Company")
+                          : ((j as any).company ?? "Unknown Company"),
                     }}
                   />
                 ))}
               </div>
             )}
           </section>
-
         </div>
       </main>
     </>
