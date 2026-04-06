@@ -7,7 +7,7 @@ import { api } from "~/trpc/react";
 import ScoreCard from "../components/ScoreCard";
 import StatusBadge from "../components/StatusBadge";
 import FeedbackBox from "../components/FeedbackBox";
-import { Target, BarChart2, CheckCircle2, XCircle, Ruler, FileText, Unlock, Lock } from "lucide-react";
+import { Target, BarChart2, CheckCircle2, XCircle, Ruler, FileText } from "lucide-react";
 
 function ResultContent() {
   const searchParams = useSearchParams();
@@ -299,59 +299,6 @@ function ResultContent() {
           title="AI Evaluation Summary"
           type="ai"
         />
-      </div>
-
-      {/* CV Upload status */}
-      <div
-        className="rounded-4xl p-8 mb-6 flex items-center justify-between gap-4 flex-wrap border"
-        style={{
-          background: "linear-gradient(135deg,#F8FAFC 0%,#F1F5F9 100%)",
-          borderColor: "#E2E8F0",
-          ...(isEmpty ? {} : {
-            background: data.cvUploadUnlocked
-              ? "linear-gradient(135deg,#F0FDF4 0%,#DCFCE7 100%)"
-              : "linear-gradient(135deg,#FFF7ED 0%,#FEE2E2 100%)",
-            borderColor: data.cvUploadUnlocked ? "#BBF7D0" : "#FECACA",
-          }),
-        }}
-      >
-        <div className="flex items-center gap-4">
-          <div
-            className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl border"
-            style={isEmpty
-              ? { background: "#F1F5F9", borderColor: "#E2E8F0" }
-              : { background: data.cvUploadUnlocked ? "#DCFCE7" : "#FEE2E2", borderColor: data.cvUploadUnlocked ? "#86EFAC" : "#FECACA" }
-            }
-          >
-            {isEmpty
-              ? <FileText size={22} className="text-slate-400" />
-              : data.cvUploadUnlocked
-              ? <Unlock size={22} className="text-green-700" />
-              : <Lock size={22} className="text-red-500" />
-            }
-          </div>
-          <div>
-            <p className="font-black text-sm m-0 text-[#64748B]">
-              {isEmpty ? "CV Upload Status" : `CV Upload ${data.cvUploadUnlocked ? "Unlocked" : "Locked"}`}
-            </p>
-            <p className="text-xs text-[#94A3B8] m-0 mt-1 font-medium">
-              {isEmpty
-                ? "Status will be available after evaluation."
-                : data.cvUploadUnlocked
-                  ? "You may now upload your CV and continue the process."
-                  : "You must meet the cutoff to unlock CV upload."}
-            </p>
-          </div>
-        </div>
-        {!isEmpty && data.cvUploadUnlocked && (
-          <Link
-            href="/student/profile"
-            className="px-6 py-3 rounded-2xl text-sm font-black text-white whitespace-nowrap transition-all duration-200 hover:brightness-110 active:scale-[0.98]"
-            style={{ background: "#15803D" }}
-          >
-            Upload CV →
-          </Link>
-        )}
       </div>
 
       {/* Action buttons */}
