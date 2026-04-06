@@ -4,6 +4,53 @@ import nodemailer from "nodemailer";
 import bcrypt from "bcrypt";
 
 export const companyRouter = createTRPCRouter({
+  requestPasswordReset: publicProcedure
+    .input(
+      z.object({
+        email: z.string().email(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const company = await ctx.db.company.findUnique({
+        where: { email: input.email },
+      });
+
+      if (!company) {
+        throw new Error("No company account found for this email");
+      }
+
+      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+      const expiry = new Date(Date.now() + 5 * 60 * 1000);
+
+      await ctx.db.company.update({
+        where: { email: input.email },
+        data: {
+          otp,
+          otpExpiry: expiry,
+        },
+      });
+
+      if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+        throw new Error("Email credentials missing in .env");
+      }
+
+      const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS,
+        },
+      });
+
+      await transporter.sendMail({
+        from: process.env.EMAIL_USER,
+        to: input.email,
+        subject: "Company Password Reset OTP",
+        text: `Your OTP is: ${otp}`,
+      });
+
+      return { message: "OTP sent to email." };
+    }),
   create: publicProcedure
     .input(
       z.object({
@@ -50,6 +97,49 @@ export const companyRouter = createTRPCRouter({
       });
 
       return { message: "Company registered. OTP sent to email." };
+    }),
+
+  resetPassword: publicProcedure
+    .input(
+      z.object({
+        email: z.string().email(),
+        otp: z.string().length(6),
+        newPassword: z.string().min(6),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const company = await ctx.db.company.findUnique({
+        where: { email: input.email },
+      });
+
+      if (!company) {
+        throw new Error("No company account found for this email");
+      }
+
+      if (!company.otp || !company.otpExpiry) {
+        throw new Error("OTP not requested");
+      }
+
+      if (company.otpExpiry && new Date() > company.otpExpiry) {
+        throw new Error("OTP expired");
+      }
+
+      if (company.otp !== input.otp) {
+        throw new Error("Invalid OTP");
+      }
+
+      const hashedPassword = await bcrypt.hash(input.newPassword, 10);
+
+      await ctx.db.company.update({
+        where: { email: input.email },
+        data: {
+          password: hashedPassword,
+          otp: null,
+          otpExpiry: null,
+        },
+      });
+
+      return { message: "Password updated" };
     }),
 
   verifyOtp: publicProcedure
@@ -114,6 +204,14 @@ export const companyRouter = createTRPCRouter({
       throw new Error("Invalid password");
     }
 
+    // Set logo if not already set
+    if (!company.logo) {
+      await ctx.db.company.update({
+        where: { id: company.id },
+        data: { logo: "/logos/company-logo-jpg.jpg" },
+      });
+    }
+
     return { message: "Login successful", companyId: company.id };
   }),
 
@@ -133,11 +231,16 @@ export const companyRouter = createTRPCRouter({
       companyId: z.string(),
       name: z.string().min(1),
       description: z.string().optional(),
+      logo: z.string().optional(),
     }))
     .mutation(async ({ ctx, input }) => {
       return ctx.db.company.update({
         where: { id: input.companyId },
-        data: { name: input.name, description: input.description ?? null },
+        data: { 
+          name: input.name, 
+          description: input.description ?? null,
+          logo: input.logo ?? null, 
+        },
       });
     }),
 });

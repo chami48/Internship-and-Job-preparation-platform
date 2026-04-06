@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Swal from "sweetalert2";
 import { api } from "~/trpc/react";
 
 function EyeIcon({ open }: { open: boolean }) {
@@ -22,36 +23,93 @@ export default function LoginCompany() {
   const router = useRouter();
   const login = api.company.login.useMutation();
 
+  const toast = Swal.mixin({
+    toast: true,
+    position: "top-end",
+    showConfirmButton: false,
+    showCloseButton: true,
+    timer: 800,
+    timerProgressBar: true,
+    background: "#F8FBFF",
+    color: "#0F172A",
+    customClass: {
+      popup: "hs-toast",
+      title: "text-[13px] font-semibold leading-tight",
+      closeButton: "text-red-500 hover:text-red-600",
+      icon: "border-2 border-[#DCEAF6] scale-75",
+    },
+  });
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({ email: "", password: "" });
+
+  const validateEmail = (value: string): string => {
+    if (!value.trim()) return "Email is required";
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(value)) return "Please enter a valid email address";
+    return "";
+  };
+
+  const validatePassword = (value: string): string => {
+    if (!value) return "Password is required";
+    if (value.length < 6) return "Password must be at least 6 characters";
+    return "";
+  };
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setEmail(value);
+    setFieldErrors((prev) => ({ ...prev, email: validateEmail(value) }));
+    setError("");
+  };
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setPassword(value);
+    setFieldErrors((prev) => ({ ...prev, password: validatePassword(value) }));
+    setError("");
+  };
 
   const handleLogin = () => {
     setError("");
-    if (!email.trim() || !password) {
-      setError("Please enter your email and password.");
-      return;
-    }
+    const emailErr = validateEmail(email);
+    const passwordErr = validatePassword(password);
+    
+    setFieldErrors({ email: emailErr, password: passwordErr });
+
+    if (emailErr || passwordErr) return;
+
     login.mutate(
       { email, password },
       {
         onSuccess: (data) => {
           localStorage.setItem("companyId", data.companyId);
-          router.push("/company/dashboard");
+          toast.fire({
+            icon: "success",
+            iconColor: "#16A34A",
+            title: "Login successful!",
+          });
+          setTimeout(() => router.push("/company/dashboard"), 2200);
         },
         onError: (err) => setError(err.message),
       },
     );
   };
 
+  const handleDemoFill = () => {
+    setEmail("nilumidakshika5@gmail.com");
+    setPassword("Nilumi123#");
+  };
+
   const inputStyle: React.CSSProperties = {
     width: "100%",
     padding: "11px 14px",
-    border: "1.5px solid #E2E8F0",
+    border: "1.5px solid #CBD5E1",
     borderRadius: 10,
     fontSize: "0.875rem",
-    fontFamily: "'Plus Jakarta Sans', sans-serif",
     color: "#0F172A",
     background: "#F8FAFF",
     outline: "none",
@@ -65,17 +123,15 @@ export default function LoginCompany() {
     fontWeight: 700,
     letterSpacing: "0.07em",
     textTransform: "uppercase",
-    color: "#64748B",
+    color: "#334155",
     marginBottom: 6,
-    fontFamily: "'Plus Jakarta Sans', sans-serif",
   };
 
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
         .reg-input:focus { border-color: #0EA5E9 !important; box-shadow: 0 0 0 3px rgba(14,165,233,0.12) !important; background: #fff !important; }
-        .reg-input::placeholder { color: #CBD5E1; }
+        .reg-input::placeholder { color: #94A3B8; }
         .reg-btn:hover:not(:disabled) { background: #0284C7 !important; box-shadow: 0 6px 20px rgba(14,165,233,0.35) !important; transform: translateY(-1px); }
         .reg-btn:disabled { opacity: 0.6; cursor: not-allowed; }
         .reg-btn { transition: background 0.2s, box-shadow 0.2s, transform 0.18s; }
@@ -84,7 +140,6 @@ export default function LoginCompany() {
       <div style={{
         minHeight: "100vh",
         background: "#F8FAFF",
-        fontFamily: "'Plus Jakarta Sans', sans-serif",
         display: "flex",
         alignItems: "stretch",
       }}>
@@ -119,7 +174,6 @@ export default function LoginCompany() {
                 Employer Portal
               </div>
               <h1 style={{
-                fontFamily: "'Plus Jakarta Sans', sans-serif",
                 fontSize: "2rem", fontWeight: 800,
                 color: "white", margin: 0, lineHeight: 1.2,
                 letterSpacing: "-0.03em",
@@ -166,17 +220,20 @@ export default function LoginCompany() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          padding: "3rem 2rem",
+          paddingTop: "3rem",
+          paddingRight: "2rem",
+          paddingBottom: "3rem",
+          paddingLeft: "2rem",
         }}>
-          <div style={{ width: "100%", maxWidth: 420 }}>
+          <div style={{ width: "100%", maxWidth: 420, background: "#F0F7FF", padding: "2rem", borderRadius: 20, border: "1px solid #E0EEFF" }}>
 
-            <div style={{ marginBottom: "2rem" }}>
+            <div style={{ marginBottom: "2.75rem" }}>
               <h2 style={{
-                fontFamily: "'Plus Jakarta Sans', sans-serif",
-                fontSize: "1.6rem", fontWeight: 800, color: "#0F172A",
+                fontSize: "1.75rem", fontWeight: 800, color: "#112847",
                 margin: 0, letterSpacing: "-0.025em",
+                fontFamily: "var(--font-plus-jakarta), ui-sans-serif, system-ui, sans-serif",
               }}>Sign in to your account</h2>
-              <p style={{ marginTop: 6, fontSize: "0.82rem", color: "#94A3B8", fontWeight: 400 }}>
+              <p style={{ marginTop: 6, fontSize: "0.82rem", color: "#64748B", fontWeight: 400 }}>
                 Enter your credentials to access the employer dashboard.
               </p>
             </div>
@@ -193,20 +250,29 @@ export default function LoginCompany() {
               </div>
             )}
 
-            <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
 
               {/* Email */}
               <div>
                 <label style={labelStyle}>Work Email</label>
                 <input
                   className="reg-input"
-                  style={inputStyle}
+                  style={{
+                    ...inputStyle,
+                    ...(fieldErrors.email && { border: "1.5px solid #FCA5A5", background: "#FFF8F8" }),
+                  }}
                   type="email"
                   placeholder="hr@company.com"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={handleEmailChange}
                   onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+                  maxLength={100}
                 />
+                {fieldErrors.email && (
+                  <p style={{ marginTop: 5, fontSize: "0.75rem", color: "#DC2626", fontWeight: 600 }}>
+                    {fieldErrors.email}
+                  </p>
+                )}
               </div>
 
               {/* Password */}
@@ -215,18 +281,34 @@ export default function LoginCompany() {
                 <div style={{ position: "relative" }}>
                   <input
                     className="reg-input"
-                    style={{ ...inputStyle, paddingRight: 42 }}
+                    style={{
+                      ...inputStyle,
+                      paddingRight: 42,
+                      ...(fieldErrors.password && { border: "1.5px solid #FCA5A5", background: "#FFF8F8" }),
+                    }}
                     type={showPw ? "text" : "password"}
                     placeholder="Your password"
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={handlePasswordChange}
                     onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+                    maxLength={50}
                   />
                   <button type="button" onClick={() => setShowPw(!showPw)}
                     style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#94A3B8", display: "flex", alignItems: "center" }}>
                     <EyeIcon open={showPw} />
                   </button>
                 </div>
+                {fieldErrors.password && (
+                  <p style={{ marginTop: 5, fontSize: "0.75rem", color: "#DC2626", fontWeight: 600 }}>
+                    {fieldErrors.password}
+                  </p>
+                )}
+              </div>
+
+              <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                <Link href="/company/forgot-password" style={{ fontSize: "0.75rem", color: "#0EA5E9", fontWeight: 600, textDecoration: "none" }}>
+                  Forgot password?
+                </Link>
               </div>
 
               {/* Submit */}
@@ -247,7 +329,6 @@ export default function LoginCompany() {
                   fontWeight: 700,
                   letterSpacing: "0.04em",
                   cursor: "pointer",
-                  fontFamily: "'Plus Jakarta Sans', sans-serif",
                 }}
               >
                 {login.isPending ? "Signing in…" : "Sign In →"}
@@ -265,6 +346,42 @@ export default function LoginCompany() {
           </div>
         </div>
       </div>
+
+      {/* Demo Button */}
+      <button
+        onClick={handleDemoFill}
+        style={{
+          position: "fixed",
+          bottom: "2rem",
+          right: "2rem",
+          width: 56,
+          height: 56,
+          borderRadius: "50%",
+          background: "linear-gradient(135deg, #0EA5E9, #0284C7)",
+          border: "none",
+          color: "white",
+          fontSize: "1.5rem",
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          boxShadow: "0 6px 20px rgba(14,165,233,0.35)",
+          transition: "background 0.2s, box-shadow 0.2s, transform 0.18s",
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = "linear-gradient(135deg, #0284C7, #0164A7)";
+          e.currentTarget.style.boxShadow = "0 8px 25px rgba(14,165,233,0.45)";
+          e.currentTarget.style.transform = "translateY(-2px)";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = "linear-gradient(135deg, #0EA5E9, #0284C7)";
+          e.currentTarget.style.boxShadow = "0 6px 20px rgba(14,165,233,0.35)";
+          e.currentTarget.style.transform = "translateY(0)";
+        }}
+        title="Fill demo credentials"
+      >
+        ✨
+      </button>
     </>
   );
 }

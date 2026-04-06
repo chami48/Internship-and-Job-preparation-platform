@@ -1,10 +1,11 @@
 "use client";
 
 import { use } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   ArrowLeft, MapPin, Briefcase, Clock, Users, Calendar,
-  DollarSign, Tag, CheckCircle2, ListChecks, Gift, FileText, Pencil,
+  DollarSign, Tag, CheckCircle2, ListChecks, Gift, FileText, Pencil, BarChart3, Eye,
 } from "lucide-react";
 import { api } from "~/trpc/react";
 
@@ -64,8 +65,30 @@ function TextBlock({ text }: { text: string }) {
 export default function JobDetailPage({ params }: { params: Promise<{ jobId: string }> }) {
   const { jobId } = use(params);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const [companyId, setCompanyId] = useState<string | null>(null);
+  const [showPerformance, setShowPerformance] = useState(false);
+
+  useEffect(() => {
+    if (searchParams.get("performance") === "1") {
+      setShowPerformance(true);
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    setCompanyId(localStorage.getItem("companyId"));
+  }, []);
 
   const { data: job, isLoading, isError } = api.job.byId.useQuery({ id: jobId });
+
+  const {
+    data: performance,
+    isLoading: performanceLoading,
+    refetch: refetchPerformance,
+  } = api.job.performance.useQuery(
+    { jobId, companyId: companyId ?? "" },
+    { enabled: !!companyId && showPerformance },
+  );
 
   if (isLoading) {
     return (
@@ -116,6 +139,135 @@ export default function JobDetailPage({ params }: { params: Promise<{ jobId: str
           </button>
         </div>
       </div>
+
+      <div className="mb-6 flex items-center gap-3 flex-wrap">
+        <button
+          onClick={() => {
+            setShowPerformance((prev) => !prev);
+            if (!showPerformance) {
+              void refetchPerformance();
+            }
+          }}
+          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-[#0F172A] to-[#0F75A8] rounded-xl shadow-sm hover:brightness-110 transition-all"
+        >
+          <BarChart3 size={14} /> {showPerformance ? "Hide Performance" : "Check Performance"}
+        </button>
+      </div>
+
+      {showPerformance && (
+        <div className="mb-6 border border-[#DCE7F5] rounded-2xl p-6 bg-gradient-to-br from-white to-[#F7FBFF] shadow-sm">
+          <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
+            <div>
+              <h3 className="text-base font-extrabold text-[#0F172A] inline-flex items-center gap-2">
+                <BarChart3 size={16} className="text-[#0F75A8]" /> Job Performance Analytics
+              </h3>
+              <p className="text-xs text-slate-500 mt-1">Track visibility, conversion funnel, and screening outcomes.</p>
+            </div>
+            <span
+              className={`text-xs font-bold px-3 py-1 rounded-full border ${
+                performance?.healthLevel === "HIGH"
+                  ? "bg-emerald-100 text-emerald-700 border-emerald-200"
+                  : performance?.healthLevel === "MEDIUM"
+                    ? "bg-amber-100 text-amber-700 border-amber-200"
+                    : "bg-red-100 text-red-700 border-red-200"
+              }`}
+            >
+              {performance?.healthLevel ?? "-"}
+            </span>
+          </div>
+
+          {performanceLoading || !performance ? (
+            <p className="text-sm text-slate-500">Loading performance metrics...</p>
+          ) : (
+            <>
+              <div className="mb-4 rounded-xl border border-slate-200 p-4 bg-[#F8FAFC]">
+                <p className="text-xs font-bold uppercase tracking-wide text-slate-500 mb-3">Recruitment Funnel</p>
+                {[
+                  { label: "Applicants", value: performance.applicants, color: "bg-[#0F75A8]" },
+                  { label: "Exam Submitted", value: performance.examSubmitted, color: "bg-[#3B82F6]" },
+                  { label: "Evaluated", value: performance.evaluated, color: "bg-[#6366F1]" },
+                  { label: "Passed", value: performance.passed, color: "bg-[#10B981]" },
+                ].map((step) => {
+                  const base = Math.max(performance.applicants, 1);
+                  const width = Math.min(100, Math.round((step.value / base) * 100));
+                  return (
+                    <div key={step.label} className="mb-2.5 last:mb-0">
+                      <div className="flex items-center justify-between text-xs mb-1">
+                        <span className="font-semibold text-slate-700">{step.label}</span>
+                        <span className="text-slate-500">{step.value}</span>
+                      </div>
+                      <div className="h-2.5 rounded-full bg-slate-200 overflow-hidden">
+                        <div className={`h-full ${step.color} transition-all duration-500`} style={{ width: `${width}%` }} />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                <div className="rounded-xl border border-[#DAE8F8] p-3 bg-white shadow-sm">
+                  <p className="text-xs text-slate-500">Estimated Views</p>
+                  <p className="text-lg font-bold text-[#0F172A] inline-flex items-center gap-1"><Eye size={15} /> {performance.estimatedViews}</p>
+                  <p className="text-[11px] text-slate-500 mt-0.5">Range: {performance.estimatedViewRange.min} - {performance.estimatedViewRange.max}</p>
+                </div>
+                <div className="rounded-xl border border-[#DAE8F8] p-3 bg-white shadow-sm">
+                  <p className="text-xs text-slate-500">Applicants</p>
+                  <p className="text-lg font-bold text-[#0F172A]">{performance.applicants}</p>
+                </div>
+                <div className="rounded-xl border border-[#DAE8F8] p-3 bg-white shadow-sm">
+                  <p className="text-xs text-slate-500">Passed</p>
+                  <p className="text-lg font-bold text-emerald-600">{performance.passed}</p>
+                </div>
+                <div className="rounded-xl border border-[#DAE8F8] p-3 bg-white shadow-sm">
+                  <p className="text-xs text-slate-500">Failed</p>
+                  <p className="text-lg font-bold text-red-600">{performance.failed}</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                <div className="rounded-xl border border-[#DAE8F8] p-3 bg-white shadow-sm">
+                  <p className="text-xs text-slate-500">Pass Rate</p>
+                  <p className="text-lg font-bold text-[#0F172A]">{performance.passRate}%</p>
+                  <div className="mt-2 h-2 w-full rounded-full bg-slate-200 overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-[#0EA5E9] to-[#1F7FB2] transition-all duration-500"
+                      style={{ width: `${Math.min(performance.passRate, 100)}%` }}
+                    />
+                  </div>
+                </div>
+                <div className="rounded-xl border border-[#DAE8F8] p-3 bg-white shadow-sm">
+                  <p className="text-xs text-slate-500">Job Health Score</p>
+                  <p className="text-lg font-bold text-[#0F172A]">{performance.healthScore}/100</p>
+                  <div className="mt-2 h-2 w-full rounded-full bg-slate-200 overflow-hidden">
+                    <div
+                      className={`h-full transition-all duration-500 ${
+                        performance.healthLevel === "HIGH"
+                          ? "bg-emerald-500"
+                          : performance.healthLevel === "MEDIUM"
+                            ? "bg-amber-500"
+                            : "bg-red-500"
+                      }`}
+                      style={{ width: `${Math.min(performance.healthScore, 100)}%` }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-[#DAE8F8] p-3 bg-white shadow-sm">
+                <p className="text-xs font-bold uppercase tracking-wide text-slate-500 mb-2">Insights</p>
+                <ul className="space-y-1">
+                  {performance.insights.map((insight, idx) => (
+                    <li key={insight} className="text-sm text-slate-700 flex items-start gap-2">
+                      <span className={`mt-1.5 h-1.5 w-1.5 rounded-full ${idx === 0 ? "bg-[#0F75A8]" : "bg-slate-400"}`} />
+                      <span>{insight}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </>
+          )}
+        </div>
+      )}
 
       {/* ── HEADER CARD ── */}
       <div className="bg-white border border-[#E2E8F0] rounded-2xl overflow-hidden mb-6">

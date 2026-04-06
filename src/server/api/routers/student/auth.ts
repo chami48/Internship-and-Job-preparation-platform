@@ -21,6 +21,44 @@ export const studentAuthRouter = createTRPCRouter({
         throw new Error("An account with this email already exists");
       }
 
+      const latestOtp = await ctx.db.emailOTP.findFirst({
+        where: { email: input.email },
+        orderBy: { createdAt: "desc" },
+      });
+
+      if (latestOtp && latestOtp.expiresAt > new Date()) {
+        throw new Error("OTP already sent. Please wait a few minutes.");
+      }
+
+      await sendOTP(input.email);
+
+      return { success: true, message: "OTP sent successfully" };
+    }),
+
+  requestPasswordReset: publicProcedure
+    .input(
+      z.object({
+        email: z.string().email(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const existingUser = await ctx.db.user.findUnique({
+        where: { email: input.email },
+      });
+
+      if (!existingUser) {
+        throw new Error("No student account found for this email");
+      }
+
+      const latestOtp = await ctx.db.emailOTP.findFirst({
+        where: { email: input.email },
+        orderBy: { createdAt: "desc" },
+      });
+
+      if (latestOtp && latestOtp.expiresAt > new Date()) {
+        throw new Error("OTP already sent. Please wait a few minutes.");
+      }
+
       await sendOTP(input.email);
 
       return { success: true, message: "OTP sent successfully" };
@@ -78,6 +116,47 @@ export const studentAuthRouter = createTRPCRouter({
       });
 
       return { success: true, userId: user.id };
+    }),
+
+  resetPassword: publicProcedure
+    .input(
+      z.object({
+        email: z.string().email(),
+        otp: z.string().length(6),
+        newPassword: z.string().min(6),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const user = await ctx.db.user.findUnique({
+        where: { email: input.email },
+      });
+
+      if (!user) {
+        throw new Error("No student account found for this email");
+      }
+
+      const latestOtp = await ctx.db.emailOTP.findFirst({
+        where: { email: input.email },
+        orderBy: { createdAt: "desc" },
+      });
+
+      const isOtpInvalid =
+        !latestOtp ||
+        latestOtp.otp !== input.otp ||
+        latestOtp.expiresAt < new Date();
+
+      if (isOtpInvalid) {
+        throw new Error("Invalid or expired OTP");
+      }
+
+      const hashedPassword = await bcrypt.hash(input.newPassword, 10);
+
+      await ctx.db.user.update({
+        where: { email: input.email },
+        data: { password: hashedPassword },
+      });
+
+      return { success: true, message: "Password updated" };
     }),
 
   login: publicProcedure

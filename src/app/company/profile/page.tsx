@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowLeft, Pencil, Check, X, Building2, Mail, CalendarDays,
-  Briefcase, ShieldCheck, FileText, MapPin, Users, Plus,
-  ExternalLink, LayoutGrid, Settings,
+  Briefcase, ShieldCheck, FileText, MapPin, Users, Plus, Phone,
+  ExternalLink, LayoutGrid, Settings, ChevronRight, Bell, LogOut, ChevronLeft, Star
 } from "lucide-react";
 import { api } from "~/trpc/react";
 
@@ -24,7 +24,41 @@ function daysLeft(deadline: Date | null | string | undefined) {
   return `${diff}d left`;
 }
 
+const HOLIDAYS: Record<string, string> = {
+  "2026-01-01": "New Year's Day",
+  "2026-04-14": "New Year Festival",
+  "2026-05-01": "Labour Day",
+};
+
 type Tab = "overview" | "jobs" | "settings";
+
+type CompanyInfo = {
+  industry: string;
+  location: string;
+  website: string;
+};
+
+const DEFAULT_COMPANY_INFO: CompanyInfo = {
+  industry: "Technology & Software",
+  location: "Colombo, Sri Lanka",
+  website: "www.example.com",
+};
+
+const INDUSTRY_OPTIONS = [
+  "Technology & Software",
+  "FinTech",
+  "Healthcare",
+  "Education",
+  "E-commerce",
+  "Telecommunications",
+  "Manufacturing",
+  "Banking & Finance",
+  "Logistics",
+  "Media & Entertainment",
+  "Consulting",
+  "Government",
+  "Non-profit",
+];
 
 export default function CompanyProfilePage() {
   const router = useRouter();
@@ -33,9 +67,47 @@ export default function CompanyProfilePage() {
   const [editMode, setEditMode] = useState(false);
   const [draftName, setDraftName] = useState("");
   const [draftDesc, setDraftDesc] = useState("");
+  // @ts-ignore
+  const [draftLogo, setDraftLogo] = useState("");
   const [saveError, setSaveError] = useState("");
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  const [calendarMonth, setCalendarMonth] = useState(new Date());
+  const [selectedDay, setSelectedDay] = useState<Date | null>(null);
+  const [infoEditMode, setInfoEditMode] = useState(false);
+  const [companyInfo, setCompanyInfo] = useState<CompanyInfo>(DEFAULT_COMPANY_INFO);
+  const [infoDraft, setInfoDraft] = useState<CompanyInfo>(DEFAULT_COMPANY_INFO);
+
+  const handleLogout = () => router.push('/company/comlogin');
 
   useEffect(() => { setCompanyId(localStorage.getItem("companyId")); }, []);
+
+  useEffect(() => {
+    if (!companyId) return;
+
+    const storageKey = `companyProfileInfo:${companyId}`;
+    const saved = localStorage.getItem(storageKey);
+
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved) as Partial<CompanyInfo>;
+        const next: CompanyInfo = {
+          industry: parsed.industry?.trim() || DEFAULT_COMPANY_INFO.industry,
+          location: parsed.location?.trim() || DEFAULT_COMPANY_INFO.location,
+          website: parsed.website?.trim() || DEFAULT_COMPANY_INFO.website,
+        };
+        setCompanyInfo(next);
+        setInfoDraft(next);
+        return;
+      } catch {
+        // Fall back to defaults when stored data is malformed.
+      }
+    }
+
+    setCompanyInfo(DEFAULT_COMPANY_INFO);
+    setInfoDraft(DEFAULT_COMPANY_INFO);
+  }, [companyId]);
 
   const { data: company, isLoading, refetch } = api.company.getProfile.useQuery(
     { companyId: companyId ?? "" },
@@ -45,25 +117,71 @@ export default function CompanyProfilePage() {
     { companyId: companyId ?? "" },
     { enabled: !!companyId },
   );
+  const profileJobs = jobs ?? [];
   const updateProfile = api.company.updateProfile.useMutation();
 
   useEffect(() => {
-    if (company) { setDraftName(company.name); setDraftDesc(company.description ?? ""); }
+    if (company) {
+      setDraftName(company.name);
+      setDraftDesc(company.description ?? "");
+      // @ts-ignore
+      setDraftLogo(company.logo ?? "");
+    }
   }, [company]);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handleOutside = (event: MouseEvent) => {
+      if (!menuRef.current) return;
+      if (menuRef.current.contains(event.target as Node)) return;
+      setMenuOpen(false);
+    };
+    document.addEventListener("mousedown", handleOutside);
+    return () => document.removeEventListener("mousedown", handleOutside);
+  }, [menuOpen]);
 
   const handleSave = async () => {
     setSaveError("");
     if (!draftName.trim()) { setSaveError("Company name is required."); return; }
     try {
-      await updateProfile.mutateAsync({ companyId: companyId!, name: draftName.trim(), description: draftDesc.trim() || undefined });
+      await updateProfile.mutateAsync({
+        companyId: companyId!,
+        name: draftName.trim(),
+        description: draftDesc.trim() || undefined,
+        logo: draftLogo.trim() || undefined
+      });
       await refetch();
       setEditMode(false);
     } catch (e: unknown) { setSaveError(e instanceof Error ? e.message : "Save failed."); }
   };
 
   const handleCancel = () => {
-    if (company) { setDraftName(company.name); setDraftDesc(company.description ?? ""); }
+    if (company) {
+      setDraftName(company.name);
+      setDraftDesc(company.description ?? "");
+      // @ts-ignore
+      setDraftLogo(company.logo ?? "");
+    }
     setSaveError(""); setEditMode(false);
+  };
+
+  const handleInfoSave = () => {
+    if (!companyId) return;
+
+    const normalized: CompanyInfo = {
+      industry: infoDraft.industry.trim() || DEFAULT_COMPANY_INFO.industry,
+      location: infoDraft.location.trim() || DEFAULT_COMPANY_INFO.location,
+      website: infoDraft.website.trim() || DEFAULT_COMPANY_INFO.website,
+    };
+
+    setCompanyInfo(normalized);
+    localStorage.setItem(`companyProfileInfo:${companyId}`, JSON.stringify(normalized));
+    setInfoEditMode(false);
+  };
+
+  const handleInfoCancel = () => {
+    setInfoDraft(companyInfo);
+    setInfoEditMode(false);
   };
 
   if (isLoading || !company) {
@@ -77,98 +195,234 @@ export default function CompanyProfilePage() {
     );
   }
 
-  const activeJobs = (jobs ?? []).filter(j => !j.deadline || new Date(j.deadline) >= new Date());
+  const activeJobs = profileJobs.filter(j => !j.deadline || new Date(j.deadline) >= new Date());
+  const companyName = company.name || "IFS";
   const initStr = initials(company.name);
+
+  const buildCalendar = (anchor: Date) => {
+    const first = new Date(anchor.getFullYear(), anchor.getMonth(), 1);
+    const start = new Date(first);
+    start.setDate(first.getDate() - first.getDay());
+    const weeks: Date[][] = [];
+    const ptr = new Date(start);
+    for (let w = 0; w < 6; w++) {
+      const week: Date[] = [];
+      for (let d = 0; d < 7; d++) {
+        week.push(new Date(ptr));
+        ptr.setDate(ptr.getDate() + 1);
+      }
+      weeks.push(week);
+    }
+    return weeks;
+  };
+
+  const weeks = buildCalendar(calendarMonth);
+  const monthLabel = calendarMonth.toLocaleString(undefined, { month: "long", year: "numeric" });
+  const today = new Date();
+  const isWeekend = (day: Date) => day.getDay() === 0 || day.getDay() === 6;
 
   /* ── tab classes ── */
   const tabCls = (t: Tab) =>
-    `px-5 py-2.5 text-sm font-bold rounded-xl transition-all ${
+    `px-5 py-2.5 text-sm font-bold rounded-xl transition-all shadow-sm ${
       tab === t
-        ? "bg-[#1F7FB2] text-white shadow-sm"
-        : "text-[#64748B] hover:bg-[#F4F7FB] hover:text-[#0F172A]"
+        ? "bg-gradient-to-r from-[#0F75A8] via-[#0EA5E9] to-[#6366F1] text-white shadow-md shadow-[#0EA5E9]/30"
+        : "text-[#64748B] hover:bg-white/80 hover:text-[#0F172A] hover:shadow"
     }`;
 
   return (
-    <div className="min-h-screen bg-[#F4F7FB] font-sans text-[#0F172A]">
+    <div className="min-h-screen font-sans text-[#0F172A] bg-gradient-to-b from-[#ECF4FF] via-[#F8FBFF] to-[#E9F0FF] [background:radial-gradient(circle_at_20%_20%,#D9F1FF_0,transparent_38%),radial-gradient(circle_at_80%_0,#FFE6F4_0,transparent_38%),radial-gradient(circle_at_80%_80%,#E7E9FF_0,transparent_34%)]">
 
-      {/* ── sticky top bar ──────────────────────────────────── */}
-      <header className="sticky top-0 z-20 flex items-center justify-between border-b border-[#E2E8F0] bg-white/90 px-8 py-3.5 backdrop-blur-md shadow-sm">
-        <button onClick={() => router.push("/company/dashboard")}
-          className="flex items-center gap-2 text-sm font-bold text-[#64748B] transition-colors hover:text-[#0F172A]">
-          <ArrowLeft size={15} /> Back to Dashboard
-        </button>
-        <span className="text-sm font-extrabold tracking-tight text-[#0F172A]">Company Profile</span>
-        {!editMode ? (
-          <button onClick={() => { setTab("settings"); setEditMode(true); }}
-            className="flex items-center gap-2 rounded-xl bg-[#1F7FB2] px-4 py-2 text-sm font-bold text-white shadow-sm transition-all hover:bg-[#1668A0]">
-            <Pencil size={13} /> Edit Profile
-          </button>
-        ) : (
-          <div className="flex gap-2">
-            <button onClick={handleCancel}
-              className="flex items-center gap-1.5 rounded-xl border border-[#E2E8F0] px-4 py-2 text-sm font-bold text-[#64748B] hover:bg-[#F4F7FB] transition-colors">
-              <X size={13} /> Cancel
-            </button>
-            <button onClick={handleSave} disabled={updateProfile.isPending}
-              className="flex items-center gap-1.5 rounded-xl bg-emerald-500 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-emerald-600 disabled:opacity-60 transition-all">
-              <Check size={13} />
-              {updateProfile.isPending ? "Saving…" : "Save Changes"}
-            </button>
+      {/* Navbar */}
+      <header className="h-16 sm:h-20 sticky top-0 z-30 flex items-center justify-between px-4 sm:px-6 lg:px-12 bg-white/85 backdrop-blur border-b border-white/70 shadow-md shadow-[#0EA5E9]/10">
+        <div className="flex items-center gap-3 mr-4">
+          <div className="relative inline-flex h-10 w-10 items-center justify-center rounded-xl bg-[#0F172A] text-white font-bold text-sm">
+            HS
+            <div className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-[#3AB6D9]"></div>
           </div>
-        )}
+          <span className="text-lg font-bold text-[#0F172A] tracking-tight">HireSmart</span>
+        </div>
+
+        <div className="flex items-center gap-3 sm:gap-4 ml-auto">
+          <button className="relative flex h-10 w-10 items-center justify-center rounded-full border border-[#0F75A8]/30 bg-white text-[#0F75A8] shadow-sm transition-all hover:shadow-md hover:-translate-y-[1px]">
+            <Bell size={18} className="sm:w-[22px] sm:h-[22px]" />
+          </button>
+          <div className="hidden md:flex items-center gap-2 text-right leading-tight border-l border-[#E2E8F0] pl-3 sm:pl-4">
+            <span className="text-sm font-semibold text-[#475569]">Welcome</span>
+            <span className="text-sm font-bold text-[#0F172A] truncate max-w-[140px]">{companyName}</span>
+            <div className="relative" ref={menuRef}>
+              <button
+                type="button"
+                onClick={() => setMenuOpen((v) => !v)}
+                className="w-9 h-9 sm:w-11 sm:h-11 bg-slate-200 rounded-xl lg:rounded-2xl overflow-hidden hover:ring-2 ring-[#1F7FB2] transition-all shadow-sm"
+              >
+                <img src="/logos/company-logo-jpg.jpg" alt="Avatar" className="w-full h-full object-cover" />
+              </button>
+              {menuOpen && (
+                <div className="absolute right-0 mt-2 w-40 rounded-xl border border-slate-200 bg-white/95 backdrop-blur shadow-xl shadow-[#0EA5E9]/20 p-2">
+                  <button
+                    onClick={() => { setMenuOpen(false); handleLogout(); }}
+                    className="w-full text-left px-3 py-2 rounded-lg text-sm font-semibold text-red-600 hover:bg-red-50 transition-colors flex items-center gap-2"
+                  >
+                    <LogOut size={14} /> Logout
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       </header>
 
-      {/* ── hero cover ──────────────────────────────────────── */}
-      <div className="relative h-44 w-full overflow-hidden bg-gradient-to-r from-[#0F172A] via-[#0C2340] to-[#0F172A]">
-        {/* dot grid */}
-        <div className="absolute inset-0" style={{ backgroundImage: "radial-gradient(circle, rgba(14,165,233,0.12) 1px, transparent 1px)", backgroundSize: "24px 24px" }} />
-        {/* glow */}
-        <div className="absolute left-1/2 top-0 h-64 w-[600px] -translate-x-1/2 rounded-full opacity-30" style={{ background: "radial-gradient(ellipse, rgba(14,165,233,0.4) 0%, transparent 70%)", filter: "blur(40px)" }} />
-        {/* accent bar */}
+      {/* 🔥 NEW HERO WITH BANNER */}
+      <div className="relative h-48 w-full overflow-hidden">
+        <img
+          src="/logos/com-banner3.jpeg"
+          alt="Company Banner"
+          className="absolute w-full h-full object-cover"
+        />
+
+        {/* overlay for readability */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-black/20" />
+
+        {/* bottom accent line */}
         <div className="absolute bottom-0 left-0 h-1 w-full bg-gradient-to-r from-[#0EA5E9] via-[#38BDF8] to-[#818CF8]" />
       </div>
 
-      {/* ── profile identity strip ──────────────────────────── */}
-      <div className="relative mx-auto max-w-5xl px-8">
-        {/* avatar — overlaps cover */}
-        <div className="absolute -top-12 left-8 flex h-24 w-24 items-center justify-center rounded-2xl bg-gradient-to-br from-[#0EA5E9] to-[#1F7FB2] text-3xl font-extrabold text-white shadow-xl ring-4 ring-white">
-          {initStr}
+      {/* ── ORIGINAL profile identity strip ── */}
+      <div className="relative mx-auto max-w-6xl px-6 sm:px-8">
+        <div className="absolute -top-12 left-8 flex h-24 w-24 overflow-hidden items-center justify-center rounded-2xl bg-gradient-to-br from-[#0EA5E9] to-[#1F7FB2] text-3xl font-extrabold text-white shadow-xl ring-4 ring-white bg-white">
+          {/* @ts-ignore */}
+          {company.logo ? (
+            <img src={(company as any).logo} alt="Company Logo" className="h-full w-full object-cover" />
+          ) : (
+            initStr
+          )}
         </div>
 
         <div className="ml-32 flex items-end justify-between pt-3 pb-5 border-b border-[#E2E8F0]">
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-extrabold tracking-tight text-[#0F172A]">{company.name}</h1>
+              <h1 className="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-[#0F172A] to-[#0F75A8] bg-clip-text text-transparent">
+                {company.name}
+              </h1>
               {company.isVerified && (
                 <span className="flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-[10px] font-bold text-emerald-600">
                   <ShieldCheck size={10} /> Verified
                 </span>
               )}
             </div>
-            <div className="mt-1.5 flex flex-wrap items-center gap-4 text-xs text-[#64748B]">
-              <span className="flex items-center gap-1.5"><Mail size={12} />{company.email}</span>
-              <span className="flex items-center gap-1.5"><CalendarDays size={12} />Joined {fmtDate(company.createdAt)}</span>
-              <span className="flex items-center gap-1.5"><Briefcase size={12} />{company._count.jobs} job{company._count.jobs !== 1 ? "s" : ""} posted</span>
+            <div className="mt-1.5 flex flex-wrap items-center gap-5 text-sm text-[#475569]">
+              <span className="flex items-center gap-1.5 text-[#0F75A8] font-semibold">
+                <Star size={14} className="fill-[#F59E0B] text-[#F59E0B]" />
+                4.8 · 128 reviews
+              </span>
+              <span className="flex items-center gap-2"><Mail size={14} />{company.email}</span>
+              <span className="flex items-center gap-2"><CalendarDays size={14} />Joined {fmtDate(company.createdAt)}</span>
+              <span className="flex items-center gap-2"><Briefcase size={14} />{profileJobs.length} job{profileJobs.length !== 1 ? "s" : ""} posted</span>
             </div>
           </div>
-          <button onClick={() => router.push("/company/create-job")}
-            className="flex items-center gap-2 rounded-xl bg-[#0EA5E9] px-4 py-2 text-sm font-bold text-white shadow-sm transition-all hover:bg-[#0284C7] hover:shadow-md">
-            <Plus size={14} /> Post a Job
-          </button>
+          <div className="flex items-center gap-3 relative">
+            <div className="relative" onMouseLeave={() => setCalendarOpen(false)}>
+              <button
+                type="button"
+                onClick={() => setCalendarOpen((v) => !v)}
+                  className="flex items-center justify-center w-11 h-11 rounded-full border border-[#0F75A8]/40 bg-white text-[#0F75A8] shadow-sm transition-all hover:shadow-md hover:-translate-y-[1px]"
+              >
+                <CalendarDays size={18} />
+              </button>
+              {calendarOpen && (
+                <div className="absolute right-0 mt-2 w-72 rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-200/80 p-3 z-20 bg-[radial-gradient(circle_at_20%_20%,#E0F2FF,transparent_35%),radial-gradient(circle_at_80%_0,#FEF3C7,transparent_30%),radial-gradient(circle_at_50%_80%,#E0F7F4,transparent_25%)]">
+                  <div className="flex items-center justify-between mb-2">
+                    <button
+                      type="button"
+                      onClick={() => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() - 1, 1))}
+                      className="p-1 rounded-lg hover:bg-slate-100"
+                    >
+                      <ChevronLeft size={16} />
+                    </button>
+                    <span className="text-sm font-semibold text-[#0F172A]">{monthLabel}</span>
+                    <button
+                      type="button"
+                      onClick={() => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 1))}
+                      className="p-1 rounded-lg hover:bg-slate-100"
+                    >
+                      <ChevronRight size={16} />
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-7 text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-1">
+                    {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
+                      <div key={d} className="text-center py-1 first:text-rose-500 last:text-rose-500">{d}</div>
+                    ))}
+                  </div>
+                  <div className="grid grid-cols-7 gap-1 text-sm">
+                    {weeks.flat().map((day) => {
+                      const key = day.toISOString().slice(0, 10);
+                      const inMonth = day.getMonth() === calendarMonth.getMonth();
+                      const isToday = day.toDateString() === today.toDateString();
+                      const holidayLabel = HOLIDAYS[key];
+                      const isSelected = selectedDay && day.toDateString() === selectedDay.toDateString();
+                      return (
+                        <button
+                          type="button"
+                          key={day.toISOString()}
+                          onClick={() => setSelectedDay(new Date(day))}
+                          className={`h-10 rounded-lg border flex items-center justify-center relative transition text-xs font-semibold ${
+                            isSelected
+                              ? "bg-[#0F75A8] text-white border-[#0F75A8] shadow"
+                              : holidayLabel
+                                ? "bg-emerald-50 text-emerald-700 border-emerald-100"
+                                : inMonth
+                                  ? "bg-white text-slate-700"
+                                  : "bg-slate-50 text-slate-400"
+                          } ${isToday && !isSelected ? "ring-1 ring-[#0F75A8] border-[#0F75A8]/60" : ""} ${isWeekend(day) && !isSelected && !holidayLabel ? "text-rose-500" : ""}`}
+                        >
+                          <span>{day.getDate()}</span>
+                          {holidayLabel && <span className="w-1.5 h-1.5 rounded-full bg-amber-500 absolute bottom-1"></span>}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <div className="mt-2 text-xs text-slate-600">
+                    {selectedDay ? selectedDay.toDateString() : "Select a date"}
+                    {selectedDay && HOLIDAYS[selectedDay.toISOString().slice(0, 10)] && (
+                      <div className="text-emerald-600 font-semibold">
+                        {HOLIDAYS[selectedDay.toISOString().slice(0, 10)]}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <button onClick={() => router.push("/company/create-job")}
+              className="flex items-center gap-2 rounded-full bg-gradient-to-r from-[#0F75A8] via-[#0EA5E9] to-[#6366F1] px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-[#0EA5E9]/30 transition-all hover:brightness-110">
+              <Plus size={14} /> Post a Job
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* ── tab bar ─────────────────────────────────────────── */}
-      <div className="mx-auto max-w-5xl px-8 pt-5">
-        <div className="mb-8 flex items-center gap-2 rounded-2xl border border-[#E2E8F0] bg-white p-1.5 shadow-sm w-fit">
-          <button className={tabCls("overview")} onClick={() => setTab("overview")}>
-            <span className="flex items-center gap-1.5"><LayoutGrid size={13} />Overview</span>
-          </button>
-          <button className={tabCls("jobs")} onClick={() => setTab("jobs")}>
-            <span className="flex items-center gap-1.5"><Briefcase size={13} />Job Posts{jobs ? ` (${jobs.length})` : ""}</span>
-          </button>
-          <button className={tabCls("settings")} onClick={() => setTab("settings")}>
-            <span className="flex items-center gap-1.5"><Settings size={13} />Settings</span>
+      {/* ── ORIGINAL tab bar ── */}
+      <div className="mx-auto max-w-6xl px-6 sm:px-8 pt-5">
+        <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-2 rounded-2xl border border-white/70 bg-white/90 backdrop-blur shadow-lg shadow-[#0EA5E9]/10 p-1.5 w-fit">
+            <button className={tabCls("overview")} onClick={() => setTab("overview")}>
+              <span className="flex items-center gap-1.5"><LayoutGrid size={13} />Overview</span>
+            </button>
+            <button className={tabCls("jobs")} onClick={() => setTab("jobs")}>
+              <span className="flex items-center gap-1.5"><Briefcase size={13} />Job Posts{profileJobs.length ? ` (${profileJobs.length})` : ""}</span>
+            </button>
+            <button className={tabCls("settings")} onClick={() => setTab("settings")}>
+              <span className="flex items-center gap-1.5"><Settings size={13} />Edit Profile</span>
+            </button>
+          </div>
+          <button
+            type="button"
+            onClick={() => router.push("/company/dashboard")}
+            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/70 bg-white/90 text-slate-700 shadow-md shadow-[#0EA5E9]/10 transition-all hover:bg-white"
+            aria-label="Back to dashboard"
+            title="Back to dashboard"
+          >
+            <ArrowLeft size={18} />
           </button>
         </div>
 
@@ -181,85 +435,254 @@ export default function CompanyProfilePage() {
 
         {/* ════════ OVERVIEW TAB ════════ */}
         {tab === "overview" && (
-          <div className="grid grid-cols-3 gap-6">
-            {/* left col */}
-            <div className="col-span-2 flex flex-col gap-6">
+          <div className="flex flex-col gap-5">
 
-              {/* About */}
-              <div className="rounded-2xl border border-[#E2E8F0] bg-white p-6 shadow-sm">
-                <div className="mb-3 flex items-center gap-2">
-                  <FileText size={15} className="text-[#1F7FB2]" />
-                  <h3 className="text-xs font-extrabold uppercase tracking-widest text-[#0F172A]">About</h3>
-                </div>
-                {company.description
-                  ? <p className="text-sm leading-relaxed text-[#475569]">{company.description}</p>
-                  : <p className="text-sm italic text-[#CBD5E1]">No description yet. Go to Settings to add one.</p>}
-              </div>
+            {/* ── Main 2+1 grid ── */}
+            <div className="grid grid-cols-3 gap-5">
 
-              {/* Recent jobs preview */}
-              <div className="rounded-2xl border border-[#E2E8F0] bg-white p-6 shadow-sm">
-                <div className="mb-4 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Briefcase size={15} className="text-[#1F7FB2]" />
-                    <h3 className="text-xs font-extrabold uppercase tracking-widest text-[#0F172A]">Recent Job Posts</h3>
+              {/* Left 2-col */}
+              <div className="col-span-2 flex flex-col gap-5">
+
+                {/* About */}
+                <div className="rounded-2xl bg-white/90 backdrop-blur border border-white/80 shadow-lg shadow-[#0EA5E9]/10 overflow-hidden">
+                  <div className="flex items-center justify-between px-6 py-4 border-b border-[#F1F5F9] bg-gradient-to-r from-white to-[#F0F9FF]">
+                    <div className="flex items-center gap-2">
+                      <span className="w-1 h-4 rounded-full bg-[#1F7FB2] block" />
+                      <h3 className="text-xs font-extrabold uppercase tracking-widest text-[#0F172A]">About</h3>
+                    </div>
+                    <button onClick={() => setTab("settings")}
+                      className="flex items-center gap-1 text-xs font-semibold text-[#1F7FB2] hover:text-[#0284C7] transition-colors">
+                      <Pencil size={11} /> Edit
+                    </button>
                   </div>
-                  <button onClick={() => setTab("jobs")} className="text-xs font-bold text-[#1F7FB2] hover:underline flex items-center gap-1">
-                    View all <ExternalLink size={11} />
-                  </button>
-                </div>
-                {(jobs ?? []).length === 0 ? (
-                  <p className="text-sm italic text-[#CBD5E1]">No jobs posted yet.</p>
-                ) : (
-                  <div className="flex flex-col gap-3">
-                    {(jobs ?? []).slice(0, 3).map((j) => {
-                      const dl = daysLeft(j.deadline);
-                      const closed = dl === "Closed";
-                      return (
-                        <div key={j.id}
-                          onClick={() => router.push(`/company/my-jobs/${j.id}`)}
-                          className="flex cursor-pointer items-center justify-between rounded-xl border border-[#E2E8F0] bg-[#F8FAFF] px-4 py-3 transition-all hover:border-[#1F7FB2]/40 hover:bg-[#EFF6FF]">
-                          <div>
-                            <p className="text-sm font-bold text-[#0F172A]">{j.title}</p>
-                            <p className="text-xs text-[#94A3B8]">{j.location} · {j.type?.replace("_", " ")}</p>
-                          </div>
-                          {dl && (
-                            <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${closed ? "bg-red-50 text-red-500" : "bg-[#E0F2FE] text-[#0369A1]"}`}>
-                              {dl}
-                            </span>
-                          )}
+                  <div className="px-6 py-5">
+                    {company.description
+                      ? <p className="text-sm leading-relaxed text-[#475569]">{company.description}</p>
+                      : (
+                        <div className="flex flex-col items-center py-5 gap-2 text-center">
+                          <FileText size={24} className="text-[#CBD5E1]" />
+                          <p className="text-sm text-[#94A3B8]">No description added yet.</p>
+                          <button onClick={() => setTab("settings")} className="text-xs font-bold text-[#1F7FB2] hover:underline">Add one in Edit Profile →</button>
                         </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* right col */}
-            <div className="flex flex-col gap-4">
-              {/* stats */}
-              {[
-                { icon: <Briefcase size={15} />, label: "Total Posts", value: company._count.jobs },
-                { icon: <Users size={15} />, label: "Active Listings", value: activeJobs.length },
-                { icon: <CalendarDays size={15} />, label: "Member Since", value: fmtDate(company.createdAt) },
-                { icon: <Building2 size={15} />, label: "Account Status", value: company.isVerified ? "✓ Verified" : "Unverified" },
-              ].map(({ icon, label, value }) => (
-                <div key={label} className="flex items-center gap-3 rounded-2xl border border-[#E2E8F0] bg-white px-4 py-3.5 shadow-sm">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#E0F2FE] text-[#0369A1]">{icon}</div>
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#94A3B8]">{label}</p>
-                    <p className="text-sm font-bold text-[#0F172A]">{value}</p>
+                      )}
                   </div>
                 </div>
-              ))}
+
+                {/* Recent Jobs */}
+                <div className="rounded-2xl bg-white/90 backdrop-blur border border-white/80 shadow-lg shadow-[#0EA5E9]/10 overflow-hidden">
+                  <div className="flex items-center justify-between px-6 py-4 border-b border-[#F1F5F9] bg-gradient-to-r from-white to-[#F8FBFF]">
+                    <div className="flex items-center gap-2">
+                      <span className="w-1 h-4 rounded-full bg-[#1F7FB2] block" />
+                      <h3 className="text-xs font-extrabold uppercase tracking-widest text-[#0F172A]">Recent Job Posts</h3>
+                    </div>
+                    <button onClick={() => setTab("jobs")}
+                      className="flex items-center gap-1 text-xs font-semibold text-[#1F7FB2] hover:text-[#0284C7] transition-colors">
+                      View all <ChevronRight size={12} />
+                    </button>
+                  </div>
+                  <div className="px-6 py-4">
+                    {profileJobs.length === 0 ? (
+                      <div className="flex flex-col items-center py-6 gap-2 text-center">
+                        <Briefcase size={24} className="text-[#CBD5E1]" />
+                        <p className="text-sm text-[#94A3B8]">No jobs posted yet.</p>
+                        <button onClick={() => router.push("/company/create-job")}
+                          className="text-xs font-bold text-[#1F7FB2] hover:underline">Post your first job →</button>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col gap-2.5">
+                        {profileJobs.slice(0, 3).map((j) => {
+                          const dl = daysLeft(j.deadline);
+                          const closed = dl === "Closed";
+                          return (
+                            <div key={j.id}
+                              onClick={() => router.push(`/company/my-jobs/${j.id}`)}
+                              className="group flex cursor-pointer items-center justify-between rounded-xl border border-white/70 bg-gradient-to-r from-white to-[#F4F9FF] px-4 py-3 transition-all shadow-sm hover:shadow-md hover:-translate-y-[1px] hover:border-[#1F7FB2]/40">
+                              <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-lg bg-[#E0F2FE] flex items-center justify-center text-[#0369A1] shrink-0">
+                                  <Briefcase size={13} />
+                                </div>
+                                <div>
+                                  <p className="text-sm font-bold text-[#0F172A] group-hover:text-[#1F7FB2] transition-colors">{j.title}</p>
+                                  <p className="text-xs text-[#94A3B8]">{j.location} · {j.type?.replace("_", " ")}</p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2 shrink-0">
+                                {dl && (
+                                  <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${closed ? "bg-red-50 text-red-500" : "bg-[#DCFCE7] text-emerald-600"}`}>
+                                    {dl}
+                                  </span>
+                                )}
+                                <ChevronRight size={13} className="text-[#CBD5E1] group-hover:text-[#1F7FB2] transition-colors" />
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Info + Culture side by side */}
+                <div className="grid grid-cols-2 gap-4">
+
+                  {/* Info */}
+                  <div
+                    className="rounded-2xl bg-white/90 backdrop-blur border border-white/80 shadow-lg shadow-[#0EA5E9]/10 overflow-hidden"
+                    onClick={() => {
+                      if (!infoEditMode) {
+                        setInfoDraft(companyInfo);
+                        setInfoEditMode(true);
+                      }
+                    }}
+                  >
+                    <div className="px-5 py-4 border-b border-[#F1F5F9] flex items-center gap-2 bg-gradient-to-r from-white to-[#F0F9FF]">
+                      <span className="w-1 h-4 rounded-full bg-[#1F7FB2] block" />
+                      <h3 className="text-xs font-extrabold uppercase tracking-widest text-[#0F172A]">Info</h3>
+                      <span className="ml-auto text-[10px] font-semibold text-[#64748B]">{infoEditMode ? "Editing" : "Click card to edit"}</span>
+                    </div>
+                    <div className="px-5 py-4 space-y-3" onClick={(e) => e.stopPropagation()}>
+                      {infoEditMode ? (
+                        <>
+                          <div className="space-y-1.5">
+                            <label className="text-[11px] font-bold uppercase tracking-widest text-[#64748B]">Industry</label>
+                            <input
+                              value={infoDraft.industry}
+                              onChange={(e) => setInfoDraft((prev) => ({ ...prev, industry: e.target.value }))}
+                              list="industry-options"
+                              className="w-full rounded-lg border border-[#BFDBFE] bg-[#F8FBFF] px-3 py-2 text-xs font-semibold text-[#0F172A] outline-none focus:border-[#1F7FB2]"
+                              placeholder="Technology & Software"
+                            />
+                            <datalist id="industry-options">
+                              {INDUSTRY_OPTIONS.map((option) => (
+                                <option key={option} value={option} />
+                              ))}
+                            </datalist>
+                          </div>
+
+                          <div className="space-y-1.5">
+                            <label className="text-[11px] font-bold uppercase tracking-widest text-[#64748B]">Location</label>
+                            <input
+                              value={infoDraft.location}
+                              onChange={(e) => setInfoDraft((prev) => ({ ...prev, location: e.target.value }))}
+                              className="w-full rounded-lg border border-[#BFDBFE] bg-[#F8FBFF] px-3 py-2 text-xs font-semibold text-[#0F172A] outline-none focus:border-[#1F7FB2]"
+                              placeholder="Colombo, Sri Lanka"
+                            />
+                          </div>
+
+                          <div className="space-y-1.5">
+                            <label className="text-[11px] font-bold uppercase tracking-widest text-[#64748B]">Website</label>
+                            <input
+                              value={infoDraft.website}
+                              onChange={(e) => setInfoDraft((prev) => ({ ...prev, website: e.target.value }))}
+                              className="w-full rounded-lg border border-[#BFDBFE] bg-[#F8FBFF] px-3 py-2 text-xs font-semibold text-[#0F172A] outline-none focus:border-[#1F7FB2]"
+                              placeholder="www.example.com"
+                            />
+                          </div>
+
+                          <div className="flex gap-2 pt-1">
+                            <button
+                              type="button"
+                              onClick={handleInfoCancel}
+                              className="flex-1 rounded-lg border border-[#E2E8F0] py-2 text-xs font-bold text-[#64748B] hover:bg-[#F8FAFC]"
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              type="button"
+                              onClick={handleInfoSave}
+                              className="flex-1 rounded-lg bg-[#1F7FB2] py-2 text-xs font-bold text-white hover:bg-[#1668A0]"
+                            >
+                              Save
+                            </button>
+                          </div>
+                        </>
+                      ) : (
+                        [
+                          { icon: <Users size={13} />, label: "Industry", value: companyInfo.industry },
+                          { icon: <MapPin size={13} />, label: "Location", value: companyInfo.location },
+                          { icon: <ExternalLink size={13} />, label: "Website", value: companyInfo.website },
+                        ].map(({ icon, label, value }) => (
+                          <div key={label} className="flex items-center gap-2 text-sm">
+                            <span className="text-[#1F7FB2] shrink-0">{icon}</span>
+                            <span className="text-[#94A3B8] text-xs w-16 shrink-0">{label}:</span>
+                            <span className="text-[#0F172A] text-xs font-semibold">{value}</span>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Culture */}
+                  <div className="rounded-2xl bg-white/90 backdrop-blur border border-white/80 shadow-lg shadow-[#0EA5E9]/10 overflow-hidden">
+                    <div className="px-5 py-4 border-b border-[#F1F5F9] flex items-center gap-2 bg-gradient-to-r from-white to-[#F8FBFF]">
+                      <span className="w-1 h-4 rounded-full bg-[#1F7FB2] block" />
+                      <h3 className="text-xs font-extrabold uppercase tracking-widest text-[#0F172A]">Culture</h3>
+                    </div>
+                    <div className="px-5 py-4 space-y-3 text-sm text-[#475569]">
+                      {[
+                        { label: "Values", value: "Innovation, Integrity, Excellence" },
+                        { label: "Benefits", value: "Remote Work, Health Insurance, Training" },
+                        { label: "Tech Stack", value: "React, Next.js, TypeScript, Prisma" },
+                      ].map(({ label, value }) => (
+                        <div key={label} className="flex items-start gap-2">
+                          <span className="text-[#94A3B8] text-xs w-20 shrink-0">{label}:</span>
+                          <span className="text-[#0F172A] text-xs font-semibold">{value}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right 1-col sidebar */}
+              <div className="flex flex-col gap-4">
+
+                {/* Stat cards */}
+                {[
+                  { icon: <Briefcase size={15} />, label: "Total Posts", value: profileJobs.length, accent: "bg-[#E0F2FE] text-[#0369A1]" },
+                  { icon: <Users size={15} />, label: "Active Listings", value: activeJobs.length, accent: "bg-[#DCFCE7] text-emerald-600" },
+                  { icon: <CalendarDays size={15} />, label: "Member Since", value: fmtDate(company.createdAt), accent: "bg-[#EEF2FF] text-indigo-500" },
+                  { icon: <ShieldCheck size={15} />, label: "Status", value: company.isVerified ? "Verified ✓" : "Unverified", accent: company.isVerified ? "bg-emerald-50 text-emerald-600" : "bg-amber-50 text-amber-600" },
+                ].map(({ icon, label, value, accent }) => (
+                  <div key={label} className="rounded-2xl bg-white/90 backdrop-blur border border-white/80 px-4 py-3.5 shadow-lg shadow-[#0EA5E9]/10 flex items-center gap-3">
+                    <div className={`h-9 w-9 shrink-0 rounded-xl flex items-center justify-center ${accent}`}>{icon}</div>
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-[#94A3B8]">{label}</p>
+                      <p className="text-sm font-extrabold text-[#0F172A] mt-0.5">{value}</p>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Social */}
+                <div className="rounded-2xl bg-white/90 backdrop-blur border border-white/80 shadow-lg shadow-[#0EA5E9]/10 overflow-hidden">
+                  <div className="px-5 py-4 border-b border-[#F1F5F9] flex items-center gap-2 bg-gradient-to-r from-white to-[#F0F9FF]">
+                    <span className="w-1 h-4 rounded-full bg-[#1F7FB2] block" />
+                    <h3 className="text-xs font-extrabold uppercase tracking-widest text-[#0F172A]">Social</h3>
+                  </div>
+                  <div className="px-5 py-4 flex flex-col gap-2">
+                    {[
+                      { platform: "LinkedIn", url: "https://linkedin.com/company/hiresmart", color: "text-blue-600" },
+                      { platform: "Facebook", url: "https://facebook.com/hiresmart", color: "text-blue-500" },
+                      { platform: "Instagram", url: "https://instagram.com/hiresmart", color: "text-pink-600" },
+                    ].map(({ platform, url, color }) => (
+                      <a key={platform} href={url} target="_blank" rel="noopener noreferrer"
+                        className="flex items-center justify-between rounded-lg border border-[#E2E8F0] px-3 py-2 text-xs font-semibold text-[#1F7FB2] hover:bg-[#EFF6FF] hover:border-[#1F7FB2]/30 transition-all">
+                        <span className="flex items-center gap-2"><span className={`w-3 h-3 rounded-full ${color}`} /> {platform}</span>
+                        <ExternalLink size={10} />
+                      </a>
+                    ))}
+                  </div>
+                </div>
+
+              </div>
             </div>
           </div>
         )}
 
         {/* ════════ JOBS TAB ════════ */}
         {tab === "jobs" && (
-          <div className="flex flex-col gap-4">
-            {(jobs ?? []).length === 0 ? (
+          <div className="flex flex-col gap-3">
+            {profileJobs.length === 0 ? (
               <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-[#E2E8F0] bg-white py-16 text-center">
                 <Briefcase size={32} className="mb-3 text-[#CBD5E1]" />
                 <p className="text-sm font-bold text-[#94A3B8]">No jobs posted yet</p>
@@ -268,20 +691,20 @@ export default function CompanyProfilePage() {
                   <Plus size={14} /> Post your first job
                 </button>
               </div>
-            ) : (jobs ?? []).map((j) => {
+            ) : profileJobs.map((j) => {
               const dl = daysLeft(j.deadline);
               const closed = dl === "Closed";
               const isIntern = j.type?.toLowerCase().includes("intern");
               return (
                 <div key={j.id}
                   onClick={() => router.push(`/company/my-jobs/${j.id}`)}
-                  className="flex cursor-pointer items-start justify-between rounded-2xl border border-[#E2E8F0] bg-white px-6 py-5 shadow-sm transition-all hover:border-[#1F7FB2]/40 hover:shadow-md">
-                  <div className="flex items-start gap-4">
-                    <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-lg ${isIntern ? "bg-[#EEF2FF]" : "bg-[#E0F2FE]"}`}>
+                  className="group flex cursor-pointer items-center justify-between rounded-2xl border border-white/80 bg-gradient-to-r from-white to-[#F4F9FF] px-6 py-5 shadow-md shadow-[#0EA5E9]/5 transition-all hover:border-[#1F7FB2]/40 hover:shadow-lg hover:-translate-y-[1px]">
+                  <div className="flex items-center gap-4">
+                    <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-xl ${isIntern ? "bg-[#EEF2FF]" : "bg-[#E0F2FE]"}`}>
                       {isIntern ? "🎓" : "💼"}
                     </div>
                     <div>
-                      <p className="font-bold text-[#0F172A]">{j.title}</p>
+                      <p className="font-bold text-[#0F172A] group-hover:text-[#1F7FB2] transition-colors">{j.title}</p>
                       <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-[#94A3B8]">
                         <span className="flex items-center gap-1"><MapPin size={11} />{j.location}</span>
                         <span className="flex items-center gap-1"><Briefcase size={11} />{j.type?.replace("_", " ")}</span>
@@ -289,13 +712,13 @@ export default function CompanyProfilePage() {
                       </div>
                     </div>
                   </div>
-                  <div className="flex shrink-0 flex-col items-end gap-2">
+                  <div className="flex shrink-0 items-center gap-3">
                     {dl && (
-                      <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${closed ? "bg-red-50 text-red-500" : "bg-[#E0F2FE] text-[#0369A1]"}`}>
+                      <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${closed ? "bg-red-50 text-red-500" : "bg-[#DCFCE7] text-emerald-600"}`}>
                         {dl}
                       </span>
                     )}
-                    <span className="text-[10px] text-[#CBD5E1]">Click to view →</span>
+                    <ChevronRight size={15} className="text-[#CBD5E1] group-hover:text-[#1F7FB2] transition-colors" />
                   </div>
                 </div>
               );
@@ -305,19 +728,24 @@ export default function CompanyProfilePage() {
 
         {/* ════════ SETTINGS TAB ════════ */}
         {tab === "settings" && (
-          <div className="max-w-2xl flex flex-col gap-6">
+          <div className="max-w-2xl flex flex-col gap-5">
 
-            <div className="rounded-2xl border border-[#E2E8F0] bg-white p-6 shadow-sm">
-              <h3 className="mb-5 text-xs font-extrabold uppercase tracking-widest text-[#0F172A]">Company Details</h3>
+            {/* Company Details */}
+            <div className="rounded-2xl bg-white border border-[#E2E8F0] shadow-sm overflow-hidden">
+              <div className="px-6 py-4 border-b border-[#F1F5F9] flex items-center gap-2">
+                <span className="w-1 h-4 rounded-full bg-[#1F7FB2] block" />
+                <h3 className="text-xs font-extrabold uppercase tracking-widest text-[#0F172A]">Company Details</h3>
+              </div>
+              <div className="px-6 py-5 flex flex-col gap-5">
 
-              <div className="flex flex-col gap-5">
+                {/* Name */}
                 <div>
                   <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-widest text-[#64748B]">
                     Company Name <span className="text-red-400">*</span>
                   </label>
                   {editMode ? (
                     <input
-                      className="w-full rounded-xl border-2 border-[#0EA5E9] bg-[#F0F9FF] px-4 py-2.5 text-sm font-semibold text-[#0F172A] outline-none focus:shadow-[0_0_0_3px_rgba(14,165,233,0.12)] transition-shadow"
+                      className="w-full rounded-xl border-2 border-[#1F7FB2] bg-[#F0F9FF] px-4 py-2.5 text-sm font-semibold text-[#0F172A] outline-none focus:shadow-[0_0_0_3px_rgba(31,127,178,0.12)] transition-shadow"
                       value={draftName}
                       onChange={(e) => setDraftName(e.target.value)}
                       placeholder="Company Name"
@@ -325,28 +753,47 @@ export default function CompanyProfilePage() {
                   ) : (
                     <div className="flex items-center justify-between rounded-xl border border-[#E2E8F0] bg-[#F8FAFF] px-4 py-2.5 text-sm font-semibold text-[#0F172A]">
                       {company.name}
-                      <button onClick={() => setEditMode(true)} className="text-[#1F7FB2] hover:text-[#0EA5E9]"><Pencil size={13} /></button>
+                      <button onClick={() => setEditMode(true)} className="text-[#94A3B8] hover:text-[#1F7FB2] transition-colors"><Pencil size={13} /></button>
                     </div>
                   )}
                 </div>
 
+                {/* Email */}
                 <div>
-                  <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-widest text-[#64748B]">
-                    Work Email
-                  </label>
+                  <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-widest text-[#64748B]">Work Email</label>
                   <div className="flex items-center gap-2 rounded-xl border border-[#E2E8F0] bg-[#F8FAFF] px-4 py-2.5 text-sm text-[#94A3B8]">
                     <Mail size={13} />{company.email}
-                    <span className="ml-auto text-[10px] font-bold text-[#94A3B8]">Cannot be changed</span>
+                    <span className="ml-auto text-[10px] font-bold bg-slate-100 text-[#94A3B8] px-2 py-0.5 rounded-full">Read-only</span>
                   </div>
                 </div>
 
+                {/* Logo */}
                 <div>
-                  <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-widest text-[#64748B]">
-                    Description
-                  </label>
+                  <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-widest text-[#64748B]">Logo Image Path</label>
+                  {editMode ? (
+                    <input
+                      className="w-full rounded-xl border-2 border-[#1F7FB2] bg-[#F0F9FF] px-4 py-2.5 text-sm text-[#0F172A] outline-none focus:shadow-[0_0_0_3px_rgba(31,127,178,0.12)] transition-shadow"
+                      value={draftLogo}
+                      onChange={(e) => setDraftLogo(e.target.value)}
+                      placeholder="/logos/your-company-logo.png"
+                    />
+                  ) : (
+                    <div className="flex items-center justify-between gap-2 rounded-xl border border-[#E2E8F0] bg-[#F8FAFF] px-4 py-2.5 text-sm text-[#475569]">
+                      <span className="truncate">
+                        {/* @ts-ignore */}
+                        {company.logo ? company.logo : <span className="italic text-[#CBD5E1]">No logo set.</span>}
+                      </span>
+                      <button onClick={() => setEditMode(true)} className="shrink-0 text-[#94A3B8] hover:text-[#1F7FB2] transition-colors"><Pencil size={13} /></button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Description */}
+                <div>
+                  <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-widest text-[#64748B]">Description</label>
                   {editMode ? (
                     <textarea
-                      className="w-full resize-none rounded-xl border-2 border-[#0EA5E9] bg-[#F0F9FF] px-4 py-3 text-sm text-[#0F172A] outline-none focus:shadow-[0_0_0_3px_rgba(14,165,233,0.12)] transition-shadow"
+                      className="w-full resize-none rounded-xl border-2 border-[#1F7FB2] bg-[#F0F9FF] px-4 py-3 text-sm text-[#0F172A] outline-none focus:shadow-[0_0_0_3px_rgba(31,127,178,0.12)] transition-shadow"
                       rows={5}
                       value={draftDesc}
                       onChange={(e) => setDraftDesc(e.target.value)}
@@ -355,19 +802,19 @@ export default function CompanyProfilePage() {
                   ) : (
                     <div className="flex items-start justify-between gap-2 rounded-xl border border-[#E2E8F0] bg-[#F8FAFF] px-4 py-3 text-sm text-[#475569]">
                       <span>{company.description ?? <span className="italic text-[#CBD5E1]">No description yet.</span>}</span>
-                      <button onClick={() => setEditMode(true)} className="mt-0.5 shrink-0 text-[#1F7FB2] hover:text-[#0EA5E9]"><Pencil size={13} /></button>
+                      <button onClick={() => setEditMode(true)} className="mt-0.5 shrink-0 text-[#94A3B8] hover:text-[#1F7FB2] transition-colors"><Pencil size={13} /></button>
                     </div>
                   )}
                 </div>
 
                 {editMode && (
-                  <div className="flex gap-3 pt-2">
+                  <div className="flex gap-3 pt-1">
                     <button onClick={handleCancel}
                       className="flex-1 rounded-xl border border-[#E2E8F0] py-2.5 text-sm font-bold text-[#64748B] hover:bg-[#F4F7FB] transition-colors">
                       Cancel
                     </button>
                     <button onClick={handleSave} disabled={updateProfile.isPending}
-                      className="flex-1 rounded-xl bg-emerald-500 py-2.5 text-sm font-bold text-white hover:bg-emerald-600 disabled:opacity-60 transition-colors">
+                      className="flex-1 rounded-xl bg-[#1F7FB2] py-2.5 text-sm font-bold text-white hover:bg-[#1668A0] disabled:opacity-60 transition-colors">
                       {updateProfile.isPending ? "Saving…" : "Save Changes"}
                     </button>
                   </div>
@@ -375,27 +822,47 @@ export default function CompanyProfilePage() {
               </div>
             </div>
 
-            {/* account info */}
-            <div className="rounded-2xl border border-[#E2E8F0] bg-white p-6 shadow-sm">
-              <h3 className="mb-4 text-xs font-extrabold uppercase tracking-widest text-[#0F172A]">Account Info</h3>
-              <div className="flex flex-col gap-3">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-[#64748B] font-medium">Verification Status</span>
-                  <span className={`flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-bold ${company.isVerified ? "bg-emerald-50 text-emerald-600 border border-emerald-200" : "bg-amber-50 text-amber-600 border border-amber-200"}`}>
-                    {company.isVerified ? <><ShieldCheck size={10} /> Verified</> : "⚠ Not Verified"}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-[#64748B] font-medium">Member Since</span>
-                  <span className="font-bold text-[#0F172A]">{fmtDate(company.createdAt)}</span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-[#64748B] font-medium">Total Jobs Posted</span>
-                  <span className="font-bold text-[#0F172A]">{company._count.jobs}</span>
-                </div>
+            {/* Account Info */}
+            <div className="rounded-2xl bg-white border border-[#E2E8F0] shadow-sm overflow-hidden">
+              <div className="px-6 py-4 border-b border-[#F1F5F9] flex items-center gap-2">
+                <span className="w-1 h-4 rounded-full bg-[#1F7FB2] block" />
+                <h3 className="text-xs font-extrabold uppercase tracking-widest text-[#0F172A]">Account Info</h3>
+              </div>
+              <div className="px-6 py-1 divide-y divide-[#F1F5F9]">
+                {[
+                  {
+                    label: "Verification Status",
+                    value: (
+                      <span className={`flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-bold ${company.isVerified ? "bg-emerald-50 text-emerald-600 border border-emerald-200" : "bg-amber-50 text-amber-600 border border-amber-200"}`}>
+                        {company.isVerified ? <><ShieldCheck size={9} /> Verified</> : "⚠ Not Verified"}
+                      </span>
+                    )
+                  },
+                  { label: "Member Since", value: <span className="font-bold text-[#0F172A]">{fmtDate(company.createdAt)}</span> },
+                  { label: "Total Jobs Posted", value: <span className="font-bold text-[#0F172A]">{company._count.jobs}</span> },
+                ].map(({ label, value }) => (
+                  <div key={label} className="flex items-center justify-between py-3.5 text-sm">
+                    <span className="text-[#64748B] font-medium">{label}</span>
+                    {value}
+                  </div>
+                ))}
               </div>
             </div>
 
+            {/* Danger Zone */}
+            <div className="rounded-2xl border border-red-100 bg-red-50/40 p-5">
+              <p className="text-[10px] font-extrabold uppercase tracking-widest text-red-400 mb-3">Danger Zone</p>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-[#0F172A]">Sign out of your account</p>
+                  <p className="text-xs text-[#94A3B8] mt-0.5">You will be redirected to the login page.</p>
+                </div>
+                <button onClick={handleLogout}
+                  className="rounded-xl border border-red-200 bg-white px-4 py-2 text-sm font-bold text-red-500 hover:bg-red-50 transition-colors">
+                  Sign Out
+                </button>
+              </div>
+            </div>
           </div>
         )}
 

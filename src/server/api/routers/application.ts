@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import { Specialization } from "../../../../generated/prisma";
 
 export const applicationRouter = createTRPCRouter({
 
@@ -21,7 +22,7 @@ export const applicationRouter = createTRPCRouter({
         portfolio: z.string().optional(),
         university: z.string(),
         degree: z.string(),
-        specialization: z.string().optional(),
+        specialization: z.nativeEnum(Specialization).optional(),
         cgpa: z.string().optional(),
         awards: z.string().optional(),
         programmingLanguages: z.string(),
@@ -82,7 +83,7 @@ export const applicationRouter = createTRPCRouter({
 
           university: input.university,
           degree: input.degree,
-          specialization: input.specialization,
+          specialization: input.specialization ?? Specialization.INFORMATION_TECHNOLOGY,
           cgpa: input.cgpa,
           awards: input.awards,
 
@@ -124,5 +125,44 @@ export const applicationRouter = createTRPCRouter({
       });
 
     }),
+
+  // ============================
+  // NOTIFICATIONS (APPLICATION + EXAM SUBMIT)
+  // ============================
+  notifications: protectedProcedure.query(async ({ ctx }) => {
+    const applications = await ctx.db.application.findMany({
+      where: { userId: ctx.session.user.id },
+      include: {
+        job: { select: { title: true } },
+        examAnswers: {
+          select: { createdAt: true },
+          orderBy: { createdAt: "desc" },
+          take: 1,
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    const items = applications.map((app) => {
+      const submittedAt = app.examAnswers[0]?.createdAt ?? app.createdAt;
+      const status = app.examSubmitted
+        ? "EXAM_SUBMITTED"
+        : app.terminationReason
+          ? "EXAM_TERMINATED"
+          : "APPLIED";
+
+      return {
+        id: `apply-${app.id}`,
+        status,
+        jobId: app.jobId,
+        jobTitle: app.job.title,
+        createdAt: status === "EXAM_SUBMITTED" ? submittedAt : app.createdAt,
+      } as const;
+    });
+
+    return items.sort(
+      (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
+    );
+  }),
 
 });

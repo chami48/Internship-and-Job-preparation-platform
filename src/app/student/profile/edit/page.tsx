@@ -4,6 +4,7 @@ import { api } from "~/trpc/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
+import { showAlert } from "~/app/components/common/alert";
 
 export default function EditProfilePage() {
   const router = useRouter();
@@ -13,11 +14,15 @@ export default function EditProfilePage() {
   const updateProfile = api.profile.updateProfile.useMutation({
     onSuccess: async () => {
       await updateSession();
-      alert("Profile updated successfully");
+      void showAlert({
+        icon: "success",
+        text: "Profile updated successfully",
+      });
       router.push("/student/profile");
     },
   });
 
+  const [name, setName] = useState("");
   const [year, setYear] = useState("");
   const [skills, setSkills] = useState("");
   const [github, setGithub] = useState("");
@@ -38,6 +43,7 @@ export default function EditProfilePage() {
 
   useEffect(() => {
     if (profile) {
+      setName(profile.name ?? "");
       setYear(profile.year ?? "");
       setSkills(profile.skills ?? "");
       setGithub(profile.github ?? "");
@@ -181,6 +187,7 @@ export default function EditProfilePage() {
     }
 
     updateProfile.mutate({
+      name,
       year,
       skills,
       github: fixedGithub,
@@ -189,6 +196,17 @@ export default function EditProfilePage() {
       bio,
       image: imagePath,
     });
+  };
+
+  const fillSampleData = () => {
+    setName("Sandani Chamoda");
+    setYear("3rd Year");
+    setSkills("React, TypeScript, UI Design, Node.js");
+    setGithub("github.com/sandani-chamoda");
+    setLinkedin("linkedin.com/in/sandani-chamoda");
+    setPortfolio("sandani.dev");
+    setBio("Curious UI-focused developer who enjoys building clean interfaces and reliable student tools.");
+    setErrors({ skills: "", github: "", linkedin: "", bio: "", image: "" });
   };
 
   const skillCount = skills
@@ -204,8 +222,7 @@ export default function EditProfilePage() {
   return (
     <main className="min-h-[calc(100vh-80px)] bg-slate-50 px-4 py-8 md:px-8">
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
-        .edit-shell { font-family: 'Manrope', sans-serif; }
+        .edit-shell { }
       `}</style>
 
       <div className="edit-shell mx-auto w-full max-w-7xl">
@@ -213,12 +230,23 @@ export default function EditProfilePage() {
           <p className="inline-flex rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-bold uppercase tracking-[0.12em] text-sky-700">
             Profile Editor
           </p>
-          <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-slate-900 md:text-4xl">
-            Edit Your Profile
-          </h1>
-          <p className="mt-2 text-sm font-medium text-slate-500">
-            Keep your profile complete to improve visibility and job matching.
-          </p>
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 md:text-4xl">
+                Edit Your Profile
+              </h1>
+              <p className="mt-2 text-sm font-medium text-slate-500">
+                Keep your profile complete to improve visibility and job matching.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={fillSampleData}
+              className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-slate-700 transition-colors hover:border-sky-300 hover:text-sky-700"
+            >
+              Fill Sample Data
+            </button>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
@@ -227,6 +255,17 @@ export default function EditProfilePage() {
               <h2 className="text-base font-bold text-slate-900">Academic and Skill Details</h2>
 
               <div className="mt-5 grid gap-4 md:grid-cols-2">
+                <div>
+                  <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">
+                    Full Name
+                  </label>
+                  <input
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className={inputBase}
+                    placeholder="Your full name"
+                  />
+                </div>
                 <div>
                   <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">
                     Year

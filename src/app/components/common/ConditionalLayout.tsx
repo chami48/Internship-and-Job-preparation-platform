@@ -1,7 +1,7 @@
 "use client";
 
-import { usePathname } from "next/navigation";
-import Header from "./Header";
+import { usePathname } from "next/navigation"; 
+import HeaderLegacy from "./Header";
 import Footer from "./Footer";
 
 export default function ConditionalLayout({
@@ -10,12 +10,31 @@ export default function ConditionalLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  void pathname;
+
+  const hideHeader =
+    pathname === "/company/register" ||
+    pathname === "/company/comlogin" ||
+    pathname === "/company/dashboard" ||
+    pathname === "/company/my-jobs" ||
+    pathname === "/company/selected-candidates" ||
+    pathname === "/company/interviews" ||
+    pathname === "/company/profile" ||
+    pathname?.startsWith("/company/my-jobs/") ||
+    pathname?.startsWith("/company/selected/") ||
+    pathname?.startsWith("/company/create-job") ||
+    pathname === "/exam" ||
+    pathname?.startsWith("/exam/");
+
+  const mainClass = "min-h-screen";
 
   return (
     <>
-      <Header />
-      {children}
+      {!hideHeader && <HeaderLegacy />}
+
+      <main className={mainClass}>
+        {children}
+      </main>
+
       <Footer />
     </>
   );

@@ -4,12 +4,14 @@ import { postRouter } from "~/server/api/routers/post";
 import { companyRouter } from "~/server/api/routers/company";
 import { studentRouter } from "~/server/api/routers/student";  //sandani
 import { profileRouter } from "./routers/student/profile";     //sandani
+import { prepQuizRouter } from "./routers/prepQuiz/prepQuiz.router";   //sandani
 import { examRouter } from "~/server/api/routers/exam";//dill
 import { aiRouter } from "~/server/api/routers/ai";
 import { jobRouter } from "~/server/api/routers/job";//nilumi
 import { adminRouter } from "~/server/api/routers/admin";
 import { applicationRouter } from "./routers/application";//dil
 import { verificationRouter } from "./routers/verification";//dil
+import { interviewRouter } from "~/server/api/routers/interview";
 
 
 /**
@@ -20,12 +22,14 @@ export const appRouter = createTRPCRouter({
   company: companyRouter,
   student: studentRouter,
   profile: profileRouter,
+  prepQuiz: prepQuizRouter,
   exam: examRouter,
   ai: aiRouter,
   admin: adminRouter,
   job: jobRouter,
   application: applicationRouter,
   verification: verificationRouter,
+  interview: interviewRouter,
 
 });
 

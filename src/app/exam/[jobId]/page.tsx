@@ -6,6 +6,7 @@ import { api } from "~/trpc/react";
 import { useEffect, useRef, useState, useCallback } from "react";
 import * as faceapi from "face-api.js";
 import { useSession } from "next-auth/react";
+import { showAlert } from "~/app/components/common/alert";
 
 
 // ─────────────────────────────────────────────
@@ -34,6 +35,23 @@ interface ViolationEvent {
 }
 
 const MAX_VIOLATIONS = 3;
+
+const exitFullscreenNow = async () => {
+  try {
+    if (document.fullscreenElement) {
+      await document.exitFullscreen();
+    }
+  } catch {
+    // ignore
+  }
+  if (document.fullscreenElement) {
+    setTimeout(() => {
+      if (document.fullscreenElement) {
+        document.exitFullscreen().catch(() => undefined);
+      }
+    }, 150);
+  }
+};
 
 // ─────────────────────────────────────────────
 // HELPERS
@@ -110,6 +128,23 @@ export default function ExamPage() {
   const referenceDescriptorRef = useRef<Float32Array | null>(null);
   const submittedRef = useRef(false);
 
+  useEffect(() => {
+    const root = document.documentElement;
+    const body = document.body;
+    if (examStarted || startingExam) {
+      root.dataset.examMode = "active";
+      body.dataset.examMode = "active";
+    } else {
+      delete root.dataset.examMode;
+      delete body.dataset.examMode;
+    }
+    return () => {
+      delete root.dataset.examMode;
+      delete body.dataset.examMode;
+    };
+  }, [examStarted, startingExam]);
+
+
   // ─────────────────────────────────────────────
   // FULLSCREEN HELPERS
   // ─────────────────────────────────────────────
@@ -164,33 +199,57 @@ export default function ExamPage() {
   }, []);
 
   const stopCamera = useCallback(() => {
-    mediaStreamRef.current?.getTracks().forEach((t) => t.stop());
-    mediaStreamRef.current = null;
-  }, []);
+  if (mediaStreamRef.current) {
+    mediaStreamRef.current.getTracks().forEach((track) => {
+      track.stop();
+      track.enabled = false;
+    });
+  }
+
+  if (videoRef.current) {
+    videoRef.current.pause();
+    videoRef.current.srcObject = null;
+  }
+
+  mediaStreamRef.current = null;
+  setCameraAllowed(false);
+}, []);
+
+  useEffect(() => {
+    if (!examStarted) {
+      stopCamera();
+    }
+  }, [examStarted, stopCamera]);
 
   // ─────────────────────────────────────────────
   // VIOLATION SYSTEM
   // ─────────────────────────────────────────────
   const terminateNow = useCallback(async () => {
-    if (terminationTriggeredRef.current) return;
-    terminationTriggeredRef.current = true;
+  if (terminationTriggeredRef.current) return;
 
-    setTerminated(true);
-    stopCamera();
+  terminationTriggeredRef.current = true;
 
-    if (appId) {
-      await terminateApplication.mutateAsync({
-        applicationId: appId,
-        reason: "VIOLATION",
-      });
-    }
+  setTerminated(true);
 
-    await exitFullscreen();
-    router.push("/home");
-  }, [appId, terminateApplication, exitFullscreen, router, stopCamera]);
+  stopCamera(); // 🔥 FIRST
+
+  await new Promise((r) => setTimeout(r, 300)); // 🔥 IMPORTANT
+
+  if (appId) {
+    await terminateApplication.mutateAsync({
+      applicationId: appId,
+      reason: "VIOLATION",
+    });
+  }
+
+  await exitFullscreen();
+
+  router.push("/home");
+}, []);
 
   const triggerViolation = useCallback(
     (type: ViolationType) => {
+      if (submittedRef.current) return;
       if (type === "FULLSCREEN_EXIT") {
         void terminateNow();
       }
@@ -559,7 +618,23 @@ export default function ExamPage() {
           .withFaceLandmarks()
           .withFaceDescriptor();
 
-        if (!detection) return;
+        if (!detection) {
+          if (!appId) return;
+          setExamStarted(false);
+          setStartingExam(false);
+          stopCamera();
+          await terminateApplication.mutateAsync({
+            applicationId: appId,
+            reason: "FACE_NOT_DETECTED",
+          });
+          await exitFullscreenNow();
+          void showAlert({
+            icon: "error",
+            text: "Face not detected. Retry.",
+          });
+          setTimeout(() => router.push("/home"), 100);
+          return;
+        }
 
         if (!referenceDescriptorRef.current) return;
 
@@ -571,34 +646,20 @@ export default function ExamPage() {
         console.log("Live identity distance:", distance);
 
         if (distance > 0.55) {
-          identityFailCountRef.current += 1;
-
-          console.log(
-            "⚠ Identity verification failed attempt:",
-            identityFailCountRef.current,
-          );
-
-          if (identityFailCountRef.current < 3) {
-            alert(
-              `Face verification failed. Attempt ${identityFailCountRef.current}/3. Please look at the camera properly.`,
-            );
-            return;
-          }
-
-          console.log(
-            "❌ Identity verification failed 3 times. Terminating exam.",
-          );
-
           if (!appId) return;
-
-await terminateApplication.mutateAsync({
-  applicationId: appId,
-  reason: "FACE_MISMATCH",
-});
-
-          alert("Face verification failed 3 times. Exam terminated.");
-
-          router.push("/home");
+          setExamStarted(false);
+          setStartingExam(false);
+          stopCamera();
+          await terminateApplication.mutateAsync({
+            applicationId: appId,
+            reason: "FACE_MISMATCH",
+          });
+          await exitFullscreenNow();
+          void showAlert({
+            icon: "error",
+            text: "Face does not match ID. Please make sure to face the owner of the ID.",
+          });
+          setTimeout(() => router.push("/home"), 100);
         }
       } catch (err) {
         console.error("Identity verification error:", err);
@@ -608,7 +669,7 @@ await terminateApplication.mutateAsync({
     const interval = setInterval(verifyIdentity, 20000); // every 20 seconds
 
     return () => clearInterval(interval);
-  }, [examStarted, triggerViolation, terminateApplication, router, appId]);
+  }, [examStarted, triggerViolation, terminateApplication, router, appId, exitFullscreen, stopCamera]);
 
   // ─────────────────────────────────────────────
   // TOTAL TIMER
@@ -716,12 +777,16 @@ await terminateApplication.mutateAsync({
   if (submittedRef.current || !appId) return;
 
   if (Object.keys(answers).length === 0) {
-    alert("You must answer at least one question before submitting.");
+    void showAlert({
+      icon: "warning",
+      text: "You must answer at least one question before submitting.",
+    });
     return;
   }
 
   submittedRef.current = true;
   setSubmitted(true);
+  setExamStarted(false);
   stopCamera();
 
   const formatted = Object.entries(answers).map(([questionId, answer]) => ({
@@ -734,10 +799,27 @@ await terminateApplication.mutateAsync({
       applicationId: appId,
       answers: formatted,
     });
+
   } finally {
-    await exitFullscreen(); // exit fullscreen before redirect
-    setTimeout(() => router.push(`/ai/evaluate?applicationId=${appId}`), 600);
-  }
+  // 🔥 1. Stop camera FIRST
+  stopCamera();
+
+  // 🔥 2. Give browser time to release hardware
+  await new Promise((r) => setTimeout(r, 500));
+
+  // 🔥 3. Extra force release (important for Chrome)
+  await navigator.mediaDevices
+    .getUserMedia({ video: false })
+    .catch(() => {});
+
+  // 🔥 4. Exit fullscreen
+  await exitFullscreen();
+
+  // 🔥 5. Redirect to AI evaluation
+  setTimeout(() => {
+    router.push(`/ai/evaluate?applicationId=${appId}`);
+  }, 600);
+}
 }, [appId, answers, submitExam, stopCamera, exitFullscreen, router]);
 
   // ─────────────────────────────────────────────
@@ -829,6 +911,10 @@ await terminateApplication.mutateAsync({
 
       if (!liveDetection) {
         console.log("❌ LIVE face NOT detected");
+        void showAlert({
+          icon: "error",
+          text: "Live face not detected. Please look at the camera.",
+        });
         return false;
       }
 
@@ -855,18 +941,27 @@ await terminateApplication.mutateAsync({
 
   const handleStartExam = async () => {
     if (verificationLoading) {
-      alert("Checking verification. Please wait...");
+      void showAlert({
+        icon: "info",
+        text: "Checking verification. Please wait...",
+      });
       return;
     }
 
     if (!verificationData || verificationData.userId !== session?.user.id) {
-      alert("You must verify your identity before taking the exam.");
+      void showAlert({
+        icon: "warning",
+        text: "You must verify your identity before taking the exam.",
+      });
       router.push(verificationPath);
       return;
     }
 
     if (!verificationData.idImageUrl) {
-      alert("Your ID image is missing. Please verify again.");
+      void showAlert({
+        icon: "warning",
+        text: "Your ID image is missing. Please verify again.",
+      });
       router.push(verificationPath);
       return;
     }
@@ -880,17 +975,16 @@ await terminateApplication.mutateAsync({
         await document.documentElement.requestFullscreen();
       }
     } catch {
-      alert("Fullscreen is required to start the exam.");
+      void showAlert({
+        icon: "warning",
+        text: "Fullscreen is required to start the exam.",
+      });
       setStartingExam(false);
       return;
     }
 
     // ✅ 2. THEN start camera
     const camOk = await startCamera();
-
-    if (videoRef.current) {
-      await videoRef.current.play();
-    }
 
     if (!camOk) {
       await document.exitFullscreen(); // 🔥 exit fullscreen if camera fails
@@ -903,19 +997,52 @@ await terminateApplication.mutateAsync({
       const video = videoRef.current;
 
       await new Promise<void>((resolve) => {
+        let resolved = false;
+
+        const cleanup = () => {
+          video.onloadedmetadata = null;
+          video.oncanplay = null;
+        };
+
+        const safeResolve = () => {
+          if (resolved) return;
+          resolved = true;
+          cleanup();
+          resolve();
+        };
+
+        const tryPlay = () => {
+          if (!video.isConnected || video.srcObject == null) return;
+          video.play().catch(() => {
+            // ignore AbortError when the element is replaced/unmounted
+          });
+        };
+
         video.onloadedmetadata = () => {
-          video.play();
+          tryPlay();
+          safeResolve();
         };
 
-        const checkReady = () => {
-          if (video.readyState === 4) {
-            resolve();
-          } else {
-            requestAnimationFrame(checkReady);
-          }
+        video.oncanplay = () => {
+          tryPlay();
+          safeResolve();
         };
 
-        checkReady();
+        if (video.readyState >= 2) {
+          tryPlay();
+          safeResolve();
+        } else {
+          const checkReady = () => {
+            if (video.readyState >= 2) {
+              tryPlay();
+              safeResolve();
+            } else {
+              requestAnimationFrame(checkReady);
+            }
+          };
+
+          checkReady();
+        }
       });
 
       // extra delay for stable frame
@@ -932,10 +1059,21 @@ await terminateApplication.mutateAsync({
     const match = await compareFaces();
 
     if (!match) {
-      alert("Face does not match ID. Exam terminated.");
+      if (appId) {
+        await terminateApplication.mutateAsync({
+          applicationId: appId,
+          reason: "FACE_MISMATCH",
+        });
+      }
+      setExamStarted(false);
+      await exitFullscreenNow();
+      void showAlert({
+        icon: "error",
+        text: "Face does not match ID. Face verification failed. Please make sure to face the owner of the ID.",
+      });
       stopCamera();
       setStartingExam(false);
-      router.push("/home");
+      setTimeout(() => router.push("/home"), 100);
       return;
     }
 
@@ -944,12 +1082,13 @@ await terminateApplication.mutateAsync({
   };
 
   // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      stopCamera();
-      if (alertTimeoutRef.current) clearTimeout(alertTimeoutRef.current);
-    };
-  }, [stopCamera]);
+ useEffect(() => {
+  return () => {
+    if (mediaStreamRef.current) {
+      mediaStreamRef.current.getTracks().forEach((t) => t.stop());
+    }
+  };
+}, []);
 
   // ─────────────────────────────────────────────
   // AUTH GUARD
@@ -1332,7 +1471,7 @@ await terminateApplication.mutateAsync({
   if (terminated) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50 p-6">
-        <div className="max-w-sm text-center">
+        <div className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
           <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full border border-red-200 bg-red-100">
             <svg
               className="h-8 w-8 text-red-500"
@@ -1354,15 +1493,11 @@ await terminateApplication.mutateAsync({
           <p className="mb-1 text-sm text-slate-500">
             You reached the maximum number of violations.
           </p>
-          <p className="text-xs text-slate-400">Redirecting to home page...</p>
-          <div className="mt-5 flex justify-center gap-1.5">
-            {[0, 1, 2].map((i) => (
-              <div
-                key={i}
-                className="h-1.5 w-1.5 animate-bounce rounded-full bg-red-400"
-                style={{ animationDelay: `${i * 0.15}s` }}
-              />
-            ))}
+          <div className="mt-5 flex items-center justify-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2">
+            <div className="h-4 w-4 animate-spin rounded-full border-2 border-red-300 border-t-red-500" />
+            <p className="text-xs font-medium text-slate-500">
+              Ending session and redirecting...
+            </p>
           </div>
         </div>
       </div>
@@ -1378,7 +1513,7 @@ await terminateApplication.mutateAsync({
         {/* Camera for Face Detection */}
         <div className="fixed right-4 bottom-4 h-36 w-48 overflow-hidden rounded-lg border shadow-lg"></div>
 
-        <div className="max-w-sm text-center">
+        <div className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
           <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full border border-green-200 bg-green-100">
             <svg
               className="h-8 w-8 text-green-500"
@@ -1398,8 +1533,14 @@ await terminateApplication.mutateAsync({
             Submitted Successfully
           </h1>
           <p className="text-sm text-slate-500">
-            Your answers have been recorded. Redirecting...
+            Your answers have been recorded.
           </p>
+          <div className="mt-5 flex items-center justify-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2">
+            <div className="h-4 w-4 animate-spin rounded-full border-2 border-emerald-300 border-t-emerald-500" />
+            <p className="text-xs font-medium text-slate-500">
+              Finalizing submission and redirecting...
+            </p>
+          </div>
         </div>
       </div>
     );
@@ -1420,7 +1561,7 @@ await terminateApplication.mutateAsync({
 
   return (
     <main
-      className="min-h-screen bg-slate-50 text-slate-800"
+      className="flex min-h-screen flex-col bg-gradient-to-b from-sky-50 via-white to-sky-100 text-slate-800 pt-6 md:pt-8"
       style={{ userSelect: "none", WebkitUserSelect: "none" }}
     >
       {/* ── VIOLATION ALERT BANNER ── */}
@@ -1508,14 +1649,14 @@ await terminateApplication.mutateAsync({
       )}
 
       {/* ── TOP HEADER ── */}
-      <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 px-6 py-3 backdrop-blur">
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-4">
+      <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 px-6 py-4 backdrop-blur">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4">
           {/* Left: branding + progress */}
           <div className="flex min-w-0 items-center gap-4">
-            <div className="hidden flex-shrink-0 items-center gap-2 sm:flex">
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-600">
+            <div className="hidden flex-shrink-0 items-center gap-3 sm:flex">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600">
                 <svg
-                  className="h-3.5 w-3.5 text-white"
+                  className="h-4 w-4 text-white"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -1528,7 +1669,7 @@ await terminateApplication.mutateAsync({
                   />
                 </svg>
               </div>
-              <span className="text-sm font-semibold whitespace-nowrap text-slate-700">
+              <span className="text-lg font-semibold whitespace-nowrap text-slate-700">
                 Technical Assessment
               </span>
             </div>
@@ -1546,14 +1687,14 @@ await terminateApplication.mutateAsync({
                   }`}
                 />
               ))}
-              <span className="ml-1 text-xs font-medium text-slate-400">
+              <span className="ml-1 text-sm font-medium text-slate-500">
                 {currentIndex + 1}/{questions.length}
               </span>
             </div>
           </div>
 
           {/* Center: total time ring */}
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-3">
             <div className="relative h-11 w-11">
               <svg className="h-11 w-11 -rotate-90" viewBox="0 0 44 44">
                 <circle
@@ -1594,11 +1735,11 @@ await terminateApplication.mutateAsync({
               </span>
             </div>
             <div className="hidden sm:block">
-              <p className="text-[10px] leading-none font-semibold tracking-wider text-slate-400 uppercase">
+              <p className="text-xs leading-none font-semibold tracking-wider text-slate-400 uppercase">
                 Total Time
               </p>
               <p
-                className={`mt-0.5 text-xs font-semibold ${totalLow ? "text-red-600" : "text-slate-600"}`}
+                className={`mt-0.5 text-sm font-semibold ${totalLow ? "text-red-600" : "text-slate-600"}`}
               >
                 {totalLow ? "⚠ Low time" : "Remaining"}
               </p>
@@ -1607,8 +1748,8 @@ await terminateApplication.mutateAsync({
 
           {/* Right: violations + camera */}
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5">
-              <span className="hidden text-[10px] font-semibold tracking-wider text-slate-400 uppercase sm:block">
+            <div className="flex items-center gap-2">
+              <span className="hidden text-xs font-semibold tracking-wider text-slate-400 uppercase sm:block">
                 Violations
               </span>
               {Array.from({ length: MAX_VIOLATIONS }).map((_, i) => (
@@ -1666,7 +1807,7 @@ await terminateApplication.mutateAsync({
       </header>
 
       {/* ── QUESTION AREA ── */}
-      <div className="mx-auto max-w-3xl px-6 py-8">
+      <div className="mx-auto w-full max-w-4xl px-6 py-10">
         {/* Question meta */}
         <div className="mb-5 flex items-center justify-between">
           <div className="flex items-center gap-2.5">

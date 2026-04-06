@@ -2,7 +2,8 @@
 
 import React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import React, { useState } from "react";
+import { showAlert } from "~/app/components/common/alert";
 
 export default function AgreementPage({
   params: paramsPromise,
@@ -11,6 +12,7 @@ export default function AgreementPage({
 }) {
   const params = React.use(paramsPromise);
   const router = useRouter();
+  const { jobId } = React.use(params);
   const searchParams = useSearchParams();
   const appId = searchParams.get("appId");
 
@@ -18,17 +20,23 @@ export default function AgreementPage({
 
   const handleStart = () => {
     if (!checked) {
-      alert("You must agree before continuing.");
+      void showAlert({
+        icon: "warning",
+        text: "You must agree before continuing.",
+      });
       return;
     }
 
     if (!appId) {
-      alert("Application ID missing. Please re-apply.");
+      void showAlert({
+        icon: "error",
+        text: "Application ID missing. Please re-apply.",
+      });
       return;
     }
 
     // ✅ FIXED HERE
-    router.push(`/exam/${params.jobId}?appId=${appId}`);
+    router.push(`/exam/${jobId}?appId=${appId}`);
   };
 
   return (
