@@ -1,10 +1,12 @@
 "use client";
 
+import type { ReactNode } from "react";
+
 interface ScoreCardProps {
   label: string;
   value: string | number;
   subtext?: string;
-  icon?: string;
+  icon?: ReactNode;
   accent?: string;
   highlight?: boolean;
 }
@@ -42,8 +44,8 @@ export default function ScoreCard({
         </span>
         {icon && (
           <div
-            className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl"
-            style={{ background: `${accent}15`, border: `1px solid ${accent}30` }}
+            className="w-14 h-14 rounded-2xl flex items-center justify-center"
+            style={{ background: `${accent}15`, border: `1px solid ${accent}30`, color: accent }}
           >
             {icon}
           </div>

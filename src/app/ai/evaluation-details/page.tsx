@@ -1,14 +1,27 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
+import { Suspense, useState, useEffect } from "react";
 import Link from "next/link";
 import { api } from "~/trpc/react";
 import QuestionReviewCard from "../components/QuestionReviewCard";
+import { Inbox } from "lucide-react";
 
 function EvaluationDetailsContent() {
   const searchParams = useSearchParams();
-  const applicationId = searchParams.get("applicationId") ?? "";
+  const paramId = searchParams.get("applicationId") ?? "";
+  const [applicationId, setApplicationId] = useState(paramId);
+
+  useEffect(() => {
+    if (!paramId) {
+      try {
+        const saved = localStorage.getItem("ai_last_application_id") ?? "";
+        if (saved) setApplicationId(saved);
+      } catch (_) { /* ignore */ }
+    } else {
+      setApplicationId(paramId);
+    }
+  }, [paramId]);
 
   const { data, isLoading, error } = api.ai.getEvaluationDetails.useQuery(
     { applicationId },
@@ -59,7 +72,7 @@ function EvaluationDetailsContent() {
       <div className="flex items-center gap-2 mb-6">
         <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#1F7FB2]/20 bg-[#1F7FB2]/5 text-xs font-black uppercase tracking-widest text-[#1F7FB2]">
           <span className="w-1.5 h-1.5 rounded-full bg-[#1F7FB2] animate-pulse" />
-          AI Evaluation
+          Evaluation Details
         </span>
       </div>
 
@@ -125,8 +138,8 @@ function EvaluationDetailsContent() {
       {/* Question cards or empty placeholder */}
       {isEmpty ? (
         <div className="bg-white border border-[#E2E8F0] rounded-4xl p-16 text-center shadow-sm">
-          <div className="w-16 h-16 rounded-2xl bg-[#F4F7FB] border border-[#E2E8F0] flex items-center justify-center text-3xl mx-auto mb-4">
-            📭
+          <div className="w-16 h-16 rounded-2xl bg-[#F4F7FB] border border-[#E2E8F0] flex items-center justify-center mx-auto mb-4">
+            <Inbox size={28} className="text-[#94A3B8]" />
           </div>
           <p className="text-xs font-black uppercase tracking-widest text-[#64748B]">
             No evaluation details available yet
