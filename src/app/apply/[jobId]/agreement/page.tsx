@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { useState } from "react";
 import { showAlert } from "~/app/components/common/alert";
@@ -12,7 +11,7 @@ export default function AgreementPage({
 }) {
   const params = React.use(paramsPromise);
   const router = useRouter();
-  const { jobId } = React.use(params);
+  const { jobId } = params;
   const searchParams = useSearchParams();
   const appId = searchParams.get("appId");
 
