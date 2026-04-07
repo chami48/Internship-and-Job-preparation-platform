@@ -45,12 +45,24 @@ export const aiRouter = createTRPCRouter({
         where: { applicationId },
       });
 
-      if (!result || result.status === "FAILED") {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "AI evaluation failed. Please try again.",
-        });
-      }
+      if (!result) {
+  throw new TRPCError({
+    code: "NOT_FOUND",
+    message: "Evaluation result not found.",
+  });
+}
+
+if (result.status === "FAILED") {
+  console.warn("Evaluation failed for:", applicationId);
+
+  return {
+    success: false,
+    evaluationResultId: result.id,
+    passed: false,
+    percentage: 0,
+    message: "Evaluation completed but marked as FAILED.",
+  };
+}
 
       return {
         success: true,

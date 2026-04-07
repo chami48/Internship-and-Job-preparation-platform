@@ -770,10 +770,10 @@ export default function ExamPage() {
     }
   }, [currentIndex, questions]);
 
-  // ─────────────────────────────────────────────
-  // SUBMIT
-  // ─────────────────────────────────────────────
-  const handleAutoSubmit = useCallback(async () => {
+// ─────────────────────────────────────────────
+// SUBMIT
+// ─────────────────────────────────────────────
+const handleAutoSubmit = useCallback(async () => {
   if (submittedRef.current || !appId) return;
 
   if (Object.keys(answers).length === 0) {
@@ -787,40 +787,57 @@ export default function ExamPage() {
   submittedRef.current = true;
   setSubmitted(true);
   setExamStarted(false);
+
+  // Stop camera immediately
   stopCamera();
 
-  const formatted = Object.entries(answers).map(([questionId, answer]) => ({
-    questionId: questionId as string,
-    answer: answer as string,
-  }));
+  const formatted = Object.entries(answers).map(
+    ([questionId, answer]) => ({
+      questionId: questionId as string,
+      answer: answer as string,
+    }),
+  );
 
   try {
+    // ✅ Wait until submission SUCCESS
     await submitExam.mutateAsync({
       applicationId: appId,
       answers: formatted,
     });
 
-  } finally {
-  // 🔥 1. Stop camera FIRST
-  stopCamera();
+    // 🔥 Release camera safely
+    stopCamera();
 
-  // 🔥 2. Give browser time to release hardware
-  await new Promise((r) => setTimeout(r, 500));
+    await new Promise((r) => setTimeout(r, 500));
 
-  // 🔥 3. Extra force release (important for Chrome)
-  await navigator.mediaDevices
-    .getUserMedia({ video: false })
-    .catch(() => {});
+    await navigator.mediaDevices
+      .getUserMedia({ video: false })
+      .catch(() => {});
 
-  // 🔥 4. Exit fullscreen
-  await exitFullscreen();
+    await exitFullscreen();
 
-  // 🔥 5. Redirect to AI evaluation
-  setTimeout(() => {
+    // ✅ Navigate ONLY after success
     router.push(`/ai/evaluate?applicationId=${appId}`);
-  }, 600);
-}
-}, [appId, answers, submitExam, stopCamera, exitFullscreen, router]);
+
+  } catch (error) {
+    console.error("Submit exam failed:", error);
+
+    submittedRef.current = false;
+
+    void showAlert({
+      icon: "error",
+      text: "Failed to submit exam. Please try again.",
+    });
+  }
+
+}, [
+  appId,
+  answers,
+  submitExam,
+  stopCamera,
+  exitFullscreen,
+  router,
+]);
 
   // ─────────────────────────────────────────────
   // START EXAM — fullscreen starts ONLY here
