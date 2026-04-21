@@ -115,7 +115,7 @@ const MOCK_JOBS = [
     salary: "Stipend - LKR 13,000",
     tags: "User Research, Testing",
     slots: 4,
-    deadline: new Date("2026-04-20"),
+    deadline: new Date("2026-03-20"),
     createdAt: new Date(),
     updatedAt: new Date(),
     companyId: "demo",
@@ -158,9 +158,11 @@ function fmtDate(d: Date | null): string {
 export default function MyJobsPage() {
   const router = useRouter();
   const [companyId, setCompanyId] = useState<string | null>(null);
+  const [mockJobs, setMockJobs] = useState(MOCK_JOBS);
   const [search, setSearch] = useState("");
   const [filterType, setFilterType] = useState("ALL");
   const [filterLevel, setFilterLevel] = useState("ALL");
+  const [statusFilter, setStatusFilter] = useState<"ALL" | "ACTIVE" | "EXPIRED" | "NO_DEADLINE">("ALL");
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const { data: company } = api.company.getProfile.useQuery(
@@ -179,7 +181,7 @@ export default function MyJobsPage() {
   );
 
   // Combine with mock jobs for demo
-  const allJobs = [...(jobs || []), ...MOCK_JOBS];
+  const allJobs = [...(jobs || []), ...mockJobs];
 
   const deleteJob = api.job.delete.useMutation({
     onSuccess: async () => {
@@ -190,7 +192,6 @@ export default function MyJobsPage() {
   const handleLogout = () => router.push('/company/comlogin');
   const handleCreateJob = () => router.push('/company/create-job');
   const handleDelete = async (jobId: string) => {
-    if (!companyId) return;
     const result = await Swal.fire({
       title: "Delete this job post?",
       text: "This action cannot be undone.",
@@ -202,6 +203,13 @@ export default function MyJobsPage() {
       cancelButtonColor: "#64748B",
     });
     if (!result.isConfirmed) return;
+
+    if (jobId.startsWith("demo-")) {
+      setMockJobs((prev) => prev.filter((job) => job.id !== jobId));
+      return;
+    }
+
+    if (!companyId) return;
     deleteJob.mutate({ id: jobId, companyId });
   };
 
@@ -213,7 +221,15 @@ export default function MyJobsPage() {
     const matchSearch = job.title.toLowerCase().includes(search.toLowerCase());
     const matchType   = filterType  === "ALL" || job.type  === filterType;
     const matchLevel  = filterLevel === "ALL" || job.level === filterLevel;
-    return matchSearch && matchType && matchLevel;
+    const matchStatus =
+      statusFilter === "ALL"
+        ? true
+        : statusFilter === "ACTIVE"
+          ? !isExpired(job.deadline)
+          : statusFilter === "EXPIRED"
+            ? isExpired(job.deadline)
+            : !job.deadline;
+    return matchSearch && matchType && matchLevel && matchStatus;
   });
 
   if (isLoading) {
@@ -354,11 +370,16 @@ export default function MyJobsPage() {
         {/* Quick stats */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
           {[ 
-            { label: "Active", value: active },
-            { label: "Expired", value: expired },
-            { label: "No deadline", value: noDeadline },
+            { label: "Active", value: active, key: "ACTIVE" as const },
+            { label: "Expired", value: expired, key: "EXPIRED" as const },
+            { label: "No deadline", value: noDeadline, key: "NO_DEADLINE" as const },
           ].map((stat) => (
-            <div key={stat.label} className="bg-white border rounded-xl p-4 flex items-center gap-3 shadow-sm">
+            <button
+              key={stat.label}
+              type="button"
+              onClick={() => setStatusFilter((prev) => (prev === stat.key ? "ALL" : stat.key))}
+              className={`bg-white border rounded-xl p-4 flex items-center gap-3 shadow-sm text-left transition ${statusFilter === stat.key ? "ring-2 ring-[#1F7FB2]/40 border-[#1F7FB2]/40" : "hover:border-slate-300"}`}
+            >
               <div className="w-10 h-10 bg-[#0F3D5E] text-white flex items-center justify-center rounded-lg">
                 <Users size={18} />
               </div>
@@ -366,7 +387,7 @@ export default function MyJobsPage() {
                 <p className="text-sm text-slate-500">{stat.label}</p>
                 <p className="text-xl font-bold">{stat.value}</p>
               </div>
-            </div>
+            </button>
           ))}
         </div>
 
