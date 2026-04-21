@@ -76,6 +76,7 @@ const DEFAULT_APPLICATION_ID = "app-ai-001";
 const DEFAULT_JOB_ID = "job-ai-frontend-001";
 
 export const mockResults: Record<string, MockResult> = {
+  // Frontend Job
   "app-ai-001": {
     applicationId: "app-ai-001",
     studentName: "Nethmi Perera",
@@ -104,9 +105,68 @@ export const mockResults: Record<string, MockResult> = {
       "Understands core syntax, but missed key requirements in architecture and testing depth. Needs stronger reasoning around trade-offs.",
     cvUploadUnlocked: false,
   },
+  // Backend Job
+  "app-ai-101": {
+    applicationId: "app-ai-101",
+    studentName: "Kasun Silva",
+    examTitle: "AI Evaluation - Backend Engineer",
+    date: "26 Mar 2026",
+    status: "PASS",
+    totalScore: 91,
+    maxScore: 100,
+    percentage: 91,
+    cutoff: 75,
+    aiFeedback:
+      "Excellent backend design and strong database skills. Demonstrates advanced API security knowledge.",
+    cvUploadUnlocked: true,
+  },
+  "app-ai-102": {
+    applicationId: "app-ai-102",
+    studentName: "Sewwandi Jayasuriya",
+    examTitle: "AI Evaluation - Backend Engineer",
+    date: "26 Mar 2026",
+    status: "FAIL",
+    totalScore: 62,
+    maxScore: 100,
+    percentage: 62,
+    cutoff: 75,
+    aiFeedback:
+      "Good understanding of REST, but needs to improve error handling and async patterns.",
+    cvUploadUnlocked: false,
+  },
+  // Data Analyst Job
+  "app-ai-201": {
+    applicationId: "app-ai-201",
+    studentName: "Tharindu Abeysekara",
+    examTitle: "AI Evaluation - Data Analyst",
+    date: "27 Mar 2026",
+    status: "PASS",
+    totalScore: 88,
+    maxScore: 100,
+    percentage: 88,
+    cutoff: 80,
+    aiFeedback:
+      "Strong data wrangling and visualization skills. Excellent use of pandas and matplotlib.",
+    cvUploadUnlocked: true,
+  },
+  "app-ai-202": {
+    applicationId: "app-ai-202",
+    studentName: "Ishara Madushani",
+    examTitle: "AI Evaluation - Data Analyst",
+    date: "27 Mar 2026",
+    status: "FAIL",
+    totalScore: 59,
+    maxScore: 100,
+    percentage: 59,
+    cutoff: 80,
+    aiFeedback:
+      "Basic analysis is correct, but needs to improve on data cleaning and reporting.",
+    cvUploadUnlocked: false,
+  },
 };
 
 export const mockEvaluationDetails: Record<string, MockQuestionEvaluation[]> = {
+  // Frontend
   "app-ai-001": [
     {
       id: "qeval-1",
@@ -175,34 +235,71 @@ export const mockEvaluationDetails: Record<string, MockQuestionEvaluation[]> = {
     },
   ],
   "app-ai-002": [
+  ],
+  // Backend
+  "app-ai-101": [
     {
-      id: "qeval-6",
+      id: "qeval-101-1",
       questionNumber: 1,
-      questionText: "Explain how to design a reusable component system.",
-      studentAnswer: "Create components and props.",
-      expectedAnswer:
-        "Define design tokens, typed props, composition patterns, and usage boundaries with documentation.",
-      score: 11,
+      questionText: "Explain the difference between SQL and NoSQL databases.",
+      studentAnswer: "SQL is relational, NoSQL is non-relational.",
+      expectedAnswer: "SQL uses structured tables and schemas, NoSQL is schema-less and document or key-value based.",
+      score: 18,
       maxMarks: 20,
-      aiFeedback:
-        "Too brief. Lacks details on typing, composition patterns, and consistency controls.",
+      aiFeedback: "Good summary, could mention scalability and transaction differences."
     },
     {
-      id: "qeval-7",
+      id: "qeval-101-2",
       questionNumber: 2,
-      questionText: "How do you debug slow page loads in Next.js?",
-      studentAnswer: "Check network and optimize images.",
-      expectedAnswer:
-        "Use Web Vitals and profiling to inspect bundle size, hydration, image strategy, and server timings.",
+      questionText: "How do you secure a REST API?",
+      studentAnswer: "Use JWT and HTTPS.",
+      expectedAnswer: "Authentication, authorization, HTTPS, input validation, rate limiting, and logging.",
+      score: 19,
+      maxMarks: 20,
+      aiFeedback: "Strong answer, but could mention rate limiting and logging."
+    }
+  ],
+  "app-ai-102": [
+    {
+      id: "qeval-102-1",
+      questionNumber: 1,
+      questionText: "What is an ORM?",
+      studentAnswer: "Object Relational Mapper.",
+      expectedAnswer: "ORM maps database tables to objects in code, simplifying CRUD operations.",
       score: 12,
       maxMarks: 20,
-      aiFeedback:
-        "Mentions valid starting points but misses systematic profiling workflow.",
-    },
+      aiFeedback: "Correct, but needs more detail and examples."
+    }
+  ],
+  // Data Analyst
+  "app-ai-201": [
+    {
+      id: "qeval-201-1",
+      questionNumber: 1,
+      questionText: "How do you handle missing data in pandas?",
+      studentAnswer: "Use dropna or fillna.",
+      expectedAnswer: "dropna, fillna, interpolation, or custom imputation methods.",
+      score: 17,
+      maxMarks: 20,
+      aiFeedback: "Good, but could mention interpolation."
+    }
+  ],
+  "app-ai-202": [
+    {
+      id: "qeval-202-1",
+      questionNumber: 1,
+      questionText: "What is data normalization?",
+      studentAnswer: "Scaling data to a range.",
+      expectedAnswer: "Rescaling features to a standard range, often 0-1 or -1 to 1.",
+      score: 10,
+      maxMarks: 20,
+      aiFeedback: "Needs more detail and context."
+    }
   ],
 };
 
 export const mockPermissionByApplicationId: Record<string, MockPermissionStatus> = {
+  // Frontend
   "app-ai-001": {
     passed: true,
     message: "You passed the AI cutoff. CV upload is unlocked for this application.",
@@ -216,19 +313,55 @@ export const mockPermissionByApplicationId: Record<string, MockPermissionStatus>
     cutoff: 70,
     status: "COMPLETED",
   },
-  "app-ai-002": {
-    passed: false,
-    message: "You are below the current cutoff. CV upload remains locked for now.",
+  // "app-ai-002" intentionally omitted (no permission status for failed frontend candidate)
+  // Backend
+  "app-ai-101": {
+    passed: true,
+    message: "You passed the backend cutoff. CV upload is unlocked for this application.",
     nextSteps: [
-      "Review question-level feedback in detail.",
-      "Focus on system design and testing explanation quality.",
-      "Attempt a mock test and improve answer structure.",
-      "Reapply after strengthening weak areas.",
+      "Upload your backend-focused CV.",
+      "Prepare for API design interviews.",
+      "Review advanced database topics."
     ],
-    percentage: 58,
-    cutoff: 70,
-    status: "COMPLETED",
+    percentage: 91,
+    cutoff: 75,
+    status: "COMPLETED"
   },
+  "app-ai-102": {
+    passed: false,
+    message: "You are below the backend cutoff. CV upload remains locked.",
+    nextSteps: [
+      "Review API security best practices.",
+      "Practice with async/await patterns."
+    ],
+    percentage: 62,
+    cutoff: 75,
+    status: "COMPLETED"
+  },
+  // Data Analyst
+  "app-ai-201": {
+    passed: true,
+    message: "You passed the data analyst cutoff. CV upload is unlocked.",
+    nextSteps: [
+      "Showcase your data projects.",
+      "Prepare for SQL and visualization interviews."
+    ],
+    percentage: 88,
+    cutoff: 80,
+    status: "COMPLETED"
+  },
+  "app-ai-202": {
+    passed: false,
+    message: "You are below the data analyst cutoff. CV upload remains locked.",
+    nextSteps: [
+      "Practice data cleaning and reporting.",
+      "Review pandas documentation."
+    ],
+    percentage: 59,
+    cutoff: 80,
+    status: "COMPLETED"
+  },
+  // Removed duplicate/invalid entry after last data analyst
 };
 
 export const mockCandidatesByJobId: Record<string, MockCandidateSummary[]> = {
@@ -278,9 +411,58 @@ export const mockCandidatesByJobId: Record<string, MockCandidateSummary[]> = {
       evaluatedAt: "25 Mar 2026",
     },
   ],
+  "job-ai-backend-001": [
+    {
+      id: "app-ai-101",
+      name: "Kasun Silva",
+      email: "kasun.silva@email.com",
+      appliedRole: "Backend Engineer",
+      score: 91,
+      maxScore: 100,
+      percentage: 91,
+      status: "PASS",
+      evaluatedAt: "26 Mar 2026",
+    },
+    {
+      id: "app-ai-102",
+      name: "Sewwandi Jayasuriya",
+      email: "sewwandi.j@email.com",
+      appliedRole: "Backend Engineer",
+      score: 62,
+      maxScore: 100,
+      percentage: 62,
+      status: "FAIL",
+      evaluatedAt: "26 Mar 2026",
+    }
+  ],
+  "job-ai-data-001": [
+    {
+      id: "app-ai-201",
+      name: "Tharindu Abeysekara",
+      email: "tharindu.abey@email.com",
+      appliedRole: "Data Analyst",
+      score: 88,
+      maxScore: 100,
+      percentage: 88,
+      status: "PASS",
+      evaluatedAt: "27 Mar 2026",
+    },
+    {
+      id: "app-ai-202",
+      name: "Ishara Madushani",
+      email: "ishara.m@email.com",
+      appliedRole: "Data Analyst",
+      score: 59,
+      maxScore: 100,
+      percentage: 59,
+      status: "FAIL",
+      evaluatedAt: "27 Mar 2026",
+    }
+  ],
 };
 
 export const mockCandidateDetails: Record<string, MockCandidateDetail> = {
+  // Frontend
   "app-ai-001": {
     id: "app-ai-001",
     name: "Nethmi Perera",
@@ -307,32 +489,109 @@ export const mockCandidateDetails: Record<string, MockCandidateDetail> = {
     cvUploadGranted: true,
     answers: mockEvaluationDetails["app-ai-001"] ?? [],
   },
-  "app-ai-002": {
-    id: "app-ai-002",
-    name: "Ashen Fernando",
-    email: "ashen.fernando@email.com",
-    phone: "+94 71 765 4321",
-    university: "University of Colombo",
-    degree: "BSc in Computer Science",
-    specialization: "SOFTWARE_ENGINEERING",
-    cgpa: "3.12",
-    programmingLanguages: "JavaScript, Python",
-    frameworks: "React, Express",
-    linkedin: "linkedin.com/in/ashen-fernando",
-    github: "github.com/ashenfernando",
-    portfolio: "ashenfolio.web.app",
-    appliedRole: "Frontend Engineer",
-    totalScore: 58,
+  // "app-ai-002" intentionally omitted (no details for failed frontend candidate)
+  // Backend
+  "app-ai-101": {
+    id: "app-ai-101",
+    name: "Kasun Silva",
+    email: "kasun.silva@email.com",
+    phone: "+94 77 555 1234",
+    university: "University of Peradeniya",
+    degree: "BSc in Computer Engineering",
+    specialization: "BACKEND_ENGINEERING",
+    cgpa: "3.85",
+    programmingLanguages: "Java, Python, SQL",
+    frameworks: "Spring Boot, Express",
+    linkedin: "linkedin.com/in/kasun-silva",
+    github: "github.com/kasunsilva",
+    portfolio: "kasunsilva.dev",
+    appliedRole: "Backend Engineer",
+    totalScore: 91,
     maxScore: 100,
-    percentage: 58,
-    cutoff: 70,
-    status: "FAIL",
-    evaluationDate: "24 Mar 2026",
-    aiFeedback:
-      "Basic concepts are present, but the candidate should improve depth of architectural reasoning and structured response quality.",
-    cvUploadGranted: false,
-    answers: mockEvaluationDetails["app-ai-002"] ?? [],
+    percentage: 91,
+    cutoff: 75,
+    status: "PASS",
+    evaluationDate: "26 Mar 2026",
+    aiFeedback: "Excellent backend design and strong database skills.",
+    cvUploadGranted: true,
+    answers: mockEvaluationDetails["app-ai-101"] ?? [],
   },
+  "app-ai-102": {
+    id: "app-ai-102",
+    name: "Sewwandi Jayasuriya",
+    email: "sewwandi.j@email.com",
+    phone: "+94 71 888 4321",
+    university: "University of Kelaniya",
+    degree: "BSc in Computer Science",
+    specialization: "BACKEND_ENGINEERING",
+    cgpa: "3.22",
+    programmingLanguages: "Python, Node.js",
+    frameworks: "Express, FastAPI",
+    linkedin: "linkedin.com/in/sewwandi-j",
+    github: "github.com/sewwandij",
+    portfolio: "sewwandij.com",
+    appliedRole: "Backend Engineer",
+    totalScore: 62,
+    maxScore: 100,
+    percentage: 62,
+    cutoff: 75,
+    status: "FAIL",
+    evaluationDate: "26 Mar 2026",
+    aiFeedback: "Needs to improve error handling and async patterns.",
+    cvUploadGranted: false,
+    answers: mockEvaluationDetails["app-ai-102"] ?? [],
+  },
+  // Data Analyst
+  "app-ai-201": {
+    id: "app-ai-201",
+    name: "Tharindu Abeysekara",
+    email: "tharindu.abey@email.com",
+    phone: "+94 77 222 1111",
+    university: "University of Sri Jayewardenepura",
+    degree: "BSc in Data Science",
+    specialization: "DATA_ANALYTICS",
+    cgpa: "3.92",
+    programmingLanguages: "Python, R, SQL",
+    frameworks: "pandas, matplotlib, seaborn",
+    linkedin: "linkedin.com/in/tharindu-abey",
+    github: "github.com/tharinduabey",
+    portfolio: "tharinduabey.com",
+    appliedRole: "Data Analyst",
+    totalScore: 88,
+    maxScore: 100,
+    percentage: 88,
+    cutoff: 80,
+    status: "PASS",
+    evaluationDate: "27 Mar 2026",
+    aiFeedback: "Strong data wrangling and visualization skills.",
+    cvUploadGranted: true,
+    answers: mockEvaluationDetails["app-ai-201"] ?? [],
+  },
+  "app-ai-202": {
+    id: "app-ai-202",
+    name: "Ishara Madushani",
+    email: "ishara.m@email.com",
+    phone: "+94 71 333 2222",
+    university: "University of Ruhuna",
+    degree: "BSc in Statistics",
+    specialization: "DATA_ANALYTICS",
+    cgpa: "3.18",
+    programmingLanguages: "R, Python",
+    frameworks: "ggplot2, pandas",
+    linkedin: "linkedin.com/in/ishara-madushani",
+    github: "github.com/isharam",
+    portfolio: "isharam.com",
+    appliedRole: "Data Analyst",
+    totalScore: 59,
+    maxScore: 100,
+    percentage: 59,
+    cutoff: 80,
+    status: "FAIL",
+    evaluationDate: "27 Mar 2026",
+    aiFeedback: "Needs to improve on data cleaning and reporting.",
+    cvUploadGranted: false,
+    answers: mockEvaluationDetails["app-ai-202"] ?? [],
+  }
 };
 
 export function getMockResult(applicationId?: string | null): MockResult | null {
