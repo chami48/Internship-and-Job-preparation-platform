@@ -51,7 +51,7 @@ const interviews: Interview[] = [
     jobTitle: "AI Engineer Intern",
     stage: "Final",
     type: "Remote",
-    scheduledAt: "2026-03-26T09:30:00Z",
+    scheduledAt: "2026-04-08T07:00:00Z",
     timezone: "GMT+5:30",
     location: "Google Meet",
     interviewer: "Priya (Lead ML)",
@@ -64,7 +64,7 @@ const interviews: Interview[] = [
     jobTitle: "Frontend Engineer",
     stage: "Technical",
     type: "Onsite",
-    scheduledAt: "2026-03-26T07:00:00Z",
+    scheduledAt: "2026-04-08T10:00:00Z",
     timezone: "GMT+5:30",
     location: "Colombo HQ - Room 3B",
     interviewer: "Amal (FE Lead)",
@@ -77,7 +77,7 @@ const interviews: Interview[] = [
     jobTitle: "Product Analyst",
     stage: "Screen",
     type: "Remote",
-    scheduledAt: "2026-03-26T15:00:00Z",
+    scheduledAt: "2026-04-09T06:00:00Z",
     timezone: "GMT+5:30",
     location: "Zoom",
     interviewer: "Carla (PM)",
@@ -90,7 +90,7 @@ const interviews: Interview[] = [
     jobTitle: "AI Engineer Intern",
     stage: "Screen",
     type: "Remote",
-    scheduledAt: "2026-03-26T08:00:00Z",
+    scheduledAt: "2026-04-09T08:00:00Z",
     timezone: "GMT+5:30",
     location: "Zoom",
     interviewer: "Ruwan (AI Hiring)",
@@ -103,7 +103,7 @@ const interviews: Interview[] = [
     jobTitle: "AI Engineer Intern",
     stage: "Technical",
     type: "Onsite",
-    scheduledAt: "2026-03-27T11:30:00Z",
+    scheduledAt: "2026-04-09T11:30:00Z",
     timezone: "GMT+5:30",
     location: "Colombo HQ - Lab 1",
     interviewer: "Shehan (ML Engineer)",
@@ -116,7 +116,7 @@ const interviews: Interview[] = [
     jobTitle: "AI Engineer Intern",
     stage: "Technical",
     type: "Remote",
-    scheduledAt: "2026-03-28T14:00:00Z",
+    scheduledAt: "2026-04-09T14:00:00Z",
     timezone: "GMT+5:30",
     location: "Google Meet",
     interviewer: "Anjali (Data Science)",
@@ -129,7 +129,7 @@ const interviews: Interview[] = [
     jobTitle: "AI Engineer Intern",
     stage: "Final",
     type: "Onsite",
-    scheduledAt: "2026-04-02T09:00:00Z",
+    scheduledAt: "2026-04-10T09:00:00Z",
     timezone: "GMT+5:30",
     location: "Colombo HQ - Boardroom",
     interviewer: "Priya (Lead ML)",
@@ -142,7 +142,7 @@ const interviews: Interview[] = [
     jobTitle: "AI Engineer Intern",
     stage: "Screen",
     type: "Remote",
-    scheduledAt: "2026-03-30T07:30:00Z",
+    scheduledAt: "2026-04-10T07:30:00Z",
     timezone: "GMT+5:30",
     location: "Teams",
     interviewer: "Ruwan (AI Hiring)",
@@ -155,7 +155,7 @@ const interviews: Interview[] = [
     jobTitle: "ML Engineer Intern",
     stage: "Screen",
     type: "Remote",
-    scheduledAt: "2026-03-25T17:00:00Z",
+    scheduledAt: "2026-04-11T17:00:00Z",
     timezone: "GMT+5:30",
     location: "Google Meet",
     interviewer: "Ruwan (AI Hiring)",
@@ -168,7 +168,7 @@ const interviews: Interview[] = [
     jobTitle: "Frontend Engineer",
     stage: "Screen",
     type: "Remote",
-    scheduledAt: "2026-03-27T10:00:00Z",
+    scheduledAt: "2026-04-11T10:00:00Z",
     timezone: "GMT+5:30",
     location: "Zoom",
     interviewer: "Amal (FE Lead)",
@@ -181,7 +181,7 @@ const interviews: Interview[] = [
     jobTitle: "Frontend Engineer",
     stage: "Technical",
     type: "Remote",
-    scheduledAt: "2026-03-29T14:30:00Z",
+    scheduledAt: "2026-05-02T14:30:00Z",
     timezone: "GMT+5:30",
     location: "Google Meet",
     interviewer: "Amal (FE Lead)",
@@ -194,7 +194,7 @@ const interviews: Interview[] = [
     jobTitle: "Product Analyst",
     stage: "Screen",
     type: "Remote",
-    scheduledAt: "2026-03-27T16:00:00Z",
+    scheduledAt: "2026-05-03T16:00:00Z",
     timezone: "GMT+5:30",
     location: "Teams",
     interviewer: "Carla (PM)",
@@ -207,7 +207,7 @@ const interviews: Interview[] = [
     jobTitle: "Product Analyst",
     stage: "Technical",
     type: "Onsite",
-    scheduledAt: "2026-03-31T11:00:00Z",
+    scheduledAt: "2026-05-05T11:00:00Z",
     timezone: "GMT+5:30",
     location: "Colombo HQ - Room 2A",
     interviewer: "Carla (PM)",
@@ -220,7 +220,7 @@ const interviews: Interview[] = [
     jobTitle: "ML Engineer Intern",
     stage: "Technical",
     type: "Remote",
-    scheduledAt: "2026-03-28T09:00:00Z",
+    scheduledAt: "2026-05-06T09:00:00Z",
     timezone: "GMT+5:30",
     location: "Google Meet",
     interviewer: "Ruwan (AI Hiring)",
@@ -246,6 +246,27 @@ const HOLIDAYS: Record<string, string> = {
   "2026-04-14": "New Year Festival",
   "2026-05-01": "Labour Day",
 };
+
+const ZOOM_MEETING_URLS: Record<string, string> = {
+  i1: "https://us06web.zoom.us/j/84537192011?pwd=QWERTY123",
+  i2: "https://us06web.zoom.us/j/84537192012?pwd=QWERTY124",
+  i3: "https://us06web.zoom.us/j/84537192013?pwd=QWERTY125",
+  i4: "https://us06web.zoom.us/j/84537192014?pwd=QWERTY126",
+  i5: "https://us06web.zoom.us/j/84537192015?pwd=QWERTY127",
+  i6: "https://us06web.zoom.us/j/84537192016?pwd=QWERTY128",
+  i7: "https://us06web.zoom.us/j/84537192017?pwd=QWERTY129",
+  i8: "https://us06web.zoom.us/j/84537192018?pwd=QWERTY130",
+  i9: "https://us06web.zoom.us/j/84537192019?pwd=QWERTY131",
+  i10: "https://us06web.zoom.us/j/84537192020?pwd=QWERTY132",
+  i11: "https://us06web.zoom.us/j/84537192021?pwd=QWERTY133",
+  i12: "https://us06web.zoom.us/j/84537192022?pwd=QWERTY134",
+  i13: "https://us06web.zoom.us/j/84537192023?pwd=QWERTY135",
+  i14: "https://us06web.zoom.us/j/84537192024?pwd=QWERTY136",
+};
+
+function getZoomMeetingUrl(interviewId: string): string {
+  return ZOOM_MEETING_URLS[interviewId] ?? "https://us06web.zoom.us/";
+}
 
 export default function InterviewsPage() {
   const router = useRouter();
@@ -296,11 +317,16 @@ export default function InterviewsPage() {
   const groupedEntries = Object.entries(groupedByJob);
 
   const isSameDay = (a: Date, b: Date) => a.toDateString() === b.toDateString();
-  const today = new Date();
+  // Demo anchor date so the "Today" panel stays aligned for presentation.
+  const today = new Date(2026, 3, 8);
   const tomorrow = new Date(today);
   tomorrow.setDate(today.getDate() + 1);
-  const upcoming = sortedByTime.slice(0, 3);
-  const todayInterviews = sortedByTime.filter((i) => isSameDay(new Date(i.scheduledAt), today));
+  const todayInterviews = sortedByTime
+    .filter((i) => isSameDay(new Date(i.scheduledAt), today))
+    .slice(0, 1);
+  const upcoming = sortedByTime
+    .filter((i) => i.id !== todayInterviews[0]?.id)
+    .slice(0, 3);
   const isWeekend = (day: Date) => day.getDay() === 0 || day.getDay() === 6;
 
   const formatDay = (iso: string) => {
@@ -493,9 +519,14 @@ export default function InterviewsPage() {
                         <p className="text-xs text-slate-500">{i.jobTitle} • {new Date(i.scheduledAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</p>
                       </div>
                     </div>
-                    <button className="text-xs font-semibold px-4 py-1.5 rounded-lg border border-[#BFD2E5] text-[#0F3D5E] bg-white hover:bg-[#EFF6FF] transition">
+                    <a
+                      href={getZoomMeetingUrl(i.id)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs font-semibold px-4 py-1.5 rounded-lg border border-[#BFD2E5] text-[#0F3D5E] bg-white hover:bg-[#EFF6FF] transition"
+                    >
                       Join
-                    </button>
+                    </a>
                   </div>
                 ))}
                 {todayInterviews.length === 0 && (
@@ -522,9 +553,14 @@ export default function InterviewsPage() {
                         <p className="text-xs text-slate-500">{i.jobTitle} • {new Date(i.scheduledAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</p>
                       </div>
                     </div>
-                    <button className="text-xs font-semibold px-4 py-1.5 rounded-lg border border-[#BFD2E5] text-[#0F3D5E] bg-white hover:bg-[#EFF6FF] transition">
+                    <a
+                      href={getZoomMeetingUrl(i.id)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs font-semibold px-4 py-1.5 rounded-lg border border-[#BFD2E5] text-[#0F3D5E] bg-white hover:bg-[#EFF6FF] transition"
+                    >
                       Join
-                    </button>
+                    </a>
                   </div>
                 ))}
                 {upcoming.length === 0 && (
@@ -751,9 +787,14 @@ export default function InterviewsPage() {
                                   Job details <ArrowRight size={12} />
                                 </button>
                                 <div className="flex gap-2">
-                                  <button className="inline-flex items-center gap-1 px-3 py-2 text-xs font-semibold text-slate-700 border border-slate-200 rounded-lg hover:bg-white transition">
+                                  <a
+                                    href={getZoomMeetingUrl(i.id)}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-1 px-3 py-2 text-xs font-semibold text-slate-700 border border-slate-200 rounded-lg hover:bg-white transition"
+                                  >
                                     Join room
-                                  </button>
+                                  </a>
                                   {i.status === "Reschedule" && (
                                     <button className="inline-flex items-center gap-1 px-3 py-2 text-xs font-semibold text-red-600 border border-red-200 rounded-lg hover:bg-red-50 transition">
                                       <XCircle size={12} /> Reschedule
