@@ -150,4 +150,23 @@ export const prepQuizRouter = createTRPCRouter({
       };
     }),
 
+  // =========================================================
+  // ✅ GET MY ATTEMPTS
+  // =========================================================
+  getMyAttempts: protectedProcedure.query(async ({ ctx }) => {
+    return ctx.db.prepQuizAttempt.findMany({
+      where: {
+        userId: ctx.session.user.id,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      include: {
+        _count: {
+          select: { answers: true },
+        },
+      },
+    });
+  }),
+
 });
