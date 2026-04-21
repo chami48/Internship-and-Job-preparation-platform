@@ -60,6 +60,54 @@ const INDUSTRY_OPTIONS = [
   "Non-profit",
 ];
 
+const MOCK_PROFILE_JOBS = [
+  {
+    id: "profile-demo-1",
+    title: "Senior React Developer",
+    location: "Colombo, Sri Lanka",
+    role: "SOFTWARE_ENGINEER",
+    type: "FULL_TIME",
+    level: "SENIOR",
+    salary: "LKR 280,000 - 320,000",
+    tags: "React, TypeScript, Node.js",
+    slots: 3,
+    deadline: new Date("2026-05-15"),
+    createdAt: new Date("2026-03-01"),
+    updatedAt: new Date("2026-03-01"),
+    companyId: "demo",
+  },
+  {
+    id: "profile-demo-2",
+    title: "Frontend Engineer Intern",
+    location: "Colombo, Sri Lanka",
+    role: "SOFTWARE_ENGINEER",
+    type: "INTERNSHIP",
+    level: "JUNIOR",
+    salary: "Stipend - LKR 15,000",
+    tags: "React, JavaScript, Tailwind",
+    slots: 5,
+    deadline: new Date("2026-04-30"),
+    createdAt: new Date("2026-02-20"),
+    updatedAt: new Date("2026-02-20"),
+    companyId: "demo",
+  },
+  {
+    id: "profile-demo-3",
+    title: "Product Designer",
+    location: "Colombo, Sri Lanka",
+    role: "UX_ENGINEER",
+    type: "FULL_TIME",
+    level: "MID",
+    salary: "LKR 150,000 - 180,000",
+    tags: "Figma, Design Systems, UX",
+    slots: 2,
+    deadline: new Date("2026-05-20"),
+    createdAt: new Date("2026-02-10"),
+    updatedAt: new Date("2026-02-10"),
+    companyId: "demo",
+  },
+];
+
 export default function CompanyProfilePage() {
   const router = useRouter();
   const [companyId, setCompanyId] = useState<string | null>(null);
@@ -118,6 +166,7 @@ export default function CompanyProfilePage() {
     { enabled: !!companyId },
   );
   const profileJobs = jobs ?? [];
+  const profileJobsWithMock = [...profileJobs, ...MOCK_PROFILE_JOBS];
   const updateProfile = api.company.updateProfile.useMutation();
 
   useEffect(() => {
@@ -195,7 +244,7 @@ export default function CompanyProfilePage() {
     );
   }
 
-  const activeJobs = profileJobs.filter(j => !j.deadline || new Date(j.deadline) >= new Date());
+  const activeJobs = profileJobsWithMock.filter(j => !j.deadline || new Date(j.deadline) >= new Date());
   const companyName = company.name || "IFS";
   const initStr = initials(company.name);
 
@@ -317,7 +366,7 @@ export default function CompanyProfilePage() {
               </span>
               <span className="flex items-center gap-2"><Mail size={14} />{company.email}</span>
               <span className="flex items-center gap-2"><CalendarDays size={14} />Joined {fmtDate(company.createdAt)}</span>
-              <span className="flex items-center gap-2"><Briefcase size={14} />{profileJobs.length} job{profileJobs.length !== 1 ? "s" : ""} posted</span>
+              <span className="flex items-center gap-2"><Briefcase size={14} />{profileJobsWithMock.length} job{profileJobsWithMock.length !== 1 ? "s" : ""} posted</span>
             </div>
           </div>
           <div className="flex items-center gap-3 relative">
@@ -409,7 +458,7 @@ export default function CompanyProfilePage() {
               <span className="flex items-center gap-1.5"><LayoutGrid size={13} />Overview</span>
             </button>
             <button className={tabCls("jobs")} onClick={() => setTab("jobs")}>
-              <span className="flex items-center gap-1.5"><Briefcase size={13} />Job Posts{profileJobs.length ? ` (${profileJobs.length})` : ""}</span>
+              <span className="flex items-center gap-1.5"><Briefcase size={13} />Job Posts{profileJobsWithMock.length ? ` (${profileJobsWithMock.length})` : ""}</span>
             </button>
             <button className={tabCls("settings")} onClick={() => setTab("settings")}>
               <span className="flex items-center gap-1.5"><Settings size={13} />Edit Profile</span>
@@ -481,7 +530,7 @@ export default function CompanyProfilePage() {
                     </button>
                   </div>
                   <div className="px-6 py-4">
-                    {profileJobs.length === 0 ? (
+                    {profileJobsWithMock.length === 0 ? (
                       <div className="flex flex-col items-center py-6 gap-2 text-center">
                         <Briefcase size={24} className="text-[#CBD5E1]" />
                         <p className="text-sm text-[#94A3B8]">No jobs posted yet.</p>
@@ -490,7 +539,7 @@ export default function CompanyProfilePage() {
                       </div>
                     ) : (
                       <div className="flex flex-col gap-2.5">
-                        {profileJobs.slice(0, 3).map((j) => {
+                        {profileJobsWithMock.slice(0, 3).map((j) => {
                           const dl = daysLeft(j.deadline);
                           const closed = dl === "Closed";
                           return (
@@ -639,7 +688,7 @@ export default function CompanyProfilePage() {
 
                 {/* Stat cards */}
                 {[
-                  { icon: <Briefcase size={15} />, label: "Total Posts", value: profileJobs.length, accent: "bg-[#E0F2FE] text-[#0369A1]" },
+                  { icon: <Briefcase size={15} />, label: "Total Posts", value: profileJobsWithMock.length, accent: "bg-[#E0F2FE] text-[#0369A1]" },
                   { icon: <Users size={15} />, label: "Active Listings", value: activeJobs.length, accent: "bg-[#DCFCE7] text-emerald-600" },
                   { icon: <CalendarDays size={15} />, label: "Member Since", value: fmtDate(company.createdAt), accent: "bg-[#EEF2FF] text-indigo-500" },
                   { icon: <ShieldCheck size={15} />, label: "Status", value: company.isVerified ? "Verified ✓" : "Unverified", accent: company.isVerified ? "bg-emerald-50 text-emerald-600" : "bg-amber-50 text-amber-600" },
@@ -682,7 +731,7 @@ export default function CompanyProfilePage() {
         {/* ════════ JOBS TAB ════════ */}
         {tab === "jobs" && (
           <div className="flex flex-col gap-3">
-            {profileJobs.length === 0 ? (
+            {profileJobsWithMock.length === 0 ? (
               <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-[#E2E8F0] bg-white py-16 text-center">
                 <Briefcase size={32} className="mb-3 text-[#CBD5E1]" />
                 <p className="text-sm font-bold text-[#94A3B8]">No jobs posted yet</p>
@@ -691,7 +740,7 @@ export default function CompanyProfilePage() {
                   <Plus size={14} /> Post your first job
                 </button>
               </div>
-            ) : profileJobs.map((j) => {
+            ) : profileJobsWithMock.map((j) => {
               const dl = daysLeft(j.deadline);
               const closed = dl === "Closed";
               const isIntern = j.type?.toLowerCase().includes("intern");
