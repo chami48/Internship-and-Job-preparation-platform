@@ -90,6 +90,17 @@ interface JobImproveOutput {
   recruiterTips: string[];
 }
 
+function isGeminiQuotaOrRateError(error: unknown): boolean {
+  if (!(error instanceof Error)) return false;
+  const message = error.message.toLowerCase();
+  return (
+    message.includes("429") ||
+    message.includes("too many requests") ||
+    message.includes("quota") ||
+    message.includes("rate limit")
+  );
+}
+
 function toReadable(value: string): string {
   return value.replace(/_/g, " ").toLowerCase();
 }
@@ -130,6 +141,75 @@ function buildBenefitsFromContext(input: JobImproveInput): string {
   }
 
   return Array.from(new Set(base)).join(", ");
+}
+
+function normalizeBullets(text: string, fallbackItems: string[]): string {
+  const items = text
+    .split(/\r?\n/)
+    .map((line) => line.replace(/^[-*•\s]+/, "").trim())
+    .filter(Boolean);
+
+  const merged = items.length > 0 ? items : fallbackItems;
+  const limited = merged.slice(0, 6);
+
+  while (limited.length < 4 && fallbackItems[limited.length]) {
+    limited.push(fallbackItems[limited.length]);
+  }
+
+  return limited.map((item) => `• ${item}`).join("\n");
+}
+
+function buildResponsibilitiesFromContext(input: JobImproveInput): string {
+  const fallback = [
+    "Design, develop, and maintain scalable application features.",
+    "Collaborate with product, design, and QA teams to deliver releases.",
+    "Write clean, testable, and maintainable code following best practices.",
+    "Troubleshoot issues, optimize performance, and support production stability.",
+    "Participate in code reviews and contribute to engineering standards.",
+  ];
+
+  return normalizeBullets(input.responsibilities, fallback);
+}
+
+function buildRequirementsFromContext(input: JobImproveInput): string {
+  const skillHints = input.tags
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .slice(0, 4);
+
+  const fallback = [
+    `Proficiency in ${skillHints.join(", ") || "relevant modern technologies"}.`,
+    "Strong problem-solving, communication, and collaboration skills.",
+    "Hands-on experience building and maintaining production-ready software.",
+    "Ability to write clean code and contribute to code quality practices.",
+    "Bachelor's degree in Computer Science or equivalent practical experience.",
+  ];
+
+  return normalizeBullets(input.requirements, fallback);
+}
+
+function buildJobImproveFallback(input: JobImproveInput): JobImproveOutput {
+  const description =
+    input.description.trim().length < 80
+      ? buildDescriptionFromContext(input)
+      : `${input.description.trim()} The ideal candidate is proactive, quality-focused, and comfortable working in a collaborative environment.`;
+
+  const improvedBenefits = input.benefits?.trim()
+    ? input.benefits.trim()
+    : buildBenefitsFromContext(input);
+
+  return {
+    improvedDescription: description,
+    improvedResponsibilities: buildResponsibilitiesFromContext(input),
+    improvedRequirements: buildRequirementsFromContext(input),
+    improvedBenefits,
+    recruiterTips: [
+      "Add a transparent salary range to increase trust and conversion.",
+      "Keep responsibilities and requirements concise with 4 to 6 bullet points.",
+      "Highlight team culture, learning support, and growth opportunities.",
+    ],
+  };
 }
 
 /**
@@ -206,18 +286,50 @@ Respond ONLY as valid JSON (no markdown, no code fence) with this exact shape:
   "recruiterTips": ["...", "...", "..."]
 }`;
 
-  const result = await model.generateContent(prompt);
-  const raw = result.response.text().trim();
-  const cleaned = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
-
   const wantsDescriptionFill = input.description.trim().length < 50;
   const wantsBenefitsFill = !input.benefits?.trim();
 
   try {
-    const parsed = JSON.parse(cleaned) as Partial<JobImproveOutput>;
+    const result = await model.generateContent(prompt);
+    const raw = result.response.text().trim();
+    const cleaned = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
+    let parsed: Partial<JobImproveOutput>;
 
-    let improvedDescription = (parsed.improvedDescription ?? input.description).trim();
-    let improvedBenefits = (parsed.improvedBenefits ?? input.benefits ?? "").trim();
+    try {
+      parsed = JSON.parse(cleaned) as Partial<JobImproveOutput>;
+    } catch {
+      // If model returns non-JSON content, keep flow alive with deterministic fallback.
+      return {
+        improvedDescription: wantsDescriptionFill
+          ? buildDescriptionFromContext(input)
+          : input.description,
+        improvedResponsibilities: input.responsibilities,
+        improvedRequirements: input.requirements,
+        improvedBenefits: wantsBenefitsFill
+          ? buildBenefitsFromContext(input)
+          : input.benefits ?? "",
+        recruiterTips: [
+          "Add a clearer, role-specific title.",
+          "Include a salary range for transparency.",
+          "Expand benefits to improve applicant interest.",
+        ],
+      };
+    }
+
+    const safeText = (value: unknown, fallback: string): string => {
+      if (typeof value === "string") return value.trim();
+      if (typeof value === "number" || typeof value === "boolean") return String(value).trim();
+      if (Array.isArray(value)) {
+        return value
+          .map((entry) => (typeof entry === "string" ? entry : String(entry)))
+          .join(", ")
+          .trim();
+      }
+      return fallback.trim();
+    };
+
+    let improvedDescription = safeText(parsed.improvedDescription, input.description);
+    let improvedBenefits = safeText(parsed.improvedBenefits, input.benefits ?? "");
 
     if (wantsDescriptionFill && improvedDescription.length < 80) {
       improvedDescription = buildDescriptionFromContext(input);
@@ -229,8 +341,8 @@ Respond ONLY as valid JSON (no markdown, no code fence) with this exact shape:
 
     return {
       improvedDescription,
-      improvedResponsibilities: (parsed.improvedResponsibilities ?? input.responsibilities).trim(),
-      improvedRequirements: (parsed.improvedRequirements ?? input.requirements).trim(),
+      improvedResponsibilities: safeText(parsed.improvedResponsibilities, input.responsibilities),
+      improvedRequirements: safeText(parsed.improvedRequirements, input.requirements),
       improvedBenefits,
       recruiterTips:
         Array.isArray(parsed.recruiterTips) && parsed.recruiterTips.length > 0
@@ -241,22 +353,11 @@ Respond ONLY as valid JSON (no markdown, no code fence) with this exact shape:
               "Highlight growth opportunities and team culture.",
             ],
     };
-  } catch {
-    // Safe fallback if model output is not valid JSON.
-    return {
-      improvedDescription: wantsDescriptionFill
-        ? buildDescriptionFromContext(input)
-        : input.description,
-      improvedResponsibilities: input.responsibilities,
-      improvedRequirements: input.requirements,
-      improvedBenefits: wantsBenefitsFill
-        ? buildBenefitsFromContext(input)
-        : input.benefits ?? "",
-      recruiterTips: [
-        "Add a clearer, role-specific title.",
-        "Include a salary range for transparency.",
-        "Expand benefits to improve applicant interest.",
-      ],
-    };
+  } catch (error) {
+    if (isGeminiQuotaOrRateError(error)) {
+      return buildJobImproveFallback(input);
+    }
+
+    throw error;
   }
 }
