@@ -68,7 +68,8 @@ export default function QuizListPage() {
       
       <main className="max-w-7xl mx-auto px-6 py-16">
         {/* Modern Header - Refined & Compact */}
-        <div className="mb-12">
+        <div className="mb-12 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+          <div>
           <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-[#0F172A]/5 border border-[#0F172A]/10 text-[9px] font-bold text-[#0F172A] uppercase tracking-[0.2em] mb-3">
             <span className="w-1 h-1 rounded-full bg-[#0F172A] animate-pulse"></span>
             Assessment Center
@@ -79,6 +80,14 @@ export default function QuizListPage() {
           <p className="text-slate-400 text-[13px] max-w-xl leading-relaxed font-medium">
             Challenge yourself with industry-standard assessments. Identify knowledge gaps and master your technical interviews.
           </p>
+          </div>
+          <button
+            onClick={() => router.push("/prep-quiz/history")}
+            className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-white border border-slate-200 text-xs font-semibold text-slate-700 hover:border-slate-300 hover:text-slate-900 transition"
+          >
+            View quiz history
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M13 5l7 7-7 7M5 12h14"/></svg>
+          </button>
         </div>
 
         {/* QUIZ GRID - Modern Cards with Off-White Tint */}
