@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
+// Default Gemini instance for most features
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY ?? "");
 
 interface ScenarioEvalInput {
@@ -153,7 +154,7 @@ function normalizeBullets(text: string, fallbackItems: string[]): string {
   const limited = merged.slice(0, 6);
 
   while (limited.length < 4 && fallbackItems[limited.length]) {
-    limited.push(fallbackItems[limited.length]);
+    limited.push(fallbackItems[limited.length] || "");
   }
 
   return limited.map((item) => `• ${item}`).join("\n");
@@ -244,7 +245,13 @@ Write constructive, professional feedback summarizing strengths and areas for im
 export async function improveJobPostDraft(
   input: JobImproveInput,
 ): Promise<JobImproveOutput> {
-  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+  // Require NILUMI_API_KEY only when this feature is used
+  if (!process.env.NILUMI_API_KEY) {
+    throw new Error("NILUMI_API_KEY is required to improve job post with AI. Please set it in your .env file.");
+  }
+  const jobAnalyzerGenAI = new GoogleGenerativeAI(process.env.NILUMI_API_KEY);
+  const model = jobAnalyzerGenAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
   const prompt = `You are an expert technical recruiter. Improve this job post draft.
 

@@ -17,6 +17,7 @@ export const env = createEnv({
 
     // ✅ Gemini API key for AI evaluation features
     GEMINI_API_KEY: z.string().min(1),
+    NILUMI_API_KEY: z.string().optional(),
   },
 
   client: {},
@@ -31,5 +32,6 @@ export const env = createEnv({
     AUTH_DISCORD_SECRET: process.env.AUTH_DISCORD_SECRET,
 
     GEMINI_API_KEY: process.env.GEMINI_API_KEY,
+    NILUMI_API_KEY: process.env.NILUMI_API_KEY,
   },
 });
