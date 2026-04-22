@@ -196,7 +196,7 @@ export default function CompanyDashboard() {
             {/* Large Stats Row */}
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
               {[
-                { label: 'Total Job Posts', value: '8', icon: Briefcase, color: '#3B82F6' },
+                { label: 'Total Job Posts', value: '6', icon: Briefcase, color: '#3B82F6' },
                 { label: 'Qualified Candidates', value: '124', icon: Users, color: '#8B5CF6' },
                 { label: 'Interviews Scheduled', value: '42', icon: Calendar, color: '#F59E0B' },
                 { label: 'Filtering Rate', value: 'Top 20', icon: TrendingUp, color: '#10B981' },
@@ -244,6 +244,9 @@ export default function CompanyDashboard() {
                           { name: 'AI Engineer Intern', status: 'Active', review: 'To Review', id: 1 },
                           { name: 'ML Specialist', status: 'Closed', review: 'Not Reviewed', id: 2 },
                           { name: 'Data Scientist', status: 'Closed', review: 'Reviewed', id: 3 },
+                          { name: 'Frontend Engineer', status: 'Active', review: 'To Review', id: 4 },
+                          { name: 'Backend Developer', status: 'Active', review: 'Not Reviewed', id: 5 },
+                          { name: 'QA Engineer', status: 'Closed', review: 'Reviewed', id: 6 },
                         ].map((job) => (
                           <tr key={job.id} className="hover:bg-slate-50 transition-colors">
                             <td className="px-4 sm:px-6 lg:px-7 py-4 sm:py-5 text-sm font-semibold text-slate-900">{job.name}</td>
