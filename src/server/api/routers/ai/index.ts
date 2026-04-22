@@ -183,7 +183,7 @@ export const aiRouter = createTRPCRouter({
           jobId: input.jobId,
           examSubmitted: true,
           evaluationResult: {
-            status: "COMPLETED",
+            status: { in: ["COMPLETED", "FAILED"] },
           },
         },
         include: {
@@ -194,21 +194,22 @@ export const aiRouter = createTRPCRouter({
 
       let candidates = applications
         .filter((app) => app.evaluationResult !== null)
-        .map((app) => ({
-          id: app.id,
-          name: app.fullName,
-          email: app.email,
-          appliedRole: app.job.title,
-          score: app.evaluationResult!.totalScore,
-          maxScore: app.evaluationResult!.maxScore,
-          percentage: app.evaluationResult!.percentage,
-          status: app.evaluationResult!.passed
-            ? ("PASS" as const)
-            : ("FAIL" as const),
-          evaluatedAt: app.evaluationResult!.evaluatedAt
-            .toISOString()
-            .split("T")[0] ?? "",
-        }));
+        .map((app) => {
+          const er = app.evaluationResult!;
+          const evalFailed = er.status === "FAILED";
+          return {
+            id: app.id,
+            name: app.fullName,
+            email: app.email,
+            appliedRole: app.job.title,
+            score: evalFailed ? 0 : er.totalScore,
+            maxScore: evalFailed ? 0 : er.maxScore,
+            percentage: evalFailed ? 0 : er.percentage,
+            status: evalFailed ? ("FAIL" as const) : er.passed ? ("PASS" as const) : ("FAIL" as const),
+            evaluatedAt: er.evaluatedAt?.toISOString().split("T")[0] ?? "",
+            evalFailed,
+          };
+        });
 
       // Apply status filter
       if (input.statusFilter && input.statusFilter !== "ALL") {
@@ -235,6 +236,48 @@ export const aiRouter = createTRPCRouter({
       }
 
       return candidates;
+    }),
+
+  /**
+   * All jobs — for recruiter job selector on filtered candidates page.
+   * Read-only query, does not modify any data.
+   */
+  getJobs: publicProcedure
+    .query(async ({ ctx }) => {
+      const jobs = await ctx.db.job.findMany({
+        select: { id: true, title: true, type: true, level: true },
+        orderBy: { createdAt: "desc" },
+      });
+      return jobs;
+    }),
+
+  /**
+   * Student's own evaluation history across all job applications.
+   */
+  getMyEvaluations: publicProcedure
+    .query(async ({ ctx }) => {
+      const userId = ctx.session?.user?.id;
+      if (!userId) return [];
+
+      const apps = await ctx.db.application.findMany({
+        where: {
+          userId,
+          evaluationResult: { status: "COMPLETED" },
+        },
+        include: {
+          job: true,
+          evaluationResult: true,
+        },
+        orderBy: { createdAt: "desc" },
+      });
+
+      return apps.map((app) => ({
+        applicationId: app.id,
+        jobTitle: app.job.title,
+        percentage: app.evaluationResult!.percentage,
+        passed: app.evaluationResult!.passed,
+        evaluatedAt: app.evaluationResult!.evaluatedAt.toISOString().split("T")[0] ?? "",
+      }));
     }),
 
   /**

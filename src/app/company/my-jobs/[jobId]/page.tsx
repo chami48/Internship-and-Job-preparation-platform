@@ -123,12 +123,21 @@ export default function JobDetailPage({ params }: { params: Promise<{ jobId: str
         >
           <ArrowLeft size={16} /> Back to My Job Posts
         </button>
-        <button
-          onClick={() => router.push(`/company/my-jobs/${jobId}/edit`)}
-          className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-[#1F7FB2] border border-[#1F7FB2]/30 rounded-xl hover:bg-[#EFF8FF] transition-colors"
-        >
-          <Pencil size={14} /> Edit Job
-        </button>
+        <div className="flex items-center gap-2">
+          <a
+            href={`/ai/filtered-candidates?jobId=${jobId}`}
+            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white rounded-xl transition-colors no-underline"
+            style={{ background: "linear-gradient(135deg,#0F3D5E,#2C89B8)" }}
+          >
+            🤖 View AI Candidates
+          </a>
+          <button
+            onClick={() => router.push(`/company/my-jobs/${jobId}/edit`)}
+            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-[#1F7FB2] border border-[#1F7FB2]/30 rounded-xl hover:bg-[#EFF8FF] transition-colors"
+          >
+            <Pencil size={14} /> Edit Job
+          </button>
+        </div>
       </div>
 
       <div className="mb-6 flex items-center gap-3 flex-wrap">

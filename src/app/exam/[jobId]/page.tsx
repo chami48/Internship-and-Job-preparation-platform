@@ -333,7 +333,7 @@ export default function ExamPage() {
   useEffect(() => {
     if (!examStarted) return;
     const handler = () => {
-      if (!document.fullscreenElement) {
+      if (!document.fullscreenElement && !submittedRef.current) {
         triggerViolation("FULLSCREEN_EXIT");
       }
     };
@@ -344,9 +344,9 @@ export default function ExamPage() {
   useEffect(() => {
     if (!examStarted) return;
     const onVisibility = () => {
-      if (document.hidden) triggerViolation("TAB_SWITCH");
+      if (document.hidden && !submittedRef.current) triggerViolation("TAB_SWITCH");
     };
-    const onBlur = () => triggerViolation("TAB_SWITCH");
+    const onBlur = () => { if (!submittedRef.current) triggerViolation("TAB_SWITCH"); };
     document.addEventListener("visibilitychange", onVisibility);
     window.addEventListener("blur", onBlur);
     return () => {
@@ -799,7 +799,8 @@ export default function ExamPage() {
       applicationId: appId,
       answers: formatted,
     });
-   } finally {
+
+  } finally {
   // 🔥 1. Stop camera FIRST
   stopCamera();
 
@@ -807,13 +808,17 @@ export default function ExamPage() {
   await new Promise((r) => setTimeout(r, 500));
 
   // 🔥 3. Extra force release (important for Chrome)
-  navigator.mediaDevices.getUserMedia({ video: false }).catch(() => {});
+  await navigator.mediaDevices
+    .getUserMedia({ video: false })
+    .catch(() => {});
 
   // 🔥 4. Exit fullscreen
   await exitFullscreen();
 
-  // 🔥 5. Then navigate
-  router.push("/home?submitted=true");
+  // 🔥 5. Redirect to AI evaluation
+  setTimeout(() => {
+    router.push(`/ai/evaluate?applicationId=${appId}`);
+  }, 600);
 }
 }, [appId, answers, submitExam, stopCamera, exitFullscreen, router]);
 
