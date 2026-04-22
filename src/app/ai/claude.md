@@ -116,7 +116,7 @@ Frontend for the AI Evaluation & Candidate Filtering Module is complete under `s
 3. Wire up the frontend pages to real data via tRPC
 
 The project uses **tRPC + Prisma + Next.js App Router + NextAuth JWT**. All other routers (exam, application, job, student, company) are already working. The AI router is registered in `src/server/api/root.ts` already.
-
+ 5
 AI evaluation uses **Gemini API** (not OpenAI).
 
 ---
