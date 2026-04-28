@@ -1,29 +1,135 @@
-# Create T3 App
+# 🎓 Smart Screening – Internship & Job Preparation Platform
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+Smart Screening is a web-based recruitment and preparation platform designed to streamline internship and job selection for students and companies.  
+Instead of reviewing thousands of CVs, companies can evaluate candidates through an AI-powered screening exam system.
 
-## What's next? How do I make an app with this?
+This system improves recruitment efficiency, reduces manual work, and ensures candidates are selected based on skills and performance rather than CV content alone.
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+---
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+## 🚀 Project Overview
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Drizzle](https://orm.drizzle.team)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+Smart Screening is a full-stack web application built using the **T3 Stack**.  
+It enables companies to post job or internship opportunities and automatically filter qualified candidates through an online exam evaluated using AI.
 
-## Learn More
+Key idea:
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+Students must pass an AI-evaluated screening exam before uploading their CV.
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+This ensures:
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+- Fair candidate selection
+- Reduced workload for companies
+- Faster hiring process
+- Skill-based evaluation
 
-## How do I deploy this?
+The system includes secure exam controls such as:
 
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+- Tab switching restriction
+- Copy/paste prevention
+- Browser activity monitoring
+- Face verification before exam
+- Automatic termination after multiple violations
+
+These controls help maintain exam integrity and reduce cheating.
+
+---
+
+## 🧩 System Modules
+
+The system is divided into 4 main modules.
+
+### 1. Company Management Module
+
+- Company registration and login
+- Company verification by admin
+- Create job / internship postings
+- Define job requirements
+- Set minimum exam pass mark
+- View qualified candidates
+- Schedule interviews
+- Send interview notifications
+
+---
+
+### 2. Student Management Module
+
+- Student registration and login
+- Profile management
+- View available jobs
+- Apply for internships
+- Receive interview notifications
+- Access interview preparation section
+- Attempt practice quizzes
+- View results and progress
+
+---
+
+### 3. Online Exam & Question Management Module
+
+- Create and manage question bank
+- Assign questions to jobs
+- Set exam time limits
+- Prevent re-attempts
+- Submit answers
+- Calculate exam score
+- Control CV upload permission
+
+---
+
+### 4. AI Evaluation & Candidate Filtering Module
+
+- Store model answers
+- Evaluate student answers using AI
+- Handle different but correct answers
+- Calculate final score
+- Compare score with cutoff mark
+- Mark candidates as Pass / Fail
+- Filter qualified candidates
+- Generate evaluation results
+
+---
+
+## 🛠 Tech Stack (T3 Stack)
+
+This project is built using the **T3 Stack**, which provides a modern, type-safe full-stack development environment.
+
+### Frontend
+
+- Next.js
+- React
+- TypeScript
+- Tailwind CSS
+- Shadcn UI
+
+### Backend
+
+- tRPC
+- Node.js
+- Prisma ORM
+
+### Database
+
+- LiteSQL
+
+### Authentication
+
+- NextAuth.js
+
+### AI Integration
+
+- OpenAI API
+
+### Testing
+
+- Playwright
+
+### Development Tools
+
+- pnpm
+- ESLint
+- Prettier
+
+---
+
+## 📦 Project Structure
