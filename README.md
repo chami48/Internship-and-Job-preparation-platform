@@ -151,8 +151,8 @@ Before running this project, install:
 Clone the repository:
 
 ```bash
-git clone https://github.com/your-username/smart-screening.git
-cd smart-screening
+git clone https://github.com/chami48/Internship-and-Job-preparation-platform.git
+cd Internship-and-Job-preparation-platform
 
 ## Install Dependencies
 -pnpm install
