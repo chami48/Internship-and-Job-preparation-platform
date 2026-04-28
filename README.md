@@ -132,4 +132,27 @@ This project is built using the **T3 Stack**, which provides a modern, type-safe
 
 ---
 
-## 📦 Project Structure
+
+---
+
+## ⚙️ Prerequisites
+
+Before running this project, install:
+
+- Node.js (v18 or later)
+- pnpm
+- PostgreSQL
+- Git
+
+---
+
+## 📥 Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/your-username/smart-screening.git
+cd smart-screening
+
+## Install Dependencies
+-pnpm install
