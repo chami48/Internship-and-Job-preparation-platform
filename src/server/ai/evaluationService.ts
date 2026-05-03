@@ -84,29 +84,35 @@ export async function evaluateApplication(
     // 5. Evaluate each answer
     for (const ea of examAnswers) {
       const q = ea.question;
-      const maxMarks = q.maxMarks;
+
+      const maxMarks = q.maxMarks ?? 10;
+
       let scoreAwarded: number;
       let feedback: string;
       let expectedAnswer: string;
 
       if (q.type === "MCQ") {
-        // Direct comparison — no AI needed
         expectedAnswer = q.correctKey ?? "";
+
         const isCorrect =
-          ea.answer?.trim().toUpperCase() === expectedAnswer.trim().toUpperCase();
+          ea.answer?.trim().toUpperCase() ===
+          expectedAnswer.trim().toUpperCase();
+
         scoreAwarded = isCorrect ? maxMarks : 0;
+
         feedback = isCorrect
           ? "Correct answer."
           : `Incorrect. The correct answer was ${expectedAnswer}.`;
       } else {
-        // SCENARIO — semantic evaluation via Gemini
         expectedAnswer = q.rubric ?? "";
+
         const aiResult = await evaluateScenarioAnswer({
           questionPrompt: q.prompt,
           rubric: expectedAnswer,
           studentAnswer: ea.answer ?? "",
           maxMarks,
         });
+
         scoreAwarded = aiResult.score;
         feedback = aiResult.feedback;
       }
@@ -125,7 +131,11 @@ export async function evaluateApplication(
         },
       });
 
-      questionResults.push({ questionPrompt: q.prompt, score: scoreAwarded, maxMarks });
+      questionResults.push({
+        questionPrompt: q.prompt,
+        score: scoreAwarded ?? 0,
+        maxMarks: maxMarks ?? 0,
+      });
     }
 
     // 7. Calculate totals
